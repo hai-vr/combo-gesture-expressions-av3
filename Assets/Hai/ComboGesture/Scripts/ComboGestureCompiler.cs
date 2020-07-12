@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
@@ -10,10 +9,12 @@ using VRC.SDK3.Components;
 using VRC.SDKBase;
 using Object = UnityEngine.Object;
 
-namespace Hai.GestureCombo.Scripts
+namespace Hai.ComboGesture.Scripts
 {
     public class ComboGestureCompiler : MonoBehaviour
     {
+        private const string EmptyClipPath = "Assets/Hai/ComboGesture/Hai_ComboGesture_EmptyClip.anim";
+        
         public const string HaiGestureComboParamName = "_Hai_GestureComboValue";
         private const string HaiGestureComboDisableExpressionsParamName = "_Hai_GestureComboDisableExpressions";
         private const string HaiGestureComboDisableBlinkingOverrideParamName = "_Hai_GestureComboDisableBlinkingOverride";
@@ -22,7 +23,7 @@ namespace Hai.GestureCombo.Scripts
         public const string GestureRightWeight = "GestureRightWeight";
         public const string GestureLeft = "GestureLeft";
         public const string GestureRight = "GestureRight";
-    
+
         public string activityStageName;
         public List<GestureComboStageMapper> comboLayers;
         public AnimatorController animatorController;
@@ -111,8 +112,7 @@ namespace Hai.GestureCombo.Scripts
             var emptyClip = customEmptyClip;
             if (emptyClip == null)
             {
-                emptyClip = AssetDatabase.LoadAssetAtPath<AnimationClip>(
-                    "Assets/Hai/GestureCombo/Hai_GestureCombo_EmptyClip.anim");
+                emptyClip = AssetDatabase.LoadAssetAtPath<AnimationClip>(EmptyClipPath);
             }
             if (emptyClip == null)
             {
@@ -141,7 +141,7 @@ namespace Hai.GestureCombo.Scripts
                 AssetDatabase.CreateFolder("Assets/Hai", "GestureCombo");
             }
 
-            AssetDatabase.CreateAsset(emptyClip, "Assets/Hai/GestureCombo/Hai_GestureCombo_EmptyClip.anim");
+            AssetDatabase.CreateAsset(emptyClip, EmptyClipPath);
             return emptyClip;
         }
 

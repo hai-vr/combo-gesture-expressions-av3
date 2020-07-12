@@ -1,5 +1,5 @@
 ﻿#if UNITY_EDITOR
-namespace Hai.GestureCombo.Scripts
+namespace Hai.ComboGesture.Scripts
 {
     public enum IntermediateNature
     {

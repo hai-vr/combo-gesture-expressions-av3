@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Hai.GestureCombo.Scripts
+namespace Hai.ComboGesture.Scripts
 {
     class IntermediateBlinkingCombinator
     {

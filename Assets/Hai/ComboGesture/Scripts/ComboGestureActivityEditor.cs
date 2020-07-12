@@ -3,7 +3,7 @@ using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 
-namespace Hai.GestureCombo.Scripts
+namespace Hai.ComboGesture.Scripts
 {
     [CustomEditor(typeof(ComboGestureActivity))]
     [CanEditMultipleObjects]

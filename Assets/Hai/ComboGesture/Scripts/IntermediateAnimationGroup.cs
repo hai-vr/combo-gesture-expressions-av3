@@ -1,7 +1,7 @@
 ﻿#if UNITY_EDITOR
 using UnityEngine;
 
-namespace Hai.GestureCombo.Scripts
+namespace Hai.ComboGesture.Scripts
 {
     public class IntermediateAnimationGroup
     {

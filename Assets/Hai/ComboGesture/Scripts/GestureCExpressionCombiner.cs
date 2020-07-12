@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
 
-namespace Hai.GestureCombo.Scripts
+namespace Hai.ComboGesture.Scripts
 {
     internal enum ComboNature
     {
