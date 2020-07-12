@@ -1,4 +1,6 @@
-﻿#if UNITY_EDITOR
+﻿using Hai.ComboGesture.Scripts.Components;
+
+#if UNITY_EDITOR
 namespace Hai.ComboGesture.Scripts.Internal
 {
     [System.Serializable]

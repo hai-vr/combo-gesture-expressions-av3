@@ -1,9 +1,10 @@
 ﻿#if UNITY_EDITOR
+using Hai.ComboGesture.Scripts.Components;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 
-namespace Hai.ComboGesture.Scripts
+namespace Hai.ComboGesture.Scripts.EditorUI
 {
     [CustomEditor(typeof(ComboGestureActivity))]
     [CanEditMultipleObjects]

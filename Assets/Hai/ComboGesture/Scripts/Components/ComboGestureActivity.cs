@@ -4,7 +4,7 @@ using System.Linq;
 using Hai.ComboGesture.Scripts.Internal;
 using UnityEngine;
 
-namespace Hai.ComboGesture.Scripts
+namespace Hai.ComboGesture.Scripts.Components
 {
     public class ComboGestureActivity : MonoBehaviour
     {

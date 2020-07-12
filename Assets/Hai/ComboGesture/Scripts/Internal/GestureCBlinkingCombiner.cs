@@ -1,5 +1,6 @@
 ﻿#if UNITY_EDITOR
 using System.Collections.Generic;
+using Hai.ComboGesture.Scripts.Components;
 using UnityEditor.Animations;
 
 namespace Hai.ComboGesture.Scripts.Internal

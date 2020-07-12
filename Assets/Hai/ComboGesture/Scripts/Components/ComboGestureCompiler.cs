@@ -10,7 +10,7 @@ using VRC.SDK3.Components;
 using VRC.SDKBase;
 using Object = UnityEngine.Object;
 
-namespace Hai.ComboGesture.Scripts
+namespace Hai.ComboGesture.Scripts.Components
 {
     public class ComboGestureCompiler : MonoBehaviour
     {
