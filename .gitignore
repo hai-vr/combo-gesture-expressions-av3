@@ -25,3 +25,4 @@ VRC.Udon.Serialization.OdinSerializer.csproj
 VRCSDK.ShaderStripping.csproj
 Assembly-CSharp.csproj
 Assembly-CSharp-Editor.csproj
+cfe-project.sln.DotSettings.user

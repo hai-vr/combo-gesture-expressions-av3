@@ -1,5 +1,6 @@
 ﻿#if UNITY_EDITOR
 using Hai.ComboGesture.Scripts.Components;
+using Hai.ComboGesture.Scripts.Internal;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
@@ -48,7 +49,13 @@ namespace Hai.ComboGesture.Scripts.EditorUI
             );
             if (GUILayout.Button("Create/Overwrite Animator FX GestureCombo layers"))
             {
-                ((ComboGestureCompiler) target).DoOverwriteAnimatorFxLayer();
+                var compiler = ((ComboGestureCompiler) target);
+                new ComboGestureCompilerInternal(
+                    compiler.activityStageName,
+                    compiler.comboLayers,
+                    compiler.animatorController,
+                    compiler.customEmptyClip
+                ).DoOverwriteAnimatorFxLayer();
             }
             EditorGUI.EndDisabledGroup();
         
