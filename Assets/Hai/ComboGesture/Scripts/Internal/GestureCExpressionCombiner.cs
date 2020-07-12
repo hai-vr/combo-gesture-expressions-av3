@@ -253,6 +253,6 @@ namespace Hai.ComboGesture.Scripts.Internal
             return new Vector3(x * 200, y * 70, 0);
         }
     }
+}
 
 #endif
-}

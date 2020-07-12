@@ -157,5 +157,5 @@ namespace Hai.ComboGesture.Scripts.Internal
             }
         }
     }
-#endif
 }
+#endif
