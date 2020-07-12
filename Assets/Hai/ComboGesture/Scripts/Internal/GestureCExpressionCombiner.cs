@@ -13,7 +13,7 @@ namespace Hai.ComboGesture.Scripts.Internal
         BlendLeft, BlendRight
     }
 
-    public class GestureCExpressionCombiner
+    internal class GestureCExpressionCombiner
     {
         private readonly AnimatorController _animatorController;
         private readonly AnimatorStateMachine _machine;

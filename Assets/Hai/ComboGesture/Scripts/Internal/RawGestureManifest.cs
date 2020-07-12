@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Internal
 {
-    public class RawGestureManifest
+    internal class RawGestureManifest
     {
         private List<AnimationClip> Manifest { get; }
         public List<AnimationClip> Blinking { get; }

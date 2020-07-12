@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Internal
 {
-    public class IntermediateAnimationGroup
+    internal class IntermediateAnimationGroup
     {
         public AnimationClip Posing { get; }
         public AnimationClip Resting { get; }

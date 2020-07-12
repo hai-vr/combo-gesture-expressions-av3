@@ -5,7 +5,7 @@ using UnityEditor.Animations;
 
 namespace Hai.ComboGesture.Scripts.Internal
 {
-    public class GestureCBlinkingCombiner
+    internal class GestureCBlinkingCombiner
     {
         private readonly Dictionary<IntermediateBlinkingGroup, List<BlinkingCondition>> _combinatorIntermediateToBlinking;
         private readonly string _activityStageName;

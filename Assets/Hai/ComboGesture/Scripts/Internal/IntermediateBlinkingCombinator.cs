@@ -129,7 +129,7 @@ namespace Hai.ComboGesture.Scripts.Internal
         }
     }
 
-    public abstract class BlinkingCondition
+    internal abstract class BlinkingCondition
     {
         public ComboValue Combo { get; }
         public int LayerOrdinal { get; }
@@ -140,7 +140,7 @@ namespace Hai.ComboGesture.Scripts.Internal
             LayerOrdinal = layerOrdinal;
         }
     
-        public class ActivityBoundBlinkingCondition : BlinkingCondition
+        internal class ActivityBoundBlinkingCondition : BlinkingCondition
         {
             public int StageValue { get; }
 
@@ -150,7 +150,7 @@ namespace Hai.ComboGesture.Scripts.Internal
                 StageValue = stageValue;
             }
         }
-        public class AlwaysBlinkingCondition : BlinkingCondition
+        internal class AlwaysBlinkingCondition : BlinkingCondition
         {
             public AlwaysBlinkingCondition(ComboValue combo,
                 int layerOrdinal) : base(combo, layerOrdinal)

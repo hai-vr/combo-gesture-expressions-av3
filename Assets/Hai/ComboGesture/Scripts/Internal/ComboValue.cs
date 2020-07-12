@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Hai.ComboGesture.Scripts.Internal
 {
-    public class ComboValue
+    internal class ComboValue
     {
         public int RawValue { get; }
         public int Right { get; }

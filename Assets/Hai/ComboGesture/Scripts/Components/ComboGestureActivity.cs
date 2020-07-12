@@ -48,22 +48,6 @@ namespace Hai.ComboGesture.Scripts.Components
         public AnimationClip anim77;
 
         public List<AnimationClip> blinking;
-
-        public RawGestureManifest ToManifest(AnimationClip fallbackWhen00ClipIsNull)
-        {
-            var neutral = anim00 ? anim00 : fallbackWhen00ClipIsNull;
-            return new RawGestureManifest(new[]
-            {
-                anim00, anim01, anim02, anim03, anim04, anim05, anim06, anim07,
-                anim11, anim12, anim13, anim14, anim15, anim16, anim17,
-                anim22, anim23, anim24, anim25, anim26, anim27,
-                anim33, anim34, anim35, anim36, anim37,
-                anim44, anim45, anim46, anim47,
-                anim55, anim56, anim57,
-                anim66, anim67,
-                anim77
-            }.Select(clip => clip ? clip : neutral).ToList(), blinking, transitionDuration);
-        }
     }
 }
 

@@ -131,7 +131,7 @@ namespace Hai.ComboGesture.Scripts.Internal
         }
     }
 
-    public abstract class TransitionCondition
+    internal abstract class TransitionCondition
     {
         public float TransitionDuration { get; }
         public ComboValue Combo { get; }
@@ -144,7 +144,7 @@ namespace Hai.ComboGesture.Scripts.Internal
             LayerOrdinal = layerOrdinal;
         }
     
-        public class ActivityBoundTransitionCondition : TransitionCondition
+        internal class ActivityBoundTransitionCondition : TransitionCondition
         {
             public int StageValue { get; }
 
@@ -154,7 +154,7 @@ namespace Hai.ComboGesture.Scripts.Internal
                 StageValue = stageValue;
             }
         }
-        public class AlwaysTransitionCondition : TransitionCondition
+        internal class AlwaysTransitionCondition : TransitionCondition
         {
             public AlwaysTransitionCondition(float transitionDuration, ComboValue combo,
                 int layerOrdinal) : base(transitionDuration, combo, layerOrdinal)

@@ -1,7 +1,7 @@
 ﻿#if UNITY_EDITOR
 namespace Hai.ComboGesture.Scripts.Internal
 {
-    public class IntermediateBlinkingGroup
+    internal class IntermediateBlinkingGroup
     {
         public bool Posing { get; }
         // ReSharper disable once MemberCanBePrivate.Global
