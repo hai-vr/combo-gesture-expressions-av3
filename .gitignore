@@ -6,5 +6,22 @@ Logs
 Packages
 ProjectSettings
 *.unitypackage
+Assets/Plugins
 Assets/Scenes
+Assets/Udon
+Assets/VRChat Examples
+Assets/VRCSDK
+Assets/Plugins.meta
 Assets/Scenes.meta
+Assets/Udon.meta
+Assets/VRChat Examples.meta
+Assets/VRCSDK.meta
+obj
+cfe-project.sln
+UnityEditorTests.csproj
+VRC.Udon.csproj
+VRC.Udon.Editor.csproj
+VRC.Udon.Serialization.OdinSerializer.csproj
+VRCSDK.ShaderStripping.csproj
+Assembly-CSharp.csproj
+Assembly-CSharp-Editor.csproj
