@@ -1,7 +1,7 @@
 ﻿#if UNITY_EDITOR
 using System.Collections.Generic;
 
-namespace Hai.ComboGesture.Scripts
+namespace Hai.ComboGesture.Scripts.Internal
 {
     public class ComboValue
     {

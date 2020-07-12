@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEditor.Animations;
 
-namespace Hai.ComboGesture.Scripts
+namespace Hai.ComboGesture.Scripts.Internal
 {
     public class GestureCBlinkingCombiner
     {

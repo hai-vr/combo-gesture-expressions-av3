@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace Hai.ComboGesture.Scripts
+namespace Hai.ComboGesture.Scripts.Internal
 {
     public class RawGestureManifest
     {

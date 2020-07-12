@@ -1,5 +1,5 @@
 ﻿#if UNITY_EDITOR
-namespace Hai.ComboGesture.Scripts
+namespace Hai.ComboGesture.Scripts.Internal
 {
     [System.Serializable]
     public struct GestureComboStageMapper
