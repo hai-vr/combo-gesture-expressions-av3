@@ -1,8 +1,11 @@
 ﻿#if UNITY_EDITOR
-[System.Serializable]
-public struct GestureComboStageMapper
+namespace Hai.GestureCombo.Scripts
 {
-    public ComboGestureActivity activity;
-    public int stageValue;
+    [System.Serializable]
+    public struct GestureComboStageMapper
+    {
+        public ComboGestureActivity activity;
+        public int stageValue;
+    }
 }
 #endif

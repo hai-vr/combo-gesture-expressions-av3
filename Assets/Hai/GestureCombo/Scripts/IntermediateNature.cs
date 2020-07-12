@@ -1,6 +1,9 @@
 ﻿#if UNITY_EDITOR
-public enum IntermediateNature
+namespace Hai.GestureCombo.Scripts
 {
-    Motion, Blend
+    public enum IntermediateNature
+    {
+        Motion, Blend
+    }
 }
 #endif
