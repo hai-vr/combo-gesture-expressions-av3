@@ -11,7 +11,7 @@ using static VRC.SDKBase.VRC_AnimatorTrackingControl;
 using static VRC.SDKBase.VRC_AvatarParameterDriver;
 using Object = UnityEngine.Object;
 
-public class GestureComboCompiler : MonoBehaviour
+public class ComboGestureCompiler : MonoBehaviour
 {
     public const string HaiGestureComboParamName = "_Hai_GestureComboValue";
     private const string HaiGestureComboDisableExpressionsParamName = "_Hai_GestureComboDisableExpressions";

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class GestureComboActivity : MonoBehaviour
+public class ComboGestureActivity : MonoBehaviour
 {
     public float transitionDuration = 0.1f;
     

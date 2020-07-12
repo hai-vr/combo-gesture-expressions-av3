@@ -46,26 +46,26 @@ public class GestureCBlinkingCombiner
                         {
                             var transition = restingState.AddTransition(posingState);
                             ShareBlinkingCondition(transition, blinkingCondition, nullableStageValue);
-                            transition.AddCondition(AnimatorConditionMode.Greater, threshold, GestureComboCompiler.GestureLeftWeight);
-                            transition.AddCondition(AnimatorConditionMode.Less, threshold, GestureComboCompiler.GestureRightWeight);
+                            transition.AddCondition(AnimatorConditionMode.Greater, threshold, ComboGestureCompiler.GestureLeftWeight);
+                            transition.AddCondition(AnimatorConditionMode.Less, threshold, ComboGestureCompiler.GestureRightWeight);
                         }
                         {
                             var transition = restingState.AddTransition(posingState);
                             ShareBlinkingCondition(transition, blinkingCondition, nullableStageValue);
-                            transition.AddCondition(AnimatorConditionMode.Greater, threshold, GestureComboCompiler.GestureRightWeight);
-                            transition.AddCondition(AnimatorConditionMode.Less, threshold, GestureComboCompiler.GestureLeftWeight);
+                            transition.AddCondition(AnimatorConditionMode.Greater, threshold, ComboGestureCompiler.GestureRightWeight);
+                            transition.AddCondition(AnimatorConditionMode.Less, threshold, ComboGestureCompiler.GestureLeftWeight);
                         }
                         {
                             var transition = restingState.AddTransition(posingState);
                             ShareBlinkingCondition(transition, blinkingCondition, nullableStageValue);
-                            transition.AddCondition(AnimatorConditionMode.Greater, threshold, GestureComboCompiler.GestureLeftWeight);
-                            transition.AddCondition(AnimatorConditionMode.Greater, threshold, GestureComboCompiler.GestureRightWeight);
+                            transition.AddCondition(AnimatorConditionMode.Greater, threshold, ComboGestureCompiler.GestureLeftWeight);
+                            transition.AddCondition(AnimatorConditionMode.Greater, threshold, ComboGestureCompiler.GestureRightWeight);
                         }
                         {
                             var transition = posingState.AddTransition(restingState);
                             ShareBlinkingCondition(transition, blinkingCondition, nullableStageValue);
-                            transition.AddCondition(AnimatorConditionMode.Less, threshold, GestureComboCompiler.GestureLeftWeight);
-                            transition.AddCondition(AnimatorConditionMode.Less, threshold, GestureComboCompiler.GestureRightWeight);
+                            transition.AddCondition(AnimatorConditionMode.Less, threshold, ComboGestureCompiler.GestureLeftWeight);
+                            transition.AddCondition(AnimatorConditionMode.Less, threshold, ComboGestureCompiler.GestureRightWeight);
                         }
                     }
                     else
@@ -73,30 +73,30 @@ public class GestureCBlinkingCombiner
                         {
                             var transition = restingState.AddTransition(posingState);
                             ShareBlinkingCondition(transition, blinkingCondition, nullableStageValue);
-                            transition.AddCondition(AnimatorConditionMode.Equals, 1, GestureComboCompiler.GestureLeft);
-                            transition.AddCondition(AnimatorConditionMode.NotEqual, 1, GestureComboCompiler.GestureRight);
-                            transition.AddCondition(AnimatorConditionMode.Greater, threshold, GestureComboCompiler.GestureLeftWeight);
+                            transition.AddCondition(AnimatorConditionMode.Equals, 1, ComboGestureCompiler.GestureLeft);
+                            transition.AddCondition(AnimatorConditionMode.NotEqual, 1, ComboGestureCompiler.GestureRight);
+                            transition.AddCondition(AnimatorConditionMode.Greater, threshold, ComboGestureCompiler.GestureLeftWeight);
                         }
                         {
                             var transition = posingState.AddTransition(restingState);
                             ShareBlinkingCondition(transition, blinkingCondition, nullableStageValue);
-                            transition.AddCondition(AnimatorConditionMode.Equals, 1, GestureComboCompiler.GestureLeft);
-                            transition.AddCondition(AnimatorConditionMode.NotEqual, 1, GestureComboCompiler.GestureRight);
-                            transition.AddCondition(AnimatorConditionMode.Less, threshold, GestureComboCompiler.GestureLeftWeight);
+                            transition.AddCondition(AnimatorConditionMode.Equals, 1, ComboGestureCompiler.GestureLeft);
+                            transition.AddCondition(AnimatorConditionMode.NotEqual, 1, ComboGestureCompiler.GestureRight);
+                            transition.AddCondition(AnimatorConditionMode.Less, threshold, ComboGestureCompiler.GestureLeftWeight);
                         }
                         {
                             var transition = restingState.AddTransition(posingState);
                             ShareBlinkingCondition(transition, blinkingCondition, nullableStageValue);
-                            transition.AddCondition(AnimatorConditionMode.Equals, 1, GestureComboCompiler.GestureRight);
-                            transition.AddCondition(AnimatorConditionMode.NotEqual, 1, GestureComboCompiler.GestureLeft);
-                            transition.AddCondition(AnimatorConditionMode.Greater, threshold, GestureComboCompiler.GestureRightWeight);
+                            transition.AddCondition(AnimatorConditionMode.Equals, 1, ComboGestureCompiler.GestureRight);
+                            transition.AddCondition(AnimatorConditionMode.NotEqual, 1, ComboGestureCompiler.GestureLeft);
+                            transition.AddCondition(AnimatorConditionMode.Greater, threshold, ComboGestureCompiler.GestureRightWeight);
                         }
                         {
                             var transition = posingState.AddTransition(restingState);
                             ShareBlinkingCondition(transition, blinkingCondition, nullableStageValue);
-                            transition.AddCondition(AnimatorConditionMode.Equals, 1, GestureComboCompiler.GestureRight);
-                            transition.AddCondition(AnimatorConditionMode.NotEqual, 1, GestureComboCompiler.GestureLeft);
-                            transition.AddCondition(AnimatorConditionMode.Less, threshold, GestureComboCompiler.GestureRightWeight);
+                            transition.AddCondition(AnimatorConditionMode.Equals, 1, ComboGestureCompiler.GestureRight);
+                            transition.AddCondition(AnimatorConditionMode.NotEqual, 1, ComboGestureCompiler.GestureLeft);
+                            transition.AddCondition(AnimatorConditionMode.Less, threshold, ComboGestureCompiler.GestureRightWeight);
                         }
                     }
                 }
@@ -108,7 +108,7 @@ public class GestureCBlinkingCombiner
         int? nullableStageValue)
     {
         SetupBlinkingTransition(transition);
-        transition.AddCondition(IsEqualTo, blinkingCondition.Combo.RawValue, GestureComboCompiler.HaiGestureComboParamName);
+        transition.AddCondition(IsEqualTo, blinkingCondition.Combo.RawValue, ComboGestureCompiler.HaiGestureComboParamName);
         if (nullableStageValue != null) transition.AddCondition(IsEqualTo, (int) nullableStageValue, _activityStageName);
         // transition.AddCondition(IsEqualTo, 0, GestureComboCompiler.HaiGestureComboDisableBlinkingOverrideParamName);
     }

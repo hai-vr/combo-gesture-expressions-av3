@@ -3,8 +3,8 @@ using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 
-[CustomEditor(typeof(GestureComboCompiler))]
-public class GestureComboCompilerEditor : Editor
+[CustomEditor(typeof(ComboGestureCompiler))]
+public class ComboGestureCompilerEditor : Editor
 {
     public ReorderableList comboLayersReorderableList;
     public SerializedProperty comboLayers;
@@ -45,7 +45,7 @@ public class GestureComboCompilerEditor : Editor
         );
         if (GUILayout.Button("Create/Overwrite Animator FX GestureCombo layers"))
         {
-            ((GestureComboCompiler) target).DoOverwriteAnimatorFxLayer();
+            ((ComboGestureCompiler) target).DoOverwriteAnimatorFxLayer();
         }
         EditorGUI.EndDisabledGroup();
         

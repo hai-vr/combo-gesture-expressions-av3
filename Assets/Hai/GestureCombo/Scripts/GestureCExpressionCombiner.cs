@@ -119,7 +119,7 @@ public class GestureCExpressionCombiner
     {
         var transition = _machine.AddAnyStateTransition(state);
         SetupComboTransition(transition, transitionDuration);
-        transition.AddCondition(IsEqualTo, comboRawValue, GestureComboCompiler.HaiGestureComboParamName);
+        transition.AddCondition(IsEqualTo, comboRawValue, ComboGestureCompiler.HaiGestureComboParamName);
         if (stageValue != null) transition.AddCondition(IsEqualTo, (int) stageValue, _activityStageName);
     }
 
@@ -136,7 +136,7 @@ public class GestureCExpressionCombiner
     {
         var transition = _machine.AddAnyStateTransition(state);
         SetupComboTransition(transition, transitionDuration);
-        transition.AddCondition(IsEqualTo, comboRawValue, GestureComboCompiler.HaiGestureComboParamName);
+        transition.AddCondition(IsEqualTo, comboRawValue, ComboGestureCompiler.HaiGestureComboParamName);
         transition.AddCondition(IsEqualTo, 1, clipNature == ComboNature.BlendLeft ? "GestureLeft" : "GestureRight");
         transition.AddCondition(AnimatorConditionMode.NotEqual, 1,
             clipNature == ComboNature.BlendRight ? "GestureLeft" : "GestureRight");
@@ -147,7 +147,7 @@ public class GestureCExpressionCombiner
     {
         var transition = _machine.AddAnyStateTransition(state);
         SetupComboTransition(transition, transitionDuration);
-        transition.AddCondition(IsEqualTo, comboRawValue, GestureComboCompiler.HaiGestureComboParamName);
+        transition.AddCondition(IsEqualTo, comboRawValue, ComboGestureCompiler.HaiGestureComboParamName);
         if (stageValue != null) transition.AddCondition(IsEqualTo, (int) stageValue, _activityStageName);
     }
 

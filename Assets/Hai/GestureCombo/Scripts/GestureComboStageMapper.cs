@@ -2,7 +2,7 @@
 [System.Serializable]
 public struct GestureComboStageMapper
 {
-    public GestureComboActivity activity;
+    public ComboGestureActivity activity;
     public int stageValue;
 }
 #endif

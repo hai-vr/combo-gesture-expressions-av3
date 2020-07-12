@@ -3,9 +3,9 @@ using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 
-[CustomEditor(typeof(GestureComboActivity))]
+[CustomEditor(typeof(ComboGestureActivity))]
 [CanEditMultipleObjects]
-public class GestureComboActivityEditor : Editor
+public class ComboGestureActivityEditor : Editor
 {
     public SerializedProperty anim00;
     public SerializedProperty anim01;
