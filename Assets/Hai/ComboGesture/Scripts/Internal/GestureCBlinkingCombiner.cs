@@ -115,7 +115,7 @@ namespace Hai.ComboGesture.Scripts.Internal
             // transition.AddCondition(IsEqualTo, 0, GestureComboCompiler.HaiGestureComboDisableBlinkingOverrideParamName);
         }
 
-        private void SetupBlinkingTransition(AnimatorStateTransition transition)
+        private static void SetupBlinkingTransition(AnimatorStateTransition transition)
         {
             SetupSourceTransition(transition);
         

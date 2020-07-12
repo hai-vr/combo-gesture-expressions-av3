@@ -4,6 +4,7 @@ namespace Hai.ComboGesture.Scripts.Internal
     public class IntermediateBlinkingGroup
     {
         public bool Posing { get; }
+        // ReSharper disable once MemberCanBePrivate.Global
         public bool Resting { get; }
         public IntermediateNature Nature { get; }
 
@@ -24,7 +25,7 @@ namespace Hai.ComboGesture.Scripts.Internal
             Nature = nature;
         }
 
-        protected bool Equals(IntermediateBlinkingGroup other)
+        private bool Equals(IntermediateBlinkingGroup other)
         {
             return Posing == other.Posing && Resting == other.Resting && Nature == other.Nature;
         }
@@ -33,8 +34,7 @@ namespace Hai.ComboGesture.Scripts.Internal
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((IntermediateBlinkingGroup) obj);
+            return obj.GetType() == GetType() && Equals((IntermediateBlinkingGroup) obj);
         }
 
         public override int GetHashCode()

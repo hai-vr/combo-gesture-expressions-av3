@@ -101,7 +101,7 @@ namespace Hai.ComboGesture.Scripts
         }
         private void BlinkingListElement(Rect rect, int index, bool isActive, bool isFocused)
         {        
-            SerializedProperty element = blinkingReorderableList.serializedProperty.GetArrayElementAtIndex(index);
+            var element = blinkingReorderableList.serializedProperty.GetArrayElementAtIndex(index);
 
             EditorGUI.PropertyField(
                 new Rect(rect.x, rect.y, rect.width, EditorGUIUtility.singleLineHeight), 
@@ -110,7 +110,7 @@ namespace Hai.ComboGesture.Scripts
             );
         }
 
-        private void BlinkingListHeader(Rect rect)
+        private static void BlinkingListHeader(Rect rect)
         {
             EditorGUI.LabelField(rect, "Closed eyes Animations (to disable blinking)");
         }
@@ -229,7 +229,7 @@ namespace Hai.ComboGesture.Scripts
             CreatePropertyField(anim77, "THUMBSUP on both hands", filter);
         }
 
-        private void CreatePropertyField(SerializedProperty property, string label, string filter)
+        private static void CreatePropertyField(SerializedProperty property, string label, string filter)
         {
             var isNotFiltered = filter == null;
             if (isNotFiltered || label.Contains(filter))

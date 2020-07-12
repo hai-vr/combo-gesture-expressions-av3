@@ -86,7 +86,7 @@ namespace Hai.ComboGesture.Scripts
                 .Concat(animatorController.layers.SelectMany(layer => layer.stateMachine.stateMachines).Select(machine => machine.stateMachine));
         }
 
-        private void Reap(Object[] allAssets, Type type, List<Object> existingAssets, Predicate<Object> predicate)
+        private static void Reap(Object[] allAssets, Type type, List<Object> existingAssets, Predicate<Object> predicate)
         {
             foreach (var o in allAssets)
             {
@@ -212,7 +212,7 @@ namespace Hai.ComboGesture.Scripts
                 .Populate();
         }
 
-        private void CreateTransitionWhenExpressionsAreDisabled(AnimatorStateMachine machine, AnimatorState defaultState)
+        private static void CreateTransitionWhenExpressionsAreDisabled(AnimatorStateMachine machine, AnimatorState defaultState)
         {
             var transition = machine.AddAnyStateTransition(defaultState);
             SetupDefaultTransition(transition);
@@ -262,7 +262,7 @@ namespace Hai.ComboGesture.Scripts
                 .ToList();
         }
 
-        private void CreateTransitionWhenBlinkingIsDisabled(AnimatorState from, AnimatorState to)
+        private static void CreateTransitionWhenBlinkingIsDisabled(AnimatorState from, AnimatorState to)
         {
             var transition = from.AddTransition(to);
             SetupDefaultBlinkingTransition(transition);
@@ -310,7 +310,7 @@ namespace Hai.ComboGesture.Scripts
             }
         }
 
-        private void SetupImmediateTransition(AnimatorStateTransition transition)
+        private static void SetupImmediateTransition(AnimatorStateTransition transition)
         {
             SetupCommonTransition(transition);
 
@@ -319,7 +319,7 @@ namespace Hai.ComboGesture.Scripts
             transition.canTransitionToSelf = false;
         }
 
-        private void SetupDefaultTransition(AnimatorStateTransition transition)
+        private static void SetupDefaultTransition(AnimatorStateTransition transition)
         {
             SetupCommonTransition(transition);
         
@@ -328,7 +328,7 @@ namespace Hai.ComboGesture.Scripts
             transition.canTransitionToSelf = true; // This is relevant as normal transitions may not check activity nor disabled expressions
         }
 
-        private void SetupDefaultBlinkingTransition(AnimatorStateTransition transition)
+        private static void SetupDefaultBlinkingTransition(AnimatorStateTransition transition)
         {
             SetupCommonTransition(transition);
         
@@ -396,7 +396,7 @@ namespace Hai.ComboGesture.Scripts
             // This function is a replication of AnimatorController::AddLayer(string) behavior, in order to change the weight.
             // For some reason I cannot find how to change the layer weight after it has been created.
         
-            AnimatorControllerLayer newLayer = new AnimatorControllerLayer();
+            var newLayer = new AnimatorControllerLayer();
             newLayer.name = animatorController.MakeUniqueLayerName(layerName);
             newLayer.stateMachine = new AnimatorStateMachine();
             newLayer.stateMachine.name = newLayer.name;

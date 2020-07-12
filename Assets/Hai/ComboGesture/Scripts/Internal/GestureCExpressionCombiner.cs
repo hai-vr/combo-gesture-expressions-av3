@@ -64,7 +64,7 @@ namespace Hai.ComboGesture.Scripts.Internal
             }
         }
 
-        private Vector3 ToPotentialGridPosition(TransitionCondition transitionCondition)
+        private static Vector3 ToPotentialGridPosition(TransitionCondition transitionCondition)
         {
             var positionInList = transitionCondition.LayerOrdinal;
             return GridPosition(transitionCondition.Combo.Right, positionInList * 8 + transitionCondition.Combo.Left);
@@ -164,8 +164,7 @@ namespace Hai.ComboGesture.Scripts.Internal
             return newState;
         }
 
-        private AnimatorState CreateDualBlendState(AnimationClip clip,
-            AnimationClip resting, Vector3 position)
+        private AnimatorState CreateDualBlendState(AnimationClip clip, AnimationClip resting, Vector3 position)
         {
             var clipName = clip.name + " Dual " + resting.name;
             var newState = _machine.AddState(clipName, position);
@@ -174,7 +173,7 @@ namespace Hai.ComboGesture.Scripts.Internal
             return newState;
         }
 
-        private Motion CreateBlendTree(Motion atZero, Motion atOne, string weight, string clipName,
+        private static Motion CreateBlendTree(Motion atZero, Motion atOne, string weight, string clipName,
             AnimatorController animatorController)
         {
             var blendTree = new BlendTree
@@ -186,7 +185,7 @@ namespace Hai.ComboGesture.Scripts.Internal
                 maxThreshold = 1,
                 useAutomaticThresholds = true,
                 children = new[]
-                    {new ChildMotion {motion = atZero, timeScale = 1}, new ChildMotion {motion = atOne, timeScale = 1},}
+                    {new ChildMotion {motion = atZero, timeScale = 1}, new ChildMotion {motion = atOne, timeScale = 1}}
             };
 
             RegisterBlendTreeAsAsset(animatorController, blendTree);
@@ -194,7 +193,7 @@ namespace Hai.ComboGesture.Scripts.Internal
             return blendTree;
         }
 
-        private Motion CreateDualBlendTree(Motion atZero, Motion atOne, string clipName,
+        private static Motion CreateDualBlendTree(Motion atZero, Motion atOne, string clipName,
             AnimatorController animatorController)
         {
             var blendTree = new BlendTree
@@ -224,7 +223,7 @@ namespace Hai.ComboGesture.Scripts.Internal
             }
         }
 
-        private void SetupComboTransition(AnimatorStateTransition transition, float transitionDuration)
+        private static void SetupComboTransition(AnimatorStateTransition transition, float transitionDuration)
         {
             SetupSourceTransition(transition);
 
@@ -244,8 +243,8 @@ namespace Hai.ComboGesture.Scripts.Internal
 
         private static int? GetNullableStageValue(TransitionCondition transitionCondition)
         {
-            return transitionCondition is TransitionCondition.ActivityBoundTransitionCondition
-                ? ((TransitionCondition.ActivityBoundTransitionCondition) transitionCondition).StageValue
+            return transitionCondition is TransitionCondition.ActivityBoundTransitionCondition condition
+                ? condition.StageValue
                 : (int?) null;
         }
 

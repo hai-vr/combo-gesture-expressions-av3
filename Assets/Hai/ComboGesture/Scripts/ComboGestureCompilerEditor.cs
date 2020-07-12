@@ -13,8 +13,8 @@ namespace Hai.ComboGesture.Scripts
         public SerializedProperty animatorController;
         public SerializedProperty activityStageName;
         public SerializedProperty customEmptyClip;
-    
-        void OnEnable()
+
+        private void OnEnable()
         {
             animatorController = serializedObject.FindProperty("animatorController");
             activityStageName = serializedObject.FindProperty("activityStageName");
@@ -71,7 +71,7 @@ namespace Hai.ComboGesture.Scripts
             );   
         }
 
-        private void ComboLayersListHeader(Rect rect)
+        private static void ComboLayersListHeader(Rect rect)
         {
             EditorGUI.LabelField(rect, "Gesture Combo Activities");
         }

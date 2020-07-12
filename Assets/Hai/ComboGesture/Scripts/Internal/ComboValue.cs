@@ -34,8 +34,6 @@ namespace Hai.ComboGesture.Scripts.Internal
                 return obj.RawValue;
             }
         }
-
-        public static IEqualityComparer<ComboValue> ComboComparer { get; } = new ComboEqualityComparer();
     }
 }
 #endif

@@ -26,7 +26,7 @@ namespace Hai.ComboGesture.Scripts.Internal
             Nature = nature;
         }
 
-        protected bool Equals(IntermediateAnimationGroup other)
+        private bool Equals(IntermediateAnimationGroup other)
         {
             return Equals(Posing, other.Posing) && Equals(Resting, other.Resting) && Nature == other.Nature;
         }
@@ -35,15 +35,14 @@ namespace Hai.ComboGesture.Scripts.Internal
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((IntermediateAnimationGroup) obj);
+            return obj.GetType() == GetType() && Equals((IntermediateAnimationGroup) obj);
         }
 
         public override int GetHashCode()
         {
             unchecked
             {
-                var hashCode = (Posing != null ? Posing.GetHashCode() : 0);
+                var hashCode = Posing != null ? Posing.GetHashCode() : 0;
                 hashCode = (hashCode * 397) ^ (Resting != null ? Resting.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (int) Nature;
                 return hashCode;

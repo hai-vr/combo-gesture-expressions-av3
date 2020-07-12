@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Hai.ComboGesture.Scripts.Internal
 {
-    class IntermediateBlinkingCombinator
+    internal class IntermediateBlinkingCombinator
     {
         public IntermediateBlinkingCombinator(List<ActivityManifest> activityManifests)
         {
@@ -20,7 +20,7 @@ namespace Hai.ComboGesture.Scripts.Internal
             return exhaustive
                 .Select(pair =>
                 {
-                    List<BlinkingCondition> conditions = pair.Value
+                    var conditions = pair.Value
                         .GroupBy(
                             condition => ((BlinkingCondition.ActivityBoundBlinkingCondition) condition).Combo.RawValue)
                         .SelectMany(grouping =>
@@ -110,12 +110,9 @@ namespace Hai.ComboGesture.Scripts.Internal
 
         private static AnimToBlinkingConditionEntry CreateTransitionToPossibleBlend(BlinkingCondition blinkingCondition, bool posing, bool resting)
         {
-            if (posing == resting)
-            {
-                return CreateTransitionToMotion(blinkingCondition, posing);
-            }
-
-            return new AnimToBlinkingConditionEntry(blinkingCondition, IntermediateBlinkingGroup.NewBlend(posing, resting));
+            return posing == resting
+                ? CreateTransitionToMotion(blinkingCondition, posing)
+                : new AnimToBlinkingConditionEntry(blinkingCondition, IntermediateBlinkingGroup.NewBlend(posing, resting));
         }
     }
 

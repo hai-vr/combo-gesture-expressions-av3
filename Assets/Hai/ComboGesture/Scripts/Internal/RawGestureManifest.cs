@@ -24,16 +24,6 @@ namespace Hai.ComboGesture.Scripts.Internal
             }
         }
 
-        public bool HasBlinkingAnimations()
-        {
-            return Blinking.Count > 0;
-        }
-
-        public List<AnimationClip>.Enumerator GetEnumerator()
-        {
-            return Manifest.GetEnumerator();
-        }
-    
         public AnimationClip Anim00() { return Manifest[0]; }
         public AnimationClip Anim01() { return Manifest[1]; }
         public AnimationClip Anim02() { return Manifest[2]; }

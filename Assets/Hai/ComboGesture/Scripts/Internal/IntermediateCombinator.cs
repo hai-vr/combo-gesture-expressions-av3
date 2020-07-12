@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Internal
 {
-    class IntermediateCombinator
+    internal class IntermediateCombinator
     {
         public IntermediateCombinator(List<ActivityManifest> activityManifests)
         {
@@ -21,7 +21,7 @@ namespace Hai.ComboGesture.Scripts.Internal
             return exhaustive
                 .Select(pair =>
                 {
-                    List<TransitionCondition> conditions = pair.Value
+                    var conditions = pair.Value
                         .GroupBy(
                             condition => ((TransitionCondition.ActivityBoundTransitionCondition) condition).Combo.RawValue)
                         .SelectMany(grouping =>
@@ -101,7 +101,7 @@ namespace Hai.ComboGesture.Scripts.Internal
                 CreateTransitionToMotion(NewTransition(57), manifest.Anim57()),
                 CreateTransitionToMotion(NewTransition(66), manifest.Anim66()),
                 CreateTransitionToMotion(NewTransition(67), manifest.Anim67()),
-                CreateTransitionToMotion(NewTransition(77), manifest.Anim77()),
+                CreateTransitionToMotion(NewTransition(77), manifest.Anim77())
             };
         }
 
@@ -112,12 +112,9 @@ namespace Hai.ComboGesture.Scripts.Internal
 
         private static AnimToTransitionEntry CreateTransitionToPossibleBlend(TransitionCondition transitionCondition, AnimationClip posing, AnimationClip resting)
         {
-            if (posing == resting)
-            {
-                return CreateTransitionToMotion(transitionCondition, posing);
-            }
-
-            return new AnimToTransitionEntry(transitionCondition, IntermediateAnimationGroup.NewBlend(posing, resting));
+            return posing == resting
+                ? CreateTransitionToMotion(transitionCondition, posing)
+                : new AnimToTransitionEntry(transitionCondition, IntermediateAnimationGroup.NewBlend(posing, resting));
         }
     }
 
