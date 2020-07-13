@@ -1,11 +1,10 @@
-﻿#if UNITY_EDITOR
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
 
-namespace Hai.ComboGesture.Scripts.Internal
+namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
     internal enum ComboNature
     {
@@ -255,4 +254,3 @@ namespace Hai.ComboGesture.Scripts.Internal
     }
 }
 
-#endif

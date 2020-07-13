@@ -1,10 +1,9 @@
-﻿#if UNITY_EDITOR
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace Hai.ComboGesture.Scripts.Internal
+namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
     internal class RawGestureManifest
     {
@@ -62,4 +61,3 @@ namespace Hai.ComboGesture.Scripts.Internal
         public AnimationClip Anim77() { return Manifest[35]; }
     }
 }
-#endif

@@ -1,8 +1,7 @@
-﻿#if UNITY_EDITOR
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Hai.ComboGesture.Scripts.Internal
+namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
     internal class IntermediateBlinkingCombinator
     {
@@ -158,4 +157,3 @@ namespace Hai.ComboGesture.Scripts.Internal
         }
     }
 }
-#endif

@@ -1,5 +1,4 @@
-﻿#if UNITY_EDITOR
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Hai.ComboGesture.Scripts.Components;
@@ -10,7 +9,7 @@ using VRC.SDK3.Components;
 using VRC.SDKBase;
 using Object = UnityEngine.Object;
 
-namespace Hai.ComboGesture.Scripts.Internal
+namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
     internal class ComboGestureCompilerInternal
     {
@@ -30,11 +29,11 @@ namespace Hai.ComboGesture.Scripts.Internal
         private readonly AnimatorController _animatorController;
         private readonly AnimationClip _customEmptyClip;
 
-        public ComboGestureCompilerInternal(string activityStageName, List<GestureComboStageMapper> comboLayers, AnimatorController animatorController, AnimationClip customEmptyClip)
+        public ComboGestureCompilerInternal(string activityStageName, List<GestureComboStageMapper> comboLayers, RuntimeAnimatorController animatorController, AnimationClip customEmptyClip)
         {
             _activityStageName = activityStageName;
             _comboLayers = comboLayers;
-            _animatorController = animatorController;
+            _animatorController = (AnimatorController) animatorController;
             _customEmptyClip = customEmptyClip;
         }
 
@@ -460,4 +459,3 @@ namespace Hai.ComboGesture.Scripts.Internal
         }
     }
 }
-#endif

@@ -1,7 +1,6 @@
-﻿#if UNITY_EDITOR
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace Hai.ComboGesture.Scripts.Internal
+namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
     internal class IntermediateAnimationGroup
     {
@@ -50,4 +49,4 @@ namespace Hai.ComboGesture.Scripts.Internal
         }
     }
 }
-#endif
+

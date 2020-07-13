@@ -1,14 +1,13 @@
-﻿#if UNITY_EDITOR
-using Hai.ComboGesture.Scripts.Components;
-using Hai.ComboGesture.Scripts.Internal;
+﻿using Hai.ComboGesture.Scripts.Components;
+using Hai.ComboGesture.Scripts.Editor.Internal;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 
-namespace Hai.ComboGesture.Scripts.EditorUI
+namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 {
     [CustomEditor(typeof(ComboGestureCompiler))]
-    public class ComboGestureCompilerEditor : Editor
+    public class ComboGestureCompilerEditor : UnityEditor.Editor
     {
         public ReorderableList comboLayersReorderableList;
         public SerializedProperty comboLayers;
@@ -85,4 +84,3 @@ namespace Hai.ComboGesture.Scripts.EditorUI
         }
     }
 }
-#endif

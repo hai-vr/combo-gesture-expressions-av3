@@ -1,14 +1,13 @@
-﻿#if UNITY_EDITOR
-using Hai.ComboGesture.Scripts.Components;
+﻿using Hai.ComboGesture.Scripts.Components;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 
-namespace Hai.ComboGesture.Scripts.EditorUI
+namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 {
     [CustomEditor(typeof(ComboGestureActivity))]
     [CanEditMultipleObjects]
-    public class ComboGestureActivityEditor : Editor
+    public class ComboGestureActivityEditor : UnityEditor.Editor
     {
         public SerializedProperty anim00;
         public SerializedProperty anim01;
@@ -240,4 +239,3 @@ namespace Hai.ComboGesture.Scripts.EditorUI
         }
     }
 }
-#endif

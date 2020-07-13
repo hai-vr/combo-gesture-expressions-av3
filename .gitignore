@@ -8,11 +8,13 @@ ProjectSettings
 *.unitypackage
 Assets/Plugins
 Assets/Scenes
+Assets/SerializedUdonPrograms
 Assets/Udon
 Assets/VRChat Examples
 Assets/VRCSDK
 Assets/Plugins.meta
 Assets/Scenes.meta
+Assets/SerializedUdonPrograms.meta
 Assets/Udon.meta
 Assets/VRChat Examples.meta
 Assets/VRCSDK.meta

@@ -1,9 +1,8 @@
-﻿#if UNITY_EDITOR
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace Hai.ComboGesture.Scripts.Internal
+namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
     internal class IntermediateCombinator
     {
@@ -162,4 +161,3 @@ namespace Hai.ComboGesture.Scripts.Internal
         }
     }
 }
-#endif

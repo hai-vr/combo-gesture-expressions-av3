@@ -1,5 +1,4 @@
-﻿#if UNITY_EDITOR
-namespace Hai.ComboGesture.Scripts.Internal
+﻿namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
     internal class IntermediateBlinkingGroup
     {
@@ -49,4 +48,4 @@ namespace Hai.ComboGesture.Scripts.Internal
         }
     }
 }
-#endif
+

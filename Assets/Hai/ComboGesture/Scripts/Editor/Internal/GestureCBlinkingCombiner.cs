@@ -1,8 +1,7 @@
-﻿#if UNITY_EDITOR
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEditor.Animations;
 
-namespace Hai.ComboGesture.Scripts.Internal
+namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
     internal class GestureCBlinkingCombiner
     {
@@ -140,4 +139,3 @@ namespace Hai.ComboGesture.Scripts.Internal
     }
 }
 
-#endif

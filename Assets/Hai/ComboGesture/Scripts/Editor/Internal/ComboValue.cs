@@ -1,7 +1,6 @@
-﻿#if UNITY_EDITOR
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace Hai.ComboGesture.Scripts.Internal
+namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
     internal class ComboValue
     {
@@ -36,4 +35,3 @@ namespace Hai.ComboGesture.Scripts.Internal
         }
     }
 }
-#endif

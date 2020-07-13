@@ -1,17 +1,20 @@
-﻿#if UNITY_EDITOR
-using System.Collections.Generic;
-using Hai.ComboGesture.Scripts.Internal;
-using UnityEditor.Animations;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Components
 {
-    internal class ComboGestureCompiler : MonoBehaviour
+    public class ComboGestureCompiler : MonoBehaviour
     {
         public string activityStageName;
         public List<GestureComboStageMapper> comboLayers;
-        public AnimatorController animatorController;
+        public RuntimeAnimatorController animatorController;
         public AnimationClip customEmptyClip;
     }
+    
+    [System.Serializable]
+    public struct GestureComboStageMapper
+    {
+        public ComboGestureActivity activity;
+        public int stageValue;
+    }
 }
-#endif

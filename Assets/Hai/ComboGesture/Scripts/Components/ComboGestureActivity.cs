@@ -1,5 +1,4 @@
-﻿#if UNITY_EDITOR
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Components
@@ -48,5 +47,3 @@ namespace Hai.ComboGesture.Scripts.Components
         public List<AnimationClip> blinking;
     }
 }
-
-#endif
