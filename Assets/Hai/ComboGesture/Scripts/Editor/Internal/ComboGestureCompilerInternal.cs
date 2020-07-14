@@ -118,6 +118,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             CreateParamIfNotExists(HaiGestureComboParamName, AnimatorControllerParameterType.Int);
             CreateParamIfNotExists(HaiGestureComboDisableExpressionsParamName, AnimatorControllerParameterType.Int);
             CreateParamIfNotExists(HaiGestureComboDisableBlinkingOverrideParamName, AnimatorControllerParameterType.Int);
+            
+            if (_activityStageName != "")
+            {
+                CreateParamIfNotExists(_activityStageName, AnimatorControllerParameterType.Int);
+            }
         }
 
         private AnimationClip GetOrCreateEmptyClip()
