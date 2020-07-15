@@ -8,7 +8,7 @@
 
 These write-only parameters lets you control the behavior of the *ComboGestureExpressions*.
 
-### `_Hai_GestureComboDisableExpressions`
+### `_Hai_GestureComboDisableExpressions` (Int)
 
 Allows disabling the face expressions, resetting it back to a neutral state.
 
@@ -19,7 +19,7 @@ Behavior:
 - While the value is equal to 0, face expressions will play normally according to the current Activity and Gestures.
 - When the value **becomes** equal to 1, the face expression will be set to a neutral state, and it will remain this way as long as the value remains equal to 1.
 
-### `_Hai_GestureComboDisableBlinkingOverride`
+### `_Hai_GestureComboDisableBlinkingOverride` (Int)
 
 Allows disabling blinking. This is useful if you have a puppet menu that needs to override the behavior of eyes blinking by independently triggering Animator Tracking Control behaviors for Eyes & Eyelids.
 
@@ -35,17 +35,18 @@ Behavior:
 All of the read-only internal parameters have their state derived from:
 - `GestureLeft` Animator parameter (IK Sync)
 - `GestureRight` Animator parameter (IK Sync)
-- `_Hai_GestureComboDisableExpressions` Internal write-only parameter (Not synced)
 - `_Hai_GestureComboDisableBlinkingOverride` Internal write-only parameter (Not synced)
 
 In order to make sure your avatar is synced to everyone, make sure that the write-only properties are written from a state that is naturally synced.
 
-### `_Hai_GestureComboValue`
+### `_Hai_GestureComboValue` (Int, IK frequency)
 
 Exposes one of 36 values, representing the current gesture combo. This value is derived from:
 
 - `GestureLeft` Animator parameter (IK Sync)
 - `GestureRight` Animator parameter (IK Sync)
+
+Because it is derived from IK Synced parameters, this value updates at the same rate as IK.
 
 The possible values are:
 ```
@@ -58,3 +59,23 @@ The possible values are:
                         66, 67,
                             77
 ```
+
+### `_Hai_GestureComboAreEyesClosed` (Int, IK frequency)
+
+Exposes whether the currently playing face expression's eyes are considered to be closed in the currently active Activity.
+
+This can be read from another animator layer in order to blend a hand-made blinking animation.
+Remember that it is possible to convert an Int to a Float by using two Parameter Drivers.
+
+This value is derived from:
+                                                  
+- `_Hai_GestureComboValue` Internal parameter (IK frequency)
+- `_Hai_GestureComboDisableBlinkingOverride` Internal parameter (Write-only)
+
+Because it is derived from a parameter updating at IK frequency, this value updates at the same rate as IK, and is synced as long as the Write-only internal parameter is naturally synced.
+
+The possible values are:
+- `0` when eyes are open.
+- `1` when eyes are closed.
+
+The value will cease to update if the Write-only internal property `_Hai_GestureComboDisableBlinkingOverride` is equal to 1. 

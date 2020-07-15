@@ -16,6 +16,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private const string EmptyClipPath = "Assets/Hai/ComboGesture/Hai_ComboGesture_EmptyClip.anim";
 
         internal const string HaiGestureComboParamName = "_Hai_GestureComboValue";
+        private const string HaiGestureComboAreEyesClosed = "_Hai_GestureComboAreEyesClosed";
         private const string HaiGestureComboDisableExpressionsParamName = "_Hai_GestureComboDisableExpressions";
         private const string HaiGestureComboDisableBlinkingOverrideParamName = "_Hai_GestureComboDisableBlinkingOverride";
 
@@ -118,6 +119,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             CreateParamIfNotExists(HaiGestureComboParamName, AnimatorControllerParameterType.Int);
             CreateParamIfNotExists(HaiGestureComboDisableExpressionsParamName, AnimatorControllerParameterType.Int);
             CreateParamIfNotExists(HaiGestureComboDisableBlinkingOverrideParamName, AnimatorControllerParameterType.Int);
+            CreateParamIfNotExists(HaiGestureComboAreEyesClosed, AnimatorControllerParameterType.Int);
             
             if (_activityStageName != "")
             {
@@ -257,6 +259,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             CreateTransitionWhenBlinkingIsDisabled(disableBlinking, suspend);
             CreateTransitionWhenActivityIsOutOfBounds(enableBlinking, suspend);
             CreateTransitionWhenActivityIsOutOfBounds(disableBlinking, suspend);
+            CreateInternalParameterDriverWhenEyesAreOpen(enableBlinking);
+            CreateInternalParameterDriverWhenEyesAreClosed(disableBlinking);
         
             {
                 foreach (var layer in _comboLayers)
@@ -270,6 +274,24 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         
             new GestureCBlinkingCombiner(combinator.IntermediateToBlinking, _activityStageName)
                 .Populate(enableBlinking, disableBlinking);
+        }
+
+        private static void CreateInternalParameterDriverWhenEyesAreOpen(AnimatorState enableBlinking)
+        {
+            var driver = enableBlinking.AddStateMachineBehaviour<VRCAvatarParameterDriver>();
+            driver.parameters = new List<VRC_AvatarParameterDriver.Parameter>
+            {
+                new VRC_AvatarParameterDriver.Parameter {name = HaiGestureComboAreEyesClosed, value = 0}
+            };
+        }
+
+        private static void CreateInternalParameterDriverWhenEyesAreClosed(AnimatorState disableBlinking)
+        {
+            var driver = disableBlinking.AddStateMachineBehaviour<VRCAvatarParameterDriver>();
+            driver.parameters = new List<VRC_AvatarParameterDriver.Parameter>
+            {
+                new VRC_AvatarParameterDriver.Parameter {name = HaiGestureComboAreEyesClosed, value = 1}
+            };
         }
 
         private static RawGestureManifest FromManifest(ComboGestureActivity activity, AnimationClip fallbackWhen00ClipIsNull)
