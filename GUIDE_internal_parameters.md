@@ -40,7 +40,7 @@ All of the read-only internal parameters have their state derived from:
 
 In order to make sure your avatar is synced to everyone, make sure that the write-only properties are written from a state that is naturally synced.
 
-### `__Hai_GestureComboValue`
+### `_Hai_GestureComboValue`
 
 Exposes one of 36 values, representing the current gesture combo. This value is derived from:
 
