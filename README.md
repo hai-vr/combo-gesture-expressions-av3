@@ -100,3 +100,11 @@ If you would like to add a puppet menu for use simultaneously with Avatars 3.0:
 - Design your own Animator layer so that the blend tree plays only when the value of the given *Activity Stage name*'s parameter matches.
 
 ![](https://github.com/hai-vr/combo-gesture-expressions-av3/raw/z-res-pictures/Documentation/animator-blend-tree-condition.png)
+
+### Advanced: Internal parameters
+
+A few internal parameters are exposed, allowing other Animator layers to take control over the behavior of *ComboGesturesExpressions*.
+
+These may be used to disable the logic that drives eyes blinking Animator Tracking, disable all face expressions, or read whether the current face expression is meant to close the eyes.
+
+This is an advanced and experimental feature. Head over to the [Internal Parameters guide](GUIDE_internal_parameters.md).
