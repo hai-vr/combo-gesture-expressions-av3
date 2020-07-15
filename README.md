@@ -36,6 +36,16 @@ If you wish to have multiple sets of face expressions, add additional *Combo Ges
 - Add the 36 animations for each combination of gestures, leaving some of them blank if needed.
   - Duplicate animations are allowed.
   - The folding menus lets you filter by a specific gesture.
+- Reference:
+  - *Exactly one* / *No gesture*: 🤙 (Neutral)
+  - FIST: ✊ (Fist)
+  - OPEN: ✋ (HandOpen)
+  - POINT: ☝️ (FingerPoint)
+  - PEACE: ✌️(Victory)
+  - ROCKNROLL: 🤘 (RockNRoll)
+  - GUN: 🎯👈 (HandGun)
+  - THUMBSUP: 👍 (ThumbsUp)
+  - *...on both hands*: 🙌
 
 ![](https://github.com/hai-vr/combo-gesture-expressions-av3/raw/z-res-pictures/Documentation/inspector-activity-default_illustrated.png)
 
