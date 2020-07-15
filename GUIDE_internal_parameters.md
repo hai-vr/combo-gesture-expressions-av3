@@ -19,7 +19,7 @@ Behavior:
 - While the value is equal to 0, face expressions will play normally according to the current Activity and Gestures.
 - When the value **becomes** equal to 1, the face expression will be set to a neutral state, and it will remain this way as long as the value remains equal to 1.
 
-### `__Hai_GestureComboDisableBlinkingOverride`
+### `_Hai_GestureComboDisableBlinkingOverride`
 
 Allows disabling blinking. This is useful if you have a puppet menu that needs to override the behavior of eyes blinking by independently triggering Animator Tracking Control behaviors for Eyes & Eyelids.
 
@@ -42,7 +42,7 @@ In order to make sure your avatar is synced to everyone, make sure that the writ
 
 ### `__Hai_GestureComboValue`
 
-Expose one of 36 values, representing the current gesture combo. This value is derived from:
+Exposes one of 36 values, representing the current gesture combo. This value is derived from:
 
 - `GestureLeft` Animator parameter (IK Sync)
 - `GestureRight` Animator parameter (IK Sync)
