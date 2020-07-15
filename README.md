@@ -68,3 +68,25 @@ If you want to switch between multiple sets of face expressions from the Action 
 - In *Gesture Combo Activities* list, set the number values on the right to match the menu.
 
 ![](https://github.com/hai-vr/combo-gesture-expressions-av3/raw/z-res-pictures/Documentation/inspector-compiler-multiple_illustrated.png)
+
+### Mixing with Avatars 3.0's Puppet menu
+
+*ComboGestureExpressions* was designed to combine the best of both worlds: The spontaneity of gestures, and the expressiveness of Avatars 3.0's Puppet menus.
+
+🤘 + 🕹️ = ❤️
+
+If you would like to add a puppet menu for use simultaneously with Avatars 3.0:
+
+- Follow the **"Using multiple activities" 🔼** guide above to add an additional *Gesture Combo Activity*.
+  You can switch to that activity using the expression menu whenever you want to use Puppet menus to control your face expressions.
+- Configure that *Gesture Combo Activity* with face expressions that will not conflict with your blend trees.
+  - You can also leave all animations of that *Gesture Combo Activity* blank, so that your face will only be controlled by blend trees.
+- About blend trees:
+  - It is recommended that if one animation in the blend tree changes a property, then all animations should also change that property to a default value when unused.
+  - You may need to reset the properties affected by that face expression back to defaults when switching activities.
+
+![](https://github.com/hai-vr/combo-gesture-expressions-av3/raw/z-res-pictures/Documentation/coexist-blend-tree.gif)
+
+- Design your own Animator layer so that the blend tree plays only when the value of the given *Activity Stage name*'s parameter matches.
+
+![](https://github.com/hai-vr/combo-gesture-expressions-av3/raw/z-res-pictures/Documentation/animator-blend-tree-condition.png)
