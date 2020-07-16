@@ -294,6 +294,14 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         private static RawGestureManifest FromManifest(ComboGestureActivity activity, AnimationClip fallbackWhen00ClipIsNull)
         {
+            if (activity == null)
+            {
+                return new RawGestureManifest(
+                    Enumerable.Repeat(fallbackWhen00ClipIsNull, 36).ToList(),
+                    new List<AnimationClip>(), 
+                    0.1f);
+            }
+            
             var neutral = activity.anim00 ? activity.anim00 : fallbackWhen00ClipIsNull;
             return new RawGestureManifest(new[]
             {

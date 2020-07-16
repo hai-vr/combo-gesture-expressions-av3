@@ -40,15 +40,37 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             EditorGUILayout.PropertyField(activityStageName, new GUIContent("Activity Stage name"));
             EditorGUILayout.PropertyField(customEmptyClip, new GUIContent("Custom 2-frame empty animation clip (optional)"));
             comboLayersReorderableList.DoLayoutList();
-        
+
+            var compiler = ((ComboGestureCompiler) target);
             EditorGUI.BeginDisabledGroup(
-                animatorController.objectReferenceValue == null ||
-                (activityStageName.stringValue == null || activityStageName.stringValue.Trim() == "") && comboLayers.arraySize >= 2 ||
-                comboLayers.arraySize == 0
+                ThereIsNoAnimatorController() ||
+                ThereIsNoActivity() ||
+                TheOnlyActivityIsNull() ||
+                ThereIsNoActivityNameForMultipleActivities()
             );
+
+            bool ThereIsNoAnimatorController()
+            {
+                return animatorController.objectReferenceValue == null;
+            }
+
+            bool ThereIsNoActivity()
+            {
+                return comboLayers.arraySize == 0;
+            }
+
+            bool TheOnlyActivityIsNull()
+            {
+                return comboLayers.arraySize == 1 && compiler.comboLayers[0].activity == null;
+            }
+
+            bool ThereIsNoActivityNameForMultipleActivities()
+            {
+                return comboLayers.arraySize >= 2 && (activityStageName.stringValue == null || activityStageName.stringValue.Trim() == "");
+            }
+
             if (GUILayout.Button("Create/Overwrite Animator FX GestureCombo layers"))
             {
-                var compiler = ((ComboGestureCompiler) target);
                 new ComboGestureCompilerInternal(
                     compiler.activityStageName,
                     compiler.comboLayers,

@@ -14,7 +14,7 @@ namespace Hai.ComboGesture.Scripts.Components
     [System.Serializable]
     public struct GestureComboStageMapper
     {
-        public ComboGestureActivity activity;
+        public ComboGestureActivity activity; // This can be null
         public int stageValue;
     }
 }
