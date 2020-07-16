@@ -8,14 +8,16 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly Dictionary<IntermediateBlinkingGroup, List<BlinkingCondition>> _combinatorIntermediateToBlinking;
         private readonly string _activityStageName;
         private readonly RawGestureManifest _rgm;
-        private const float WeightUpperThreshold = 0.7f;
-        private const float WeightLowerThreshold = 1f - WeightUpperThreshold;
+        private readonly float _weightUpperThreshold;
+        private readonly float _weightLowerThreshold;
         private const AnimatorConditionMode IsEqualTo = AnimatorConditionMode.Equals;
 
-        public GestureCBlinkingCombiner(Dictionary<IntermediateBlinkingGroup,List<BlinkingCondition>> combinatorIntermediateToBlinking, string activityStageName)
+        public GestureCBlinkingCombiner(Dictionary<IntermediateBlinkingGroup,List<BlinkingCondition>> combinatorIntermediateToBlinking, string activityStageName, float analogBlinkingUpperThreshold)
         {
             _combinatorIntermediateToBlinking = combinatorIntermediateToBlinking;
             _activityStageName = activityStageName;
+            _weightUpperThreshold = analogBlinkingUpperThreshold;
+            _weightLowerThreshold = 1f - _weightUpperThreshold;
         }
 
         public void Populate(AnimatorState enableBlinking, AnimatorState disableBlinking)
@@ -39,7 +41,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                     foreach (var blinkingCondition in items.Value)
                     {
                         var nullableStageValue = GetNullableStageValue(blinkingCondition);
-                        var threshold = items.Key.Posing ? WeightUpperThreshold : WeightLowerThreshold;
+                        var threshold = items.Key.Posing ? _weightUpperThreshold : _weightLowerThreshold;
                     
                         // TODO: Make this code maintainable
                         if (blinkingCondition.Combo.IsSymmetrical)

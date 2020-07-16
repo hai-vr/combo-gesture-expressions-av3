@@ -29,13 +29,15 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly List<GestureComboStageMapper> _comboLayers;
         private readonly AnimatorController _animatorController;
         private readonly AnimationClip _customEmptyClip;
+        private readonly float _analogBlinkingUpperThreshold;
 
-        public ComboGestureCompilerInternal(string activityStageName, List<GestureComboStageMapper> comboLayers, RuntimeAnimatorController animatorController, AnimationClip customEmptyClip)
+        public ComboGestureCompilerInternal(string activityStageName, List<GestureComboStageMapper> comboLayers, RuntimeAnimatorController animatorController, AnimationClip customEmptyClip, float analogBlinkingUpperThreshold)
         {
             _activityStageName = activityStageName;
             _comboLayers = comboLayers;
             _animatorController = (AnimatorController) animatorController;
             _customEmptyClip = customEmptyClip;
+            _analogBlinkingUpperThreshold = analogBlinkingUpperThreshold;
         }
 
         public void DoOverwriteAnimatorFxLayer()
@@ -270,7 +272,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 transition.AddCondition(AnimatorConditionMode.Equals, 0, HaiGestureComboDisableBlinkingOverrideParamName);
             }
         
-            new GestureCBlinkingCombiner(combinator.IntermediateToBlinking, _activityStageName)
+            new GestureCBlinkingCombiner(combinator.IntermediateToBlinking, _activityStageName, _analogBlinkingUpperThreshold)
                 .Populate(enableBlinking, disableBlinking);
         }
 

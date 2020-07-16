@@ -14,12 +14,14 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public SerializedProperty animatorController;
         public SerializedProperty activityStageName;
         public SerializedProperty customEmptyClip;
+        public SerializedProperty analogBlinkingUpperThreshold;
 
         private void OnEnable()
         {
             animatorController = serializedObject.FindProperty("animatorController");
             activityStageName = serializedObject.FindProperty("activityStageName");
             customEmptyClip = serializedObject.FindProperty("customEmptyClip");
+            analogBlinkingUpperThreshold = serializedObject.FindProperty("analogBlinkingUpperThreshold");
             comboLayers = serializedObject.FindProperty("comboLayers");
         
             // reference: https://blog.terresquall.com/2020/03/creating-reorderable-lists-in-the-unity-inspector/
@@ -32,16 +34,25 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             comboLayersReorderableList.drawHeaderCallback = ComboLayersListHeader;
         }
     
+        private bool _foldoutAdvanced;
+        
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
 
             EditorGUILayout.PropertyField(animatorController, new GUIContent("FX Animator Controller to overwrite"));
             EditorGUILayout.PropertyField(activityStageName, new GUIContent("Activity Stage name"));
-            EditorGUILayout.PropertyField(customEmptyClip, new GUIContent("Custom 2-frame empty animation clip (optional)"));
+            
+            _foldoutAdvanced = EditorGUILayout.Foldout(_foldoutAdvanced, "Advanced");
+            if (_foldoutAdvanced)
+            {
+                EditorGUILayout.PropertyField(customEmptyClip, new GUIContent("Custom 2-frame empty animation clip (optional)"));
+                EditorGUILayout.PropertyField(analogBlinkingUpperThreshold, new GUIContent("Analog fist blinking threshold", "(0: Eyes are open, 1: Eyes are closed)"));
+            }
+
             comboLayersReorderableList.DoLayoutList();
 
-            var compiler = ((ComboGestureCompiler) target);
+            var compiler = (ComboGestureCompiler) target;
             EditorGUI.BeginDisabledGroup(
                 ThereIsNoAnimatorController() ||
                 ThereIsNoActivity() ||
@@ -75,7 +86,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                     compiler.activityStageName,
                     compiler.comboLayers,
                     compiler.animatorController,
-                    compiler.customEmptyClip
+                    compiler.customEmptyClip,
+                    compiler.analogBlinkingUpperThreshold
                 ).DoOverwriteAnimatorFxLayer();
             }
             EditorGUI.EndDisabledGroup();
