@@ -262,14 +262,12 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             CreateInternalParameterDriverWhenEyesAreOpen(enableBlinking);
             CreateInternalParameterDriverWhenEyesAreClosed(disableBlinking);
         
+            foreach (var layer in _comboLayers)
             {
-                foreach (var layer in _comboLayers)
-                {
-                    var transition = suspend.AddTransition(enableBlinking);
-                    SetupDefaultTransition(transition);
-                    transition.AddCondition(AnimatorConditionMode.Equals, layer.stageValue, _activityStageName);
-                    transition.AddCondition(AnimatorConditionMode.Equals, 0, HaiGestureComboDisableBlinkingOverrideParamName);
-                }
+                var transition = suspend.AddTransition(enableBlinking);
+                SetupDefaultTransition(transition);
+                transition.AddCondition(AnimatorConditionMode.Equals, layer.stageValue, _activityStageName);
+                transition.AddCondition(AnimatorConditionMode.Equals, 0, HaiGestureComboDisableBlinkingOverrideParamName);
             }
         
             new GestureCBlinkingCombiner(combinator.IntermediateToBlinking, _activityStageName)
