@@ -158,9 +158,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 AssetDatabase.CreateFolder("Assets", "Hai");
             }
 
-            if (!AssetDatabase.IsValidFolder("Assets/Hai/GestureCombo"))
+            if (!AssetDatabase.IsValidFolder("Assets/Hai/ComboGesture"))
             {
-                AssetDatabase.CreateFolder("Assets/Hai", "GestureCombo");
+                AssetDatabase.CreateFolder("Assets/Hai", "ComboGesture");
             }
 
             AssetDatabase.CreateAsset(emptyClip, EmptyClipPath);
