@@ -15,6 +15,10 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public SerializedProperty activityStageName;
         public SerializedProperty customEmptyClip;
         public SerializedProperty analogBlinkingUpperThreshold;
+        
+        public SerializedProperty exposeDisableExpressions;
+        public SerializedProperty exposeDisableBlinkingOverride;
+        public SerializedProperty exposeAreEyesClosed;
 
         private void OnEnable()
         {
@@ -22,6 +26,11 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             activityStageName = serializedObject.FindProperty("activityStageName");
             customEmptyClip = serializedObject.FindProperty("customEmptyClip");
             analogBlinkingUpperThreshold = serializedObject.FindProperty("analogBlinkingUpperThreshold");
+            
+            exposeDisableExpressions = serializedObject.FindProperty("exposeDisableExpressions");
+            exposeDisableBlinkingOverride = serializedObject.FindProperty("exposeDisableBlinkingOverride");
+            exposeAreEyesClosed = serializedObject.FindProperty("exposeAreEyesClosed");
+            
             comboLayers = serializedObject.FindProperty("comboLayers");
         
             // reference: https://blog.terresquall.com/2020/03/creating-reorderable-lists-in-the-unity-inspector/
@@ -32,23 +41,31 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             );
             comboLayersReorderableList.drawElementCallback = ComboLayersListElement;
             comboLayersReorderableList.drawHeaderCallback = ComboLayersListHeader;
+                
+            _guideIcon16 = AssetDatabase.LoadAssetAtPath<Texture>("Assets/Hai/ComboGesture/Icons/guide-16.png");
+            _guideIcon32 = AssetDatabase.LoadAssetAtPath<Texture>("Assets/Hai/ComboGesture/Icons/guide-32.png");
         }
     
         private bool _foldoutAdvanced;
-        
+        private bool _foldoutHelp;
+        private Texture _guideIcon16;
+        private Texture _guideIcon32;
+
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
 
+            _foldoutHelp = EditorGUILayout.Foldout(_foldoutHelp, new GUIContent("Help", _guideIcon32));
+            if (_foldoutHelp)
+            {
+                if (GUILayout.Button(new GUIContent("Open guide", _guideIcon32)))
+                {
+                    Application.OpenURL("https://github.com/hai-vr/combo-gesture-expressions-av3#combo-gesture-compiler");
+                }
+            }
+
             EditorGUILayout.PropertyField(animatorController, new GUIContent("FX Animator Controller to overwrite"));
             EditorGUILayout.PropertyField(activityStageName, new GUIContent("Activity Stage name"));
-            
-            _foldoutAdvanced = EditorGUILayout.Foldout(_foldoutAdvanced, "Advanced");
-            if (_foldoutAdvanced)
-            {
-                EditorGUILayout.PropertyField(customEmptyClip, new GUIContent("Custom 2-frame empty animation clip (optional)"));
-                EditorGUILayout.PropertyField(analogBlinkingUpperThreshold, new GUIContent("Analog fist blinking threshold", "(0: Eyes are open, 1: Eyes are closed)"));
-            }
 
             comboLayersReorderableList.DoLayoutList();
 
@@ -87,11 +104,33 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                     compiler.comboLayers,
                     compiler.animatorController,
                     compiler.customEmptyClip,
-                    compiler.analogBlinkingUpperThreshold
+                    compiler.analogBlinkingUpperThreshold,
+                    (exposeDisableExpressions.boolValue ? FeatureToggles.ExposeDisableExpressions : 0)
+                    | (exposeDisableBlinkingOverride.boolValue ? FeatureToggles.ExposeDisableBlinkingOverride : 0)
+                    | (exposeAreEyesClosed.boolValue ? FeatureToggles.ExposeAreEyesClosed : 0)
                 ).DoOverwriteAnimatorFxLayer();
             }
             EditorGUI.EndDisabledGroup();
+            
+            EditorGUILayout.Space();
         
+            _foldoutAdvanced = EditorGUILayout.Foldout(_foldoutAdvanced, "Advanced");
+            if (_foldoutAdvanced)
+            {
+                EditorGUILayout.LabelField("Fine tuning", EditorStyles.boldLabel);
+                EditorGUILayout.PropertyField(customEmptyClip, new GUIContent("Custom 2-frame empty animation clip (optional)"));
+                EditorGUILayout.PropertyField(analogBlinkingUpperThreshold, new GUIContent("Analog fist blinking threshold", "(0: Eyes are open, 1: Eyes are closed)"));
+                
+                EditorGUILayout.LabelField("Internal parameters", EditorStyles.boldLabel);
+                if (GUILayout.Button(new GUIContent("Open advanced guide", _guideIcon16)))
+                {
+                    Application.OpenURL("https://github.com/hai-vr/combo-gesture-expressions-av3/blob/main/GUIDE_internal_parameters.md");
+                }
+                EditorGUILayout.PropertyField(exposeDisableExpressions, new GUIContent("Expose " + ComboGestureCompilerInternal.HaiGestureComboDisableExpressionsParamName.Substring("_Hai_GestureCombo".Length)));
+                EditorGUILayout.PropertyField(exposeDisableBlinkingOverride, new GUIContent("Expose " + ComboGestureCompilerInternal.HaiGestureComboDisableBlinkingOverrideParamName.Substring("_Hai_GestureCombo".Length)));
+                EditorGUILayout.PropertyField(exposeAreEyesClosed, new GUIContent("Expose " + ComboGestureCompilerInternal.HaiGestureComboAreEyesClosed.Substring("_Hai_GestureCombo".Length)));
+            }
+            
             serializedObject.ApplyModifiedProperties();
         }
 

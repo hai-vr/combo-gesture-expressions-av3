@@ -98,6 +98,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             );
             blinkingReorderableList.drawElementCallback = BlinkingListElement;
             blinkingReorderableList.drawHeaderCallback = BlinkingListHeader;
+            
+            _guideIcon32 = AssetDatabase.LoadAssetAtPath<Texture>("Assets/Hai/ComboGesture/Icons/guide-32.png");
         }
         private void BlinkingListElement(Rect rect, int index, bool isActive, bool isFocused)
         {        
@@ -114,7 +116,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         {
             EditorGUI.LabelField(rect, "Closed eyes Animations (to disable blinking)");
         }
-
+        
         private bool _foldoutAll = true;
         private bool _foldoutFist;
         private bool _foldoutHandopen;
@@ -123,10 +125,22 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         private bool _foldoutRocknroll;
         private bool _foldoutHandpistol;
         private bool _foldoutThumbsup;
+        
+        private bool _foldoutHelp;
+        private Texture _guideIcon32;
     
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
+            
+            _foldoutHelp = EditorGUILayout.Foldout(_foldoutHelp, new GUIContent("Help", _guideIcon32));
+            if (_foldoutHelp)
+            {
+                if (GUILayout.Button(new GUIContent("Open guide", _guideIcon32)))
+                {
+                    Application.OpenURL("https://github.com/hai-vr/combo-gesture-expressions-av3#combo-gesture-activity");
+                }
+            }
 
             _foldoutAll = EditorGUILayout.Foldout(_foldoutAll, "Show all gestures");
             if (_foldoutAll)

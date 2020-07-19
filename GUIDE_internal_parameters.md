@@ -2,6 +2,8 @@
 
 *ComboGestureExpressions* exposes a few non-synced parameters that are local to the animator.
 
+Most of these parameters are turned off by default, and must be enabled in the *Advanced* options of the *Combo Gesture Compiler*.
+
 ⚠️*Internal parameters are experimental: I cannot guarantee that the behavior for these internal parameters will remain stable in future versions of ComboGestureExpressions.*
 
 ## Write-only

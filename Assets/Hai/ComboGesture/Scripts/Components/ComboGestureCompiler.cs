@@ -10,6 +10,10 @@ namespace Hai.ComboGesture.Scripts.Components
         public RuntimeAnimatorController animatorController;
         public AnimationClip customEmptyClip;
         public float analogBlinkingUpperThreshold = 0.7f;
+        
+        public bool exposeDisableExpressions;
+        public bool exposeDisableBlinkingOverride;
+        public bool exposeAreEyesClosed;
     }
     
     [System.Serializable]

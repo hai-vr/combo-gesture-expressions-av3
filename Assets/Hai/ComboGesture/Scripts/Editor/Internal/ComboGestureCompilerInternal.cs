@@ -16,9 +16,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private const string EmptyClipPath = "Assets/Hai/ComboGesture/Hai_ComboGesture_EmptyClip.anim";
 
         internal const string HaiGestureComboParamName = "_Hai_GestureComboValue";
-        private const string HaiGestureComboAreEyesClosed = "_Hai_GestureComboAreEyesClosed";
-        private const string HaiGestureComboDisableExpressionsParamName = "_Hai_GestureComboDisableExpressions";
-        private const string HaiGestureComboDisableBlinkingOverrideParamName = "_Hai_GestureComboDisableBlinkingOverride";
+        internal const string HaiGestureComboAreEyesClosed = "_Hai_GestureComboAreEyesClosed";
+        internal const string HaiGestureComboDisableExpressionsParamName = "_Hai_GestureComboDisableExpressions";
+        internal const string HaiGestureComboDisableBlinkingOverrideParamName = "_Hai_GestureComboDisableBlinkingOverride";
 
         public const string GestureLeftWeight = "GestureLeftWeight";
         public const string GestureRightWeight = "GestureRightWeight";
@@ -30,14 +30,23 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly AnimatorController _animatorController;
         private readonly AnimationClip _customEmptyClip;
         private readonly float _analogBlinkingUpperThreshold;
+        private readonly FeatureToggles _featuresToggles;
 
-        public ComboGestureCompilerInternal(string activityStageName, List<GestureComboStageMapper> comboLayers, RuntimeAnimatorController animatorController, AnimationClip customEmptyClip, float analogBlinkingUpperThreshold)
+        public ComboGestureCompilerInternal(
+            string activityStageName,
+            List<GestureComboStageMapper> comboLayers,
+            RuntimeAnimatorController animatorController,
+            AnimationClip customEmptyClip,
+            float analogBlinkingUpperThreshold,
+            FeatureToggles featuresToggles
+        )
         {
             _activityStageName = activityStageName;
             _comboLayers = comboLayers;
             _animatorController = (AnimatorController) animatorController;
             _customEmptyClip = customEmptyClip;
             _analogBlinkingUpperThreshold = analogBlinkingUpperThreshold;
+            _featuresToggles = featuresToggles;
         }
 
         public void DoOverwriteAnimatorFxLayer()
@@ -119,9 +128,15 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             CreateParamIfNotExists("GestureLeftWeight", AnimatorControllerParameterType.Float);
             CreateParamIfNotExists("GestureRightWeight", AnimatorControllerParameterType.Float);
             CreateParamIfNotExists(HaiGestureComboParamName, AnimatorControllerParameterType.Int);
-            CreateParamIfNotExists(HaiGestureComboDisableExpressionsParamName, AnimatorControllerParameterType.Int);
-            CreateParamIfNotExists(HaiGestureComboDisableBlinkingOverrideParamName, AnimatorControllerParameterType.Int);
-            CreateParamIfNotExists(HaiGestureComboAreEyesClosed, AnimatorControllerParameterType.Int);
+            if (Feature(FeatureToggles.ExposeDisableExpressions)) {
+                CreateParamIfNotExists(HaiGestureComboDisableExpressionsParamName, AnimatorControllerParameterType.Int);
+            }
+            if (Feature(FeatureToggles.ExposeDisableBlinkingOverride)) {
+                CreateParamIfNotExists(HaiGestureComboDisableBlinkingOverrideParamName, AnimatorControllerParameterType.Int);
+            }
+            if (Feature(FeatureToggles.ExposeAreEyesClosed)) { 
+                CreateParamIfNotExists(HaiGestureComboAreEyesClosed, AnimatorControllerParameterType.Int);
+            }
             
             if (_activityStageName != "")
             {
@@ -221,7 +236,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
             var defaultState = machine.AddState("Default", GridPosition(-1, -1));
             defaultState.motion = emptyClip;
-            CreateTransitionWhenExpressionsAreDisabled(machine, defaultState);
+            if (Feature(FeatureToggles.ExposeDisableExpressions)) {
+                CreateTransitionWhenExpressionsAreDisabled(machine, defaultState);
+            }
             if (_activityStageName != "") { 
                 CreateTransitionWhenActivityIsOutOfBounds(machine, defaultState);
             }
@@ -257,19 +274,27 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
             var enableBlinking = CreateBlinkingState(machine, VRC_AnimatorTrackingControl.TrackingType.Tracking, emptyClip);
             var disableBlinking = CreateBlinkingState(machine, VRC_AnimatorTrackingControl.TrackingType.Animation, emptyClip);
-            CreateTransitionWhenBlinkingIsDisabled(enableBlinking, suspend);
-            CreateTransitionWhenBlinkingIsDisabled(disableBlinking, suspend);
+            if (Feature(FeatureToggles.ExposeDisableBlinkingOverride))
+            {
+                CreateTransitionWhenBlinkingIsDisabled(enableBlinking, suspend);
+                CreateTransitionWhenBlinkingIsDisabled(disableBlinking, suspend);
+            }
             CreateTransitionWhenActivityIsOutOfBounds(enableBlinking, suspend);
             CreateTransitionWhenActivityIsOutOfBounds(disableBlinking, suspend);
-            CreateInternalParameterDriverWhenEyesAreOpen(enableBlinking);
-            CreateInternalParameterDriverWhenEyesAreClosed(disableBlinking);
+            if (Feature(FeatureToggles.ExposeAreEyesClosed))
+            {
+                CreateInternalParameterDriverWhenEyesAreOpen(enableBlinking);
+                CreateInternalParameterDriverWhenEyesAreClosed(disableBlinking);
+            }
         
             foreach (var layer in _comboLayers)
             {
                 var transition = suspend.AddTransition(enableBlinking);
                 SetupDefaultTransition(transition);
                 transition.AddCondition(AnimatorConditionMode.Equals, layer.stageValue, _activityStageName);
-                transition.AddCondition(AnimatorConditionMode.Equals, 0, HaiGestureComboDisableBlinkingOverrideParamName);
+                if (Feature(FeatureToggles.ExposeDisableBlinkingOverride)) {
+                    transition.AddCondition(AnimatorConditionMode.Equals, 0, HaiGestureComboDisableBlinkingOverrideParamName);
+                }
             }
         
             new GestureCBlinkingCombiner(combinator.IntermediateToBlinking, _activityStageName, _analogBlinkingUpperThreshold)
@@ -472,6 +497,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
 
             _animatorController.AddLayer(newLayer);
+        }
+
+        private bool Feature(FeatureToggles feature)
+        {
+            return (_featuresToggles & feature) == feature;
         }
 
         private static Vector3 GridPosition(int x, int y)
