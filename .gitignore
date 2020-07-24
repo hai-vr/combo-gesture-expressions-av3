@@ -28,3 +28,5 @@ VRCSDK.ShaderStripping.csproj
 Assembly-CSharp.csproj
 Assembly-CSharp-Editor.csproj
 cfe-project.sln.DotSettings.user
+VRC.SDKBase.Editor.BuildPipeline.csproj
+VRC.SDKBase.Editor.ShaderStripping.csproj

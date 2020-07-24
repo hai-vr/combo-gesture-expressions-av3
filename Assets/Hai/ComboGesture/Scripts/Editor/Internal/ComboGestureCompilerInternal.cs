@@ -5,7 +5,7 @@ using Hai.ComboGesture.Scripts.Components;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
-using VRC.SDK3.Components;
+using VRC.SDK3.Avatars.Components;
 using VRC.SDKBase;
 using Object = UnityEngine.Object;
 
