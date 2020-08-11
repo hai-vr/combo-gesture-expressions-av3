@@ -31,15 +31,15 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly AnimationClip _customEmptyClip;
         private readonly float _analogBlinkingUpperThreshold;
         private readonly FeatureToggles _featuresToggles;
+        private readonly ConflictPreventionMode _compilerConflictPreventionMode;
 
-        public ComboGestureCompilerInternal(
-            string activityStageName,
+        public ComboGestureCompilerInternal(string activityStageName,
             List<GestureComboStageMapper> comboLayers,
             RuntimeAnimatorController animatorController,
             AnimationClip customEmptyClip,
             float analogBlinkingUpperThreshold,
-            FeatureToggles featuresToggles
-        )
+            FeatureToggles featuresToggles,
+            ConflictPreventionMode compilerConflictPreventionMode)
         {
             _activityStageName = activityStageName;
             _comboLayers = comboLayers;
@@ -47,6 +47,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _customEmptyClip = customEmptyClip;
             _analogBlinkingUpperThreshold = analogBlinkingUpperThreshold;
             _featuresToggles = featuresToggles;
+            _compilerConflictPreventionMode = compilerConflictPreventionMode;
         }
 
         public void DoOverwriteAnimatorFxLayer()

@@ -14,6 +14,8 @@ namespace Hai.ComboGesture.Scripts.Components
         public bool exposeDisableExpressions;
         public bool exposeDisableBlinkingOverride;
         public bool exposeAreEyesClosed;
+
+        public ConflictPreventionMode conflictPreventionMode;
     }
     
     [System.Serializable]
@@ -21,5 +23,11 @@ namespace Hai.ComboGesture.Scripts.Components
     {
         public ComboGestureActivity activity; // This can be null
         public int stageValue;
+    }
+
+    [System.Serializable]
+    public enum ConflictPreventionMode
+    {
+        WRITE_DEFAULTS, ZERO_VALUES_PER_ACTIVITY
     }
 }

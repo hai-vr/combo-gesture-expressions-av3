@@ -19,6 +19,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public SerializedProperty exposeDisableExpressions;
         public SerializedProperty exposeDisableBlinkingOverride;
         public SerializedProperty exposeAreEyesClosed;
+        
+        public SerializedProperty conflictPreventionMode;
 
         private void OnEnable()
         {
@@ -30,6 +32,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             exposeDisableExpressions = serializedObject.FindProperty("exposeDisableExpressions");
             exposeDisableBlinkingOverride = serializedObject.FindProperty("exposeDisableBlinkingOverride");
             exposeAreEyesClosed = serializedObject.FindProperty("exposeAreEyesClosed");
+            
+            conflictPreventionMode = serializedObject.FindProperty("conflictPreventionMode");
             
             comboLayers = serializedObject.FindProperty("comboLayers");
         
@@ -66,10 +70,11 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             EditorGUILayout.PropertyField(animatorController, new GUIContent("FX Animator Controller to overwrite"));
             EditorGUILayout.PropertyField(activityStageName, new GUIContent("Activity Stage name"));
+            EditorGUILayout.PropertyField(conflictPreventionMode, new GUIContent("Conflict Prevention Mode"));
 
             comboLayersReorderableList.DoLayoutList();
 
-            var compiler = (ComboGestureCompiler) target;
+            var compiler = AsCompiler();
             EditorGUI.BeginDisabledGroup(
                 ThereIsNoAnimatorController() ||
                 ThereIsNoActivity() ||
@@ -99,16 +104,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             if (GUILayout.Button("Create/Overwrite Animator FX GestureCombo layers"))
             {
-                new ComboGestureCompilerInternal(
-                    compiler.activityStageName,
-                    compiler.comboLayers,
-                    compiler.animatorController,
-                    compiler.customEmptyClip,
-                    compiler.analogBlinkingUpperThreshold,
-                    (exposeDisableExpressions.boolValue ? FeatureToggles.ExposeDisableExpressions : 0)
-                    | (exposeDisableBlinkingOverride.boolValue ? FeatureToggles.ExposeDisableBlinkingOverride : 0)
-                    | (exposeAreEyesClosed.boolValue ? FeatureToggles.ExposeAreEyesClosed : 0)
-                ).DoOverwriteAnimatorFxLayer();
+                DoGenerate();
             }
             EditorGUI.EndDisabledGroup();
             
@@ -132,6 +128,27 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             }
             
             serializedObject.ApplyModifiedProperties();
+        }
+
+        private void DoGenerate()
+        {
+            var compiler = AsCompiler();
+            new ComboGestureCompilerInternal(
+                compiler.activityStageName,
+                compiler.comboLayers,
+                compiler.animatorController,
+                compiler.customEmptyClip,
+                compiler.analogBlinkingUpperThreshold,
+                (exposeDisableExpressions.boolValue ? FeatureToggles.ExposeDisableExpressions : 0)
+                | (exposeDisableBlinkingOverride.boolValue ? FeatureToggles.ExposeDisableBlinkingOverride : 0)
+                | (exposeAreEyesClosed.boolValue ? FeatureToggles.ExposeAreEyesClosed : 0),
+                compiler.conflictPreventionMode
+            ).DoOverwriteAnimatorFxLayer();
+        }
+
+        private ComboGestureCompiler AsCompiler()
+        {
+            return (ComboGestureCompiler) target;
         }
 
         private void ComboLayersListElement(Rect rect, int index, bool isActive, bool isFocused)
