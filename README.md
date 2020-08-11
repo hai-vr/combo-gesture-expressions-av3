@@ -67,7 +67,7 @@ If you wish to have multiple sets of face expressions, add additional *Combo Ges
 
 ![](https://github.com/hai-vr/combo-gesture-expressions-av3/raw/z-res-pictures/Documentation/inspector-compiler-single.png)
 
-- Press *Create/Overwrite* to generate the layers.
+- Press *Synchronize* to generate the layers.
 
 ### Using multiple activities
 

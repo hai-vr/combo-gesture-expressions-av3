@@ -70,8 +70,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             EditorGUILayout.PropertyField(animatorController, new GUIContent("FX Animator Controller to overwrite"));
             EditorGUILayout.PropertyField(activityStageName, new GUIContent("Activity Stage name"));
-            EditorGUILayout.PropertyField(conflictPreventionMode, new GUIContent("Conflict Prevention Mode"));
-
+            
             comboLayersReorderableList.DoLayoutList();
 
             var compiler = AsCompiler();
@@ -102,7 +101,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 return comboLayers.arraySize >= 2 && (activityStageName.stringValue == null || activityStageName.stringValue.Trim() == "");
             }
 
-            if (GUILayout.Button("Create/Overwrite Animator FX GestureCombo layers"))
+            EditorGUILayout.Space();
+
+            if (GUILayout.Button("Synchronize Animator FX GestureCombo layers"))
             {
                 DoGenerate();
             }
@@ -117,6 +118,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 EditorGUILayout.PropertyField(customEmptyClip, new GUIContent("Custom 2-frame empty animation clip (optional)"));
                 EditorGUILayout.PropertyField(analogBlinkingUpperThreshold, new GUIContent("Analog fist blinking threshold", "(0: Eyes are open, 1: Eyes are closed)"));
                 
+                EditorGUILayout.Space();
+                
                 EditorGUILayout.LabelField("Internal parameters", EditorStyles.boldLabel);
                 if (GUILayout.Button(new GUIContent("Open advanced guide", _guideIcon16)))
                 {
@@ -125,6 +128,22 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 EditorGUILayout.PropertyField(exposeDisableExpressions, new GUIContent("Expose " + ComboGestureCompilerInternal.HaiGestureComboDisableExpressionsParamName.Substring("_Hai_GestureCombo".Length)));
                 EditorGUILayout.PropertyField(exposeDisableBlinkingOverride, new GUIContent("Expose " + ComboGestureCompilerInternal.HaiGestureComboDisableBlinkingOverrideParamName.Substring("_Hai_GestureCombo".Length)));
                 EditorGUILayout.PropertyField(exposeAreEyesClosed, new GUIContent("Expose " + ComboGestureCompilerInternal.HaiGestureComboAreEyesClosed.Substring("_Hai_GestureCombo".Length)));
+                
+                EditorGUILayout.Space();
+            
+                EditorGUILayout.LabelField("Animation Conflict Prevention", EditorStyles.boldLabel);
+                EditorGUILayout.PropertyField(conflictPreventionMode, new GUIContent("Mode"));
+
+                if ((ConflictPreventionMode)conflictPreventionMode.intValue == ConflictPreventionMode.WriteDefaults)
+                {
+                    EditorGUILayout.HelpBox( @"Using ""Write Defaults"" Mode will cause face expressions to conflict if your FX layer does not use ""Write Defaults"" on all layers. 
+It is recommended to use ""Generate Animations"" Mode instead.", MessageType.Error);
+                }
+                else
+                {
+                    EditorGUILayout.HelpBox( @"Animations will be generated with default values.
+Whenever an animation is modified, you will need to click Synchronize again.", MessageType.Info);
+                }
             }
             
             serializedObject.ApplyModifiedProperties();

@@ -62,7 +62,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
             ReapAnimator();
 
-            var isAssetRefreshingRequired = _compilerConflictPreventionMode == ConflictPreventionMode.ZERO_VALUES_PER_ACTIVITY;
+            var isAssetRefreshingRequired = _compilerConflictPreventionMode == ConflictPreventionMode.GenerateAnimations;
             if (isAssetRefreshingRequired)
             {
                 AssetDatabase.Refresh();
@@ -250,7 +250,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
 
             var activityManifests = CreateManifest(emptyClip);
-            if (_compilerConflictPreventionMode == ConflictPreventionMode.ZERO_VALUES_PER_ACTIVITY)
+            if (_compilerConflictPreventionMode == ConflictPreventionMode.GenerateAnimations)
             {
                 activityManifests = new AnimationNeutralizer(activityManifests).NeutralizeManifestAnimations();
             }
@@ -261,7 +261,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                     machine,
                     combinator.IntermediateToTransition,
                     _activityStageName,
-                    _compilerConflictPreventionMode == ConflictPreventionMode.WRITE_DEFAULTS
+                    _compilerConflictPreventionMode == ConflictPreventionMode.WriteDefaults
             ).Populate();
         }
         private static void CreateTransitionWhenExpressionsAreDisabled(AnimatorStateMachine machine, AnimatorState defaultState)

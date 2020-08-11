@@ -15,7 +15,7 @@ namespace Hai.ComboGesture.Scripts.Components
         public bool exposeDisableBlinkingOverride;
         public bool exposeAreEyesClosed;
 
-        public ConflictPreventionMode conflictPreventionMode;
+        public ConflictPreventionMode conflictPreventionMode = ConflictPreventionMode.GenerateAnimations;
     }
     
     [System.Serializable]
@@ -28,6 +28,6 @@ namespace Hai.ComboGesture.Scripts.Components
     [System.Serializable]
     public enum ConflictPreventionMode
     {
-        WRITE_DEFAULTS, ZERO_VALUES_PER_ACTIVITY
+        GenerateAnimations, WriteDefaults 
     }
 }
