@@ -259,8 +259,13 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
             var combinator = new IntermediateCombinator(activityManifests);
 
-            new GestureCExpressionCombiner(_animatorController, machine, combinator.IntermediateToTransition, _activityStageName)
-                .Populate();
+            new GestureCExpressionCombiner(
+                    _animatorController,
+                    machine,
+                    combinator.IntermediateToTransition,
+                    _activityStageName,
+                    _compilerConflictPreventionMode == ConflictPreventionMode.WRITE_DEFAULTS
+            ).Populate();
         }
 
         private List<ActivityManifest> NeutralizeManifestAnimations(List<ActivityManifest> activityManifests)

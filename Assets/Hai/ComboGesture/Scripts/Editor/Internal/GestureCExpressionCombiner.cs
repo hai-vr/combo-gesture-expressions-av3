@@ -17,13 +17,15 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly AnimatorStateMachine _machine;
         private readonly Dictionary<IntermediateAnimationGroup, List<TransitionCondition>> _intermediateToCombo;
         private readonly string _activityStageName;
+        private readonly bool _shouldWriteDefaults;
 
         public GestureCExpressionCombiner(AnimatorController animatorController, AnimatorStateMachine machine,
-            Dictionary<IntermediateAnimationGroup, List<TransitionCondition>> intermediateToCombo, string activityStageName)
+            Dictionary<IntermediateAnimationGroup, List<TransitionCondition>> intermediateToCombo, string activityStageName, bool shouldWriteDefaults)
         {
             _animatorController = animatorController;
             _machine = machine;
             _activityStageName = activityStageName;
+            _shouldWriteDefaults = shouldWriteDefaults;
             _intermediateToCombo = intermediateToCombo;
         }
 
@@ -126,7 +128,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         {
             var newState = _machine.AddState(clip.name, gridPosition);
             newState.motion = clip;
-            newState.writeDefaultValues = true;
+            newState.writeDefaultValues = _shouldWriteDefaults;
             return newState;
         }
 
@@ -159,7 +161,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             newState.motion = CreateBlendTree(resting, clip,
                 clipNature == ComboNature.BlendLeft ? "GestureLeftWeight" : "GestureRightWeight", clipName,
                 _animatorController);
-            newState.writeDefaultValues = true;
+            newState.writeDefaultValues = _shouldWriteDefaults;
             return newState;
         }
 
@@ -168,7 +170,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             var clipName = clip.name + " Dual " + resting.name;
             var newState = _machine.AddState(clipName, position);
             newState.motion = CreateDualBlendTree(resting, clip, clipName, _animatorController);
-            newState.writeDefaultValues = true;
+            newState.writeDefaultValues = _shouldWriteDefaults;
             return newState;
         }
 
