@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security;
 using UnityEngine;
+using UnityEngine.Experimental.UIElements;
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
@@ -59,5 +61,10 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         public AnimationClip Anim66() { return Manifest[33]; }
         public AnimationClip Anim67() { return Manifest[34]; }
         public AnimationClip Anim77() { return Manifest[35]; }
+
+        public IEnumerable<AnimationClip> AnimationClips()
+        {
+            return (IEnumerable<AnimationClip>) Manifest;
+        }
     }
 }
