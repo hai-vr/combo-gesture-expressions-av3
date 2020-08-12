@@ -57,13 +57,12 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             {
                 var neutralizedAnimation = CopyAndNeutralize(animationClip, allAnimatedCurveKeys);
                 AssetDatabase.AddObjectToAsset(neutralizedAnimation, assetContainer);
-                AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(neutralizedAnimation));
 
                 remapping.Add(animationClip, neutralizedAnimation);
             }
 
             AssetDatabase.SaveAssets();
-            AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(assetContainer));
+            AssetDatabase.Refresh();
 
             return remapping;
         }

@@ -252,6 +252,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             var activityManifests = CreateManifest(emptyClip);
             if (_compilerConflictPreventionMode == ConflictPreventionMode.GenerateAnimations)
             {
+                EditorUtility.DisplayProgressBar("GestureCombo", "Generating animations", 0f);
                 activityManifests = new AnimationNeutralizer(activityManifests).NeutralizeManifestAnimations();
             }
             var combinator = new IntermediateCombinator(activityManifests);
