@@ -46,6 +46,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                     case IntermediateNature.Blend:
                         ForBlend(transitionConditions, intermediateAnimationGroup);
                         break;
+                    case IntermediateNature.TripleBlend:
+                        ForBlend(transitionConditions, intermediateAnimationGroup);
+                        break;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
@@ -85,7 +88,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                     if (dualBlendState == null)
                     {
                         dualBlendState = CreateDualBlendState(intermediateAnimationGroup.Posing,
-                            intermediateAnimationGroup.Resting, ToPotentialGridPosition(transitionCondition));
+                            intermediateAnimationGroup.Resting, ToPotentialGridPosition(transitionCondition),
+                            intermediateAnimationGroup.PosingLeft, intermediateAnimationGroup.PosingRight);
                     }
 
                     CreateDualTransition(nullableTransition, transitionCondition.Combo.RawValue, dualBlendState,
@@ -165,11 +169,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             return newState;
         }
 
-        private AnimatorState CreateDualBlendState(AnimationClip clip, AnimationClip resting, Vector3 position)
+        private AnimatorState CreateDualBlendState(AnimationClip clip, AnimationClip resting, Vector3 position, AnimationClip posingLeft, AnimationClip posingRight)
         {
             var clipName = clip.name + " Dual " + resting.name;
             var newState = _machine.AddState(clipName, position);
-            newState.motion = CreateDualBlendTree(resting, clip, clipName, _animatorController);
+            newState.motion = CreateDualBlendTree(resting, clip, posingLeft, posingRight, clipName, _animatorController);
             newState.writeDefaultValues = _shouldWriteDefaults;
             return newState;
         }
@@ -194,21 +198,36 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             return blendTree;
         }
 
-        private static Motion CreateDualBlendTree(Motion atZero, Motion atOne, string clipName,
+        private static Motion CreateDualBlendTree(Motion atZero, Motion atOne, Motion atLeft, Motion atRight, string clipName,
             AnimatorController animatorController)
         {
+            ChildMotion[] motions;
+            if (atOne == atLeft && atOne == atRight)
+            {
+                motions = new[]
+                {
+                    new ChildMotion {motion = atZero, timeScale = 1, position = Vector2.zero},
+                    new ChildMotion {motion = atOne, timeScale = 1, position = Vector2.right},
+                    new ChildMotion {motion = atOne, timeScale = 1, position = Vector2.up},
+                };
+            }
+            else
+            {
+                motions = new[]
+                {
+                    new ChildMotion {motion = atZero, timeScale = 1, position = Vector2.zero},
+                    new ChildMotion {motion = atLeft, timeScale = 1, position = Vector2.right},
+                    new ChildMotion {motion = atRight, timeScale = 1, position = Vector2.up},
+                    new ChildMotion {motion = atOne, timeScale = 1, position = Vector2.right + Vector2.up},
+                };
+            }
             var blendTree = new BlendTree
             {
                 name = "autoBT_" + clipName,
                 blendParameter = "GestureLeftWeight",
                 blendParameterY = "GestureRightWeight",
                 blendType = BlendTreeType.FreeformDirectional2D,
-                children = new[]
-                {
-                    new ChildMotion {motion = atZero, timeScale = 1, position = Vector2.zero},
-                    new ChildMotion {motion = atOne, timeScale = 1, position = Vector2.right},
-                    new ChildMotion {motion = atOne, timeScale = 1, position = Vector2.up}
-                }
+                children = motions
             };
 
             RegisterBlendTreeAsAsset(animatorController, blendTree);

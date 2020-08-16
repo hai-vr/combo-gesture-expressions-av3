@@ -45,6 +45,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public SerializedProperty anim66;
         public SerializedProperty anim67;
         public SerializedProperty anim77;
+        public SerializedProperty anim11_L;
+        public SerializedProperty anim11_R;
     
         public SerializedProperty transitionDuration;
     
@@ -89,6 +91,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             anim66 = serializedObject.FindProperty("anim66");
             anim67 = serializedObject.FindProperty("anim67");
             anim77 = serializedObject.FindProperty("anim77");
+            anim11_L = serializedObject.FindProperty("anim11_L");
+            anim11_R = serializedObject.FindProperty("anim11_R");
         
             // reference: https://blog.terresquall.com/2020/03/creating-reorderable-lists-in-the-unity-inspector/
             blinkingReorderableList = new ReorderableList(
@@ -214,6 +218,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             CreatePropertyField(anim06, "Exactly one GUN", filter);
             CreatePropertyField(anim07, "Exactly one THUMBSUP", filter);
             CreatePropertyField(anim11, "FIST on both hands", filter);
+            CreatePropertyField(anim11_L, "  - Left FIST only", filter);
+            CreatePropertyField(anim11_R, "  - Right FIST only", filter);
             CreatePropertyField(anim12, "FIST and OPEN", filter);
             CreatePropertyField(anim13, "FIST and POINT", filter);
             CreatePropertyField(anim14, "FIST and PEACE", filter);

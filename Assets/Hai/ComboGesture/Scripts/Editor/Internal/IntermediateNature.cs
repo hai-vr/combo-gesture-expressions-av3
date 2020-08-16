@@ -2,6 +2,6 @@
 {
     public enum IntermediateNature
     {
-        Motion, Blend
+        Motion, Blend, TripleBlend
     }
 }

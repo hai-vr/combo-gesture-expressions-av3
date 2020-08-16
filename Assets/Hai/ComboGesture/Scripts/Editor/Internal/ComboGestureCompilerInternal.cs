@@ -339,7 +339,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             if (activity == null)
             {
                 return new RawGestureManifest(
-                    Enumerable.Repeat(fallbackWhen00ClipIsNull, 36).ToList(),
+                    Enumerable.Repeat(fallbackWhen00ClipIsNull, 36 + 2).ToList(),
                     new List<AnimationClip>(), 
                     0.1f);
             }
@@ -354,7 +354,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 activity.anim44, activity.anim45, activity.anim46, activity.anim47,
                 activity.anim55, activity.anim56, activity.anim57,
                 activity.anim66, activity.anim67,
-                activity.anim77
+                activity.anim77,
+                //
+                activity.anim11_L == null ? activity.anim11 : activity.anim11_L, activity.anim11_R == null ? activity.anim11 : activity.anim11_R
             }.Select(clip => clip ? clip : neutral).ToList(), activity.blinking, activity.transitionDuration);
         }
 

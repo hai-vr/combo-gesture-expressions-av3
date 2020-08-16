@@ -43,6 +43,8 @@ namespace Hai.ComboGesture.Scripts.Components
         public AnimationClip anim66;
         public AnimationClip anim67;
         public AnimationClip anim77;
+        public AnimationClip anim11_L;
+        public AnimationClip anim11_R;
 
         public List<AnimationClip> blinking;
     }

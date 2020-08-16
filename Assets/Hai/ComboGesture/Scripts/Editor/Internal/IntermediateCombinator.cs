@@ -73,7 +73,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 CreateTransitionToMotion(NewTransition(5), manifest.Anim05()),
                 CreateTransitionToMotion(NewTransition(6), manifest.Anim06()),
                 CreateTransitionToMotion(NewTransition(7), manifest.Anim07()),
-                CreateTransitionToPossibleBlend(NewTransition(11), manifest.Anim11(), manifest.Anim00()),
+                CreateTransitionToPossibleTripleBlend(NewTransition(11), manifest.Anim11(), manifest.Anim00(), manifest.Anim11_L(), manifest.Anim11_R()),
                 CreateTransitionToPossibleBlend(NewTransition(12), manifest.Anim12(), manifest.Anim02()),
                 CreateTransitionToPossibleBlend(NewTransition(13), manifest.Anim13(), manifest.Anim03()),
                 CreateTransitionToPossibleBlend(NewTransition(14), manifest.Anim14(), manifest.Anim04()),
@@ -114,6 +114,13 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             return posing == resting
                 ? CreateTransitionToMotion(transitionCondition, posing)
                 : new AnimToTransitionEntry(transitionCondition, IntermediateAnimationGroup.NewBlend(posing, resting));
+        }
+
+        private static AnimToTransitionEntry CreateTransitionToPossibleTripleBlend(TransitionCondition transitionCondition, AnimationClip posingBoth, AnimationClip resting, AnimationClip posingLeft, AnimationClip posingRight)
+        {
+            return posingBoth == resting
+                ? CreateTransitionToMotion(transitionCondition, posingBoth)
+                : new AnimToTransitionEntry(transitionCondition, IntermediateAnimationGroup.NewTripleBlend(posingBoth, resting, posingLeft, posingRight));
         }
     }
 

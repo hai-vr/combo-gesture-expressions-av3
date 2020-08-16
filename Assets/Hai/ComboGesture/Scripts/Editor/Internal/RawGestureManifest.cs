@@ -61,6 +61,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         public AnimationClip Anim66() { return Manifest[33]; }
         public AnimationClip Anim67() { return Manifest[34]; }
         public AnimationClip Anim77() { return Manifest[35]; }
+        //
+        public AnimationClip Anim11_L() { return Manifest[36]; }
+        public AnimationClip Anim11_R() { return Manifest[37]; }
 
         public IEnumerable<AnimationClip> AnimationClips()
         {
