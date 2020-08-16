@@ -6,7 +6,7 @@ namespace Hai.ComboGesture.Scripts.Components
     public class ComboGestureActivity : MonoBehaviour
     {
         public float transitionDuration = 0.1f;
-    
+
         public AnimationClip anim00;
         public AnimationClip anim01;
         public AnimationClip anim02;
@@ -47,5 +47,27 @@ namespace Hai.ComboGesture.Scripts.Components
         public AnimationClip anim11_R;
 
         public List<AnimationClip> blinking;
+
+        public ComboGesturePreviewSetup previewSetup;
+        public bool editorLegacyFoldout;
+        public bool editorTool;
+        public AnimationClip[] editorArbitraryAnimations;
+
+        public IEnumerable<AnimationClip> OrderedAnimations()
+        {
+            return new[]
+            {
+                anim00, anim01, anim02, anim03, anim04, anim05, anim06, anim07,
+                anim11, anim12, anim13, anim14, anim15, anim16, anim17,
+                anim22, anim23, anim24, anim25, anim26, anim27,
+                anim33, anim34, anim35, anim36, anim37,
+                anim44, anim45, anim46, anim47,
+                anim55, anim56, anim57,
+                anim66, anim67,
+                anim77,
+                //
+                anim11_L == null ? anim11 : anim11_L, anim11_R == null ? anim11 : anim11_R
+            };
+        }
     }
 }

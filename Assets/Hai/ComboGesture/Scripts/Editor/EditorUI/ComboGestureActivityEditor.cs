@@ -47,9 +47,12 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public SerializedProperty anim77;
         public SerializedProperty anim11_L;
         public SerializedProperty anim11_R;
-    
+
         public SerializedProperty transitionDuration;
-    
+
+        public SerializedProperty previewSetup;
+        public SerializedProperty editorLegacyFoldout;
+
         public ReorderableList blinkingReorderableList;
 
         private void OnEnable()
@@ -93,7 +96,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             anim77 = serializedObject.FindProperty("anim77");
             anim11_L = serializedObject.FindProperty("anim11_L");
             anim11_R = serializedObject.FindProperty("anim11_R");
-        
+            previewSetup = serializedObject.FindProperty("previewSetup");
+            editorLegacyFoldout = serializedObject.FindProperty("editorLegacyFoldout");
+
             // reference: https://blog.terresquall.com/2020/03/creating-reorderable-lists-in-the-unity-inspector/
             blinkingReorderableList = new ReorderableList(
                 serializedObject,
@@ -102,15 +107,15 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             );
             blinkingReorderableList.drawElementCallback = BlinkingListElement;
             blinkingReorderableList.drawHeaderCallback = BlinkingListHeader;
-            
+
             _guideIcon32 = AssetDatabase.LoadAssetAtPath<Texture>("Assets/Hai/ComboGesture/Icons/guide-32.png");
         }
         private void BlinkingListElement(Rect rect, int index, bool isActive, bool isFocused)
-        {        
+        {
             var element = blinkingReorderableList.serializedProperty.GetArrayElementAtIndex(index);
 
             EditorGUI.PropertyField(
-                new Rect(rect.x, rect.y, rect.width, EditorGUIUtility.singleLineHeight), 
+                new Rect(rect.x, rect.y, rect.width, EditorGUIUtility.singleLineHeight),
                 element,
                 GUIContent.none
             );
@@ -120,7 +125,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         {
             EditorGUI.LabelField(rect, "Closed eyes Animations (to disable blinking)");
         }
-        
+
         private bool _foldoutAll = true;
         private bool _foldoutFist;
         private bool _foldoutHandopen;
@@ -129,14 +134,14 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         private bool _foldoutRocknroll;
         private bool _foldoutHandpistol;
         private bool _foldoutThumbsup;
-        
+
         private bool _foldoutHelp;
         private Texture _guideIcon32;
-    
+
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
-            
+
             _foldoutHelp = EditorGUILayout.Foldout(_foldoutHelp, new GUIContent("Help", _guideIcon32));
             if (_foldoutHelp)
             {
@@ -146,66 +151,103 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 }
             }
 
+            EditorGUILayout.Separator();
+            EditorGUI.BeginDisabledGroup(serializedObject.isEditingMultipleObjects);
+            if (GUILayout.Button(new GUIContent("Open editor")))
+            {
+                var window = EditorWindow.GetWindow<CgeEditorWindow>();
+                window.titleContent = new GUIContent("CGE/" + serializedObject.targetObject.name);
+                window.activity = (ComboGestureActivity)serializedObject.targetObject;
+                window.Show();
+            }
+
+            if (serializedObject.isEditingMultipleObjects)
+            {
+                EditorGUILayout.HelpBox("Editor window is not available in multi-editing.", MessageType.Info);
+            }
+            EditorGUI.EndDisabledGroup();
+            EditorGUILayout.Separator();
+
+            if (!serializedObject.isEditingMultipleObjects) {
+                editorLegacyFoldout.boolValue = EditorGUILayout.Foldout(editorLegacyFoldout.boolValue, "Legacy editor");
+            }
+            else
+            {
+                GUILayout.Label("Legacy editor / Multi editing", EditorStyles.boldLabel);
+            }
+
+            if (serializedObject.isEditingMultipleObjects || editorLegacyFoldout.boolValue)
+            {
+                LegacyEditor();
+            }
+
+            serializedObject.ApplyModifiedProperties();
+        }
+
+        private void LegacyEditor()
+        {
             _foldoutAll = EditorGUILayout.Foldout(_foldoutAll, "Show all gestures");
             if (_foldoutAll)
             {
                 EditorGUILayout.PropertyField(anim00, new GUIContent("No gesture"));
                 WhenFoldoutAll(null);
             }
-        
+
             _foldoutFist = EditorGUILayout.Foldout(_foldoutFist, "Show FIST gestures");
             if (_foldoutFist)
             {
                 WhenFoldoutAll("FIST");
             }
-        
+
             _foldoutHandopen = EditorGUILayout.Foldout(_foldoutHandopen, "Show OPEN gestures");
             if (_foldoutHandopen)
             {
                 WhenFoldoutAll("OPEN");
             }
-        
+
             _foldoutFingerpoint = EditorGUILayout.Foldout(_foldoutFingerpoint, "Show POINT gestures");
             if (_foldoutFingerpoint)
             {
                 WhenFoldoutAll("POINT");
             }
-        
+
             _foldoutVictory = EditorGUILayout.Foldout(_foldoutVictory, "Show PEACE gestures");
             if (_foldoutVictory)
             {
                 WhenFoldoutAll("PEACE");
             }
-        
+
             _foldoutRocknroll = EditorGUILayout.Foldout(_foldoutRocknroll, "Show ROCKNROLL gestures");
             if (_foldoutRocknroll)
             {
                 WhenFoldoutAll("ROCKNROLL");
             }
-        
+
             _foldoutHandpistol = EditorGUILayout.Foldout(_foldoutHandpistol, "Show GUN gestures");
             if (_foldoutHandpistol)
             {
                 WhenFoldoutAll("GUN");
             }
-        
+
             _foldoutThumbsup = EditorGUILayout.Foldout(_foldoutThumbsup, "Show THUMBSUP gestures");
             if (_foldoutThumbsup)
             {
                 WhenFoldoutAll("THUMBSUP");
             }
-        
+
             EditorGUILayout.PropertyField(anim00, new GUIContent("No gesture"));
-        
+
             EditorGUILayout.Separator();
-        
+
             blinkingReorderableList.DoLayoutList();
-        
+
             EditorGUILayout.Separator();
-        
+
             EditorGUILayout.PropertyField(transitionDuration, new GUIContent("Transition duration (s)"));
 
-            serializedObject.ApplyModifiedProperties();
+            if (serializedObject.isEditingMultipleObjects) {
+                EditorGUILayout.PropertyField(previewSetup, new GUIContent("Preview setup"));
+            }
         }
 
         private void WhenFoldoutAll(string filter)
