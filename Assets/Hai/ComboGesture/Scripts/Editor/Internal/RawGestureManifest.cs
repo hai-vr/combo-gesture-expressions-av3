@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security;
+using Hai.ComboGesture.Scripts.Components;
 using UnityEngine;
-using UnityEngine.Experimental.UIElements;
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
@@ -13,7 +12,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         public List<AnimationClip> Blinking { get; }
         public float TransitionDuration { get; }
 
-        public RawGestureManifest(List<AnimationClip> manifest, List<AnimationClip> blinking, float transitionDuration)
+        private RawGestureManifest(List<AnimationClip> manifest, List<AnimationClip> blinking, float transitionDuration)
         {
             Manifest = manifest;
             Blinking = blinking.Intersect(manifest).ToList();
@@ -23,6 +22,41 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             {
                 throw new ArgumentException();
             }
+        }
+
+        public static RawGestureManifest FromActivity(ComboGestureActivity activity, AnimationClip fallbackWhen00ClipIsNull)
+        {
+            var neutral = activity.anim00 ? activity.anim00 : fallbackWhen00ClipIsNull;
+            return new RawGestureManifest(new[]
+            {
+                activity.anim00, activity.anim01, activity.anim02, activity.anim03, activity.anim04, activity.anim05, activity.anim06, activity.anim07,
+                activity.anim11, activity.anim12, activity.anim13, activity.anim14, activity.anim15, activity.anim16, activity.anim17,
+                activity.anim22, activity.anim23, activity.anim24, activity.anim25, activity.anim26, activity.anim27,
+                activity.anim33, activity.anim34, activity.anim35, activity.anim36, activity.anim37,
+                activity.anim44, activity.anim45, activity.anim46, activity.anim47,
+                activity.anim55, activity.anim56, activity.anim57,
+                activity.anim66, activity.anim67,
+                activity.anim77,
+                //
+                activity.anim11_L == null ? activity.anim11 : activity.anim11_L, activity.anim11_R == null ? activity.anim11 : activity.anim11_R
+            }.Select(clip => clip ? clip : neutral).ToList(), activity.blinking, activity.transitionDuration);
+        }
+
+        public static RawGestureManifest AllSlotsFittedWithSameClip(AnimationClip clip)
+        {
+            return new RawGestureManifest(
+                Enumerable.Repeat(clip, 36 + 2).ToList(),
+                new List<AnimationClip>(),
+                0.1f);
+        }
+
+        public RawGestureManifest NewFromRemappedAnimations(Dictionary<AnimationClip, AnimationClip> remapping)
+        {
+            return new RawGestureManifest(
+                AnimationClips().Select(clip => remapping[clip]).ToList(),
+                Blinking.Select(clip => remapping[clip]).ToList(),
+                TransitionDuration
+            );
         }
 
         public AnimationClip Anim00() { return Manifest[0]; }

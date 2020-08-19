@@ -339,28 +339,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         private static RawGestureManifest FromManifest(ComboGestureActivity activity, AnimationClip fallbackWhen00ClipIsNull)
         {
-            if (activity == null)
-            {
-                return new RawGestureManifest(
-                    Enumerable.Repeat(fallbackWhen00ClipIsNull, 36 + 2).ToList(),
-                    new List<AnimationClip>(),
-                    0.1f);
-            }
-
-            var neutral = activity.anim00 ? activity.anim00 : fallbackWhen00ClipIsNull;
-            return new RawGestureManifest(new[]
-            {
-                activity.anim00, activity.anim01, activity.anim02, activity.anim03, activity.anim04, activity.anim05, activity.anim06, activity.anim07,
-                activity.anim11, activity.anim12, activity.anim13, activity.anim14, activity.anim15, activity.anim16, activity.anim17,
-                activity.anim22, activity.anim23, activity.anim24, activity.anim25, activity.anim26, activity.anim27,
-                activity.anim33, activity.anim34, activity.anim35, activity.anim36, activity.anim37,
-                activity.anim44, activity.anim45, activity.anim46, activity.anim47,
-                activity.anim55, activity.anim56, activity.anim57,
-                activity.anim66, activity.anim67,
-                activity.anim77,
-                //
-                activity.anim11_L == null ? activity.anim11 : activity.anim11_L, activity.anim11_R == null ? activity.anim11 : activity.anim11_R
-            }.Select(clip => clip ? clip : neutral).ToList(), activity.blinking, activity.transitionDuration);
+            return activity == null
+                ? RawGestureManifest.AllSlotsFittedWithSameClip(fallbackWhen00ClipIsNull)
+                : RawGestureManifest.FromActivity(activity, fallbackWhen00ClipIsNull);
         }
 
         private List<ActivityManifest> CreateManifest(AnimationClip emptyClip)
