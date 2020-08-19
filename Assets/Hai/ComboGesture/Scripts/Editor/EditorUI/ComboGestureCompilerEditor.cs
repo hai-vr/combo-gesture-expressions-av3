@@ -15,11 +15,11 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public SerializedProperty activityStageName;
         public SerializedProperty customEmptyClip;
         public SerializedProperty analogBlinkingUpperThreshold;
-        
+
         public SerializedProperty exposeDisableExpressions;
         public SerializedProperty exposeDisableBlinkingOverride;
         public SerializedProperty exposeAreEyesClosed;
-        
+
         public SerializedProperty conflictPreventionMode;
 
         private void OnEnable()
@@ -28,15 +28,15 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             activityStageName = serializedObject.FindProperty("activityStageName");
             customEmptyClip = serializedObject.FindProperty("customEmptyClip");
             analogBlinkingUpperThreshold = serializedObject.FindProperty("analogBlinkingUpperThreshold");
-            
+
             exposeDisableExpressions = serializedObject.FindProperty("exposeDisableExpressions");
             exposeDisableBlinkingOverride = serializedObject.FindProperty("exposeDisableBlinkingOverride");
             exposeAreEyesClosed = serializedObject.FindProperty("exposeAreEyesClosed");
-            
+
             conflictPreventionMode = serializedObject.FindProperty("conflictPreventionMode");
-            
+
             comboLayers = serializedObject.FindProperty("comboLayers");
-        
+
             // reference: https://blog.terresquall.com/2020/03/creating-reorderable-lists-in-the-unity-inspector/
             comboLayersReorderableList = new ReorderableList(
                 serializedObject,
@@ -45,11 +45,11 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             );
             comboLayersReorderableList.drawElementCallback = ComboLayersListElement;
             comboLayersReorderableList.drawHeaderCallback = ComboLayersListHeader;
-                
+
             _guideIcon16 = AssetDatabase.LoadAssetAtPath<Texture>("Assets/Hai/ComboGesture/Icons/guide-16.png");
             _guideIcon32 = AssetDatabase.LoadAssetAtPath<Texture>("Assets/Hai/ComboGesture/Icons/guide-32.png");
         }
-    
+
         private bool _foldoutAdvanced;
         private bool _foldoutHelp;
         private Texture _guideIcon16;
@@ -70,7 +70,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             EditorGUILayout.PropertyField(animatorController, new GUIContent("FX Animator Controller to overwrite"));
             EditorGUILayout.PropertyField(activityStageName, new GUIContent("Activity Stage name"));
-            
+
             comboLayersReorderableList.DoLayoutList();
 
             var compiler = AsCompiler();
@@ -93,7 +93,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             bool TheOnlyActivityIsNull()
             {
-                return comboLayers.arraySize == 1 && compiler.comboLayers[0].activity == null;
+                return compiler.comboLayers.Count == 1 && compiler.comboLayers[0].activity == null;
             }
 
             bool ThereIsNoActivityNameForMultipleActivities()
@@ -108,18 +108,18 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 DoGenerate();
             }
             EditorGUI.EndDisabledGroup();
-            
+
             EditorGUILayout.Space();
-        
+
             _foldoutAdvanced = EditorGUILayout.Foldout(_foldoutAdvanced, "Advanced");
             if (_foldoutAdvanced)
             {
                 EditorGUILayout.LabelField("Fine tuning", EditorStyles.boldLabel);
                 EditorGUILayout.PropertyField(customEmptyClip, new GUIContent("Custom 2-frame empty animation clip (optional)"));
                 EditorGUILayout.PropertyField(analogBlinkingUpperThreshold, new GUIContent("Analog fist blinking threshold", "(0: Eyes are open, 1: Eyes are closed)"));
-                
+
                 EditorGUILayout.Space();
-                
+
                 EditorGUILayout.LabelField("Internal parameters", EditorStyles.boldLabel);
                 if (GUILayout.Button(new GUIContent("Open advanced guide", _guideIcon16)))
                 {
@@ -128,9 +128,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 EditorGUILayout.PropertyField(exposeDisableExpressions, new GUIContent("Expose " + ComboGestureCompilerInternal.HaiGestureComboDisableExpressionsParamName.Substring("_Hai_GestureCombo".Length)));
                 EditorGUILayout.PropertyField(exposeDisableBlinkingOverride, new GUIContent("Expose " + ComboGestureCompilerInternal.HaiGestureComboDisableBlinkingOverrideParamName.Substring("_Hai_GestureCombo".Length)));
                 EditorGUILayout.PropertyField(exposeAreEyesClosed, new GUIContent("Expose " + ComboGestureCompilerInternal.HaiGestureComboAreEyesClosed.Substring("_Hai_GestureCombo".Length)));
-                
+
                 EditorGUILayout.Space();
-            
+
                 EditorGUILayout.LabelField("Animation Conflict Prevention", EditorStyles.boldLabel);
                 EditorGUILayout.PropertyField(conflictPreventionMode, new GUIContent("Mode"));
 
@@ -145,7 +145,7 @@ It is recommended to use ""Generate Animations"" Mode instead.", MessageType.Err
 Whenever an animation is modified, you will need to click Synchronize again.", MessageType.Info);
                 }
             }
-            
+
             serializedObject.ApplyModifiedProperties();
         }
 
@@ -171,20 +171,20 @@ Whenever an animation is modified, you will need to click Synchronize again.", M
         }
 
         private void ComboLayersListElement(Rect rect, int index, bool isActive, bool isFocused)
-        {        
+        {
             var element = comboLayersReorderableList.serializedProperty.GetArrayElementAtIndex(index);
 
             EditorGUI.PropertyField(
-                new Rect(rect.x, rect.y, rect.width - 70, EditorGUIUtility.singleLineHeight), 
+                new Rect(rect.x, rect.y, rect.width - 70, EditorGUIUtility.singleLineHeight),
                 element.FindPropertyRelative("activity"),
                 GUIContent.none
-            ); 
+            );
 
             EditorGUI.PropertyField(
                 new Rect(rect.x + rect.width - 70, rect.y, 50, EditorGUIUtility.singleLineHeight),
                 element.FindPropertyRelative("stageValue"),
                 GUIContent.none
-            );   
+            );
         }
 
         private static void ComboLayersListHeader(Rect rect)
