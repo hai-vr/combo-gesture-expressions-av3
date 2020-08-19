@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Hai.ComboGesture.Scripts.Components;
+using Hai.ComboGesture.Scripts.Editor.Internal.Reused;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
@@ -24,7 +25,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         public const string GestureRightWeight = "GestureRightWeight";
         public const string GestureLeft = "GestureLeft";
         public const string GestureRight = "GestureRight";
-        
+
         private readonly string _activityStageName;
         private readonly List<GestureComboStageMapper> _comboLayers;
         private readonly AnimatorController _animatorController;
@@ -32,6 +33,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly float _analogBlinkingUpperThreshold;
         private readonly FeatureToggles _featuresToggles;
         private readonly ConflictPreventionMode _compilerConflictPreventionMode;
+        private readonly AnimatorGenerator _animatorGenerator;
 
         public ComboGestureCompilerInternal(string activityStageName,
             List<GestureComboStageMapper> comboLayers,
@@ -48,6 +50,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _analogBlinkingUpperThreshold = analogBlinkingUpperThreshold;
             _featuresToggles = featuresToggles;
             _compilerConflictPreventionMode = compilerConflictPreventionMode;
+            _animatorGenerator = new AnimatorGenerator(_animatorController, new StatefulEmptyClipProvider(new ClipGenerator(_customEmptyClip, EmptyClipPath, "ComboGesture")));
         }
 
         public void DoOverwriteAnimatorFxLayer()
@@ -78,7 +81,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
 
             var allSubAssets = AssetDatabase.LoadAllAssetsAtPath(AssetDatabase.GetAssetPath(_animatorController));
-        
+
             var reachableMotions = ConcatStateMachines()
                 .SelectMany(machine => machine.states)
                 .Select(state => state.state.motion)
@@ -140,10 +143,10 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             if (Feature(FeatureToggles.ExposeDisableBlinkingOverride)) {
                 CreateParamIfNotExists(HaiGestureComboDisableBlinkingOverrideParamName, AnimatorControllerParameterType.Int);
             }
-            if (Feature(FeatureToggles.ExposeAreEyesClosed)) { 
+            if (Feature(FeatureToggles.ExposeAreEyesClosed)) {
                 CreateParamIfNotExists(HaiGestureComboAreEyesClosed, AnimatorControllerParameterType.Int);
             }
-            
+
             if (_activityStageName != "")
             {
                 CreateParamIfNotExists(_activityStageName, AnimatorControllerParameterType.Int);
@@ -201,9 +204,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         {
             EditorUtility.DisplayProgressBar("GestureCombo", "Clearing combo controller layer", 0f);
             var machine = ReinitializeAnimatorLayer("Hai_GestureCtrl", 0f);
-        
+
             EditorUtility.DisplayProgressBar("GestureCombo", "Creating combo controller layer", 0f);
-        
+
             for (var left = 0; left < 8; left++)
             {
                 for (var right = left; right < 8; right++)
@@ -211,7 +214,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                     var state = machine.AddState(left + "" + right, GridPosition(right, left));
                     state.writeDefaultValues = false;
                     state.motion = emptyClip;
-                
+
                     var driver = state.AddStateMachineBehaviour<VRCAvatarParameterDriver>();
                     driver.parameters = new List<VRC_AvatarParameterDriver.Parameter>
                     {
@@ -245,7 +248,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             if (Feature(FeatureToggles.ExposeDisableExpressions)) {
                 CreateTransitionWhenExpressionsAreDisabled(machine, defaultState);
             }
-            if (_activityStageName != "") { 
+            if (_activityStageName != "") {
                 CreateTransitionWhenActivityIsOutOfBounds(machine, defaultState);
             }
 
@@ -301,7 +304,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 CreateInternalParameterDriverWhenEyesAreOpen(enableBlinking);
                 CreateInternalParameterDriverWhenEyesAreClosed(disableBlinking);
             }
-        
+
             foreach (var layer in _comboLayers)
             {
                 var transition = suspend.AddTransition(enableBlinking);
@@ -311,7 +314,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                     transition.AddCondition(AnimatorConditionMode.Equals, 0, HaiGestureComboDisableBlinkingOverrideParamName);
                 }
             }
-        
+
             new GestureCBlinkingCombiner(combinator.IntermediateToBlinking, _activityStageName, _analogBlinkingUpperThreshold)
                 .Populate(enableBlinking, disableBlinking);
         }
@@ -340,10 +343,10 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             {
                 return new RawGestureManifest(
                     Enumerable.Repeat(fallbackWhen00ClipIsNull, 36 + 2).ToList(),
-                    new List<AnimationClip>(), 
+                    new List<AnimationClip>(),
                     0.1f);
             }
-            
+
             var neutral = activity.anim00 ? activity.anim00 : fallbackWhen00ClipIsNull;
             return new RawGestureManifest(new[]
             {
@@ -403,7 +406,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 transition.AddCondition(AnimatorConditionMode.NotEqual, layer.stageValue, _activityStageName);
             }
         }
-    
+
         private void CreateTransitionWhenActivityIsOutOfBounds(AnimatorState from, AnimatorState to)
         {
             var transition = from.AddTransition(to);
@@ -427,7 +430,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private static void SetupDefaultTransition(AnimatorStateTransition transition)
         {
             SetupCommonTransition(transition);
-        
+
             transition.duration = 0.1f; // There seems to be a quirk if the duration is 0 when using DisableExpressions, so use 0.1f instead
             transition.orderedInterruption = true;
             transition.canTransitionToSelf = true; // This is relevant as normal transitions may not check activity nor disabled expressions
@@ -436,7 +439,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private static void SetupDefaultBlinkingTransition(AnimatorStateTransition transition)
         {
             SetupCommonTransition(transition);
-        
+
             transition.duration = 0;
             transition.orderedInterruption = false; // Is the difference relevant?!
             transition.canTransitionToSelf = false;
@@ -453,67 +456,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         private AnimatorStateMachine ReinitializeAnimatorLayer(string layerName, float weightWhenCreating)
         {
-            var layer = TryGetLayer(layerName);
-            if (layer == null)
-            {
-                AddLayerWithWeight(layerName, weightWhenCreating);
-                layer = TryGetLayer(layerName);
-            }
+            var machinist = _animatorGenerator.CreateOrRemakeLayerAtSameIndex(layerName, weightWhenCreating);
 
-            var machine = layer.stateMachine;
-            SafeEraseStates(machine);
-
-            machine.anyStatePosition = GridPosition(0, 7);
-            machine.entryPosition = GridPosition(0, -1);
-            machine.exitPosition = GridPosition(7, -1);
-
-            return machine;
-        }
-
-        private static void EraseStates(AnimatorStateMachine machine)
-        {
-            // Running this may cause issues since it may not remove blend trees..?
-        
-            var states = machine.states;
-            ArrayUtility.Clear(ref states);
-            machine.states = states;
-
-            var stateMachines = machine.stateMachines;
-            ArrayUtility.Clear(ref stateMachines);
-            machine.stateMachines = stateMachines;
-        }
-
-        private static void SafeEraseStates(AnimatorStateMachine machine)
-        {
-            foreach (var state in machine.states)
-            {
-                machine.RemoveState(state.state);
-            }
-        }
-
-        private AnimatorControllerLayer TryGetLayer(string layerName)
-        {
-            return _animatorController.layers.FirstOrDefault(it => it.name == layerName);
-        }
-
-        private void AddLayerWithWeight(string layerName, float weightWhenCreating)
-        {
-            // This function is a replication of AnimatorController::AddLayer(string) behavior, in order to change the weight.
-            // For some reason I cannot find how to change the layer weight after it has been created.
-        
-            var newLayer = new AnimatorControllerLayer();
-            newLayer.name = _animatorController.MakeUniqueLayerName(layerName);
-            newLayer.stateMachine = new AnimatorStateMachine();
-            newLayer.stateMachine.name = newLayer.name;
-            newLayer.stateMachine.hideFlags = HideFlags.HideInHierarchy;
-            newLayer.defaultWeight = weightWhenCreating;
-            if (AssetDatabase.GetAssetPath(_animatorController) != "")
-            {
-                AssetDatabase.AddObjectToAsset(newLayer.stateMachine,
-                    AssetDatabase.GetAssetPath(_animatorController));
-            }
-
-            _animatorController.AddLayer(newLayer);
+            return machinist.ExposeMachine();
         }
 
         private bool Feature(FeatureToggles feature)
