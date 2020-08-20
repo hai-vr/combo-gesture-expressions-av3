@@ -33,6 +33,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly float _analogBlinkingUpperThreshold;
         private readonly FeatureToggles _featuresToggles;
         private readonly ConflictPreventionMode _compilerConflictPreventionMode;
+        private readonly ConflictFxLayerMode _compilerConflictFxLayerMode;
         private readonly AnimatorGenerator _animatorGenerator;
 
         public ComboGestureCompilerInternal(string activityStageName,
@@ -41,7 +42,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             AnimationClip customEmptyClip,
             float analogBlinkingUpperThreshold,
             FeatureToggles featuresToggles,
-            ConflictPreventionMode compilerConflictPreventionMode)
+            ConflictPreventionMode compilerConflictPreventionMode,
+            ConflictFxLayerMode compilerConflictFxLayerMode)
         {
             _activityStageName = activityStageName;
             _comboLayers = comboLayers;
@@ -50,6 +52,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _analogBlinkingUpperThreshold = analogBlinkingUpperThreshold;
             _featuresToggles = featuresToggles;
             _compilerConflictPreventionMode = compilerConflictPreventionMode;
+            _compilerConflictFxLayerMode = compilerConflictFxLayerMode;
             _animatorGenerator = new AnimatorGenerator(_animatorController, new StatefulEmptyClipProvider(new ClipGenerator(_customEmptyClip, EmptyClipPath, "ComboGesture")));
         }
 
@@ -256,7 +259,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             if (_compilerConflictPreventionMode == ConflictPreventionMode.GenerateAnimations)
             {
                 EditorUtility.DisplayProgressBar("GestureCombo", "Generating animations", 0f);
-                activityManifests = new AnimationNeutralizer(activityManifests).NeutralizeManifestAnimations();
+                activityManifests = new AnimationNeutralizer(activityManifests, _compilerConflictFxLayerMode).NeutralizeManifestAnimations();
             }
             var combinator = new IntermediateCombinator(activityManifests);
 

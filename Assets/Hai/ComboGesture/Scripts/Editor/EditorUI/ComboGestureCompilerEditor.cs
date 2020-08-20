@@ -21,6 +21,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public SerializedProperty exposeAreEyesClosed;
 
         public SerializedProperty conflictPreventionMode;
+        public SerializedProperty conflictFxLayerMode;
 
         private void OnEnable()
         {
@@ -34,6 +35,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             exposeAreEyesClosed = serializedObject.FindProperty("exposeAreEyesClosed");
 
             conflictPreventionMode = serializedObject.FindProperty("conflictPreventionMode");
+            conflictFxLayerMode = serializedObject.FindProperty("conflictFxLayerMode");
 
             comboLayers = serializedObject.FindProperty("comboLayers");
 
@@ -134,19 +136,70 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 EditorGUILayout.LabelField("Animation Conflict Prevention", EditorStyles.boldLabel);
                 EditorGUILayout.PropertyField(conflictPreventionMode, new GUIContent("Mode"));
 
-                if ((ConflictPreventionMode)conflictPreventionMode.intValue == ConflictPreventionMode.WriteDefaults)
-                {
-                    EditorGUILayout.HelpBox( @"Using ""Write Defaults"" Mode will cause face expressions to conflict if your FX layer does not use ""Write Defaults"" on all layers. 
-It is recommended to use ""Generate Animations"" Mode instead.", MessageType.Error);
-                }
-                else
-                {
-                    EditorGUILayout.HelpBox( @"Animations will be generated with default values.
-Whenever an animation is modified, you will need to click Synchronize again.", MessageType.Info);
-                }
+                CpmValueWarning(true);
+
+                EditorGUI.BeginDisabledGroup(conflictPreventionMode.intValue != (int) ConflictPreventionMode.GenerateAnimations);
+                EditorGUILayout.PropertyField(conflictFxLayerMode, new GUIContent("Transforms removal"));
+                EditorGUI.EndDisabledGroup();
+
+                CpmRemovalWarning(true);
+            }
+            else
+            {
+                CpmValueWarning(false);
+                CpmRemovalWarning(false);
             }
 
             serializedObject.ApplyModifiedProperties();
+        }
+
+        private void CpmValueWarning(bool exhaustive)
+        {
+            if ((ConflictPreventionMode) conflictPreventionMode.intValue == ConflictPreventionMode.WriteDefaults)
+            {
+                    EditorGUILayout.HelpBox(@"Using ""Write Defaults"" Mode will cause face expressions to conflict if your FX layer does not use ""Write Defaults"" on all layers. 
+It is recommended to use ""Generate Animations"" Mode instead.
+
+(Advanced settings)", MessageType.Error);
+            }
+            else
+            {
+                if (exhaustive) {
+                    EditorGUILayout.HelpBox(@"Animations will be generated with default values.
+Whenever an animation is modified, you will need to click Synchronize again.", MessageType.Info);
+                }
+            }
+        }
+
+        private void CpmRemovalWarning(bool exhaustive)
+        {
+            if (conflictPreventionMode.intValue == (int) ConflictPreventionMode.GenerateAnimations)
+            {
+                switch ((ConflictFxLayerMode) conflictFxLayerMode.intValue)
+                {
+                    case ConflictFxLayerMode.RemoveTransformsAndMuscles:
+                        if (exhaustive)
+                        {
+                            EditorGUILayout.HelpBox(@"Transforms and muscles will be removed from the FX layer.
+This is the default behavior.", MessageType.Info);
+                        }
+                        break;
+                    case ConflictFxLayerMode.KeepBoth:
+                            EditorGUILayout.HelpBox(@"Transforms and muscles will not be removed from the FX layer.
+This might cause conflicts with other animations.
+
+(Advanced settings)", MessageType.Warning);
+                        break;
+                    case ConflictFxLayerMode.KeepOnlyTransformsAndMuscles:
+                        EditorGUILayout.HelpBox(@"Everything will be removed except transforms and muscle animations.
+This is not a normal usage of ComboGestureExpressions, and should not be used except in special cases.
+
+(Advanced settings)", MessageType.Error);
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
 
         private void DoGenerate()
@@ -161,7 +214,8 @@ Whenever an animation is modified, you will need to click Synchronize again.", M
                 (exposeDisableExpressions.boolValue ? FeatureToggles.ExposeDisableExpressions : 0)
                 | (exposeDisableBlinkingOverride.boolValue ? FeatureToggles.ExposeDisableBlinkingOverride : 0)
                 | (exposeAreEyesClosed.boolValue ? FeatureToggles.ExposeAreEyesClosed : 0),
-                compiler.conflictPreventionMode
+                compiler.conflictPreventionMode,
+                compiler.conflictFxLayerMode
             ).DoOverwriteAnimatorFxLayer();
         }
 
