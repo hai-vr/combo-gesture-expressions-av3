@@ -214,6 +214,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                             throw new ArgumentOutOfRangeException();
                     }
                 }
+
+                EditorGUI.BeginDisabledGroup(AnimationMode.InAnimationMode());
                 if (GUILayout.Button("Generate missing previews"))
                 {
                     new CgeActivityPreviewInternal(activity, animationClipToTextureDict, noAnimationClipNullObject, PictureWidth, PictureHeight, activity.editorArbitraryAnimations).Process(CgeActivityPreviewInternal.ProcessMode.CalculateMissing);
@@ -224,6 +226,14 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                     new CgeActivityPreviewInternal(activity, animationClipToTextureDict, noAnimationClipNullObject, PictureWidth, PictureHeight, activity.editorArbitraryAnimations).Process(CgeActivityPreviewInternal.ProcessMode.RecalculateEverything);
                 }
                 EditorGUILayout.PropertyField(editorArbitraryAnimations, new GUIContent("List of arbitrary animations to generate previews (Drag and drop assets directly on this title)"), true);
+                EditorGUI.EndDisabledGroup();
+
+                EditorGUI.BeginDisabledGroup(!AnimationMode.InAnimationMode());
+                if (GUILayout.Button("Stop generating previews"))
+                {
+                    CgeActivityPreviewInternal.Stop_Temp();
+                }
+                EditorGUI.EndDisabledGroup();
 
                 if (activity.editorArbitraryAnimations != null) {
                     GUILayout.BeginArea(new Rect(0, singleLineHeight * 10, position.width, GuiSquareHeight * 8));
@@ -455,12 +465,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             {
                 GUILayout.Box(animationClipToTextureDict[element], GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true));
             }
-            else
-            {
-                // GUILayout.Box((Texture)null, GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true), GUILayout.MaxWidth(0), GUILayout.MaxHeight(0));
-            }
 
             EditorGUILayout.BeginFadeGroup(!clipIsInDict ? 1 : 0);
+            EditorGUI.BeginDisabledGroup(AnimationMode.InAnimationMode());
             if (GUILayout.Button(activity.previewSetup ? "Generate\npreview" : "Setup\npreview", GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true)))
             {
                 if (activity.previewSetup)
@@ -472,6 +479,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                     _editorMode = 2;
                 }
             }
+            EditorGUI.EndDisabledGroup();
             EditorGUILayout.EndFadeGroup();
         }
 

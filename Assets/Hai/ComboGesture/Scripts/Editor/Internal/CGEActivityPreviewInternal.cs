@@ -11,6 +11,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
     public class CgeActivityPreviewInternal
     {
+        private static bool StopGenerating { get; set; }
+
         private readonly ComboGestureActivity _activity;
         private readonly Dictionary<AnimationClip, Texture2D> _animationClipToTextureDict;
         private readonly AnimationClip _noAnimationClipNullObject;
@@ -170,7 +172,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 var action = actions[0];
                 actions.RemoveAt(0);
                 action.Invoke(999);
-                if (actions.Count > 0)
+                if (actions.Count > 0 && !StopGenerating)
                 {
                     progressBarFn.Invoke(actions.Count + cleanupActions.Count);
                     EditorApplication.delayCall += () => Reevaluate(actions, cleanupActions, progressBarFn);
@@ -194,6 +196,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
             else
             {
+                StopGenerating = false;
                 EditorUtility.ClearProgressBar();
             }
         }
@@ -341,6 +344,15 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             texture2D.ReadPixels(new Rect(0, 0, renderTexture.width, renderTexture.height), 0, 0);
             texture2D.Apply();
             RenderTexture.active = null;
+        }
+
+        public static void Stop_Temp()
+        {
+            if (StopGenerating) {
+                AnimationMode.StopAnimationMode();
+                EditorUtility.ClearProgressBar();
+            }
+            StopGenerating = true;
         }
     }
 }
