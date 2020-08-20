@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Hai.ComboGesture.Scripts.Components;
 using UnityEditor;
-using UnityEditor.Animations;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -13,42 +12,22 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
     {
         private static bool StopGenerating { get; set; }
 
+        private readonly Action _repaintFn;
         private readonly ComboGestureActivity _activity;
         private readonly Dictionary<AnimationClip, Texture2D> _animationClipToTextureDict;
-        private readonly AnimationClip _noAnimationClipNullObject;
         private readonly int _pictureWidth;
         private readonly int _pictureHeight;
         private readonly AnimationClip[] _editorArbitraryAnimations;
         private RenderTexture _renderTexture;
 
-        public CgeActivityPreviewInternal(ComboGestureActivity activity, Dictionary<AnimationClip, Texture2D> animationClipToTextureDict, AnimationClip noAnimationClipNullObject, int pictureWidth, int pictureHeight, AnimationClip[] editorArbitraryAnimations)
+        public CgeActivityPreviewInternal(Action repaintFn, ComboGestureActivity activity, Dictionary<AnimationClip, Texture2D> animationClipToTextureDict, int pictureWidth, int pictureHeight, AnimationClip[] editorArbitraryAnimations)
         {
+            _repaintFn = repaintFn;
             _activity = activity;
             _animationClipToTextureDict = animationClipToTextureDict;
-            _noAnimationClipNullObject = noAnimationClipNullObject;
             _pictureWidth = pictureWidth;
             _pictureHeight = pictureHeight;
             _editorArbitraryAnimations = editorArbitraryAnimations ?? new AnimationClip[]{};
-
-        }
-
-        public void ProcessJust(AnimationClip element)
-        {
-            if (AnimationMode.InAnimationMode())
-            {
-                CarefullyCleanupCaptureModeAndScaffolding();
-                // FIXME: handle this error, and the caller should not have called me -> gray button
-                return;
-            }
-
-            var clipToTextureDictionary = new Dictionary<AnimationClip, Texture2D>
-            {
-                {element, NewTexture2D()}
-            };
-
-            SetupCaptureScaffolding();
-            var generatedCamera = GenerateCamera();
-            DoGenerationProcess(clipToTextureDictionary, new List<Action<int>>(), generatedCamera, null);
         }
 
         public enum ProcessMode
@@ -56,30 +35,21 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             RecalculateEverything, CalculateMissing
         }
 
-        public void Process(ProcessMode processMode)
+        public void Process(ProcessMode processMode, AnimationClip prioritize)
         {
             if (AnimationMode.InAnimationMode())
             {
-                CarefullyCleanupCaptureModeAndScaffolding();
-                // FIXME: handle this error, and the caller should not have called me -> gray button
                 return;
             }
 
             var clipToTextureDictionary = GatherAnimations(processMode);
-            var defaultFace = NewTexture2D();
 
             SetupCaptureScaffolding();
             var generatedCamera = GenerateCamera();
 
             var actions = new List<Action<int>>();
-            // CaptureDummy(defaultFace, generatedCamera);
 
-            actions.Add(i =>
-            {
-                CaptureDummy(defaultFace, generatedCamera);
-            });
-
-            DoGenerationProcess(clipToTextureDictionary, actions, generatedCamera, defaultFace);
+            DoGenerationProcess(prioritize, clipToTextureDictionary, actions, generatedCamera);
         }
 
         private Camera GenerateCamera()
@@ -90,82 +60,50 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             return generatedCamera;
         }
 
-        private void DoGenerationProcess(Dictionary<AnimationClip, Texture2D> clipToTextureDictionary, List<Action<int>> actions, Camera generatedCamera, Texture2D defaultFace)
+        private void DoGenerationProcess(AnimationClip prioritize, Dictionary<AnimationClip, Texture2D> clipToTextureDictionary, List<Action<int>> actions, Camera generatedCamera)
         {
             GetDummy().gameObject.SetActive(true);
 
-            var enumerator = clipToTextureDictionary.GetEnumerator();
-            if (enumerator.MoveNext())
+            if (prioritize != null)
             {
-                var cur = enumerator.Current;
-                actions.Add(i =>
-                {
-                    AnimationMode.BeginSampling();
-                    PoseDummyUsing(cur.Key);
-                    AnimationMode.EndSampling();
-                });
-                var hasNext = true;
-                while (hasNext)
-                {
-                    var curCopy = cur;
-                    hasNext = enumerator.MoveNext();
-                    KeyValuePair<AnimationClip, Texture2D>? nextCopy = null;
-                    if (hasNext)
-                    {
-                        nextCopy = enumerator.Current;
-                    }
-
-                    var hasNextCopy = hasNext;
-                    actions.Add(i =>
-                    {
-                        CaptureDummy(curCopy.Value, generatedCamera);
-                        if (hasNextCopy)
-                        {
-                            AnimationMode.BeginSampling();
-                            PoseDummyUsing(nextCopy.Value.Key);
-                            AnimationMode.EndSampling();
-                        }
-                    });
-                    if (hasNext)
-                    {
-                        cur = (KeyValuePair<AnimationClip, Texture2D>) nextCopy;
-                    }
-                }
+                Generate(actions, generatedCamera, prioritize, clipToTextureDictionary[prioritize]);
             }
 
             foreach (var clipToTexture in clipToTextureDictionary)
             {
-                actions.Add(i =>
-                {
-                    AnimationMode.BeginSampling();
-                    PoseDummyUsing(clipToTexture.Key);
-                    AnimationMode.EndSampling();
-                });
-                actions.Add(i => { CaptureDummy(clipToTexture.Value, generatedCamera); });
+                Generate(actions, generatedCamera, clipToTexture.Key, clipToTexture.Value);
             }
 
             var cleanupActions = new List<Action<int>>();
-            cleanupActions.Add(i => Terminate(generatedCamera, defaultFace, clipToTextureDictionary));
-            var count = (float) actions.Count + cleanupActions.Count;
-            var progressBarFn = DisplayProgressBarFn(count);
-            EditorApplication.delayCall += () => Reevaluate(actions, cleanupActions, progressBarFn);
+            cleanupActions.Add(i => Terminate(generatedCamera));
+            EditorApplication.delayCall += () => Reevaluate(actions, cleanupActions);
         }
 
-        private void Terminate(Camera generatedCamera, Texture2D defaultFace, Dictionary<AnimationClip, Texture2D> clipToTextureDictionary)
+        private void Generate(List<Action<int>> actions, Camera generatedCamera, AnimationClip clip, Texture2D texture)
         {
-            CarefullyCleanupCaptureModeAndScaffolding();
+            actions.Add(i =>
+            {
+                AnimationMode.BeginSampling();
+                PoseDummyUsing(clip);
+                AnimationMode.EndSampling();
+            });
+            actions.Add(i =>
+            {
+                CaptureDummy(texture, generatedCamera);
+                _animationClipToTextureDict[clip] = texture;
+                _repaintFn.Invoke();
+            });
+        }
+
+        private void Terminate(Camera generatedCamera)
+        {
+            SceneView.RepaintAll();
+            AnimationMode.StopAnimationMode();
             Object.DestroyImmediate(generatedCamera.gameObject);
             GetDummy().gameObject.SetActive(false);
-            ReassignTextures(defaultFace, clipToTextureDictionary);
-            AnimationMode.StopAnimationMode();
         }
 
-        private static Action<int> DisplayProgressBarFn(float count)
-        {
-            return actualCount => EditorUtility.DisplayProgressBar("CGE Preview", "Generating previews... (Keep editor window in focus!)", (count - actualCount) / count);
-        }
-
-        private static void Reevaluate(List<Action<int>> actions, List<Action<int>> cleanupActions, Action<int> progressBarFn)
+        private static void Reevaluate(List<Action<int>> actions, List<Action<int>> cleanupActions)
         {
             try
             {
@@ -174,34 +112,32 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 action.Invoke(999);
                 if (actions.Count > 0 && !StopGenerating)
                 {
-                    progressBarFn.Invoke(actions.Count + cleanupActions.Count);
-                    EditorApplication.delayCall += () => Reevaluate(actions, cleanupActions, progressBarFn);
+                    EditorApplication.delayCall += () => Reevaluate(actions, cleanupActions);
                 }
                 else
                 {
-                    StartCleanupActions(cleanupActions, progressBarFn);
+                    StartCleanupActions(cleanupActions);
                 }
             }
             catch (Exception)
             {
-                StartCleanupActions(cleanupActions, progressBarFn);
+                StartCleanupActions(cleanupActions);
             }
         }
 
-        private static void StartCleanupActions(List<Action<int>> cleanupActions, Action<int> progressBarFn)
+        private static void StartCleanupActions(List<Action<int>> cleanupActions)
         {
             if (cleanupActions.Count > 0)
             {
-                EditorApplication.delayCall += () => Cleanup(cleanupActions, progressBarFn);
+                EditorApplication.delayCall += () => Cleanup(cleanupActions);
             }
             else
             {
                 StopGenerating = false;
-                EditorUtility.ClearProgressBar();
             }
         }
 
-        private static void Cleanup(List<Action<int>> cleanupActions, Action<int> progressBarFn)
+        private static void Cleanup(List<Action<int>> cleanupActions)
         {
             try
             {
@@ -213,31 +149,14 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             {
                 if (cleanupActions.Count > 0)
                 {
-                    progressBarFn.Invoke(cleanupActions.Count);
-                    EditorApplication.delayCall += () => Cleanup(cleanupActions, progressBarFn);
+                    EditorApplication.delayCall += () => Cleanup(cleanupActions);
                 }
                 else
                 {
                     if (cleanupActions.Count > 0) {
-                        EditorApplication.delayCall += () => Cleanup(cleanupActions, progressBarFn);
-                    }
-                    else
-                    {
-                        EditorUtility.ClearProgressBar();
+                        EditorApplication.delayCall += () => Cleanup(cleanupActions);
                     }
                 }
-            }
-        }
-
-        private void ReassignTextures(Texture2D defaultFace, Dictionary<AnimationClip, Texture2D> clipToTextureDictionary)
-        {
-            if (defaultFace != null)
-            {
-                _animationClipToTextureDict[_noAnimationClipNullObject] = defaultFace;
-            }
-            foreach (var clipToTexture in clipToTextureDictionary)
-            {
-                _animationClipToTextureDict[clipToTexture.Key] = clipToTexture.Value;
             }
         }
 
@@ -257,35 +176,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             if (!AnimationMode.InAnimationMode())
             {
                 AnimationMode.StartAnimationMode();
-            }
-        }
-
-        private static void CarefullyCleanupCaptureModeAndScaffolding()
-        {
-            if (AnimationMode.InAnimationMode()) {
-                try
-                {
-                }
-                catch (Exception)
-                {
-                    // ignored
-                }
-                try
-                {
-                    SceneView.RepaintAll();
-                }
-                catch (Exception)
-                {
-                    // ignored
-                }
-                try
-                {
-                    AnimationMode.StopAnimationMode();
-                }
-                catch (Exception)
-                {
-                    // ignored
-                }
             }
         }
 
@@ -350,7 +240,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         {
             if (StopGenerating) {
                 AnimationMode.StopAnimationMode();
-                EditorUtility.ClearProgressBar();
             }
             StopGenerating = true;
         }

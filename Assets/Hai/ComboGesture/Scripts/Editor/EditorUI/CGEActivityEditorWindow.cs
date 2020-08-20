@@ -16,7 +16,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         private const int GuiSquareWidth = 140;
         private static readonly int GuiSquareHeight = (int) (singleLineHeight * 3 + PictureHeight);
 
-        private static readonly Dictionary<string, string> equivs = new Dictionary<string, string>
+        private static readonly Dictionary<string, string> Equivs = new Dictionary<string, string>
         {
             {"anim00", "No gesture"},
             {"anim01", "FIST"},
@@ -59,15 +59,15 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         };
 
         public AnimationClip noAnimationClipNullObject;
-        private Dictionary<AnimationClip, Texture2D> animationClipToTextureDict;
+        private Dictionary<AnimationClip, Texture2D> _animationClipToTextureDict;
         private RenderTexture _renderTexture;
         public ComboGestureActivity activity;
         public SerializedObject serializedObject;
 
-        private SerializedProperty transitionDuration;
-        private SerializedProperty editorTool;
-        private SerializedProperty editorArbitraryAnimations;
-        private SerializedProperty previewSetup;
+        private SerializedProperty _transitionDuration;
+        private SerializedProperty _editorTool;
+        private SerializedProperty _editorArbitraryAnimations;
+        private SerializedProperty _previewSetup;
         private int _currentEditorToolValue = -1;
         private int _editorMode;
         private bool _firstTimeSetup;
@@ -77,7 +77,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         private void OnEnable()
         {
             noAnimationClipNullObject = new AnimationClip();
-            animationClipToTextureDict = new Dictionary<AnimationClip, Texture2D>();
+            _animationClipToTextureDict = new Dictionary<AnimationClip, Texture2D>();
         }
 
         private void OnGUI()
@@ -96,14 +96,14 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             if (activity != null && serializedObject == null)
             {
                 serializedObject = new SerializedObject(activity);
-                transitionDuration = serializedObject.FindProperty("transitionDuration");
-                editorTool = serializedObject.FindProperty("editorTool");
-                editorArbitraryAnimations = serializedObject.FindProperty("editorArbitraryAnimations");
-                previewSetup = serializedObject.FindProperty("previewSetup");
+                _transitionDuration = serializedObject.FindProperty("transitionDuration");
+                _editorTool = serializedObject.FindProperty("editorTool");
+                _editorArbitraryAnimations = serializedObject.FindProperty("editorArbitraryAnimations");
+                _previewSetup = serializedObject.FindProperty("previewSetup");
 
-                if (editorTool.intValue != _currentEditorToolValue && _currentEditorToolValue >= 0)
+                if (_editorTool.intValue != _currentEditorToolValue && _currentEditorToolValue >= 0)
                 {
-                    editorTool.intValue = _currentEditorToolValue;
+                    _editorTool.intValue = _currentEditorToolValue;
                     serializedObject.ApplyModifiedProperties();
                 }
 
@@ -132,11 +132,11 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 "Edit face expressions", "Select closed eyes animations", "Other options"
             });
             if (_editorMode == 0) {
-                editorTool.intValue = GUILayout.Toolbar(editorTool.intValue, new []
+                _editorTool.intValue = GUILayout.Toolbar(_editorTool.intValue, new []
                 {
                     "All gestures", "Singles", "Analog Fist", "Combos"
                 });
-                _currentEditorToolValue = editorTool.intValue;
+                _currentEditorToolValue = _editorTool.intValue;
             }
             GUILayout.EndArea();
 
@@ -150,7 +150,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                     DrawOtherOptions();
                     break;
                 default:
-                    switch (editorTool.intValue)
+                    switch (_editorTool.intValue)
                     {
                         case 1:
                             DrawSinglesDoublesMatrixProjection();
@@ -177,7 +177,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         {
             if (_firstTimeSetup || activity.previewSetup == null)
             {
-                EditorGUILayout.PropertyField(previewSetup, new GUIContent("Preview setup"));
+                EditorGUILayout.PropertyField(_previewSetup, new GUIContent("Preview setup"));
                 GUILayout.Space(15);
                 GUILayout.BeginHorizontal();
                 GUILayout.FlexibleSpace();
@@ -194,8 +194,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             }
             else
             {
-                EditorGUILayout.PropertyField(transitionDuration, new GUIContent("Transition duration (s)"));
-                EditorGUILayout.PropertyField(previewSetup, new GUIContent("Preview setup"));
+                EditorGUILayout.PropertyField(_transitionDuration, new GUIContent("Transition duration (s)"));
+                EditorGUILayout.PropertyField(_previewSetup, new GUIContent("Preview setup"));
                 if (_setupResult != null)
                 {
                     var setupResult = (AutoSetupPreview.SetupResult) _setupResult;
@@ -218,14 +218,14 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 EditorGUI.BeginDisabledGroup(AnimationMode.InAnimationMode());
                 if (GUILayout.Button("Generate missing previews"))
                 {
-                    new CgeActivityPreviewInternal(activity, animationClipToTextureDict, noAnimationClipNullObject, PictureWidth, PictureHeight, activity.editorArbitraryAnimations).Process(CgeActivityPreviewInternal.ProcessMode.CalculateMissing);
+                    new CgeActivityPreviewInternal(Repaint, activity, _animationClipToTextureDict, PictureWidth, PictureHeight, activity.editorArbitraryAnimations).Process(CgeActivityPreviewInternal.ProcessMode.CalculateMissing, null);
                 }
 
                 if (GUILayout.Button("Regenerate all previews"))
                 {
-                    new CgeActivityPreviewInternal(activity, animationClipToTextureDict, noAnimationClipNullObject, PictureWidth, PictureHeight, activity.editorArbitraryAnimations).Process(CgeActivityPreviewInternal.ProcessMode.RecalculateEverything);
+                    new CgeActivityPreviewInternal(Repaint, activity, _animationClipToTextureDict, PictureWidth, PictureHeight, activity.editorArbitraryAnimations).Process(CgeActivityPreviewInternal.ProcessMode.RecalculateEverything, null);
                 }
-                EditorGUILayout.PropertyField(editorArbitraryAnimations, new GUIContent("List of arbitrary animations to generate previews (Drag and drop assets directly on this title)"), true);
+                EditorGUILayout.PropertyField(_editorArbitraryAnimations, new GUIContent("List of arbitrary animations to generate previews (Drag and drop assets directly on this title)"), true);
                 EditorGUI.EndDisabledGroup();
 
                 EditorGUI.BeginDisabledGroup(!AnimationMode.InAnimationMode());
@@ -383,19 +383,19 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         private void DrawInner(string propertyPath)
         {
             var property = serializedObject.FindProperty(propertyPath);
-            if (equivs[propertyPath].Contains("x2"))
+            if (Equivs[propertyPath].Contains("x2"))
             {
                 var guiStyle = new GUIStyle(EditorStyles.boldLabel);
                 guiStyle.alignment = TextAnchor.MiddleCenter;
                 guiStyle.clipping = TextClipping.Overflow;
-                GUILayout.Label(equivs[propertyPath], guiStyle);
+                GUILayout.Label(Equivs[propertyPath], guiStyle);
             }
             else
             {
                 var guiStyle = new GUIStyle();
                 guiStyle.alignment = TextAnchor.MiddleCenter;
                 guiStyle.clipping = TextClipping.Overflow;
-                GUILayout.Label(equivs[propertyPath], guiStyle);
+                GUILayout.Label(Equivs[propertyPath], guiStyle);
             }
 
             GUILayout.BeginArea(new Rect((GuiSquareWidth - PictureWidth) / 2, singleLineHeight, PictureWidth, PictureHeight));
@@ -460,10 +460,10 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         {
             if (element == null) return;
 
-            var clipIsInDict = animationClipToTextureDict.ContainsKey(element);
+            var clipIsInDict = _animationClipToTextureDict.ContainsKey(element);
             if (clipIsInDict)
             {
-                GUILayout.Box(animationClipToTextureDict[element], GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true));
+                GUILayout.Box(_animationClipToTextureDict[element], GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true));
             }
 
             EditorGUILayout.BeginFadeGroup(!clipIsInDict ? 1 : 0);
@@ -472,7 +472,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             {
                 if (activity.previewSetup)
                 {
-                    new CgeActivityPreviewInternal(activity, animationClipToTextureDict, noAnimationClipNullObject, PictureWidth, PictureHeight, activity.editorArbitraryAnimations).Process(CgeActivityPreviewInternal.ProcessMode.CalculateMissing);
+                    new CgeActivityPreviewInternal(Repaint, activity, _animationClipToTextureDict, PictureWidth, PictureHeight, activity.editorArbitraryAnimations).Process(CgeActivityPreviewInternal.ProcessMode.CalculateMissing, element);
                 }
                 else
                 {
