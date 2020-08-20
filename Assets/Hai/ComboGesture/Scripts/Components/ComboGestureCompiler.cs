@@ -19,6 +19,9 @@ namespace Hai.ComboGesture.Scripts.Components
         public ConflictFxLayerMode conflictFxLayerMode = ConflictFxLayerMode.RemoveTransformsAndMuscles;
 
         public bool editorAdvancedFoldout;
+
+        public AnimationClip ignoreParamList;
+        public AnimationClip fallbackParamList;
     }
 
     [System.Serializable]

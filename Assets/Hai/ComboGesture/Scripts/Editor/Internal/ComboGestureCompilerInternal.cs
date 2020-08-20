@@ -34,6 +34,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly FeatureToggles _featuresToggles;
         private readonly ConflictPreventionMode _compilerConflictPreventionMode;
         private readonly ConflictFxLayerMode _compilerConflictFxLayerMode;
+        private readonly AnimationClip _compilerIgnoreParamList;
+        private readonly AnimationClip _compilerFallbackParamList;
         private readonly AnimatorGenerator _animatorGenerator;
 
         public ComboGestureCompilerInternal(string activityStageName,
@@ -43,7 +45,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             float analogBlinkingUpperThreshold,
             FeatureToggles featuresToggles,
             ConflictPreventionMode compilerConflictPreventionMode,
-            ConflictFxLayerMode compilerConflictFxLayerMode)
+            ConflictFxLayerMode compilerConflictFxLayerMode,
+            AnimationClip compilerIgnoreParamList,
+            AnimationClip compilerFallbackParamList)
         {
             _activityStageName = activityStageName;
             _comboLayers = comboLayers;
@@ -53,6 +57,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _featuresToggles = featuresToggles;
             _compilerConflictPreventionMode = compilerConflictPreventionMode;
             _compilerConflictFxLayerMode = compilerConflictFxLayerMode;
+            _compilerIgnoreParamList = compilerIgnoreParamList;
+            _compilerFallbackParamList = compilerFallbackParamList;
             _animatorGenerator = new AnimatorGenerator(_animatorController, new StatefulEmptyClipProvider(new ClipGenerator(_customEmptyClip, EmptyClipPath, "ComboGesture")));
         }
 
@@ -259,7 +265,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             if (_compilerConflictPreventionMode == ConflictPreventionMode.GenerateAnimations)
             {
                 EditorUtility.DisplayProgressBar("GestureCombo", "Generating animations", 0f);
-                activityManifests = new AnimationNeutralizer(activityManifests, _compilerConflictFxLayerMode).NeutralizeManifestAnimations();
+                activityManifests = new AnimationNeutralizer(activityManifests, _compilerConflictFxLayerMode, _compilerIgnoreParamList, _compilerFallbackParamList).NeutralizeManifestAnimations();
             }
             var combinator = new IntermediateCombinator(activityManifests);
 

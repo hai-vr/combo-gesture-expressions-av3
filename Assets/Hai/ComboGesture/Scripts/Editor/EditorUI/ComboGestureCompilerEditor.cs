@@ -22,6 +22,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         public SerializedProperty conflictPreventionMode;
         public SerializedProperty conflictFxLayerMode;
+        public SerializedProperty ignoreParamList;
+        public SerializedProperty fallbackParamList;
 
         public SerializedProperty editorAdvancedFoldout;
 
@@ -38,6 +40,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             conflictPreventionMode = serializedObject.FindProperty("conflictPreventionMode");
             conflictFxLayerMode = serializedObject.FindProperty("conflictFxLayerMode");
+            ignoreParamList = serializedObject.FindProperty("ignoreParamList");
+            fallbackParamList = serializedObject.FindProperty("fallbackParamList");
 
             comboLayers = serializedObject.FindProperty("comboLayers");
 
@@ -123,7 +127,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 EditorGUILayout.PropertyField(customEmptyClip, new GUIContent("Custom 2-frame empty animation clip (optional)"));
                 EditorGUILayout.PropertyField(analogBlinkingUpperThreshold, new GUIContent("Analog fist blinking threshold", "(0: Eyes are open, 1: Eyes are closed)"));
 
-                EditorGUILayout.Space();
+                EditorGUILayout.Separator();
 
                 EditorGUILayout.LabelField("Internal parameters", EditorStyles.boldLabel);
                 if (GUILayout.Button(new GUIContent("Open advanced guide", _guideIcon16)))
@@ -134,7 +138,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 EditorGUILayout.PropertyField(exposeDisableBlinkingOverride, new GUIContent("Expose " + ComboGestureCompilerInternal.HaiGestureComboDisableBlinkingOverrideParamName.Substring("_Hai_GestureCombo".Length)));
                 EditorGUILayout.PropertyField(exposeAreEyesClosed, new GUIContent("Expose " + ComboGestureCompilerInternal.HaiGestureComboAreEyesClosed.Substring("_Hai_GestureCombo".Length)));
 
-                EditorGUILayout.Space();
+                EditorGUILayout.Separator();
 
                 EditorGUILayout.LabelField("Animation Conflict Prevention", EditorStyles.boldLabel);
                 EditorGUILayout.PropertyField(conflictPreventionMode, new GUIContent("Mode"));
@@ -145,7 +149,16 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 EditorGUILayout.PropertyField(conflictFxLayerMode, new GUIContent("Transforms removal"));
                 EditorGUI.EndDisabledGroup();
 
-                CpmRemovalWarning(true);
+                if (conflictPreventionMode.intValue == (int) ConflictPreventionMode.GenerateAnimations) {
+                    CpmRemovalWarning(true);
+                }
+                EditorGUILayout.Separator();
+
+                EditorGUI.BeginDisabledGroup(conflictPreventionMode.intValue != (int) ConflictPreventionMode.GenerateAnimations);
+                EditorGUILayout.LabelField("Fallback generation", EditorStyles.boldLabel);
+                EditorGUILayout.PropertyField(ignoreParamList, new GUIContent("Ignored properties"));
+                EditorGUILayout.PropertyField(fallbackParamList, new GUIContent("Fallback values"));
+                EditorGUI.EndDisabledGroup();
             }
             else
             {
@@ -183,18 +196,20 @@ Whenever an animation is modified, you will need to click Synchronize again.", M
                     case ConflictFxLayerMode.RemoveTransformsAndMuscles:
                         if (exhaustive)
                         {
-                            EditorGUILayout.HelpBox(@"Transforms and muscles will be removed from the FX layer.
+                            EditorGUILayout.HelpBox(@"Transforms and muscles will be removed.
 This is the default behavior.", MessageType.Info);
                         }
                         break;
                     case ConflictFxLayerMode.KeepBoth:
-                            EditorGUILayout.HelpBox(@"Transforms and muscles will not be removed from the FX layer.
-This might cause conflicts with other animations.
+                            EditorGUILayout.HelpBox(@"Transforms and muscles will not be removed, but the FX Playable layer is not meant to manipulate them.
+Not removing them might cause conflicts with other animations.
 
 (Advanced settings)", MessageType.Warning);
                         break;
                     case ConflictFxLayerMode.KeepOnlyTransformsAndMuscles:
                         EditorGUILayout.HelpBox(@"Everything will be removed except transforms and muscle animations.
+However, the FX Playable layer is not meant to manipulate them.
+
 This is not a normal usage of ComboGestureExpressions, and should not be used except in special cases.
 
 (Advanced settings)", MessageType.Error);
@@ -218,7 +233,9 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
                 | (exposeDisableBlinkingOverride.boolValue ? FeatureToggles.ExposeDisableBlinkingOverride : 0)
                 | (exposeAreEyesClosed.boolValue ? FeatureToggles.ExposeAreEyesClosed : 0),
                 compiler.conflictPreventionMode,
-                compiler.conflictFxLayerMode
+                compiler.conflictFxLayerMode,
+                compiler.ignoreParamList,
+                compiler.fallbackParamList
             ).DoOverwriteAnimatorFxLayer();
         }
 
