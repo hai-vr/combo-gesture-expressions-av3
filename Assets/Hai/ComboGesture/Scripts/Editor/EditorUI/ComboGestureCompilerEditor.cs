@@ -23,6 +23,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public SerializedProperty conflictPreventionMode;
         public SerializedProperty conflictFxLayerMode;
 
+        public SerializedProperty editorAdvancedFoldout;
+
         private void OnEnable()
         {
             animatorController = serializedObject.FindProperty("animatorController");
@@ -50,9 +52,10 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             _guideIcon16 = AssetDatabase.LoadAssetAtPath<Texture>("Assets/Hai/ComboGesture/Icons/guide-16.png");
             _guideIcon32 = AssetDatabase.LoadAssetAtPath<Texture>("Assets/Hai/ComboGesture/Icons/guide-32.png");
+
+            editorAdvancedFoldout = serializedObject.FindProperty("editorAdvancedFoldout");
         }
 
-        private bool _foldoutAdvanced;
         private bool _foldoutHelp;
         private Texture _guideIcon16;
         private Texture _guideIcon32;
@@ -113,8 +116,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             EditorGUILayout.Space();
 
-            _foldoutAdvanced = EditorGUILayout.Foldout(_foldoutAdvanced, "Advanced");
-            if (_foldoutAdvanced)
+            editorAdvancedFoldout.boolValue = EditorGUILayout.Foldout(editorAdvancedFoldout.boolValue, "Advanced");
+            if (editorAdvancedFoldout.boolValue)
             {
                 EditorGUILayout.LabelField("Fine tuning", EditorStyles.boldLabel);
                 EditorGUILayout.PropertyField(customEmptyClip, new GUIContent("Custom 2-frame empty animation clip (optional)"));

@@ -17,6 +17,8 @@ namespace Hai.ComboGesture.Scripts.Components
 
         public ConflictPreventionMode conflictPreventionMode = ConflictPreventionMode.GenerateAnimations;
         public ConflictFxLayerMode conflictFxLayerMode = ConflictFxLayerMode.RemoveTransformsAndMuscles;
+
+        public bool editorAdvancedFoldout;
     }
 
     [System.Serializable]
