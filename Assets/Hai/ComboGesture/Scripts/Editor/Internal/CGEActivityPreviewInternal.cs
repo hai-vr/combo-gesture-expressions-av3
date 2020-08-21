@@ -100,7 +100,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             SceneView.RepaintAll();
             AnimationMode.StopAnimationMode();
             Object.DestroyImmediate(generatedCamera.gameObject);
-            GetDummy().gameObject.SetActive(false);
+            if (_activity.previewSetup.autoHide) {
+                GetDummy().gameObject.SetActive(false);
+            }
         }
 
         private static void Reevaluate(List<Action<int>> actions, List<Action<int>> cleanupActions)

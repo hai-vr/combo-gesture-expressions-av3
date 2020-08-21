@@ -7,6 +7,7 @@ namespace Hai.ComboGesture.Scripts.Components
     {
         public Camera camera;
         public Animator previewDummy;
+        public bool autoHide;
 
         public bool IsValid()
         {
