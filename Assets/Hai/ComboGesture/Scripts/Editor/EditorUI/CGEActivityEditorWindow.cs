@@ -5,6 +5,7 @@ using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.Internal;
 using UnityEditor;
 using UnityEngine;
+using static Hai.ComboGesture.Scripts.Editor.EditorUI.CgeActivityEditorCombiner;
 using static UnityEditor.EditorGUIUtility;
 
 namespace Hai.ComboGesture.Scripts.Editor.EditorUI
@@ -25,7 +26,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         private static readonly int GuiSquareHeight = (int) (singleLineHeight * 3 + PictureHeight);
 
-        public AnimationClip noAnimationClipNullObject;
         private Dictionary<AnimationClip, Texture2D> _animationClipToTextureDict;
         private RenderTexture _renderTexture;
         public ComboGestureActivity activity;
@@ -41,19 +41,16 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         private AutoSetupPreview.SetupResult? _setupResult;
 
         private CgeActivityEditorDriver _driver;
-
-        private SerializedProperty _mergeTarget;
-        private SerializedProperty _mergeLeft;
-        private SerializedProperty _mergeRight;
+        private CgeActivityEditorCombiner _combiner;
 
         private static GUIStyle _middleAligned;
         private static GUIStyle _middleAlignedBold;
         private static GUIStyle _largeFont;
+
         private Vector2 scrollPos;
 
         private void OnEnable()
         {
-            noAnimationClipNullObject = new AnimationClip();
             _animationClipToTextureDict = new Dictionary<AnimationClip, Texture2D>();
             _driver = new CgeActivityEditorDriver();
 
@@ -132,21 +129,29 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             GUILayout.EndArea();
 
             GUILayout.BeginArea(new Rect(0, singleLineHeight * 4, position.width, GuiSquareHeight * 8));
+            scrollPos = GUILayout.BeginScrollView(scrollPos, GUILayout.Width(position.width), GUILayout.Height(position.height - singleLineHeight * 4));
             switch (_editorMode)
             {
                 case EditorMode.PreventEyesBlinking:
+                    BeginLayoutUsing(GuiSquareHeight * 8);
                     LayoutPreventEyesBlinking();
+                    EndLayout();
                     break;
                 case EditorMode.CombineFaceExpressions:
+                    BeginLayoutUsing(GuiSquareHeight * 8);
                     LayoutFaceExpressionCombiner();
+                    EndLayout();
                     break;
                 case EditorMode.OtherOptions:
+                    BeginLayoutUsing(GuiSquareHeight * 4);
                     LayoutOtherOptions();
+                    EndLayout();
                     break;
                 default:
                     LayoutActivityEditor();
                     break;
             }
+            GUILayout.EndScrollView();
             GUILayout.EndArea();
 
             serializedObject.ApplyModifiedProperties();
@@ -154,7 +159,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         private void LayoutActivityEditor()
         {
-            scrollPos = GUILayout.BeginScrollView(scrollPos, GUILayout.Width(position.width), GUILayout.Height(position.height - singleLineHeight * 4));
             switch (_editorTool.intValue)
             {
                 case 1:
@@ -174,7 +178,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                     LayoutFullMatrixProjection();
                     break;
             }
-            GUILayout.EndScrollView();
             EndLayout();
         }
 
@@ -248,7 +251,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 EditorGUI.BeginDisabledGroup(!AnimationMode.InAnimationMode());
                 if (GUILayout.Button("Stop generating previews"))
                 {
-                    CgeActivityPreviewInternal.Stop_Temp();
+                    CgePreviewProcessor.Stop_Temp();
                 }
                 EditorGUI.EndDisabledGroup();
 
@@ -392,7 +395,15 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         private void LayoutFaceExpressionCombiner()
         {
-            GUILayout.Label("TBD");
+            if (_combiner == null) return;
+
+            GUILayout.BeginArea(new Rect(80, 0, CombinerPreviewWidth, CombinerPreviewHeight));
+            GUILayout.Box(_combiner.LeftTexture(), GUILayout.Width(CombinerPreviewWidth), GUILayout.Height(CombinerPreviewHeight));
+            GUILayout.EndArea();
+
+            GUILayout.BeginArea(new Rect(GuiSquareWidth * 8 - CombinerPreviewWidth - 80, 0, CombinerPreviewWidth, CombinerPreviewHeight));
+            GUILayout.Box(_combiner.RightTexture(), GUILayout.Width(CombinerPreviewWidth), GUILayout.Height(CombinerPreviewHeight));
+            GUILayout.EndArea();
         }
 
         private static Rect RectAt(int xGrid, int yGrid)
@@ -412,18 +423,17 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             if (_driver.IsAPropertyThatCanBeCombined(propertyPath))
             {
-                var areSourcesCompatible = _driver.AreCombinationSourcesDefinedAndCompatible(serializedObject, propertyPath);
-
                 var rect = element != null
                     ? new Rect(GuiSquareWidth - 2 * singleLineHeight, PictureHeight - singleLineHeight * 0.5f, singleLineHeight * 2, singleLineHeight * 1.5f)
                     : new Rect(GuiSquareWidth - 100, PictureHeight - singleLineHeight * 0.5f, 100, singleLineHeight * 1.5f);
 
+                var areSourcesCompatible = _driver.AreCombinationSourcesDefinedAndCompatible(serializedObject, propertyPath);
                 EditorGUI.BeginDisabledGroup(!areSourcesCompatible);
                 GUILayout.BeginArea(rect);
                 if (GUILayout.Button(element != null ? "+": "+ Combine"))
                 {
                     var merge = _driver.ProvideCombinationPropertySources(propertyPath);
-                    OpenMergeWindowFor(propertyPath, merge.Left, merge.Right);
+                    OpenMergeWindowFor(merge.Left, merge.Right);
                 }
                 GUILayout.EndArea();
                 EditorGUI.EndDisabledGroup();
@@ -470,11 +480,17 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             GUILayout.EndArea();
         }
 
-        private void OpenMergeWindowFor(string target, string left, string right)
+        private void OpenMergeWindowFor(string left, string right)
         {
-            _mergeTarget = serializedObject.FindProperty(target);
-            _mergeLeft = serializedObject.FindProperty(left);
-            _mergeRight = serializedObject.FindProperty(right);
+            var leftAnim = serializedObject.FindProperty(left).objectReferenceValue;
+            var rightAnim = serializedObject.FindProperty(right).objectReferenceValue;
+
+            var areBothAnimations = leftAnim is AnimationClip && rightAnim is AnimationClip;
+            if (!areBothAnimations) return;
+
+            _combiner = new CgeActivityEditorCombiner(activity, (AnimationClip) leftAnim, (AnimationClip) rightAnim, Repaint);
+            _combiner.Prepare();
+
             _editorMode = EditorMode.CombineFaceExpressions;
         }
 
