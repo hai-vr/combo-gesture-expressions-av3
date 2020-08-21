@@ -28,6 +28,16 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         public Type Type { get; }
         public string PropertyName { get; }
 
+        public static bool operator ==(CurveKey left, CurveKey right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(CurveKey left, CurveKey right)
+        {
+            return !left.Equals(right);
+        }
+
         public bool Equals(CurveKey other)
         {
             return Path == other.Path && Equals(Type, other.Type) && PropertyName == other.PropertyName;

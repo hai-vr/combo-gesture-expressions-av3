@@ -9,21 +9,23 @@ using Object = UnityEngine.Object;
 
 namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 {
-    [Serializable]
-    class CgeDecider : Object
+    enum Side
+    {
+        Left, Right
+    }
+
+    class CgeDecider
     {
         public List<SideDecider> left;
         public List<SideDecider> right;
         public List<IntersectionDecider> intersection;
     }
 
-    [Serializable]
     enum IntersectionChoice
     {
         UseLeft, UseRight, UseNone
     }
 
-    [Serializable]
     struct SideDecider
     {
         public SideDecider(CurveKey key, bool choice)
@@ -33,7 +35,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         }
 
         public CurveKey Key { get; }
-        public bool Choice { get; }
+        public bool Choice { get; set; }
     }
 
     [Serializable]
@@ -46,7 +48,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         }
 
         public CurveKey Key { get; }
-        public IntersectionChoice Choice { get; }
+        public IntersectionChoice Choice { get; set; }
     }
 
     internal class CgeActivityEditorCombiner
@@ -96,12 +98,35 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             CreatePreviews();
         }
 
-        public SerializedObject NewSerializableDecider()
+        public CgeDecider GetDecider()
         {
-            Debug.Log(_cgeDecider.left);
-            Debug.Log(_cgeDecider.right);
-            Debug.Log(_cgeDecider.intersection);
-            return new SerializedObject(_cgeDecider);
+            return _cgeDecider;
+        }
+
+        public void UpdateSide(Side side, CurveKey keyToUpdate, bool newChoice)
+        {
+            var sideDeciders = PickSide(side);
+            var index = sideDeciders.FindIndex(decider => decider.Key == keyToUpdate);
+            sideDeciders[index] = new SideDecider(keyToUpdate, newChoice);
+        }
+
+        public void UpdateIntersection(CurveKey keyToUpdate, IntersectionChoice newChoice)
+        {
+            var index = _cgeDecider.intersection.FindIndex(decider => decider.Key == keyToUpdate);
+            _cgeDecider.intersection[index] = new IntersectionDecider(keyToUpdate, newChoice);
+        }
+
+        private List<SideDecider> PickSide(Side side)
+        {
+            switch (side)
+            {
+                case Side.Left:
+                    return _cgeDecider.left;
+                case Side.Right:
+                    return _cgeDecider.right;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(side), side, null);
+            }
         }
 
         private HashSet<CurveKey> FilterAnimationClip(AnimationClip clip)

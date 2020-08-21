@@ -46,18 +46,14 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         private static GUIStyle _middleAligned;
         private static GUIStyle _middleAlignedBold;
         private static GUIStyle _largeFont;
+        private static GUIStyle _normalFont;
 
         private Vector2 scrollPos;
-        private SerializedObject _decider;
 
         private void OnEnable()
         {
             _animationClipToTextureDict = new Dictionary<AnimationClip, Texture2D>();
             _driver = new CgeActivityEditorDriver();
-
-            _middleAligned = new GUIStyle {alignment = TextAnchor.MiddleCenter, clipping = TextClipping.Overflow};
-            _middleAlignedBold = new GUIStyle(EditorStyles.boldLabel) {alignment = TextAnchor.MiddleCenter, clipping = TextClipping.Overflow};
-            _largeFont = new GUIStyle {fontSize = 20};
         }
 
         private void OnInspectorUpdate()
@@ -77,6 +73,11 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         private void OnGUI()
         {
+            _middleAligned = new GUIStyle {alignment = TextAnchor.MiddleCenter, clipping = TextClipping.Overflow};
+            _middleAlignedBold = new GUIStyle(EditorStyles.boldLabel) {alignment = TextAnchor.MiddleCenter, clipping = TextClipping.Overflow};
+            _largeFont = new GUIStyle {fontSize = 20};
+            _normalFont = new GUIStyle {};
+
             if (activity != null && serializedObject == null)
             {
                 serializedObject = new SerializedObject(activity);
@@ -398,43 +399,103 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         {
             if (_combiner == null) return;
 
-            if (_decider == null)
-            {
-                _decider = _combiner.NewSerializableDecider();
-            }
+            var decider = _combiner.GetDecider();
 
-            GUILayout.BeginArea(new Rect(10, 0, CombinerPreviewWidth, CombinerPreviewHeight));
+            var CombinerEditorWidth = GuiSquareWidth * 5;
+            GUILayout.BeginArea(new Rect(10, 0, CombinerPreviewWidth, CombinerPreviewHeight * 3));
             GUILayout.Box(_combiner.LeftTexture(), GUILayout.Width(CombinerPreviewWidth), GUILayout.Height(CombinerPreviewHeight));
+            LayoutIntersectionDecider(decider.intersection, Side.Left);
+            LayoutSideDecider(decider.left, Side.Left);
             GUILayout.EndArea();
 
-            GUILayout.BeginArea(new Rect(GuiSquareWidth * 8 - CombinerPreviewWidth - 10, 0, CombinerPreviewWidth, CombinerPreviewHeight));
+            GUILayout.BeginArea(new Rect(CombinerEditorWidth - CombinerPreviewWidth - 10, 0, CombinerPreviewWidth, CombinerPreviewHeight * 3));
             GUILayout.Box(_combiner.RightTexture(), GUILayout.Width(CombinerPreviewWidth), GUILayout.Height(CombinerPreviewHeight));
+            LayoutIntersectionDecider(decider.intersection, Side.Right);
+            LayoutSideDecider(decider.right, Side.Right);
             GUILayout.EndArea();
+        }
 
-            GUILayout.BeginArea(new Rect(0, CombinerPreviewHeight, GuiSquareWidth * 8, GuiSquareWidth * 8 - CombinerPreviewHeight));
-            GUILayout.BeginHorizontal();
-            GUILayout.BeginVertical();
-
-            var side = _decider.FindProperty("left");
-            var arraySize = side.arraySize;
-            for (var i = 0; i < arraySize; i++)
+        private void LayoutSideDecider(List<SideDecider> sideDeciders, Side side)
+        {
+            var duplicate = sideDeciders.ToList(); // collection is being modified while iterating and I don't have time to fix this
+            foreach (var sideDecider in duplicate)
             {
-                var elt = side.GetArrayElementAtIndex(i);
-                var curve = elt.FindPropertyRelative("curve");
+                var value = sideDecider.Choice;
+                GUILayout.BeginHorizontal();
 
-                EditorGUILayout.PropertyField(
-                    elt.FindPropertyRelative("choice"), new GUIContent(
-                    curve.FindPropertyRelative("path").stringValue + ":" +
-                    curve.FindPropertyRelative("propertyName").stringValue
-                ));
+                if (side == Side.Left) {
+                    EditorGUI.BeginDisabledGroup(!value);
+                    GUILayout.Label(ToFormattedName(sideDecider.Key, value), _normalFont);
+                    EditorGUI.EndDisabledGroup();
+                }
+
+                if (GUILayout.Button("Use", GUILayout.Width(50)))
+                {
+                    _combiner.UpdateSide(side, sideDecider.Key, !value);
+                }
+
+                if (side == Side.Right) {
+                    EditorGUI.BeginDisabledGroup(!value);
+                    GUILayout.Label(ToFormattedName(sideDecider.Key, value), _normalFont);
+                    EditorGUI.EndDisabledGroup();
+                }
+
+                GUILayout.EndHorizontal();
+            }
+        }
+
+        private void LayoutIntersectionDecider(List<IntersectionDecider> intersectionDeciders, Side side)
+        {
+            var duplicate = intersectionDeciders.ToList(); // collection is being modified while iterating and I don't have time to fix this
+            foreach (var intersectionDecider in duplicate)
+            {
+                GUILayout.BeginHorizontal();
+
+                var currentChoice = intersectionDecider.Choice;
+                var valueAsBool = side == Side.Left && currentChoice == IntersectionChoice.UseLeft ||
+                        side == Side.Right && currentChoice == IntersectionChoice.UseRight;
+
+                var formattedName = ToFormattedName(
+                    intersectionDecider.Key,
+                    valueAsBool
+                );
+                if (side == Side.Left)
+                {
+                    EditorGUI.BeginDisabledGroup(!valueAsBool);
+                    GUILayout.Label(formattedName, _normalFont);
+                    EditorGUI.EndDisabledGroup();
+                }
+                if (GUILayout.Button("Use", GUILayout.Width(80)))
+                {
+                    IntersectionChoice newChoice;
+                    if (side == Side.Left)
+                    {
+                        newChoice = currentChoice != IntersectionChoice.UseLeft ? IntersectionChoice.UseLeft : IntersectionChoice.UseNone;
+                    }
+                    else
+                    {
+                        newChoice = currentChoice != IntersectionChoice.UseRight ? IntersectionChoice.UseRight : IntersectionChoice.UseNone;
+                    }
+                    _combiner.UpdateIntersection(intersectionDecider.Key, newChoice);
+                }
+                if (side == Side.Right) {
+                    EditorGUI.BeginDisabledGroup(!valueAsBool);
+                    GUILayout.Label(formattedName, _normalFont);
+                    EditorGUI.EndDisabledGroup();
+                }
+                GUILayout.EndHorizontal();
+            }
+        }
+
+        private static string ToFormattedName(CurveKey key, bool value)
+        {
+            var niceName = key.PropertyName.Replace("blendShape.", "::") + " @ " + key.Path;
+            if (value)
+            {
+                return "<b>" + niceName + "</b>";
             }
 
-            GUILayout.EndVertical();
-            GUILayout.BeginVertical();
-            GUILayout.Label("hello");
-            GUILayout.EndVertical();
-            GUILayout.EndHorizontal();
-            GUILayout.EndArea();
+            return niceName;
         }
 
         private static Rect RectAt(int xGrid, int yGrid)
