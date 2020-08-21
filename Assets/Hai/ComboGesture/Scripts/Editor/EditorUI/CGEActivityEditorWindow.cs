@@ -48,6 +48,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         private static GUIStyle _largeFont;
 
         private Vector2 scrollPos;
+        private SerializedObject _decider;
 
         private void OnEnable()
         {
@@ -397,12 +398,42 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         {
             if (_combiner == null) return;
 
-            GUILayout.BeginArea(new Rect(80, 0, CombinerPreviewWidth, CombinerPreviewHeight));
+            if (_decider == null)
+            {
+                _decider = _combiner.NewSerializableDecider();
+            }
+
+            GUILayout.BeginArea(new Rect(10, 0, CombinerPreviewWidth, CombinerPreviewHeight));
             GUILayout.Box(_combiner.LeftTexture(), GUILayout.Width(CombinerPreviewWidth), GUILayout.Height(CombinerPreviewHeight));
             GUILayout.EndArea();
 
-            GUILayout.BeginArea(new Rect(GuiSquareWidth * 8 - CombinerPreviewWidth - 80, 0, CombinerPreviewWidth, CombinerPreviewHeight));
+            GUILayout.BeginArea(new Rect(GuiSquareWidth * 8 - CombinerPreviewWidth - 10, 0, CombinerPreviewWidth, CombinerPreviewHeight));
             GUILayout.Box(_combiner.RightTexture(), GUILayout.Width(CombinerPreviewWidth), GUILayout.Height(CombinerPreviewHeight));
+            GUILayout.EndArea();
+
+            GUILayout.BeginArea(new Rect(0, CombinerPreviewHeight, GuiSquareWidth * 8, GuiSquareWidth * 8 - CombinerPreviewHeight));
+            GUILayout.BeginHorizontal();
+            GUILayout.BeginVertical();
+
+            var side = _decider.FindProperty("left");
+            var arraySize = side.arraySize;
+            for (var i = 0; i < arraySize; i++)
+            {
+                var elt = side.GetArrayElementAtIndex(i);
+                var curve = elt.FindPropertyRelative("curve");
+
+                EditorGUILayout.PropertyField(
+                    elt.FindPropertyRelative("choice"), new GUIContent(
+                    curve.FindPropertyRelative("path").stringValue + ":" +
+                    curve.FindPropertyRelative("propertyName").stringValue
+                ));
+            }
+
+            GUILayout.EndVertical();
+            GUILayout.BeginVertical();
+            GUILayout.Label("hello");
+            GUILayout.EndVertical();
+            GUILayout.EndHorizontal();
             GUILayout.EndArea();
         }
 

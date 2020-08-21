@@ -116,8 +116,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             var left = serializedObject.FindProperty(mergePair.Left).objectReferenceValue;
             var right = serializedObject.FindProperty(mergePair.Right).objectReferenceValue;
 
-            Debug.Log(propertyPath + " has " + left + " " + right);
-
             return left != null && right != null && left != right;
         }
 

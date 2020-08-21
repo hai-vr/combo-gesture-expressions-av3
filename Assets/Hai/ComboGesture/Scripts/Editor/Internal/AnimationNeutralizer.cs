@@ -9,7 +9,7 @@ using Object = UnityEngine.Object;
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
-    internal class AnimationNeutralizer
+    class AnimationNeutralizer
     {
         private readonly List<ActivityManifest> _originalActivityManifests;
         private readonly ConflictFxLayerMode _compilerConflictFxLayerMode;
@@ -116,7 +116,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             {
                 foreach (var curveKey in thisAnimationPaths)
                 {
-                    var isTransformOrMuscleCurve = IsTransformOrMuscleCurve(curveKey);
+                    var isTransformOrMuscleCurve = curveKey.IsTransformOrMuscleCurve();
                     if (_compilerConflictFxLayerMode == ConflictFxLayerMode.KeepOnlyTransformsAndMuscles ? !isTransformOrMuscleCurve : isTransformOrMuscleCurve)
                     {
                         copyOfAnimationClip.SetCurve(curveKey.Path, curveKey.Type, curveKey.PropertyName, null);
@@ -140,46 +140,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
         }
 
-        struct CurveKey
-        {
-            public static CurveKey FromBinding(EditorCurveBinding binding)
-            {
-                return new CurveKey(binding.path, binding.type, binding.propertyName);
-            }
-
-            public CurveKey(string path, Type type, string propertyName)
-            {
-                Path = path;
-                Type = type;
-                PropertyName = propertyName;
-            }
-
-            public string Path { get; }
-            public Type Type { get; }
-            public string PropertyName { get; }
-
-            public bool Equals(CurveKey other)
-            {
-                return Path == other.Path && Equals(Type, other.Type) && PropertyName == other.PropertyName;
-            }
-
-            public override bool Equals(object obj)
-            {
-                return obj is CurveKey other && Equals(other);
-            }
-
-            public override int GetHashCode()
-            {
-                unchecked
-                {
-                    var hashCode = (Path != null ? Path.GetHashCode() : 0);
-                    hashCode = (hashCode * 397) ^ (Type != null ? Type.GetHashCode() : 0);
-                    hashCode = (hashCode * 397) ^ (PropertyName != null ? PropertyName.GetHashCode() : 0);
-                    return hashCode;
-                }
-            }
-        }
-
         private HashSet<CurveKey> FindAllApplicableCurveKeys(HashSet<AnimationClip> allAnimationClips)
         {
             var curveKeys = allAnimationClips
@@ -190,9 +150,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 {
                     switch (_compilerConflictFxLayerMode)
                     {
-                        case ConflictFxLayerMode.RemoveTransformsAndMuscles: return !IsTransformOrMuscleCurve(curveKey);
+                        case ConflictFxLayerMode.RemoveTransformsAndMuscles: return !curveKey.IsTransformOrMuscleCurve();
                         case ConflictFxLayerMode.KeepBoth: return true;
-                        case ConflictFxLayerMode.KeepOnlyTransformsAndMuscles: return IsTransformOrMuscleCurve(curveKey);
+                        case ConflictFxLayerMode.KeepOnlyTransformsAndMuscles: return curveKey.IsTransformOrMuscleCurve();
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
@@ -200,11 +160,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 .ToList();
 
             return new HashSet<CurveKey>(curveKeys);
-        }
-
-        private static bool IsTransformOrMuscleCurve(CurveKey curveKey)
-        {
-            return curveKey.Type == typeof(Transform) || curveKey.Type == typeof(Animator);
         }
     }
 }
