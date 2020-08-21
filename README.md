@@ -4,7 +4,7 @@
 
 *ComboGestureExpressions* is an Unity Editor tool that lets you attach face expressions to hand gestures, and automatically generate an *Avatars 3.0* animator to match these gestures.
 
-![](https://github.com/hai-vr/combo-gesture-expressions-av3/raw/z-res-pictures/Documentation/illustration.gif)
+![](https://github.com/hai-vr/combo-gesture-expressions-av3/raw/z-res-pictures/Documentation/illustration-1.gif)
 
 Using this tool:
 
@@ -32,10 +32,21 @@ If you wish to have multiple sets of face expressions, add additional *Combo Ges
 
 ### Combo Gesture Activity
 
+#### Setup
 - Create a GameObject with a *Combo Gesture Activity* component.
-- Add the 36 animations for each combination of gestures, leaving some of them blank if needed.
-  - Duplicate animations are allowed.
-  - The folding menus lets you filter by a specific gesture.
+- Click the *Open editor* button.
+- If your avatar is already set up in the scene, click *Automatically setup preview!*.
+  A duplicate of the avatar and a camera will be created in the scene in order to preview the face expressions. 
+- The camera position can be adjusted if needed.
+- At any time, press *Generate preview* to see an overview of the face expressions.
+
+![](https://github.com/hai-vr/combo-gesture-expressions-av3/raw/z-res-pictures/Documentation/preview-adjust-camera.gif)
+
+#### Select animations
+
+- Start with *Set face expressions* > *Singles* and *Set face expressions* > *Analog Fist*.
+- Fill the 7 base gestures, leaving some of them blank if needed.
+- Press *Generate preview* to see an overview of the face expressions.
 - Reference:
   - *Exactly one* / *No gesture*: 🤙 (Neutral)
   - FIST: ✊ (Fist)
@@ -45,19 +56,39 @@ If you wish to have multiple sets of face expressions, add additional *Combo Ges
   - ROCKNROLL: 🤘 (RockNRoll)
   - GUN: 🎯👈 (HandGun)
   - THUMBSUP: 👍 (ThumbsUp)
-  - *...on both hands*: 🙌
+  - *...on both hands* / *x2*: 🙌
+- Press *Auto-set* to copy the animation to other similar slots.
+  - This is useful if you want an animation to be identical if you're only doing it on only one hand or on both hands.
+  - This is useful on *Fist* gestures if you are never using them: *Auto-set* will cause the *Fist* gesture to be essentially ignored.
 
-![](https://github.com/hai-vr/combo-gesture-expressions-av3/raw/z-res-pictures/Documentation/inspector-activity-default_illustrated.png)
+#### Combine face expressions
+
+- Continue with *Set face expressions* > *Combos*.
+- Press *+ Combine* on an unassigned slot to combine the face expressions.
+- Check the previews at the center to see if the combined face looks good.
+- If the preview does not look good, try to fix it by pressing *Use* on any face expression property to toggle it.
+- When done, press *Save and assign*.
+
+![](https://github.com/hai-vr/combo-gesture-expressions-av3/raw/z-res-pictures/Documentation/solve-conflict.gif)
+
+- Continue until you have selected 36 face expressions for each combination of gestures, leaving some of them blank if needed.
+  - Duplicate animations are allowed.
 
 - If you leave blank (*None (Animation Clip)*), the animation in *No Gesture* will be used instead if present.
-  Otherwise, the face will fall back to the default expression of the skinned mesh renderer.
+  Otherwise, the face will fall back to some default values (see [Advanced: Fallback values](#advanced-fallback-values)).
+- All Fist gestures are analog, and will blend depending on how much the trigger is squeezed.
+- If both hands are in a Fist gesture, you can choose to have multiple animations for each hand:
+  - when only the Left analog trigger is squeezed (*Fist x2, Left trigger*)
+  - when only the Right analog trigger is squeezed (*Fist x2, Right trigger*)
+  - when both analog triggers are squeezed (*Fist x2, L+R trigger*)
+- If *Fist x2, Left trigger* or *Fist x2, Right trigger* is left empty, the animation in *Fist x2, L+R trigger* will be used instead.
 
-![](https://github.com/hai-vr/combo-gesture-expressions-av3/raw/z-res-pictures/Documentation/inspector-activity-fallback_illustrated.png)
+![](https://github.com/hai-vr/combo-gesture-expressions-av3/raw/z-res-pictures/Documentation/fallback-1.png)
 
-- In *Closed eyes animations* list, add face expressions that have closed eyes.
+- In *Prevent eyes blinking* tab, select face expressions that have both closed eyes.
   This will disable the blinking animation whenever any of these animations are active.
 
-![](https://github.com/hai-vr/combo-gesture-expressions-av3/raw/z-res-pictures/Documentation/inspector-activity-closed_illustrated.png)
+![](https://github.com/hai-vr/combo-gesture-expressions-av3/raw/z-res-pictures/Documentation/window-select-blinking.gif)
 
 ### Combo Gesture Compiler
 
