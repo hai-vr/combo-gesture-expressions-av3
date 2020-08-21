@@ -49,6 +49,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         private static GUIStyle _middleAligned;
         private static GUIStyle _middleAlignedBold;
         private static GUIStyle _largeFont;
+        private Vector2 scrollPos;
 
         private void OnEnable()
         {
@@ -143,27 +144,50 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                     LayoutOtherOptions();
                     break;
                 default:
-                    switch (_editorTool.intValue)
-                    {
-                        case 1:
-                            LayoutSinglesDoublesMatrixProjection();
-                            break;
-                        case 2:
-                            LayoutFistMatrixProjection();
-                            break;
-                        case 3:
-                            LayoutComboMatrixProjection();
-                            break;
-                        default:
-                            LayoutFullMatrixProjection();
-                            break;
-                    }
-
+                    LayoutActivityEditor();
                     break;
             }
             GUILayout.EndArea();
 
             serializedObject.ApplyModifiedProperties();
+        }
+
+        private void LayoutActivityEditor()
+        {
+            scrollPos = GUILayout.BeginScrollView(scrollPos, GUILayout.Width(position.width), GUILayout.Height(position.height - singleLineHeight * 4));
+            switch (_editorTool.intValue)
+            {
+                case 1:
+                    BeginLayoutUsing(GuiSquareHeight * 2);
+                    LayoutSinglesDoublesMatrixProjection();
+                    break;
+                case 2:
+                    BeginLayoutUsing(GuiSquareHeight * 5);
+                    LayoutFistMatrixProjection();
+                    break;
+                case 3:
+                    BeginLayoutUsing(GuiSquareHeight * 8);
+                    LayoutComboMatrixProjection();
+                    break;
+                default:
+                    BeginLayoutUsing(GuiSquareHeight * 8);
+                    LayoutFullMatrixProjection();
+                    break;
+            }
+            GUILayout.EndScrollView();
+            EndLayout();
+        }
+
+        private void BeginLayoutUsing(int totalHeight)
+        {
+            var totalWidth = GuiSquareWidth * 8;
+            GUILayout.Box("", GUIStyle.none, GUILayout.Width(totalWidth), GUILayout.Height(totalHeight));
+            GUILayout.BeginArea(new Rect(Math.Max((position.width - totalWidth) / 2, 0), 0, totalWidth, totalHeight));
+        }
+
+        private static void EndLayout()
+        {
+            GUILayout.EndArea();
         }
 
         private void LayoutOtherOptions()
