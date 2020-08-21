@@ -9,6 +9,14 @@ using static UnityEditor.EditorGUIUtility;
 
 namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 {
+    enum EditorMode
+    {
+        SetFaceExpressions,
+        PreventEyesBlinking,
+        CombineFaceExpressions,
+        OtherOptions
+    }
+
     public class CgeEditorWindow : EditorWindow
     {
         private const int PictureWidth = 120;
@@ -58,6 +66,31 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             {"anim77", "THUMBSUP x2"}
         };
 
+        private static readonly Dictionary<string, MergePair> ParameterToMerge = new Dictionary<string, MergePair>
+        {
+            {"anim12", new MergePair("anim01", "anim02")},
+            {"anim13", new MergePair("anim01", "anim03")},
+            {"anim14", new MergePair("anim01", "anim04")},
+            {"anim15", new MergePair("anim01", "anim05")},
+            {"anim16", new MergePair("anim01", "anim06")},
+            {"anim17", new MergePair("anim01", "anim07")},
+            {"anim23", new MergePair("anim02", "anim03")},
+            {"anim24", new MergePair("anim02", "anim04")},
+            {"anim25", new MergePair("anim02", "anim05")},
+            {"anim26", new MergePair("anim02", "anim06")},
+            {"anim27", new MergePair("anim02", "anim07")},
+            {"anim34", new MergePair("anim03", "anim04")},
+            {"anim35", new MergePair("anim03", "anim05")},
+            {"anim36", new MergePair("anim03", "anim06")},
+            {"anim37", new MergePair("anim03", "anim07")},
+            {"anim45", new MergePair("anim04", "anim05")},
+            {"anim46", new MergePair("anim04", "anim06")},
+            {"anim47", new MergePair("anim04", "anim07")},
+            {"anim56", new MergePair("anim05", "anim06")},
+            {"anim57", new MergePair("anim05", "anim07")},
+            {"anim67", new MergePair("anim06", "anim07")}
+        };
+
         public AnimationClip noAnimationClipNullObject;
         private Dictionary<AnimationClip, Texture2D> _animationClipToTextureDict;
         private RenderTexture _renderTexture;
@@ -69,10 +102,13 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         private SerializedProperty _editorArbitraryAnimations;
         private SerializedProperty _previewSetup;
         private int _currentEditorToolValue = -1;
-        private int _editorMode;
+        private EditorMode _editorMode;
         private bool _firstTimeSetup;
         private AutoSetupPreview.SetupResult? _setupResult;
 
+        private SerializedProperty _mergeTarget;
+        private SerializedProperty _mergeLeft;
+        private SerializedProperty _mergeRight;
 
         private void OnEnable()
         {
@@ -109,7 +145,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
                 if (activity.previewSetup == null)
                 {
-                    _editorMode = 2;
+                    _editorMode = EditorMode.OtherOptions;
                     _firstTimeSetup = true;
                 }
             }
@@ -127,15 +163,20 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             serializedObject.Update();
 
             GUILayout.BeginArea(new Rect(0, singleLineHeight, position.width, singleLineHeight * 3));
-            _editorMode = GUILayout.Toolbar(_editorMode, new []
+            _editorMode = (EditorMode) GUILayout.Toolbar((int) _editorMode, new []
             {
-                "Edit face expressions", "Select closed eyes animations", "Other options"
+                "Set face expressions", "Prevent eyes blinking", "Combine face expressions", "Other options"
             });
             if (_editorMode == 0) {
+                GUILayout.BeginHorizontal();
+                GUILayout.Space(30);
                 _editorTool.intValue = GUILayout.Toolbar(_editorTool.intValue, new []
                 {
                     "All gestures", "Singles", "Analog Fist", "Combos"
-                });
+                }, GUILayout.ExpandWidth(true));
+
+                GUILayout.Space(30);
+                GUILayout.EndHorizontal();
                 _currentEditorToolValue = _editorTool.intValue;
             }
             GUILayout.EndArea();
@@ -143,26 +184,29 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             GUILayout.BeginArea(new Rect(0, singleLineHeight * 4, position.width, GuiSquareHeight * 8));
             switch (_editorMode)
             {
-                case 1:
-                    DrawClosedEyesManifest();
+                case EditorMode.PreventEyesBlinking:
+                    LayoutPreventEyesBlinking();
                     break;
-                case 2:
-                    DrawOtherOptions();
+                case EditorMode.CombineFaceExpressions:
+                    LayoutFaceExpressionCombiner();
+                    break;
+                case EditorMode.OtherOptions:
+                    LayoutOtherOptions();
                     break;
                 default:
                     switch (_editorTool.intValue)
                     {
                         case 1:
-                            DrawSinglesDoublesMatrixProjection();
+                            LayoutSinglesDoublesMatrixProjection();
                             break;
                         case 2:
-                            DrawFistMatrixProjection();
+                            LayoutFistMatrixProjection();
                             break;
                         case 3:
-                            DrawComboMatrixProjection();
+                            LayoutComboMatrixProjection();
                             break;
                         default:
-                            DrawFullMatrixProjection();
+                            LayoutFullMatrixProjection();
                             break;
                     }
 
@@ -173,7 +217,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             serializedObject.ApplyModifiedProperties();
         }
 
-        private void DrawOtherOptions()
+        private void LayoutOtherOptions()
         {
             if (_firstTimeSetup || activity.previewSetup == null)
             {
@@ -250,7 +294,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             }
         }
 
-        private void DrawFistMatrixProjection()
+        private void LayoutFistMatrixProjection()
         {
             for (var side = 0; side < 8; side++)
             {
@@ -292,7 +336,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             GUILayout.EndArea();
         }
 
-        private void DrawSinglesDoublesMatrixProjection()
+        private void LayoutSinglesDoublesMatrixProjection()
         {
             for (var side = 0; side < 8; side++)
             {
@@ -310,7 +354,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             }
         }
 
-        private void DrawComboMatrixProjection()
+        private void LayoutComboMatrixProjection()
         {
             for (var sideA = 0; sideA < 8; sideA++)
             {
@@ -337,7 +381,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             }
         }
 
-        private void DrawFullMatrixProjection()
+        private void LayoutFullMatrixProjection()
         {
             for (var left = 0; left < 8; left++)
             {
@@ -358,7 +402,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             GUILayout.EndArea();
         }
 
-        private void DrawClosedEyesManifest()
+        private void LayoutPreventEyesBlinking()
         {
             GUIStyle myStyle = new GUIStyle();
             myStyle.fontSize = 20;
@@ -373,6 +417,11 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 GUILayout.EndArea();
             }
             GUILayout.EndArea();
+        }
+
+        private void LayoutFaceExpressionCombiner()
+        {
+            GUILayout.Label("TBD");
         }
 
         private static Rect RectAt(int xGrid, int yGrid)
@@ -403,8 +452,32 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             DrawPreviewOrRefreshButton(element);
             GUILayout.EndArea();
 
+            if (ParameterToMerge.ContainsKey(propertyPath)) {
+                var merge = ParameterToMerge[propertyPath];
+                var left = serializedObject.FindProperty(merge.Left).objectReferenceValue;
+                var right = serializedObject.FindProperty(merge.Right).objectReferenceValue;
+                var areMergeAnimationsDefinedAndNotTheSame = left != null && right != null && left != right;
+
+                EditorGUI.BeginDisabledGroup(!areMergeAnimationsDefinedAndNotTheSame);
+                GUILayout.BeginArea(new Rect(GuiSquareWidth - 2 * singleLineHeight, PictureHeight - singleLineHeight * 0.5f, singleLineHeight * 2, singleLineHeight * 1.5f));
+                if (GUILayout.Button("M"))
+                {
+                    OpenMergeWindowFor(propertyPath, merge.Left, merge.Right);
+                }
+                GUILayout.EndArea();
+                EditorGUI.EndDisabledGroup();
+            }
+
             GUILayout.Space(PictureHeight);
             EditorGUILayout.PropertyField(property, GUIContent.none);
+        }
+
+        private void OpenMergeWindowFor(string target, string left, string right)
+        {
+            _mergeTarget = serializedObject.FindProperty(target);
+            _mergeLeft = serializedObject.FindProperty(left);
+            _mergeRight = serializedObject.FindProperty(right);
+            _editorMode = EditorMode.CombineFaceExpressions;
         }
 
         private void DrawBlinkingSwitch(AnimationClip element)
@@ -476,7 +549,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 }
                 else
                 {
-                    _editorMode = 2;
+                    _editorMode = EditorMode.OtherOptions;
                 }
             }
             EditorGUI.EndDisabledGroup();
@@ -487,5 +560,17 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         {
             _setupResult = new AutoSetupPreview(activity).AutoSetup();
         }
+    }
+
+    internal readonly struct MergePair
+    {
+        public MergePair(string left, string right)
+        {
+            Left = left;
+            Right = right;
+        }
+
+        public string Left { get; }
+        public string Right { get; }
     }
 }
