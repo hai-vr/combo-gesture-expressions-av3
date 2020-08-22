@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.Internal;
 using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 {
@@ -230,6 +232,20 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public Texture CombinedTexture()
         {
             return _combinedPreview.RenderTexture;
+        }
+
+        public AnimationClip SaveTo(string candidateFileName)
+        {
+            var copyOfCombinedAnimation = Object.Instantiate(_combinedPreview.Clip);
+
+            var originalAssetPath = AssetDatabase.GetAssetPath(_leftPreview.Clip);
+            var folder = originalAssetPath.Replace(Path.GetFileName(originalAssetPath), "");
+
+            var finalFilename = candidateFileName + "__" + DateTime.Now.ToString("yyyy'-'MM'-'dd'_'HHmmss") + ".anim";
+
+            var finalPath = folder + finalFilename;
+            AssetDatabase.CreateAsset(copyOfCombinedAnimation, finalPath);
+            return AssetDatabase.LoadAssetAtPath<AnimationClip>(finalPath);
         }
     }
 }

@@ -42,6 +42,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         private CgeActivityEditorDriver _driver;
         private CgeActivityEditorCombiner _combiner;
+        private string _combinerTarget;
+        private string _combinerCandidateFileName;
+        private bool _combinerIsLikelyEyesClosed;
 
         private static GUIStyle _middleAligned;
         private static GUIStyle _middleAlignedBold;
@@ -240,7 +243,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 EditorGUI.BeginDisabledGroup(AnimationMode.InAnimationMode());
                 if (GUILayout.Button("Generate missing previews"))
                 {
-                    new CgeActivityPreviewInternal(Repaint, activity, _animationClipToTextureDict, PictureWidth, PictureHeight, activity.editorArbitraryAnimations).Process(CgeActivityPreviewInternal.ProcessMode.CalculateMissing, null);
+                    GenerateMissingPreviews();
                 }
 
                 if (GUILayout.Button("Regenerate all previews"))
@@ -270,6 +273,11 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                     GUILayout.EndArea();
                 }
             }
+        }
+
+        private void GenerateMissingPreviews()
+        {
+            new CgeActivityPreviewInternal(Repaint, activity, _animationClipToTextureDict, PictureWidth, PictureHeight, activity.editorArbitraryAnimations).Process(CgeActivityPreviewInternal.ProcessMode.CalculateMissing, null);
         }
 
         private void LayoutFistMatrixProjection()
@@ -412,6 +420,20 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             GUILayout.BeginArea(new Rect(2 * Gap + CombinerPreviewWidth, VerticalGap, CombinerPreviewWidth, CombinerPreviewHeight * 3));
             GUILayout.Box(_combiner.CombinedTexture(), GUILayout.Width(CombinerPreviewWidth), GUILayout.Height(CombinerPreviewHeight));
+            _combinerCandidateFileName = GUILayout.TextField(_combinerCandidateFileName);
+            if (GUILayout.Button("Save and assign to " + _driver.ShortTranslation(_combinerTarget)))
+            {
+                var savedClip = _combiner.SaveTo(_combinerCandidateFileName);
+                serializedObject.FindProperty(_combinerTarget).objectReferenceValue = savedClip;
+                serializedObject.ApplyModifiedProperties();
+
+                GenerateMissingPreviews();
+                if (_combinerIsLikelyEyesClosed)
+                {
+                    activity.blinking.Add(savedClip);
+                }
+                _editorMode = EditorMode.SetFaceExpressions;
+            }
             GUILayout.EndArea();
 
             GUILayout.BeginArea(new Rect(3 * Gap + 2 * CombinerPreviewWidth, 0, CombinerPreviewWidth, CombinerPreviewHeight * 3));
@@ -531,7 +553,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 if (GUILayout.Button(element != null ? "+": "+ Combine"))
                 {
                     var merge = _driver.ProvideCombinationPropertySources(propertyPath);
-                    OpenMergeWindowFor(merge.Left, merge.Right);
+                    OpenMergeWindowFor(merge.Left, merge.Right, propertyPath);
                 }
                 GUILayout.EndArea();
                 EditorGUI.EndDisabledGroup();
@@ -578,7 +600,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             GUILayout.EndArea();
         }
 
-        private void OpenMergeWindowFor(string left, string right)
+        private void OpenMergeWindowFor(string left, string right, string propertyPath)
         {
             var leftAnim = serializedObject.FindProperty(left).objectReferenceValue;
             var rightAnim = serializedObject.FindProperty(right).objectReferenceValue;
@@ -588,6 +610,11 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             _combiner = new CgeActivityEditorCombiner(activity, (AnimationClip) leftAnim, (AnimationClip) rightAnim, Repaint);
             _combiner.Prepare();
+
+            _combinerTarget = propertyPath;
+            _combinerCandidateFileName = "cge_" + leftAnim.name + "__combined__" + rightAnim.name;
+
+            _combinerIsLikelyEyesClosed = activity.blinking.Contains(leftAnim) || activity.blinking.Contains(rightAnim);
 
             _editorMode = EditorMode.CombineFaceExpressions;
         }
