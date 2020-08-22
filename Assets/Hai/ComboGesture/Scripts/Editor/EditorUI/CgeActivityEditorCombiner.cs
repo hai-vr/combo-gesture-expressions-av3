@@ -191,7 +191,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         {
             return new HashSet<CurveKey>(AnimationUtility.GetCurveBindings(clip)
                 .Select(CurveKey.FromBinding)
-                .Where(curveKey => !curveKey.IsTransformOrMuscleCurve())
+                .Where(curveKey => !curveKey.IsMuscleCurve())
                 .Where(curveKey => curveKey.Path != "_ignored")
                 .ToList());
         }
