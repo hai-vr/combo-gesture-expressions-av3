@@ -402,13 +402,19 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             var decider = _combiner.GetDecider();
 
             var CombinerEditorWidth = GuiSquareWidth * 5;
-            GUILayout.BeginArea(new Rect(10, 0, CombinerPreviewWidth, CombinerPreviewHeight * 3));
+            var Gap = 10;
+            var VerticalGap = 10;
+            GUILayout.BeginArea(new Rect(Gap, 0, CombinerPreviewWidth, CombinerPreviewHeight * 3));
             GUILayout.Box(_combiner.LeftTexture(), GUILayout.Width(CombinerPreviewWidth), GUILayout.Height(CombinerPreviewHeight));
             LayoutIntersectionDecider(decider.intersection, Side.Left);
             LayoutSideDecider(decider.left, Side.Left);
             GUILayout.EndArea();
 
-            GUILayout.BeginArea(new Rect(CombinerEditorWidth - CombinerPreviewWidth - 10, 0, CombinerPreviewWidth, CombinerPreviewHeight * 3));
+            GUILayout.BeginArea(new Rect(2 * Gap + CombinerPreviewWidth, VerticalGap, CombinerPreviewWidth, CombinerPreviewHeight * 3));
+            GUILayout.Box(_combiner.CombinedTexture(), GUILayout.Width(CombinerPreviewWidth), GUILayout.Height(CombinerPreviewHeight));
+            GUILayout.EndArea();
+
+            GUILayout.BeginArea(new Rect(3 * Gap + 2 * CombinerPreviewWidth, 0, CombinerPreviewWidth, CombinerPreviewHeight * 3));
             GUILayout.Box(_combiner.RightTexture(), GUILayout.Width(CombinerPreviewWidth), GUILayout.Height(CombinerPreviewHeight));
             LayoutIntersectionDecider(decider.intersection, Side.Right);
             LayoutSideDecider(decider.right, Side.Right);

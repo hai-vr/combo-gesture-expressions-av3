@@ -5,7 +5,6 @@ using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.Internal;
 using UnityEditor;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 {
@@ -58,6 +57,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         private readonly AnimationPreview _leftPreview;
         private readonly AnimationPreview _rightPreview;
+        private AnimationPreview _combinedPreview;
         private readonly ComboGestureActivity _activity;
         private readonly Action _onClipRenderedFn;
         private CgeDecider _cgeDecider;
@@ -67,6 +67,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             _activity = activity;
             _leftPreview = new AnimationPreview(leftAnim, CgePreviewProcessor.NewPreviewTexture2D(CombinerPreviewWidth, CombinerPreviewHeight));
             _rightPreview = new AnimationPreview(rightAnim, CgePreviewProcessor.NewPreviewTexture2D(CombinerPreviewWidth, CombinerPreviewHeight));
+            _combinedPreview = new AnimationPreview(new AnimationClip(), CgePreviewProcessor.NewPreviewTexture2D(CombinerPreviewWidth, CombinerPreviewHeight));
             _onClipRenderedFn = onClipRenderedFn;
         }
 
@@ -75,6 +76,62 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             var leftCurves = FilterAnimationClip(_leftPreview.Clip);
             var rightCurves = FilterAnimationClip(_rightPreview.Clip);
 
+            _cgeDecider = CreateDeciders(leftCurves, rightCurves);
+
+            _combinedPreview = new AnimationPreview(GenerateCombinedClip(), _combinedPreview.RenderTexture);
+
+            CreatePreviews();
+        }
+
+        private AnimationClip GenerateCombinedClip()
+        {
+            var generatedClip = new AnimationClip();
+
+            var leftClipSettings = AnimationUtility.GetAnimationClipSettings(_leftPreview.Clip);
+            AnimationUtility.SetAnimationClipSettings(generatedClip, leftClipSettings);
+
+            var leftSide = AllActiveOf(_cgeDecider.left)
+                .Concat(AllIntersectOf(IntersectionChoice.UseLeft));
+
+            var rightSide = AllActiveOf(_cgeDecider.right)
+                .Concat(AllIntersectOf(IntersectionChoice.UseRight));
+
+            MutateClipUsing(_leftPreview.Clip, generatedClip, leftSide);
+            MutateClipUsing(_rightPreview.Clip, generatedClip, rightSide);
+
+            return generatedClip;
+        }
+
+        private void MutateClipUsing(AnimationClip source, AnimationClip destination, IEnumerable<CurveKey> curvesToKeep)
+        {
+            AnimationUtility.GetCurveBindings(source)
+                .Where(binding => curvesToKeep.Contains(CurveKey.FromBinding(binding)))
+                .ToList()
+                .ForEach(binding =>
+                {
+                    var curve = AnimationUtility.GetEditorCurve(source, binding);
+                    AnimationUtility.SetEditorCurve(destination, binding, curve);
+                });
+        }
+
+        private List<CurveKey> AllIntersectOf(IntersectionChoice intersectionChoice)
+        {
+            return _cgeDecider.intersection
+                .Where(decider => decider.Choice == intersectionChoice)
+                .Select(decider => decider.Key)
+                .ToList();
+        }
+
+        private List<CurveKey> AllActiveOf(List<SideDecider> sideDeciders)
+        {
+            return sideDeciders
+                .Where(decider => decider.Choice)
+                .Select(decider => decider.Key)
+                .ToList();
+        }
+
+        private static CgeDecider CreateDeciders(HashSet<CurveKey> leftCurves, HashSet<CurveKey> rightCurves)
+        {
             var leftDeciders = leftCurves
                 .Where(key => !rightCurves.Contains(key))
                 .Select(key => new SideDecider(key, true))
@@ -90,12 +147,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 .Select(key => new IntersectionDecider(key, IntersectionChoice.UseLeft))
                 .ToList();
 
-            _cgeDecider = new CgeDecider();
-            _cgeDecider.left = leftDeciders;
-            _cgeDecider.right = rightDeciders;
-            _cgeDecider.intersection = intersectionDeciders;
-
-            CreatePreviews();
+            return new CgeDecider {left = leftDeciders, right = rightDeciders, intersection = intersectionDeciders};
         }
 
         public CgeDecider GetDecider()
@@ -108,12 +160,16 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             var sideDeciders = PickSide(side);
             var index = sideDeciders.FindIndex(decider => decider.Key == keyToUpdate);
             sideDeciders[index] = new SideDecider(keyToUpdate, newChoice);
+
+            RegenerateCombinedPreview();
         }
 
         public void UpdateIntersection(CurveKey keyToUpdate, IntersectionChoice newChoice)
         {
             var index = _cgeDecider.intersection.FindIndex(decider => decider.Key == keyToUpdate);
             _cgeDecider.intersection[index] = new IntersectionDecider(keyToUpdate, newChoice);
+
+            RegenerateCombinedPreview();
         }
 
         private List<SideDecider> PickSide(Side side)
@@ -134,7 +190,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             return new HashSet<CurveKey>(AnimationUtility.GetCurveBindings(clip)
                 .Select(CurveKey.FromBinding)
                 .Where(curveKey => !curveKey.IsTransformOrMuscleCurve())
-                .Where(curveKey => curveKey.Path != "_ignore")
+                .Where(curveKey => curveKey.Path != "_ignored")
                 .ToList());
         }
 
@@ -142,7 +198,17 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         {
             if (_activity.previewSetup == null) return;
 
-            var animationsPreviews = new[] {_leftPreview, _rightPreview}.ToList();
+            var animationsPreviews = new[] {_leftPreview, _rightPreview, _combinedPreview}.ToList();
+            new CgePreviewProcessor(_activity.previewSetup, animationsPreviews, OnClipRendered).Capture();
+        }
+
+        private void RegenerateCombinedPreview()
+        {
+            if (_activity.previewSetup == null) return;
+
+            _combinedPreview = new AnimationPreview(GenerateCombinedClip(), _combinedPreview.RenderTexture);
+
+            var animationsPreviews = new[] {_combinedPreview}.ToList();
             new CgePreviewProcessor(_activity.previewSetup, animationsPreviews, OnClipRendered).Capture();
         }
 
@@ -159,6 +225,11 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public Texture RightTexture()
         {
             return _rightPreview.RenderTexture;
+        }
+
+        public Texture CombinedTexture()
+        {
+            return _combinedPreview.RenderTexture;
         }
     }
 }
