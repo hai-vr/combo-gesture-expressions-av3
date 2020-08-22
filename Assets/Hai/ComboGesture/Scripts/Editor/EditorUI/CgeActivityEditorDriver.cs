@@ -119,6 +119,20 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             return left != null && right != null && left != right;
         }
 
+        public bool AreCombinationSourcesIdentical(SerializedObject serializedObject, string propertyPath)
+        {
+            if (!IsAPropertyThatCanBeCombined(propertyPath))
+            {
+                return false;
+            }
+
+            var mergePair = ParameterToMerge[propertyPath];
+            var left = serializedObject.FindProperty(mergePair.Left).objectReferenceValue;
+            var right = serializedObject.FindProperty(mergePair.Right).objectReferenceValue;
+
+            return left != null && right != null && left == right;
+        }
+
         public MergePair ProvideCombinationPropertySources(string propertyPath)
         {
             if (!IsAPropertyThatCanBeCombined(propertyPath))

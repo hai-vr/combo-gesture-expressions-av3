@@ -579,6 +579,20 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 GUILayout.EndArea();
                 EditorGUI.EndDisabledGroup();
             }
+            else if (element == null && _driver.AreCombinationSourcesIdentical(serializedObject, propertyPath))
+            {
+                var propertyPathToCopyFrom = _driver.ProvideCombinationPropertySources(propertyPath).Left;
+                var animationToBeCopied = serializedObject.FindProperty(propertyPathToCopyFrom).objectReferenceValue;
+
+                EditorGUI.BeginDisabledGroup(animationToBeCopied == null);
+                GUILayout.BeginArea(new Rect(GuiSquareWidth - 100, PictureHeight - singleLineHeight * 1.75f, 100, singleLineHeight * 1.5f));
+                if (GUILayout.Button("Auto-set"))
+                {
+                    AutoSet(propertyPath, propertyPathToCopyFrom);
+                }
+                GUILayout.EndArea();
+                EditorGUI.EndDisabledGroup();
+            }
             else
             {
                 BeginInvisibleRankPreservingArea();
