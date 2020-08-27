@@ -21,6 +21,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public SerializedProperty exposeDisableBlinkingOverride;
         public SerializedProperty exposeAreEyesClosed;
 
+        public SerializedProperty expressionsAvatarMask;
+        public SerializedProperty logicalAvatarMask;
         public SerializedProperty doNotGenerateControllerLayer;
         public SerializedProperty doNotGenerateBlinkingOverrideLayer;
 
@@ -42,6 +44,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             exposeDisableBlinkingOverride = serializedObject.FindProperty("exposeDisableBlinkingOverride");
             exposeAreEyesClosed = serializedObject.FindProperty("exposeAreEyesClosed");
 
+            expressionsAvatarMask = serializedObject.FindProperty("expressionsAvatarMask");
+            logicalAvatarMask = serializedObject.FindProperty("logicalAvatarMask");
             doNotGenerateControllerLayer = serializedObject.FindProperty("doNotGenerateControllerLayer");
             doNotGenerateBlinkingOverrideLayer = serializedObject.FindProperty("doNotGenerateBlinkingOverrideLayer");
 
@@ -148,6 +152,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 EditorGUILayout.Separator();
 
                 EditorGUILayout.LabelField("Layer generation", EditorStyles.boldLabel);
+                EditorGUILayout.PropertyField(expressionsAvatarMask, new GUIContent("Add Avatar Mask to Expressions layer"));
+                EditorGUILayout.PropertyField(logicalAvatarMask, new GUIContent("Add Avatar Mask to Controller&Blinking layers"));
                 EditorGUILayout.PropertyField(doNotGenerateControllerLayer, new GUIContent("Don't generate Controller layer"));
                 GenControllerWarning(true);
                 EditorGUILayout.PropertyField(doNotGenerateBlinkingOverrideLayer, new GUIContent("Don't generate Blinking layer"));
@@ -276,7 +282,9 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
                 compiler.conflictPreventionMode,
                 compiler.conflictFxLayerMode,
                 compiler.ignoreParamList,
-                compiler.fallbackParamList
+                compiler.fallbackParamList,
+                compiler.expressionsAvatarMask,
+                compiler.logicalAvatarMask
             ).DoOverwriteAnimatorFxLayer();
         }
 

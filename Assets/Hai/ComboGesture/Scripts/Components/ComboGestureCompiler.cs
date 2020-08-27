@@ -18,6 +18,9 @@ namespace Hai.ComboGesture.Scripts.Components
         public bool doNotGenerateControllerLayer;
         public bool doNotGenerateBlinkingOverrideLayer;
 
+        public AvatarMask expressionsAvatarMask;
+        public AvatarMask logicalAvatarMask;
+
         public ConflictPreventionMode conflictPreventionMode = ConflictPreventionMode.GenerateAnimationsWithWriteDefaults;
         public ConflictFxLayerMode conflictFxLayerMode = ConflictFxLayerMode.RemoveTransformsAndMuscles;
 

@@ -37,6 +37,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly ConflictFxLayerMode _compilerConflictFxLayerMode;
         private readonly AnimationClip _compilerIgnoreParamList;
         private readonly AnimationClip _compilerFallbackParamList;
+        private readonly AvatarMask _expressionsAvatarMask;
+        private readonly AvatarMask _logicalAvatarMask;
         private readonly AnimatorGenerator _animatorGenerator;
 
         public ComboGestureCompilerInternal(string activityStageName,
@@ -48,7 +50,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             ConflictPreventionMode compilerConflictPreventionMode,
             ConflictFxLayerMode compilerConflictFxLayerMode,
             AnimationClip compilerIgnoreParamList,
-            AnimationClip compilerFallbackParamList)
+            AnimationClip compilerFallbackParamList,
+            AvatarMask expressionsAvatarMask,
+            AvatarMask logicalAvatarMask)
         {
             _activityStageName = activityStageName;
             _comboLayers = comboLayers;
@@ -60,6 +64,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _compilerConflictFxLayerMode = compilerConflictFxLayerMode;
             _compilerIgnoreParamList = compilerIgnoreParamList;
             _compilerFallbackParamList = compilerFallbackParamList;
+            _expressionsAvatarMask = expressionsAvatarMask;
+            _logicalAvatarMask = logicalAvatarMask;
             _animatorGenerator = new AnimatorGenerator(_animatorController, new StatefulEmptyClipProvider(new ClipGenerator(_customEmptyClip, EmptyClipPath, "ComboGesture")));
         }
 
@@ -222,7 +228,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private void CreateOrReplaceController(AnimationClip emptyClip)
         {
             EditorUtility.DisplayProgressBar("GestureCombo", "Clearing combo controller layer", 0f);
-            var machine = ReinitializeAnimatorLayer("Hai_GestureCtrl", 0f);
+            var machine = ReinitializeAnimatorLayer("Hai_GestureCtrl", 0f, _logicalAvatarMask);
 
             EditorUtility.DisplayProgressBar("GestureCombo", "Creating combo controller layer", 0f);
 
@@ -260,7 +266,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private void CreateOrReplaceExpressionsView(AnimationClip emptyClip)
         {
             EditorUtility.DisplayProgressBar("GestureCombo", "Clearing expressions layer", 0f);
-            var machine = ReinitializeAnimatorLayer("Hai_GestureExp", 1f);
+            var machine = ReinitializeAnimatorLayer("Hai_GestureExp", 1f, _expressionsAvatarMask);
 
             var defaultState = machine.AddState("Default", GridPosition(-1, -1));
             defaultState.motion = emptyClip;
@@ -297,7 +303,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private void CreateOrReplaceBlinkingOverrideView(AnimationClip emptyClip)
         {
             EditorUtility.DisplayProgressBar("GestureCombo", "Clearing eyes blinking override layer", 0f);
-            var machine = ReinitializeAnimatorLayer("Hai_GestureBlinking", 0f);
+            var machine = ReinitializeAnimatorLayer("Hai_GestureBlinking", 0f, _logicalAvatarMask);
             var suspend = CreateSuspendState(machine, emptyClip);
 
             var activityManifests = CreateManifest(emptyClip);
@@ -454,9 +460,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             transition.interruptionSource = TransitionInterruptionSource.None;
         }
 
-        private AnimatorStateMachine ReinitializeAnimatorLayer(string layerName, float weightWhenCreating)
+        private AnimatorStateMachine ReinitializeAnimatorLayer(string layerName, float weightWhenCreating, AvatarMask avatarMask)
         {
-            var machinist = _animatorGenerator.CreateOrRemakeLayerAtSameIndex(layerName, weightWhenCreating);
+            var machinist = _animatorGenerator.CreateOrRemakeLayerAtSameIndex(layerName, weightWhenCreating, avatarMask);
 
             return machinist.ExposeMachine();
         }

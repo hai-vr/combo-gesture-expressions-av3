@@ -43,15 +43,15 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Reused
             }
         }
 
-        internal Machinist CreateOrRemakeLayerAtSameIndex(string layerName, float weightWhenCreating)
+        internal Machinist CreateOrRemakeLayerAtSameIndex(string layerName, float weightWhenCreating, AvatarMask maskWhenCreating = null)
         {
             var originalIndexToPreserveOrdering = _animatorController.layers.ToList().FindIndex(layer1 => layer1.name == layerName);
             if (originalIndexToPreserveOrdering != -1)
             {
                 _animatorController.RemoveLayer(originalIndexToPreserveOrdering);
             }
-            
-            AddLayerWithWeight(layerName, weightWhenCreating);
+
+            AddLayerWithWeight(layerName, weightWhenCreating, maskWhenCreating);
             if (originalIndexToPreserveOrdering != -1)
             {
                 var items = _animatorController.layers.ToList();
@@ -74,17 +74,18 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Reused
             return _animatorController.layers.FirstOrDefault(it => it.name == layerName);
         }
 
-        private void AddLayerWithWeight(string layerName, float weightWhenCreating)
+        private void AddLayerWithWeight(string layerName, float weightWhenCreating, AvatarMask maskWhenCreating)
         {
             // This function is a replication of AnimatorController::AddLayer(string) behavior, in order to change the weight.
             // For some reason I cannot find how to change the layer weight after it has been created.
-        
+
             var newLayer = new AnimatorControllerLayer();
             newLayer.name = _animatorController.MakeUniqueLayerName(layerName);
             newLayer.stateMachine = new AnimatorStateMachine();
             newLayer.stateMachine.name = newLayer.name;
             newLayer.stateMachine.hideFlags = HideFlags.HideInHierarchy;
             newLayer.defaultWeight = weightWhenCreating;
+            newLayer.avatarMask = maskWhenCreating;
             if (AssetDatabase.GetAssetPath(_animatorController) != "")
             {
                 AssetDatabase.AddObjectToAsset(newLayer.stateMachine,
