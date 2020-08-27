@@ -21,6 +21,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public SerializedProperty exposeDisableBlinkingOverride;
         public SerializedProperty exposeAreEyesClosed;
 
+        public SerializedProperty doNotGenerateControllerLayer;
+        public SerializedProperty doNotGenerateBlinkingOverrideLayer;
+
         public SerializedProperty conflictPreventionMode;
         public SerializedProperty conflictFxLayerMode;
         public SerializedProperty ignoreParamList;
@@ -38,6 +41,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             exposeDisableExpressions = serializedObject.FindProperty("exposeDisableExpressions");
             exposeDisableBlinkingOverride = serializedObject.FindProperty("exposeDisableBlinkingOverride");
             exposeAreEyesClosed = serializedObject.FindProperty("exposeAreEyesClosed");
+
+            doNotGenerateControllerLayer = serializedObject.FindProperty("doNotGenerateControllerLayer");
+            doNotGenerateBlinkingOverrideLayer = serializedObject.FindProperty("doNotGenerateBlinkingOverrideLayer");
 
             conflictPreventionMode = serializedObject.FindProperty("conflictPreventionMode");
             conflictFxLayerMode = serializedObject.FindProperty("conflictFxLayerMode");
@@ -141,6 +147,12 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
                 EditorGUILayout.Separator();
 
+                EditorGUILayout.LabelField("Layer generation", EditorStyles.boldLabel);
+                EditorGUILayout.PropertyField(doNotGenerateControllerLayer, new GUIContent("Don't generate Controller layer"));
+                GenControllerWarning(true);
+                EditorGUILayout.PropertyField(doNotGenerateBlinkingOverrideLayer, new GUIContent("Don't generate Blinking layer"));
+                GenBlinkingWarning(true);
+
                 EditorGUILayout.LabelField("Animation Conflict Prevention", EditorStyles.boldLabel);
                 EditorGUILayout.PropertyField(conflictPreventionMode, new GUIContent("Mode"));
 
@@ -162,11 +174,33 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             }
             else
             {
+                GenControllerWarning(false);
+                GenBlinkingWarning(false);
                 CpmValueWarning(false);
                 CpmRemovalWarning(false);
             }
 
             serializedObject.ApplyModifiedProperties();
+        }
+
+        private void GenControllerWarning(bool advancedFoldoutIsOpen)
+        {
+            if (doNotGenerateControllerLayer.boolValue)
+            {
+                EditorGUILayout.HelpBox(@"Controller layer should usually be generated, otherwise it may not be updated correctly on future updates of ComboGestureExpressions.
+
+This is not a normal usage of ComboGestureExpressions, and should not be used except in special cases." + (!advancedFoldoutIsOpen ? "\n\n(Advanced settings)" : ""), MessageType.Error);
+            }
+        }
+
+        private void GenBlinkingWarning(bool advancedFoldoutIsOpen)
+        {
+            if (doNotGenerateBlinkingOverrideLayer.boolValue)
+            {
+                EditorGUILayout.HelpBox(@"Blinking Override layer should usually be generated as it depends on all the activities of the compiler.
+
+This is not a normal usage of ComboGestureExpressions, and should not be used except in special cases." + (!advancedFoldoutIsOpen ? "\n\n(Advanced settings)" : ""), MessageType.Error);
+            }
         }
 
         private void CpmValueWarning(bool advancedFoldoutIsOpen)
@@ -235,7 +269,10 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
                 compiler.analogBlinkingUpperThreshold,
                 (exposeDisableExpressions.boolValue ? FeatureToggles.ExposeDisableExpressions : 0)
                 | (exposeDisableBlinkingOverride.boolValue ? FeatureToggles.ExposeDisableBlinkingOverride : 0)
-                | (exposeAreEyesClosed.boolValue ? FeatureToggles.ExposeAreEyesClosed : 0),
+                | (exposeAreEyesClosed.boolValue ? FeatureToggles.ExposeAreEyesClosed : 0)
+                | (doNotGenerateControllerLayer.boolValue ? FeatureToggles.DoNotGenerateControllerLayer : 0)
+                | (doNotGenerateBlinkingOverrideLayer.boolValue ? FeatureToggles.DoNotGenerateBlinkingOverrideLayer : 0)
+                ,
                 compiler.conflictPreventionMode,
                 compiler.conflictFxLayerMode,
                 compiler.ignoreParamList,

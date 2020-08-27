@@ -15,6 +15,9 @@ namespace Hai.ComboGesture.Scripts.Components
         public bool exposeDisableBlinkingOverride;
         public bool exposeAreEyesClosed;
 
+        public bool doNotGenerateControllerLayer;
+        public bool doNotGenerateBlinkingOverrideLayer;
+
         public ConflictPreventionMode conflictPreventionMode = ConflictPreventionMode.GenerateAnimationsWithWriteDefaults;
         public ConflictFxLayerMode conflictFxLayerMode = ConflictFxLayerMode.RemoveTransformsAndMuscles;
 

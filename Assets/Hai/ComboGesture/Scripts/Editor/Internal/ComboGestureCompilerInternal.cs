@@ -69,9 +69,18 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             var emptyClip = GetOrCreateEmptyClip();
 
             CreateParameters();
-            CreateOrReplaceController(emptyClip);
+
+            if (!Feature(FeatureToggles.DoNotGenerateControllerLayer))
+            {
+                CreateOrReplaceController(emptyClip);
+            }
+
             CreateOrReplaceExpressionsView(emptyClip);
-            CreateOrReplaceBlinkingOverrideView(emptyClip);
+
+            if (!Feature(FeatureToggles.DoNotGenerateBlinkingOverrideLayer))
+            {
+                CreateOrReplaceBlinkingOverrideView(emptyClip);
+            }
 
             ReapAnimator();
 

@@ -8,6 +8,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         None = 0,
         ExposeDisableExpressions = 1,
         ExposeDisableBlinkingOverride = 2,
-        ExposeAreEyesClosed = 4
+        ExposeAreEyesClosed = 4,
+        DoNotGenerateBlinkingOverrideLayer = 8,
+        DoNotGenerateControllerLayer = 16,
     }
 }
