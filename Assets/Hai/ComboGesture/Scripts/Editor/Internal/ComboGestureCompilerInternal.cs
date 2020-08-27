@@ -15,6 +15,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
     internal class ComboGestureCompilerInternal
     {
         private const string EmptyClipPath = "Assets/Hai/ComboGesture/Hai_ComboGesture_EmptyClip.anim";
+        private const bool WriteDefaultsForLogicalStates = true;
 
         internal const string HaiGestureComboParamName = "_Hai_GestureComboValue";
         internal const string HaiGestureComboAreEyesClosed = "_Hai_GestureComboAreEyesClosed";
@@ -32,7 +33,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly AnimationClip _customEmptyClip;
         private readonly float _analogBlinkingUpperThreshold;
         private readonly FeatureToggles _featuresToggles;
-        private readonly ConflictPreventionMode _compilerConflictPreventionMode;
+        private readonly ConflictPrevention _conflictPrevention;
         private readonly ConflictFxLayerMode _compilerConflictFxLayerMode;
         private readonly AnimationClip _compilerIgnoreParamList;
         private readonly AnimationClip _compilerFallbackParamList;
@@ -55,7 +56,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _customEmptyClip = customEmptyClip;
             _analogBlinkingUpperThreshold = analogBlinkingUpperThreshold;
             _featuresToggles = featuresToggles;
-            _compilerConflictPreventionMode = compilerConflictPreventionMode;
+            _conflictPrevention = ConflictPrevention.Of(compilerConflictPreventionMode);
             _compilerConflictFxLayerMode = compilerConflictFxLayerMode;
             _compilerIgnoreParamList = compilerIgnoreParamList;
             _compilerFallbackParamList = compilerFallbackParamList;
@@ -74,7 +75,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
             ReapAnimator();
 
-            var isAssetRefreshingRequired = _compilerConflictPreventionMode == ConflictPreventionMode.GenerateAnimations;
+            var isAssetRefreshingRequired = _conflictPrevention.ShouldGenerateAnimations;
             if (isAssetRefreshingRequired)
             {
                 AssetDatabase.Refresh();
@@ -221,7 +222,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 for (var right = left; right < 8; right++)
                 {
                     var state = machine.AddState(left + "" + right, GridPosition(right, left));
-                    state.writeDefaultValues = false;
+                    state.writeDefaultValues = WriteDefaultsForLogicalStates;
                     state.motion = emptyClip;
 
                     var driver = state.AddStateMachineBehaviour<VRCAvatarParameterDriver>();
@@ -262,7 +263,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
 
             var activityManifests = CreateManifest(emptyClip);
-            if (_compilerConflictPreventionMode == ConflictPreventionMode.GenerateAnimations)
+            if (_conflictPrevention.ShouldGenerateAnimations)
             {
                 EditorUtility.DisplayProgressBar("GestureCombo", "Generating animations", 0f);
                 activityManifests = new AnimationNeutralizer(activityManifests, _compilerConflictFxLayerMode, _compilerIgnoreParamList, _compilerFallbackParamList).NeutralizeManifestAnimations();
@@ -274,7 +275,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                     machine,
                     combinator.IntermediateToTransition,
                     _activityStageName,
-                    _compilerConflictPreventionMode == ConflictPreventionMode.WriteDefaults
+                    _conflictPrevention.ShouldWriteDefaults
             ).Populate();
         }
         private static void CreateTransitionWhenExpressionsAreDisabled(AnimatorStateMachine machine, AnimatorState defaultState)
@@ -371,7 +372,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         {
             var enableBlinking = machine.AddState("SuspendBlinking", GridPosition(1, 1));
             enableBlinking.motion = emptyClip;
-            enableBlinking.writeDefaultValues = false;
+            enableBlinking.writeDefaultValues = WriteDefaultsForLogicalStates;
             return enableBlinking;
         }
 
@@ -380,7 +381,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         {
             var enableBlinking = machine.AddState(type == VRC_AnimatorTrackingControl.TrackingType.Tracking ? "EnableBlinking" : "DisableBlinking", GridPosition(type == VRC_AnimatorTrackingControl.TrackingType.Tracking ? 0 : 2, 3));
             enableBlinking.motion = emptyClip;
-            enableBlinking.writeDefaultValues = false;
+            enableBlinking.writeDefaultValues = WriteDefaultsForLogicalStates;
             var tracking = enableBlinking.AddStateMachineBehaviour<VRCAnimatorTrackingControl>();
             tracking.trackingEyes = type;
             return enableBlinking;

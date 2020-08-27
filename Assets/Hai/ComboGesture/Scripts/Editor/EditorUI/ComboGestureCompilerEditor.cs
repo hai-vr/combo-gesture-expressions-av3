@@ -1,4 +1,5 @@
-﻿using Hai.ComboGesture.Scripts.Components;
+﻿using System;
+using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.Internal;
 using UnityEditor;
 using UnityEditorInternal;
@@ -145,16 +146,15 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
                 CpmValueWarning(true);
 
-                EditorGUI.BeginDisabledGroup(conflictPreventionMode.intValue != (int) ConflictPreventionMode.GenerateAnimations);
+                var conflictPrevention = ConflictPrevention.Of((ConflictPreventionMode) conflictPreventionMode.intValue);
+                EditorGUI.BeginDisabledGroup(!conflictPrevention.ShouldGenerateAnimations);
                 EditorGUILayout.PropertyField(conflictFxLayerMode, new GUIContent("Transforms removal"));
                 EditorGUI.EndDisabledGroup();
 
-                if (conflictPreventionMode.intValue == (int) ConflictPreventionMode.GenerateAnimations) {
-                    CpmRemovalWarning(true);
-                }
+                CpmRemovalWarning(true);
                 EditorGUILayout.Separator();
 
-                EditorGUI.BeginDisabledGroup(conflictPreventionMode.intValue != (int) ConflictPreventionMode.GenerateAnimations);
+                EditorGUI.BeginDisabledGroup(!conflictPrevention.ShouldGenerateAnimations);
                 EditorGUILayout.LabelField("Fallback generation", EditorStyles.boldLabel);
                 EditorGUILayout.PropertyField(ignoreParamList, new GUIContent("Ignored properties"));
                 EditorGUILayout.PropertyField(fallbackParamList, new GUIContent("Fallback values"));
@@ -169,32 +169,40 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             serializedObject.ApplyModifiedProperties();
         }
 
-        private void CpmValueWarning(bool exhaustive)
+        private void CpmValueWarning(bool advancedFoldoutIsOpen)
         {
-            if ((ConflictPreventionMode) conflictPreventionMode.intValue == ConflictPreventionMode.WriteDefaults)
+            var conflictPrevention = ConflictPrevention.Of((ConflictPreventionMode) conflictPreventionMode.intValue);
+            if (!conflictPrevention.ShouldGenerateAnimations)
             {
-                    EditorGUILayout.HelpBox(@"Using ""Write Defaults"" Mode will cause face expressions to conflict if your FX layer does not use ""Write Defaults"" on all layers. 
-It is recommended to use ""Generate Animations"" Mode instead.
-
-(Advanced settings)", MessageType.Error);
+                    EditorGUILayout.HelpBox(@"Using ""Only Write Defaults"" Mode will cause face expressions to conflict if your FX layer does not use ""Write Defaults"" on all layers. 
+If in doubt, ""Use Recommended Configuration"" Mode instead." + (!advancedFoldoutIsOpen ? "\n\n(Advanced settings)" : ""), MessageType.Error);
             }
             else
             {
-                if (exhaustive) {
-                    EditorGUILayout.HelpBox(@"Animations will be generated with default values.
+                if (advancedFoldoutIsOpen) {
+                    EditorGUILayout.HelpBox(@"Animations will be generated in a way that will prevent conflicts between face expressions.
 Whenever an animation is modified, you will need to click Synchronize again.", MessageType.Info);
+                }
+                if (!conflictPrevention.ShouldWriteDefaults) {
+                    EditorGUILayout.HelpBox(@"Animations will be generated in a way that will prevent conflicts between face expressions.
+
+However, the states will have ""Write Defaults"" to OFF.
+Using ""Generate Animations With Write Defaults"" is generally more compatible.
+
+If you never use ""Write Defaults"" in your FX animator, this should not matter." + (!advancedFoldoutIsOpen ? "\n\n(Advanced settings)" : ""), MessageType.Warning);
                 }
             }
         }
 
-        private void CpmRemovalWarning(bool exhaustive)
+        private void CpmRemovalWarning(bool advancedFoldoutIsOpen)
         {
-            if (conflictPreventionMode.intValue == (int) ConflictPreventionMode.GenerateAnimations)
+            var conflictPrevention = ConflictPrevention.Of((ConflictPreventionMode) conflictPreventionMode.intValue);
+            if (conflictPrevention.ShouldGenerateAnimations)
             {
                 switch ((ConflictFxLayerMode) conflictFxLayerMode.intValue)
                 {
                     case ConflictFxLayerMode.RemoveTransformsAndMuscles:
-                        if (exhaustive)
+                        if (advancedFoldoutIsOpen)
                         {
                             EditorGUILayout.HelpBox(@"Transforms and muscles will be removed.
 This is the default behavior.", MessageType.Info);
@@ -202,20 +210,16 @@ This is the default behavior.", MessageType.Info);
                         break;
                     case ConflictFxLayerMode.KeepBoth:
                             EditorGUILayout.HelpBox(@"Transforms and muscles will not be removed, but the FX Playable layer is not meant to manipulate them.
-Not removing them might cause conflicts with other animations.
-
-(Advanced settings)", MessageType.Warning);
+Not removing them might cause conflicts with other animations." + (!advancedFoldoutIsOpen ? "\n\n(Advanced settings)" : ""), MessageType.Warning);
                         break;
                     case ConflictFxLayerMode.KeepOnlyTransformsAndMuscles:
                         EditorGUILayout.HelpBox(@"Everything will be removed except transforms and muscle animations.
 However, the FX Playable layer is not meant to manipulate them.
 
-This is not a normal usage of ComboGestureExpressions, and should not be used except in special cases.
-
-(Advanced settings)", MessageType.Error);
+This is not a normal usage of ComboGestureExpressions, and should not be used except in special cases." + (!advancedFoldoutIsOpen ? "\n\n(Advanced settings)" : ""), MessageType.Error);
                         break;
                     default:
-                        break;
+                        throw new ArgumentOutOfRangeException();
                 }
             }
         }
