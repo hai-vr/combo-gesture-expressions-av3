@@ -114,15 +114,42 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             serializedObject.Update();
 
+            CreateToolbarArea();
+
+            GUILayout.Space(singleLineHeight * 4);
+            scrollPos = GUILayout.BeginScrollView(scrollPos, GUILayout.Height(position.height - singleLineHeight * 4));
+            switch (_editorMode)
+            {
+                case EditorMode.PreventEyesBlinking:
+                    LayoutPreventEyesBlinking();
+                    break;
+                case EditorMode.CombineFaceExpressions:
+                    LayoutFaceExpressionCombiner();
+                    break;
+                case EditorMode.OtherOptions:
+                    LayoutOtherOptions();
+                    break;
+                default:
+                    LayoutActivityEditor();
+                    break;
+            }
+            GUILayout.EndScrollView();
+
+            serializedObject.ApplyModifiedProperties();
+        }
+
+        private void CreateToolbarArea()
+        {
             GUILayout.BeginArea(new Rect(0, singleLineHeight, position.width, singleLineHeight * 3));
-            _editorMode = (EditorMode) GUILayout.Toolbar((int) _editorMode, new []
+            _editorMode = (EditorMode) GUILayout.Toolbar((int) _editorMode, new[]
             {
                 "Set face expressions", "Prevent eyes blinking", "Combine face expressions", "Other options"
             });
-            if (_editorMode == 0) {
+            if (_editorMode == 0)
+            {
                 GUILayout.BeginHorizontal();
                 GUILayout.Space(30);
-                _editorTool.intValue = GUILayout.Toolbar(_editorTool.intValue, new []
+                _editorTool.intValue = GUILayout.Toolbar(_editorTool.intValue, new[]
                 {
                     "All gestures", "Singles", "Analog Fist", "Combos"
                 }, GUILayout.ExpandWidth(true));
@@ -131,35 +158,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 GUILayout.EndHorizontal();
                 _currentEditorToolValue = _editorTool.intValue;
             }
-            GUILayout.EndArea();
 
-            GUILayout.BeginArea(new Rect(0, singleLineHeight * 4, position.width, GuiSquareHeight * 8));
-            scrollPos = GUILayout.BeginScrollView(scrollPos, GUILayout.Width(position.width), GUILayout.Height(position.height - singleLineHeight * 4));
-            switch (_editorMode)
-            {
-                case EditorMode.PreventEyesBlinking:
-                    BeginLayoutUsing(GuiSquareHeight * 8);
-                    LayoutPreventEyesBlinking();
-                    EndLayout();
-                    break;
-                case EditorMode.CombineFaceExpressions:
-                    BeginLayoutUsing(GuiSquareHeight * 8);
-                    LayoutFaceExpressionCombiner();
-                    EndLayout();
-                    break;
-                case EditorMode.OtherOptions:
-                    BeginLayoutUsing(GuiSquareHeight * 4);
-                    LayoutOtherOptions();
-                    EndLayout();
-                    break;
-                default:
-                    LayoutActivityEditor();
-                    break;
-            }
-            GUILayout.EndScrollView();
             GUILayout.EndArea();
-
-            serializedObject.ApplyModifiedProperties();
         }
 
         private void LayoutActivityEditor()
@@ -263,7 +263,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 if (activity.editorArbitraryAnimations != null) {
                     GUILayout.BeginArea(new Rect(0, singleLineHeight * 10, position.width, GuiSquareHeight * 8));
                     var allClips = new HashSet<AnimationClip>(activity.editorArbitraryAnimations.Where(clip => clip != null)).ToList();
-                    var mod = 8;
+                    var mod = (int)Math.Max(1, position.width / GuiSquareWidth);
                     for (var element = 0; element < allClips.Count; element++)
                     {
                         GUILayout.BeginArea(RectAt(element % mod, element / mod));
@@ -271,6 +271,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                         GUILayout.EndArea();
                     }
                     GUILayout.EndArea();
+                    GUILayout.Space(allClips.Count / mod * GuiSquareHeight + singleLineHeight * 2);
                 }
             }
         }
@@ -401,6 +402,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 GUILayout.EndArea();
             }
             GUILayout.EndArea();
+            GUILayout.Box("", GUIStyle.none, GUILayout.Width(GuiSquareHeight + GuiSquareHeight * mod + singleLineHeight * 2), GUILayout.Height(GuiSquareHeight + GuiSquareHeight * mod + singleLineHeight * 2));
         }
 
         private void LayoutFaceExpressionCombiner()
@@ -409,19 +411,20 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             var decider = _combiner.GetDecider();
 
-            var CombinerEditorWidth = GuiSquareWidth * 5;
-            var Gap = 10;
-            var VerticalGap = 10;
-            GUILayout.BeginArea(new Rect(Gap, 0, CombinerPreviewWidth, CombinerPreviewHeight * 3));
+            GUILayout.BeginHorizontal(GUILayout.Width(CombinerPreviewWidth * 3));
+
+            GUILayout.BeginVertical(GUILayout.MaxWidth(CombinerPreviewWidth));
             GUILayout.Box(_combiner.LeftTexture(), GUILayout.Width(CombinerPreviewWidth), GUILayout.Height(CombinerPreviewHeight));
             LayoutIntersectionDecider(decider.intersection, Side.Left);
             LayoutSideDecider(decider.left, Side.Left);
-            GUILayout.EndArea();
+            GUILayout.Space(singleLineHeight * 2);
+            GUILayout.EndVertical();
 
-            GUILayout.BeginArea(new Rect(2 * Gap + CombinerPreviewWidth, VerticalGap, CombinerPreviewWidth, CombinerPreviewHeight * 3));
+            GUILayout.BeginVertical(GUILayout.MaxWidth(CombinerPreviewWidth), GUILayout.Width(CombinerPreviewWidth));
+            GUILayout.Space(20);
             GUILayout.Box(_combiner.CombinedTexture(), GUILayout.Width(CombinerPreviewWidth), GUILayout.Height(CombinerPreviewHeight));
-            _combinerCandidateFileName = GUILayout.TextField(_combinerCandidateFileName);
-            if (GUILayout.Button("Save and assign to " + _driver.ShortTranslation(_combinerTarget)))
+            _combinerCandidateFileName = GUILayout.TextField(_combinerCandidateFileName, GUILayout.MaxWidth(CombinerPreviewWidth));
+            if (GUILayout.Button("Save and assign to " + _driver.ShortTranslation(_combinerTarget), GUILayout.MaxWidth(CombinerPreviewWidth)))
             {
                 var savedClip = _combiner.SaveTo(_combinerCandidateFileName);
                 serializedObject.FindProperty(_combinerTarget).objectReferenceValue = savedClip;
@@ -434,13 +437,17 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 }
                 _editorMode = EditorMode.SetFaceExpressions;
             }
-            GUILayout.EndArea();
+            GUILayout.Space(singleLineHeight * 2);
+            GUILayout.EndVertical();
 
-            GUILayout.BeginArea(new Rect(3 * Gap + 2 * CombinerPreviewWidth, 0, CombinerPreviewWidth, CombinerPreviewHeight * 3));
+            GUILayout.BeginVertical(GUILayout.MaxWidth(CombinerPreviewWidth));
             GUILayout.Box(_combiner.RightTexture(), GUILayout.Width(CombinerPreviewWidth), GUILayout.Height(CombinerPreviewHeight));
             LayoutIntersectionDecider(decider.intersection, Side.Right);
             LayoutSideDecider(decider.right, Side.Right);
-            GUILayout.EndArea();
+            GUILayout.Space(singleLineHeight * 2);
+            GUILayout.EndVertical();
+
+            GUILayout.EndHorizontal();
         }
 
         private void LayoutSideDecider(List<SideDecider> sideDeciders, Side side)
