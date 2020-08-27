@@ -126,9 +126,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 }
                 else
                 {
-                    if (cleanupActions.Count > 0) {
-                        EditorApplication.delayCall += () => Cleanup(cleanupActions);
-                    }
+                    StopGenerating = false;
                 }
             }
         }

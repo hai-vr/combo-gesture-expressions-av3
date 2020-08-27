@@ -271,7 +271,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                         GUILayout.EndArea();
                     }
                     GUILayout.EndArea();
-                    GUILayout.Space(allClips.Count / mod * GuiSquareHeight + singleLineHeight * 2);
+                    GUILayout.Space((allClips.Count / mod) * GuiSquareHeight + GuiSquareHeight + singleLineHeight * 2);
                 }
             }
         }
@@ -402,7 +402,12 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 GUILayout.EndArea();
             }
             GUILayout.EndArea();
-            GUILayout.Box("", GUIStyle.none, GUILayout.Width(GuiSquareHeight + GuiSquareHeight * mod + singleLineHeight * 2), GUILayout.Height(GuiSquareHeight + GuiSquareHeight * mod + singleLineHeight * 2));
+            GUILayout.Box(
+                "",
+                GUIStyle.none,
+                GUILayout.Width(GuiSquareHeight + GuiSquareHeight * mod + singleLineHeight * 2),
+                GUILayout.Height(GuiSquareHeight + GuiSquareHeight * (allClips.Count / mod) + singleLineHeight * 2)
+            );
         }
 
         private void LayoutFaceExpressionCombiner()
