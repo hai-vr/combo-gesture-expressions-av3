@@ -16,15 +16,18 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly HashSet<CurveKey> _ignoreCurveKeys;
         private readonly Dictionary<CurveKey, float> _curveKeyToFallbackValue;
         private readonly string _datetimeForAssetPack;
+        private readonly string _folderToCreateAssetIn;
 
         public AnimationNeutralizer(
             List<ActivityManifest> originalActivityManifests,
             ConflictFxLayerMode compilerConflictFxLayerMode,
             AnimationClip compilerIgnoreParamList,
-            AnimationClip compilerFallbackParamList)
+            AnimationClip compilerFallbackParamList,
+            string folderToCreateAssetIn)
         {
             _originalActivityManifests = originalActivityManifests;
             _compilerConflictFxLayerMode = compilerConflictFxLayerMode;
+            _folderToCreateAssetIn = folderToCreateAssetIn;
             _ignoreCurveKeys = compilerIgnoreParamList == null ? new HashSet<CurveKey>() : ExtractAllCurvesOf(compilerIgnoreParamList);
             _curveKeyToFallbackValue = compilerFallbackParamList == null ? new Dictionary<CurveKey, float>() : ExtractFirstKeyframeValueOf(compilerFallbackParamList);
             _datetimeForAssetPack = DateTime.Now.ToString("yyyy'-'MM'-'dd'_'HHmmss");
@@ -78,7 +81,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         {
             var remapping = new Dictionary<AnimationClip, AnimationClip>();
             var assetContainer = new AnimatorController();
-            AssetDatabase.CreateAsset(assetContainer, "Assets/GeneratedCGE__" + _datetimeForAssetPack + ".asset");
+
+            AssetDatabase.CreateAsset(assetContainer, _folderToCreateAssetIn + "/GeneratedCGE__" + _datetimeForAssetPack + ".asset");
 
             foreach (var animationClip in allAnimationClips)
             {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.Internal;
 using UnityEditor;
@@ -30,6 +31,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public SerializedProperty conflictFxLayerMode;
         public SerializedProperty ignoreParamList;
         public SerializedProperty fallbackParamList;
+        public SerializedProperty folderToGenerateNeutralizedAssetsIn;
 
         public SerializedProperty editorAdvancedFoldout;
 
@@ -53,6 +55,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             conflictFxLayerMode = serializedObject.FindProperty("conflictFxLayerMode");
             ignoreParamList = serializedObject.FindProperty("ignoreParamList");
             fallbackParamList = serializedObject.FindProperty("fallbackParamList");
+            folderToGenerateNeutralizedAssetsIn = serializedObject.FindProperty("folderToGenerateNeutralizedAssetsIn");
 
             comboLayers = serializedObject.FindProperty("comboLayers");
 
@@ -166,10 +169,20 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
                 var conflictPrevention = ConflictPrevention.Of((ConflictPreventionMode) conflictPreventionMode.intValue);
                 EditorGUI.BeginDisabledGroup(!conflictPrevention.ShouldGenerateAnimations);
+                EditorGUILayout.LabelField("Animation generation", EditorStyles.boldLabel);
+                EditorGUILayout.PropertyField(folderToGenerateNeutralizedAssetsIn, new GUIContent("Generate assets in the same folder as..."));
+                if (animatorController.objectReferenceValue != null)
+                {
+                    EditorGUILayout.LabelField("Assets will be generated in:");
+                    EditorGUI.BeginDisabledGroup(true);
+                    EditorGUILayout.TextField(ResolveFolderToCreateNeutralizedAssetsIn((RuntimeAnimatorController)folderToGenerateNeutralizedAssetsIn.objectReferenceValue, (RuntimeAnimatorController)animatorController.objectReferenceValue));
+                    EditorGUI.EndDisabledGroup();
+                }
                 EditorGUILayout.PropertyField(conflictFxLayerMode, new GUIContent("Transforms removal"));
                 EditorGUI.EndDisabledGroup();
 
                 CpmRemovalWarning(true);
+
                 EditorGUILayout.Separator();
 
                 EditorGUI.BeginDisabledGroup(!conflictPrevention.ShouldGenerateAnimations);
@@ -284,8 +297,18 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
                 compiler.ignoreParamList,
                 compiler.fallbackParamList,
                 compiler.expressionsAvatarMask,
-                compiler.logicalAvatarMask
+                compiler.logicalAvatarMask,
+                ResolveFolderToCreateNeutralizedAssetsIn(compiler.folderToGenerateNeutralizedAssetsIn, compiler.animatorController)
             ).DoOverwriteAnimatorFxLayer();
+        }
+
+        private static string ResolveFolderToCreateNeutralizedAssetsIn(RuntimeAnimatorController preferredChoice, RuntimeAnimatorController defaultChoice)
+        {
+            var reference = preferredChoice == null ? defaultChoice : preferredChoice;
+
+            var originalAssetPath = AssetDatabase.GetAssetPath(reference);
+            var folder = originalAssetPath.Replace(Path.GetFileName(originalAssetPath), "");
+            return folder;
         }
 
         private ComboGestureCompiler AsCompiler()

@@ -40,6 +40,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly AvatarMask _expressionsAvatarMask;
         private readonly AvatarMask _logicalAvatarMask;
         private readonly AnimatorGenerator _animatorGenerator;
+        private readonly string _folderToCreateNeutralizedAssetsIn;
 
         public ComboGestureCompilerInternal(string activityStageName,
             List<GestureComboStageMapper> comboLayers,
@@ -52,7 +53,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             AnimationClip compilerIgnoreParamList,
             AnimationClip compilerFallbackParamList,
             AvatarMask expressionsAvatarMask,
-            AvatarMask logicalAvatarMask)
+            AvatarMask logicalAvatarMask,
+            string folderToCreateNeutralizedAssetsIn)
         {
             _activityStageName = activityStageName;
             _comboLayers = comboLayers;
@@ -66,6 +68,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _compilerFallbackParamList = compilerFallbackParamList;
             _expressionsAvatarMask = expressionsAvatarMask;
             _logicalAvatarMask = logicalAvatarMask;
+            _folderToCreateNeutralizedAssetsIn = folderToCreateNeutralizedAssetsIn;
             _animatorGenerator = new AnimatorGenerator(_animatorController, new StatefulEmptyClipProvider(new ClipGenerator(_customEmptyClip, EmptyClipPath, "ComboGesture")));
         }
 
@@ -281,7 +284,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             if (_conflictPrevention.ShouldGenerateAnimations)
             {
                 EditorUtility.DisplayProgressBar("GestureCombo", "Generating animations", 0f);
-                activityManifests = new AnimationNeutralizer(activityManifests, _compilerConflictFxLayerMode, _compilerIgnoreParamList, _compilerFallbackParamList).NeutralizeManifestAnimations();
+                activityManifests = new AnimationNeutralizer(activityManifests, _compilerConflictFxLayerMode, _compilerIgnoreParamList, _compilerFallbackParamList, _folderToCreateNeutralizedAssetsIn).NeutralizeManifestAnimations();
             }
             var combinator = new IntermediateCombinator(activityManifests);
 

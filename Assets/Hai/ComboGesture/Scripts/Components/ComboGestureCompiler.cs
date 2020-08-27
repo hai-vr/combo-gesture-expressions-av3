@@ -8,6 +8,7 @@ namespace Hai.ComboGesture.Scripts.Components
         public string activityStageName;
         public List<GestureComboStageMapper> comboLayers;
         public RuntimeAnimatorController animatorController;
+        public RuntimeAnimatorController folderToGenerateNeutralizedAssetsIn;
         public AnimationClip customEmptyClip;
         public float analogBlinkingUpperThreshold = 0.7f;
 
