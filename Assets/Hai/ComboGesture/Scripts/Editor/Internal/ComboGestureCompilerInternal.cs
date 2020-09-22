@@ -178,7 +178,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 CreateParamIfNotExists(HaiGestureComboAreEyesClosed, AnimatorControllerParameterType.Int);
             }
 
-            if (_activityStageName != "")
+            if (_activityStageName != null)
             {
                 CreateParamIfNotExists(_activityStageName, AnimatorControllerParameterType.Int);
             }
@@ -279,7 +279,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             if (Feature(FeatureToggles.ExposeDisableExpressions)) {
                 CreateTransitionWhenExpressionsAreDisabled(machine, defaultState);
             }
-            if (_activityStageName != "") {
+            if (_activityStageName != null) {
                 CreateTransitionWhenActivityIsOutOfBounds(machine, defaultState);
             }
 
@@ -318,7 +318,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         {
             EditorUtility.DisplayProgressBar("GestureCombo", "Clearing eyes blinking override layer", 0f);
             var machine = ReinitializeAnimatorLayer("Hai_GestureBlinking", 0f, _logicalAvatarMask);
-            var suspend = CreateSuspendState(machine, emptyClip);
 
             var activityManifests = CreateManifest(emptyClip);
             var combinator = new IntermediateBlinkingCombinator(activityManifests);
@@ -331,29 +330,39 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
             var enableBlinking = CreateBlinkingState(machine, VRC_AnimatorTrackingControl.TrackingType.Tracking, emptyClip);
             var disableBlinking = CreateBlinkingState(machine, VRC_AnimatorTrackingControl.TrackingType.Animation, emptyClip);
-            if (Feature(FeatureToggles.ExposeDisableBlinkingOverride))
-            {
-                CreateTransitionWhenBlinkingIsDisabled(enableBlinking, suspend);
-                CreateTransitionWhenBlinkingIsDisabled(disableBlinking, suspend);
-            }
-            CreateTransitionWhenActivityIsOutOfBounds(enableBlinking, suspend);
-            CreateTransitionWhenActivityIsOutOfBounds(disableBlinking, suspend);
+
             if (Feature(FeatureToggles.ExposeAreEyesClosed))
             {
                 CreateInternalParameterDriverWhenEyesAreOpen(enableBlinking);
                 CreateInternalParameterDriverWhenEyesAreClosed(disableBlinking);
             }
 
-            foreach (var layer in _comboLayers)
-            {
-                var transition = suspend.AddTransition(enableBlinking);
-                SetupDefaultTransition(transition);
-                transition.AddCondition(AnimatorConditionMode.Equals, layer.stageValue, _activityStageName);
-                if (Feature(FeatureToggles.ExposeDisableBlinkingOverride)) {
-                    transition.AddCondition(AnimatorConditionMode.Equals, 0, HaiGestureComboDisableBlinkingOverrideParamName);
+            var requireSuspension = _activityStageName != null || Feature(FeatureToggles.ExposeDisableBlinkingOverride);
+            if (requireSuspension) {
+                var suspend = CreateSuspendState(machine, emptyClip);
+
+                if (_activityStageName != null) {
+                    CreateTransitionWhenActivityIsOutOfBounds(enableBlinking, suspend);
+                    CreateTransitionWhenActivityIsOutOfBounds(disableBlinking, suspend);
+                }
+                if (Feature(FeatureToggles.ExposeDisableBlinkingOverride))
+                {
+                    CreateTransitionWhenBlinkingIsDisabled(enableBlinking, suspend);
+                    CreateTransitionWhenBlinkingIsDisabled(disableBlinking, suspend);
+                }
+
+                foreach (var layer in _comboLayers)
+                {
+                    var transition = suspend.AddTransition(enableBlinking);
+                    SetupDefaultTransition(transition);
+                    if (_activityStageName != null) {
+                        transition.AddCondition(AnimatorConditionMode.Equals, layer.stageValue, _activityStageName);
+                    }
+                    if (Feature(FeatureToggles.ExposeDisableBlinkingOverride)) {
+                        transition.AddCondition(AnimatorConditionMode.Equals, 0, HaiGestureComboDisableBlinkingOverrideParamName);
+                    }
                 }
             }
-
             new GestureCBlinkingCombiner(combinator.IntermediateToBlinking, _activityStageName, _analogBlinkingUpperThreshold)
                 .Populate(enableBlinking, disableBlinking);
         }

@@ -330,7 +330,7 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
             }
 
             new ComboGestureCompilerInternal(
-                compiler.activityStageName,
+                compiler.activityStageName == "" ? null : compiler.activityStageName,
                 compiler.comboLayers,
                 compiler.animatorController,
                 compiler.customEmptyClip,

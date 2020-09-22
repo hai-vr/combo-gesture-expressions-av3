@@ -31,7 +31,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                     foreach (var blinkingCondition in items.Value)
                     {
                         var nullableStageValue = GetNullableStageValue(blinkingCondition);
-                        
+
                         var transition = restingState.AddTransition(posingState);
                         ShareBlinkingCondition(transition, blinkingCondition, nullableStageValue);
                     }
@@ -42,7 +42,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                     {
                         var nullableStageValue = GetNullableStageValue(blinkingCondition);
                         var threshold = items.Key.Posing ? _weightUpperThreshold : _weightLowerThreshold;
-                    
+
                         // TODO: Make this code maintainable
                         if (blinkingCondition.Combo.IsSymmetrical)
                         {
@@ -112,14 +112,18 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         {
             SetupBlinkingTransition(transition);
             transition.AddCondition(IsEqualTo, blinkingCondition.Combo.RawValue, ComboGestureCompilerInternal.HaiGestureComboParamName);
-            if (nullableStageValue != null) transition.AddCondition(IsEqualTo, (int) nullableStageValue, _activityStageName);
+            if (_activityStageName != null && nullableStageValue != null)
+            {
+                transition.AddCondition(IsEqualTo, (int) nullableStageValue, _activityStageName);
+            }
+
             // transition.AddCondition(IsEqualTo, 0, GestureComboCompiler.HaiGestureComboDisableBlinkingOverrideParamName);
         }
 
         private static void SetupBlinkingTransition(AnimatorStateTransition transition)
         {
             SetupSourceTransition(transition);
-        
+
             transition.duration = 0;
         }
 
@@ -133,7 +137,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             transition.canTransitionToSelf = false;
             transition.orderedInterruption = true;
         }
-    
+
         private static int? GetNullableStageValue(BlinkingCondition blinkingCondition)
         {
             return blinkingCondition is BlinkingCondition.ActivityBoundBlinkingCondition ? ((BlinkingCondition.ActivityBoundBlinkingCondition)blinkingCondition).StageValue : (int?) null;
