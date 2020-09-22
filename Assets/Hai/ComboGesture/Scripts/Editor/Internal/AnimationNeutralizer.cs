@@ -15,21 +15,23 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly ConflictFxLayerMode _compilerConflictFxLayerMode;
         private readonly HashSet<CurveKey> _ignoreCurveKeys;
         private readonly Dictionary<CurveKey, float> _curveKeyToFallbackValue;
-        private readonly string _datetimeForAssetPack;
+        private readonly List<CurveKey> _blinkBlendshapes;
         private readonly string _folderToCreateAssetIn;
+        private readonly string _datetimeForAssetPack;
 
-        public AnimationNeutralizer(
-            List<ActivityManifest> originalActivityManifests,
+        public AnimationNeutralizer(List<ActivityManifest> originalActivityManifests,
             ConflictFxLayerMode compilerConflictFxLayerMode,
             AnimationClip compilerIgnoreParamList,
             AnimationClip compilerFallbackParamList,
+            List<CurveKey> blinkBlendshapes,
             string folderToCreateAssetIn)
         {
             _originalActivityManifests = originalActivityManifests;
             _compilerConflictFxLayerMode = compilerConflictFxLayerMode;
-            _folderToCreateAssetIn = folderToCreateAssetIn;
             _ignoreCurveKeys = compilerIgnoreParamList == null ? new HashSet<CurveKey>() : ExtractAllCurvesOf(compilerIgnoreParamList);
             _curveKeyToFallbackValue = compilerFallbackParamList == null ? new Dictionary<CurveKey, float>() : ExtractFirstKeyframeValueOf(compilerFallbackParamList);
+            _blinkBlendshapes = blinkBlendshapes;
+            _folderToCreateAssetIn = folderToCreateAssetIn;
             _datetimeForAssetPack = DateTime.Now.ToString("yyyy'-'MM'-'dd'_'HHmmss");
         }
 
@@ -146,9 +148,13 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         private HashSet<CurveKey> FindAllApplicableCurveKeys(HashSet<AnimationClip> allAnimationClips)
         {
-            var curveKeys = allAnimationClips
+            var allCurveKeysFromAnimations = allAnimationClips
                 .SelectMany(AnimationUtility.GetCurveBindings)
                 .Select(CurveKey.FromBinding)
+                .ToList();
+
+            var curveKeys = new[]{allCurveKeysFromAnimations, _blinkBlendshapes}
+                .SelectMany(keys => keys)
                 .Where(curveKey => !_ignoreCurveKeys.Contains(curveKey))
                 .Where(curveKey =>
                 {

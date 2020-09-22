@@ -41,6 +41,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly AvatarMask _logicalAvatarMask;
         private readonly AnimatorGenerator _animatorGenerator;
         private readonly string _folderToCreateNeutralizedAssetsIn;
+        private readonly List<CurveKey> _blinkBlendshapes;
 
         public ComboGestureCompilerInternal(string activityStageName,
             List<GestureComboStageMapper> comboLayers,
@@ -52,6 +53,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             ConflictFxLayerMode compilerConflictFxLayerMode,
             AnimationClip compilerIgnoreParamList,
             AnimationClip compilerFallbackParamList,
+            List<CurveKey> blinkBlendshapes,
             AvatarMask expressionsAvatarMask,
             AvatarMask logicalAvatarMask,
             string folderToCreateNeutralizedAssetsIn)
@@ -69,6 +71,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _expressionsAvatarMask = expressionsAvatarMask;
             _logicalAvatarMask = logicalAvatarMask;
             _folderToCreateNeutralizedAssetsIn = folderToCreateNeutralizedAssetsIn;
+            _blinkBlendshapes = blinkBlendshapes;
             _animatorGenerator = new AnimatorGenerator(_animatorController, new StatefulEmptyClipProvider(new ClipGenerator(_customEmptyClip, EmptyClipPath, "ComboGesture")));
         }
 
@@ -284,7 +287,14 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             if (_conflictPrevention.ShouldGenerateAnimations)
             {
                 EditorUtility.DisplayProgressBar("GestureCombo", "Generating animations", 0f);
-                activityManifests = new AnimationNeutralizer(activityManifests, _compilerConflictFxLayerMode, _compilerIgnoreParamList, _compilerFallbackParamList, _folderToCreateNeutralizedAssetsIn).NeutralizeManifestAnimations();
+                activityManifests = new AnimationNeutralizer(
+                    activityManifests,
+                    _compilerConflictFxLayerMode,
+                    _compilerIgnoreParamList,
+                    _compilerFallbackParamList,
+                    _blinkBlendshapes,
+                    _folderToCreateNeutralizedAssetsIn
+                ).NeutralizeManifestAnimations();
             }
             var combinator = new IntermediateCombinator(activityManifests);
 

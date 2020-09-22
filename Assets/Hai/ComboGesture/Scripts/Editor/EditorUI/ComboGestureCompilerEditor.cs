@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.Internal;
 using UnityEditor;
@@ -33,6 +34,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public SerializedProperty fallbackParamList;
         public SerializedProperty folderToGenerateNeutralizedAssetsIn;
 
+        public SerializedProperty avatarDescriptor;
+        public SerializedProperty bypassMandatoryAvatarDescriptor;
+
         public SerializedProperty editorAdvancedFoldout;
 
         private void OnEnable()
@@ -59,6 +63,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             comboLayers = serializedObject.FindProperty("comboLayers");
 
+            avatarDescriptor = serializedObject.FindProperty("avatarDescriptor");
+            bypassMandatoryAvatarDescriptor = serializedObject.FindProperty("bypassMandatoryAvatarDescriptor");
+
             // reference: https://blog.terresquall.com/2020/03/creating-reorderable-lists-in-the-unity-inspector/
             comboLayersReorderableList = new ReorderableList(
                 serializedObject,
@@ -81,6 +88,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
+            var conflictPrevention = ConflictPrevention.Of((ConflictPreventionMode) conflictPreventionMode.intValue);
 
             _foldoutHelp = EditorGUILayout.Foldout(_foldoutHelp, new GUIContent("Help", _guideIcon32));
             if (_foldoutHelp)
@@ -96,12 +104,24 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             comboLayersReorderableList.DoLayoutList();
 
+            EditorGUILayout.Separator();
+
             var compiler = AsCompiler();
+
+            EditorGUI.BeginDisabledGroup(!conflictPrevention.ShouldGenerateAnimations);
+            EditorGUILayout.PropertyField(avatarDescriptor, new GUIContent("Blink blendshapes descriptor"));
+            foreach (var blendShape in ComboGestureCompiler.FindBlinkBlendshapes(compiler))
+            {
+                EditorGUILayout.LabelField(blendShape.Path + "::" + blendShape.BlendShapeName);
+            }
+            EditorGUI.EndDisabledGroup();
+
             EditorGUI.BeginDisabledGroup(
                 ThereIsNoAnimatorController() ||
                 ThereIsNoActivity() ||
                 TheOnlyActivityIsNull() ||
-                ThereIsNoActivityNameForMultipleActivities()
+                ThereIsNoActivityNameForMultipleActivities() ||
+                AnimationsAreGeneratedButThereIsNoAvatarDescriptor()
             );
 
             bool ThereIsNoAnimatorController()
@@ -122,6 +142,13 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             bool ThereIsNoActivityNameForMultipleActivities()
             {
                 return comboLayers.arraySize >= 2 && (activityStageName.stringValue == null || activityStageName.stringValue.Trim() == "");
+            }
+
+            bool AnimationsAreGeneratedButThereIsNoAvatarDescriptor()
+            {
+                return !compiler.bypassMandatoryAvatarDescriptor
+                       && ConflictPrevention.Of(compiler.conflictPreventionMode).ShouldGenerateAnimations
+                       && compiler.avatarDescriptor == null;
             }
 
             EditorGUILayout.Space();
@@ -167,7 +194,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
                 CpmValueWarning(true);
 
-                var conflictPrevention = ConflictPrevention.Of((ConflictPreventionMode) conflictPreventionMode.intValue);
                 EditorGUI.BeginDisabledGroup(!conflictPrevention.ShouldGenerateAnimations);
                 EditorGUILayout.LabelField("Animation generation", EditorStyles.boldLabel);
                 EditorGUILayout.PropertyField(folderToGenerateNeutralizedAssetsIn, new GUIContent("Generate assets in the same folder as..."));
@@ -179,6 +205,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                     EditorGUI.EndDisabledGroup();
                 }
                 EditorGUILayout.PropertyField(conflictFxLayerMode, new GUIContent("Transforms removal"));
+                EditorGUILayout.PropertyField(bypassMandatoryAvatarDescriptor, new GUIContent("Bypass mandatory avatar descriptor"));
                 EditorGUI.EndDisabledGroup();
 
                 CpmRemovalWarning(true);
@@ -296,6 +323,9 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
                 compiler.conflictFxLayerMode,
                 compiler.ignoreParamList,
                 compiler.fallbackParamList,
+                ComboGestureCompiler.FindBlinkBlendshapes(compiler)
+                    .Select(key => new CurveKey(key.Path, typeof(SkinnedMeshRenderer), "blendShape." + key.BlendShapeName))
+                    .ToList(),
                 compiler.expressionsAvatarMask,
                 compiler.logicalAvatarMask,
                 ResolveFolderToCreateNeutralizedAssetsIn(compiler.folderToGenerateNeutralizedAssetsIn, compiler.animatorController)
