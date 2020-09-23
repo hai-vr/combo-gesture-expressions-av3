@@ -106,7 +106,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         private static AnimToTransitionEntry CreateTransitionToMotion(TransitionCondition transitionCondition, AnimationClip anim)
         {
-            return new AnimToTransitionEntry(transitionCondition, IntermediateAnimationGroup.NewMotion(anim)); 
+            return new AnimToTransitionEntry(transitionCondition, IntermediateAnimationGroup.NewMotion(anim));
         }
 
         private static AnimToTransitionEntry CreateTransitionToPossibleBlend(TransitionCondition transitionCondition, AnimationClip posing, AnimationClip resting)
@@ -118,7 +118,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         private static AnimToTransitionEntry CreateTransitionToPossibleTripleBlend(TransitionCondition transitionCondition, AnimationClip posingBoth, AnimationClip resting, AnimationClip posingLeft, AnimationClip posingRight)
         {
-            return posingBoth == resting
+            return posingBoth == resting && posingLeft == posingBoth && posingRight == posingBoth
                 ? CreateTransitionToMotion(transitionCondition, posingBoth)
                 : new AnimToTransitionEntry(transitionCondition, IntermediateAnimationGroup.NewTripleBlend(posingBoth, resting, posingLeft, posingRight));
         }
@@ -148,7 +148,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             Combo = combo;
             LayerOrdinal = layerOrdinal;
         }
-    
+
         internal class ActivityBoundTransitionCondition : TransitionCondition
         {
             public int StageValue { get; }
