@@ -37,6 +37,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public SerializedProperty avatarDescriptor;
         public SerializedProperty bypassMandatoryAvatarDescriptor;
 
+        public SerializedProperty assetContainer;
+        public SerializedProperty generateNewContainerEveryTime;
+
         public SerializedProperty editorAdvancedFoldout;
 
         private void OnEnable()
@@ -65,6 +68,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             avatarDescriptor = serializedObject.FindProperty("avatarDescriptor");
             bypassMandatoryAvatarDescriptor = serializedObject.FindProperty("bypassMandatoryAvatarDescriptor");
+
+            assetContainer = serializedObject.FindProperty("assetContainer");
+            generateNewContainerEveryTime = serializedObject.FindProperty("generateNewContainerEveryTime");
 
             // reference: https://blog.terresquall.com/2020/03/creating-reorderable-lists-in-the-unity-inspector/
             comboLayersReorderableList = new ReorderableList(
@@ -196,6 +202,10 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
                 EditorGUI.BeginDisabledGroup(!conflictPrevention.ShouldGenerateAnimations);
                 EditorGUILayout.LabelField("Animation generation", EditorStyles.boldLabel);
+                EditorGUILayout.PropertyField(assetContainer, new GUIContent("Asset container"));
+
+                EditorGUI.BeginDisabledGroup(assetContainer.objectReferenceValue != null);
+                EditorGUILayout.PropertyField(generateNewContainerEveryTime, new GUIContent("Don't keep track of newly generated containers"));
                 EditorGUILayout.PropertyField(folderToGenerateNeutralizedAssetsIn, new GUIContent("Generate assets in the same folder as..."));
                 if (animatorController.objectReferenceValue != null)
                 {
@@ -204,8 +214,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                     EditorGUILayout.TextField(ResolveFolderToCreateNeutralizedAssetsIn((RuntimeAnimatorController)folderToGenerateNeutralizedAssetsIn.objectReferenceValue, (RuntimeAnimatorController)animatorController.objectReferenceValue));
                     EditorGUI.EndDisabledGroup();
                 }
+                EditorGUI.EndDisabledGroup();
+
                 EditorGUILayout.PropertyField(conflictFxLayerMode, new GUIContent("Transforms removal"));
-                EditorGUILayout.PropertyField(bypassMandatoryAvatarDescriptor, new GUIContent("Bypass mandatory avatar descriptor"));
                 EditorGUI.EndDisabledGroup();
 
                 CpmRemovalWarning(true);
@@ -216,6 +227,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 EditorGUILayout.LabelField("Fallback generation", EditorStyles.boldLabel);
                 EditorGUILayout.PropertyField(ignoreParamList, new GUIContent("Ignored properties"));
                 EditorGUILayout.PropertyField(fallbackParamList, new GUIContent("Fallback values"));
+                EditorGUILayout.PropertyField(bypassMandatoryAvatarDescriptor, new GUIContent("Bypass mandatory avatar descriptor"));
                 EditorGUI.EndDisabledGroup();
             }
             else
@@ -307,6 +319,16 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
         private void DoGenerate()
         {
             var compiler = AsCompiler();
+
+            var folderToCreateAssetIn = ResolveFolderToCreateNeutralizedAssetsIn(compiler.folderToGenerateNeutralizedAssetsIn, compiler.animatorController);
+            var actualContainer = ConflictPrevention.Of(compiler.conflictPreventionMode).ShouldGenerateAnimations
+                ? CreateContainerIfNotExists(compiler, folderToCreateAssetIn)
+                : null;
+            if (actualContainer != null && compiler.assetContainer == null && !compiler.generateNewContainerEveryTime)
+            {
+                compiler.assetContainer = actualContainer.ExposeContainerAsset();
+            }
+
             new ComboGestureCompilerInternal(
                 compiler.activityStageName,
                 compiler.comboLayers,
@@ -328,8 +350,13 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
                     .ToList(),
                 compiler.expressionsAvatarMask,
                 compiler.logicalAvatarMask,
-                ResolveFolderToCreateNeutralizedAssetsIn(compiler.folderToGenerateNeutralizedAssetsIn, compiler.animatorController)
+                actualContainer
             ).DoOverwriteAnimatorFxLayer();
+        }
+
+        private static AssetContainer CreateContainerIfNotExists(ComboGestureCompiler compiler, string folderToCreateAssetIn)
+        {
+            return compiler.assetContainer == null ? AssetContainer.CreateNew(folderToCreateAssetIn) : AssetContainer.FromExisting(compiler.assetContainer);
         }
 
         private static string ResolveFolderToCreateNeutralizedAssetsIn(RuntimeAnimatorController preferredChoice, RuntimeAnimatorController defaultChoice)

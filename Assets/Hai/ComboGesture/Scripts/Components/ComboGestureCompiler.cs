@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using VRC.SDK3.Avatars.Components;
@@ -12,6 +11,9 @@ namespace Hai.ComboGesture.Scripts.Components
         public List<GestureComboStageMapper> comboLayers;
         public RuntimeAnimatorController animatorController;
         public RuntimeAnimatorController folderToGenerateNeutralizedAssetsIn;
+        public RuntimeAnimatorController assetContainer;
+        public bool generateNewContainerEveryTime;
+
         public AnimationClip customEmptyClip;
         public float analogBlinkingUpperThreshold = 0.7f;
 

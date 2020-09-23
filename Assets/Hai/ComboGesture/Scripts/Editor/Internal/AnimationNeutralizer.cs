@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Hai.ComboGesture.Scripts.Components;
 using UnityEditor;
-using UnityEditor.Animations;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -16,23 +15,21 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly HashSet<CurveKey> _ignoreCurveKeys;
         private readonly Dictionary<CurveKey, float> _curveKeyToFallbackValue;
         private readonly List<CurveKey> _blinkBlendshapes;
-        private readonly string _folderToCreateAssetIn;
-        private readonly string _datetimeForAssetPack;
+        private readonly AssetContainer _assetContainer;
 
         public AnimationNeutralizer(List<ActivityManifest> originalActivityManifests,
             ConflictFxLayerMode compilerConflictFxLayerMode,
             AnimationClip compilerIgnoreParamList,
             AnimationClip compilerFallbackParamList,
             List<CurveKey> blinkBlendshapes,
-            string folderToCreateAssetIn)
+            AssetContainer assetContainer)
         {
             _originalActivityManifests = originalActivityManifests;
             _compilerConflictFxLayerMode = compilerConflictFxLayerMode;
             _ignoreCurveKeys = compilerIgnoreParamList == null ? new HashSet<CurveKey>() : ExtractAllCurvesOf(compilerIgnoreParamList);
             _curveKeyToFallbackValue = compilerFallbackParamList == null ? new Dictionary<CurveKey, float>() : ExtractFirstKeyframeValueOf(compilerFallbackParamList);
             _blinkBlendshapes = blinkBlendshapes;
-            _folderToCreateAssetIn = folderToCreateAssetIn;
-            _datetimeForAssetPack = DateTime.Now.ToString("yyyy'-'MM'-'dd'_'HHmmss");
+            _assetContainer = assetContainer;
         }
 
         private static HashSet<CurveKey> ExtractAllCurvesOf(AnimationClip clip)
@@ -61,7 +58,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             var allAnimationClips = FindAllAnimationClips();
             var allApplicableCurveKeys = FindAllApplicableCurveKeys(allAnimationClips);
 
-            var remapping = CreateAssetContainerWithNeutralizedAnimations(allAnimationClips, allApplicableCurveKeys);
+            var remapping = CreateAssetContainerWithNeutralizedAnimations(_assetContainer, allAnimationClips, allApplicableCurveKeys);
             return _originalActivityManifests.Select(manifest => RemapManifest(manifest, remapping)).ToList();
         }
 
@@ -79,23 +76,19 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             return new ActivityManifest(manifest.StageValue, remappedManifest, manifest.LayerOrdinal);
         }
 
-        private Dictionary<AnimationClip, AnimationClip> CreateAssetContainerWithNeutralizedAnimations(HashSet<AnimationClip> allAnimationClips, HashSet<CurveKey> allApplicableCurveKeys)
+        private Dictionary<AnimationClip, AnimationClip> CreateAssetContainerWithNeutralizedAnimations(AssetContainer container, HashSet<AnimationClip> allAnimationClips, HashSet<CurveKey> allApplicableCurveKeys)
         {
             var remapping = new Dictionary<AnimationClip, AnimationClip>();
-            var assetContainer = new AnimatorController();
-
-            AssetDatabase.CreateAsset(assetContainer, _folderToCreateAssetIn + "/GeneratedCGE__" + _datetimeForAssetPack + ".asset");
 
             foreach (var animationClip in allAnimationClips)
             {
                 var neutralizedAnimation = CopyAndNeutralize(animationClip, allApplicableCurveKeys);
-                AssetDatabase.AddObjectToAsset(neutralizedAnimation, assetContainer);
+                container.AddAnimation(neutralizedAnimation);
 
                 remapping.Add(animationClip, neutralizedAnimation);
             }
 
-            AssetDatabase.SaveAssets();
-            AssetDatabase.Refresh();
+            AssetContainer.GlobalSave();
 
             return remapping;
         }
