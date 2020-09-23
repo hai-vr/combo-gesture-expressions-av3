@@ -124,7 +124,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         {
             var transition = _machine.AddAnyStateTransition(state);
             SetupComboTransition(transition, transitionDuration);
-            transition.AddCondition(IsEqualTo, comboRawValue, ComboGestureCompilerInternal.HaiGestureComboParamName);
+            transition.AddCondition(IsEqualTo, comboRawValue, SharedLayerUtils.HaiGestureComboParamName);
             if (stageValue != null) transition.AddCondition(IsEqualTo, (int) stageValue, _activityStageName);
         }
 
@@ -141,7 +141,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         {
             var transition = _machine.AddAnyStateTransition(state);
             SetupComboTransition(transition, transitionDuration);
-            transition.AddCondition(IsEqualTo, comboRawValue, ComboGestureCompilerInternal.HaiGestureComboParamName);
+            transition.AddCondition(IsEqualTo, comboRawValue, SharedLayerUtils.HaiGestureComboParamName);
             transition.AddCondition(IsEqualTo, 1, clipNature == ComboNature.BlendLeft ? "GestureLeft" : "GestureRight");
             transition.AddCondition(AnimatorConditionMode.NotEqual, 1,
                 clipNature == ComboNature.BlendRight ? "GestureLeft" : "GestureRight");
@@ -152,7 +152,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         {
             var transition = _machine.AddAnyStateTransition(state);
             SetupComboTransition(transition, transitionDuration);
-            transition.AddCondition(IsEqualTo, comboRawValue, ComboGestureCompilerInternal.HaiGestureComboParamName);
+            transition.AddCondition(IsEqualTo, comboRawValue, SharedLayerUtils.HaiGestureComboParamName);
             if (stageValue != null) transition.AddCondition(IsEqualTo, (int) stageValue, _activityStageName);
         }
 

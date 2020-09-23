@@ -247,7 +247,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             int? nullableStageValue)
         {
             SetupBlinkingTransition(transition);
-            transition.AddCondition(IsEqualTo, blinkingCondition.Combo.RawValue, ComboGestureCompilerInternal.HaiGestureComboParamName);
+            transition.AddCondition(IsEqualTo, blinkingCondition.Combo.RawValue, SharedLayerUtils.HaiGestureComboParamName);
             if (_activityStageName != null && nullableStageValue != null)
             {
                 transition.AddCondition(IsEqualTo, (int) nullableStageValue, _activityStageName);
