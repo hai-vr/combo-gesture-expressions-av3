@@ -2,6 +2,7 @@
 using System.Linq;
 using UnityEngine;
 using VRC.SDK3.Avatars.Components;
+using VRC.SDKBase;
 
 namespace Hai.ComboGesture.Scripts.Components
 {
@@ -55,6 +56,27 @@ namespace Hai.ComboGesture.Scripts.Components
             var relativePathToSkinnedMesh = ResolveRelativePath(that.avatarDescriptor.transform, eyeLook.eyelidsSkinnedMesh.transform);
             return eyeLook.eyelidsBlendshapes
                 .Select(i => BlendShapeNameIfValid(i, eyeLook))
+                .Where(blendShapeName => blendShapeName != null)
+                .Select(blendShapeName => new BlendShapeKey(relativePathToSkinnedMesh, blendShapeName))
+                .ToList();
+        }
+
+        public static List<BlendShapeKey> FindLipsyncBlendshapes(ComboGestureCompiler that)
+        {
+            if (that.avatarDescriptor == null)
+            {
+                return new List<BlendShapeKey>();
+            }
+
+            if (that.avatarDescriptor.lipSync != VRC_AvatarDescriptor.LipSyncStyle.VisemeBlendShape
+                || that.avatarDescriptor.VisemeSkinnedMesh == null
+                || that.avatarDescriptor.VisemeSkinnedMesh.sharedMesh == null)
+            {
+                return new List<BlendShapeKey>();
+            }
+
+            var relativePathToSkinnedMesh = ResolveRelativePath(that.avatarDescriptor.transform, that.avatarDescriptor.VisemeSkinnedMesh.transform);
+            return that.avatarDescriptor.VisemeBlendShapes
                 .Where(blendShapeName => blendShapeName != null)
                 .Select(blendShapeName => new BlendShapeKey(relativePathToSkinnedMesh, blendShapeName))
                 .ToList();

@@ -46,6 +46,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             AnimationClip compilerIgnoreParamList,
             AnimationClip compilerFallbackParamList,
             List<CurveKey> blinkBlendshapes,
+            List<CurveKey> lipsyncBlendshapes,
             AvatarMask expressionsAvatarMask,
             AvatarMask logicalAvatarMask,
             AssetContainer assetContainer)

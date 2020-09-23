@@ -107,6 +107,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 }
             }
 
+            EditorGUILayout.LabelField("Activities", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(animatorController, new GUIContent("FX Animator Controller to overwrite"));
             EditorGUILayout.PropertyField(activityStageName, new GUIContent("Activity Stage name"));
 
@@ -117,10 +118,18 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             var compiler = AsCompiler();
 
             EditorGUI.BeginDisabledGroup(!conflictPrevention.ShouldGenerateAnimations);
-            EditorGUILayout.PropertyField(avatarDescriptor, new GUIContent("Blink blendshapes descriptor"));
+            EditorGUILayout.LabelField("Blink & Lipsync blendshapes correction", EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(avatarDescriptor, new GUIContent("Avatar descriptor"));
             foreach (var blendShape in ComboGestureCompiler.FindBlinkBlendshapes(compiler))
             {
-                EditorGUILayout.LabelField(blendShape.Path + "::" + blendShape.BlendShapeName);
+                EditorGUILayout.LabelField("- " + blendShape.Path + "::" + blendShape.BlendShapeName);
+            }
+
+            var lipsyncBlendshapes = ComboGestureCompiler.FindLipsyncBlendshapes(compiler);
+            var firstLipsyncBlendshape = lipsyncBlendshapes.FirstOrDefault();
+            if (lipsyncBlendshapes.Count > 0)
+            {
+                EditorGUILayout.LabelField("- " + firstLipsyncBlendshape.Path + "::" + firstLipsyncBlendshape.BlendShapeName + " (+ " + (lipsyncBlendshapes.Count - 1) + " more...)");
             }
             EditorGUI.EndDisabledGroup();
 
@@ -166,6 +175,11 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 DoGenerate();
             }
             EditorGUI.EndDisabledGroup();
+
+            if (compiler.assetContainer != null && conflictPrevention.ShouldGenerateAnimations) {
+                EditorGUILayout.LabelField("Asset generation", EditorStyles.boldLabel);
+                EditorGUILayout.PropertyField(assetContainer, new GUIContent("Asset container"));
+            }
 
             EditorGUILayout.Space();
 
@@ -350,6 +364,9 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
                 compiler.ignoreParamList,
                 compiler.fallbackParamList,
                 ComboGestureCompiler.FindBlinkBlendshapes(compiler)
+                    .Select(key => new CurveKey(key.Path, typeof(SkinnedMeshRenderer), "blendShape." + key.BlendShapeName))
+                    .ToList(),
+                ComboGestureCompiler.FindLipsyncBlendshapes(compiler)
                     .Select(key => new CurveKey(key.Path, typeof(SkinnedMeshRenderer), "blendShape." + key.BlendShapeName))
                     .ToList(),
                 compiler.expressionsAvatarMask,
