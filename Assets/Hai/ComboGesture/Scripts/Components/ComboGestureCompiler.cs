@@ -15,7 +15,7 @@ namespace Hai.ComboGesture.Scripts.Components
         public bool generateNewContainerEveryTime;
 
         public AnimationClip customEmptyClip;
-        public float analogBlinkingUpperThreshold = 0.7f;
+        public float analogBlinkingUpperThreshold = 0.95f;
 
         public bool exposeDisableExpressions;
         public bool exposeDisableBlinkingOverride;
