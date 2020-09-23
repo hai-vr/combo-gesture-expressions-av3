@@ -71,6 +71,12 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 CreateTransitionToMotion(NewTransition(5), manifestBlinking.Contains(manifest.Anim05())),
                 CreateTransitionToMotion(NewTransition(6), manifestBlinking.Contains(manifest.Anim06())),
                 CreateTransitionToMotion(NewTransition(7), manifestBlinking.Contains(manifest.Anim07())),
+                CreateTransitionToPossibleTripleBlend(
+                    NewTransition(11),
+                    manifestBlinking.Contains(manifest.Anim11()),
+                    manifestBlinking.Contains(manifest.Anim00()),
+                    manifestBlinking.Contains(manifest.Anim11_L()),
+                    manifestBlinking.Contains(manifest.Anim11_R())),
                 CreateTransitionToPossibleBlend(NewTransition(11), manifestBlinking.Contains(manifest.Anim11()), manifestBlinking.Contains(manifest.Anim00())),
                 CreateTransitionToPossibleBlend(NewTransition(12), manifestBlinking.Contains(manifest.Anim12()), manifestBlinking.Contains(manifest.Anim02())),
                 CreateTransitionToPossibleBlend(NewTransition(13), manifestBlinking.Contains(manifest.Anim13()), manifestBlinking.Contains(manifest.Anim03())),
@@ -104,7 +110,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         private static AnimToBlinkingConditionEntry CreateTransitionToMotion(BlinkingCondition blinkingCondition, bool anim)
         {
-            return new AnimToBlinkingConditionEntry(blinkingCondition, IntermediateBlinkingGroup.NewMotion(anim)); 
+            return new AnimToBlinkingConditionEntry(blinkingCondition, IntermediateBlinkingGroup.NewMotion(anim));
         }
 
         private static AnimToBlinkingConditionEntry CreateTransitionToPossibleBlend(BlinkingCondition blinkingCondition, bool posing, bool resting)
@@ -112,6 +118,29 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             return posing == resting
                 ? CreateTransitionToMotion(blinkingCondition, posing)
                 : new AnimToBlinkingConditionEntry(blinkingCondition, IntermediateBlinkingGroup.NewBlend(posing, resting));
+        }
+
+        private static AnimToBlinkingConditionEntry CreateTransitionToPossibleTripleBlend(BlinkingCondition blinkingCondition, bool posingBoth, bool resting, bool posingLeft, bool posingRight)
+        {
+            bool NoneIsBlinking()
+            {
+                return !posingBoth && !resting && !posingLeft && !posingRight;
+            }
+
+            bool AllIsBlinking()
+            {
+                return posingBoth && resting && posingLeft && posingRight;
+            }
+
+            bool UnsupportedOnlyBlinkingAcross()
+            {
+                return posingBoth && resting && !posingLeft && !posingRight
+                       || !posingBoth && !resting && posingLeft && posingRight;
+            }
+
+            return AllIsBlinking() || NoneIsBlinking() || UnsupportedOnlyBlinkingAcross()
+                ? CreateTransitionToMotion(blinkingCondition, posingBoth)
+                : new AnimToBlinkingConditionEntry(blinkingCondition, IntermediateBlinkingGroup.NewTripleBlend(posingBoth, resting, posingLeft, posingRight));
         }
     }
 
@@ -137,7 +166,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             Combo = combo;
             LayerOrdinal = layerOrdinal;
         }
-    
+
         internal class ActivityBoundBlinkingCondition : BlinkingCondition
         {
             public int StageValue { get; }
