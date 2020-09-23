@@ -47,6 +47,7 @@ namespace Hai.ComboGesture.Scripts.Components
         public AnimationClip anim11_R;
 
         public List<AnimationClip> blinking;
+        public List<AnimationClip> limitedLipsync;
 
         public ComboGesturePreviewSetup previewSetup;
         public bool editorLegacyFoldout;

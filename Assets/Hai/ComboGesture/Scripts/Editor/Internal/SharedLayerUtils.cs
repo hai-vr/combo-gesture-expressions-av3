@@ -49,6 +49,10 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         internal const string HaiGestureComboParamName = "_Hai_GestureComboValue";
         internal const string HaiGestureComboDisableExpressionsParamName = "_Hai_GestureComboDisableExpressions";
+        internal const string HaiGestureComboAreEyesClosed = "_Hai_GestureComboAreEyesClosed";
+        internal const string HaiGestureComboDisableBlinkingOverrideParamName = "_Hai_GestureComboDisableBlinkingOverride";
+        internal const string HaiGestureComboIsLipsyncLimited = "_Hai_GestureComboIsLipsyncLimited";
+        internal const string HaiGestureComboDisableLipsyncOverrideParamName = "_Hai_GestureComboDisableLipsyncOverride";
 
         public static RawGestureManifest FromManifest(ComboGestureActivity activity, AnimationClip fallbackWhen00ClipIsNull)
         {
@@ -57,7 +61,5 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 : RawGestureManifest.FromActivity(activity, fallbackWhen00ClipIsNull);
         }
 
-        internal const string HaiGestureComboAreEyesClosed = "_Hai_GestureComboAreEyesClosed";
-        internal const string HaiGestureComboDisableBlinkingOverrideParamName = "_Hai_GestureComboDisableBlinkingOverride";
     }
 }

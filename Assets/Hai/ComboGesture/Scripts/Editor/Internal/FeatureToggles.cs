@@ -11,5 +11,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         ExposeAreEyesClosed = 4,
         DoNotGenerateBlinkingOverrideLayer = 8,
         DoNotGenerateControllerLayer = 16,
+        DoNotGenerateLipsyncOverrideLayer = 32,
+        ExposeDisableLipsyncOverride = 64,
+        ExposeIsLipsyncLimited = 128,
     }
 }

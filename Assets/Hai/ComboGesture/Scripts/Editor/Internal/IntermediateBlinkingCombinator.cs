@@ -1,12 +1,27 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
     internal class IntermediateBlinkingCombinator
     {
-        public IntermediateBlinkingCombinator(List<ActivityManifest> activityManifests)
+        private readonly Func<RawGestureManifest, List<AnimationClip>> _animationMatcher;
+
+        public static IntermediateBlinkingCombinator ForBlinking(List<ActivityManifest> activityManifests)
         {
+            return new IntermediateBlinkingCombinator(activityManifests, manifest => manifest.Blinking);
+        }
+
+        public static IntermediateBlinkingCombinator ForLimitedLipsync(List<ActivityManifest> activityManifests)
+        {
+            return new IntermediateBlinkingCombinator(activityManifests, manifest => manifest.LimitedLipsync);
+        }
+
+        private IntermediateBlinkingCombinator(List<ActivityManifest> activityManifests, Func<RawGestureManifest, List<AnimationClip>> animationMatcher)
+        {
+            _animationMatcher = animationMatcher;
             var exhaustive = DecomposeIntoIntermediateToTransitions(activityManifests);
 
             var optimized = Optimize(exhaustive, activityManifests.Count);
@@ -43,7 +58,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 .ToDictionary(pair => pair.Key, pair => pair.Value);
         }
 
-        private static Dictionary<IntermediateBlinkingGroup, List<BlinkingCondition>> DecomposeIntoIntermediateToTransitions(List<ActivityManifest> activityManifests)
+        private Dictionary<IntermediateBlinkingGroup, List<BlinkingCondition>> DecomposeIntoIntermediateToTransitions(List<ActivityManifest> activityManifests)
         {
             return activityManifests
                 .SelectMany(Decompose)
@@ -53,14 +68,14 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         public Dictionary<IntermediateBlinkingGroup, List<BlinkingCondition>> IntermediateToBlinking { get; }
 
-        private static List<AnimToBlinkingConditionEntry> Decompose(ActivityManifest activityManifest)
+        private List<AnimToBlinkingConditionEntry> Decompose(ActivityManifest activityManifest)
         {
             var manifest = activityManifest.Manifest;
             var stageValue = activityManifest.StageValue;
 
             BlinkingCondition NewTransition(int rawComboValue) => new BlinkingCondition.ActivityBoundBlinkingCondition(stageValue, new ComboValue(rawComboValue), activityManifest.LayerOrdinal);
 
-            var manifestBlinking = manifest.Blinking;
+            var manifestBlinking = _animationMatcher.Invoke(manifest);
             return new List<AnimToBlinkingConditionEntry>
             {
                 CreateTransitionToMotion(NewTransition(0), manifestBlinking.Contains(manifest.Anim00())),

@@ -10,12 +10,14 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
     {
         private List<AnimationClip> Manifest { get; }
         public List<AnimationClip> Blinking { get; }
+        public List<AnimationClip> LimitedLipsync { get; }
         public float TransitionDuration { get; }
 
-        private RawGestureManifest(List<AnimationClip> manifest, List<AnimationClip> blinking, float transitionDuration)
+        private RawGestureManifest(List<AnimationClip> manifest, List<AnimationClip> blinking, List<AnimationClip> limitedLipsync, float transitionDuration)
         {
             Manifest = manifest;
             Blinking = blinking.Intersect(manifest).ToList();
+            LimitedLipsync = limitedLipsync.Intersect(manifest).ToList();
             TransitionDuration = transitionDuration;
 
             if (manifest.Any(clip => clip == null))
@@ -27,13 +29,14 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         public static RawGestureManifest FromActivity(ComboGestureActivity activity, AnimationClip fallbackWhen00ClipIsNull)
         {
             var neutral = activity.anim00 ? activity.anim00 : fallbackWhen00ClipIsNull;
-            return new RawGestureManifest(activity.OrderedAnimations().Select(clip => clip ? clip : neutral).ToList(), activity.blinking, activity.transitionDuration);
+            return new RawGestureManifest(activity.OrderedAnimations().Select(clip => clip ? clip : neutral).ToList(), activity.blinking, activity.limitedLipsync, activity.transitionDuration);
         }
 
         public static RawGestureManifest AllSlotsFittedWithSameClip(AnimationClip clip)
         {
             return new RawGestureManifest(
                 Enumerable.Repeat(clip, 36 + 2).ToList(),
+                new List<AnimationClip>(),
                 new List<AnimationClip>(),
                 0.1f);
         }
@@ -43,6 +46,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             return new RawGestureManifest(
                 AnimationClips().Select(clip => remapping[clip]).ToList(),
                 Blinking.Select(clip => remapping[clip]).ToList(),
+                LimitedLipsync.Select(clip => remapping[clip]).ToList(),
                 TransitionDuration
             );
         }

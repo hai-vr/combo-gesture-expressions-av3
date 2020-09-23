@@ -10,7 +10,7 @@ using VRC.SDKBase;
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
-    internal class LayerForBlinkingOverrideView
+    internal class LayerForLipsyncOverrideView
     {
         private const bool WriteDefaultsForLogicalStates = true;
 
@@ -22,7 +22,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly AnimatorGenerator _animatorGenerator;
         private readonly AnimationClip _emptyClip;
 
-        public LayerForBlinkingOverrideView(string activityStageName, List<GestureComboStageMapper> comboLayers, float analogBlinkingUpperThreshold, FeatureToggles featuresToggles, AvatarMask logicalAvatarMask, AnimatorGenerator animatorGenerator, AnimationClip emptyClip)
+        public LayerForLipsyncOverrideView(string activityStageName, List<GestureComboStageMapper> comboLayers, float analogBlinkingUpperThreshold, FeatureToggles featuresToggles, AvatarMask logicalAvatarMask, AnimatorGenerator animatorGenerator, AnimationClip emptyClip)
         {
             _activityStageName = activityStageName;
             _comboLayers = comboLayers;
@@ -35,11 +35,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         public void Create()
         {
-            EditorUtility.DisplayProgressBar("GestureCombo", "Clearing eyes blinking override layer", 0f);
+            EditorUtility.DisplayProgressBar("GestureCombo", "Clearing lipsync override layer", 0f);
             var machine = ReinitializeLayer();
 
             var activityManifests = CreateManifest();
-            var combinator = IntermediateBlinkingCombinator.ForBlinking(activityManifests);
+            var combinator = IntermediateBlinkingCombinator.ForLimitedLipsync(activityManifests);
             if (!combinator.IntermediateToBlinking.ContainsKey(IntermediateBlinkingGroup.NewMotion(true)) &&
                 !combinator.IntermediateToBlinking.ContainsKey(IntermediateBlinkingGroup.NewBlend(true, false)) &&
                 !combinator.IntermediateToBlinking.ContainsKey(IntermediateBlinkingGroup.NewBlend(false, true)))
@@ -50,13 +50,13 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             var enableBlinking = CreateBlinkingState(machine, VRC_AnimatorTrackingControl.TrackingType.Tracking, _emptyClip);
             var disableBlinking = CreateBlinkingState(machine, VRC_AnimatorTrackingControl.TrackingType.Animation, _emptyClip);
 
-            if (Feature(FeatureToggles.ExposeAreEyesClosed))
+            if (Feature(FeatureToggles.ExposeIsLipsyncLimited))
             {
                 CreateInternalParameterDriverWhenEyesAreOpen(enableBlinking);
                 CreateInternalParameterDriverWhenEyesAreClosed(disableBlinking);
             }
 
-            var requireSuspension = _activityStageName != null || Feature(FeatureToggles.ExposeDisableBlinkingOverride);
+            var requireSuspension = _activityStageName != null || Feature(FeatureToggles.ExposeDisableLipsyncOverride);
             if (requireSuspension)
             {
                 var suspend = CreateSuspendState(machine, _emptyClip);
@@ -67,7 +67,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                     CreateTransitionWhenActivityIsOutOfBounds(disableBlinking, suspend);
                 }
 
-                if (Feature(FeatureToggles.ExposeDisableBlinkingOverride))
+                if (Feature(FeatureToggles.ExposeDisableLipsyncOverride))
                 {
                     CreateTransitionWhenBlinkingIsDisabled(enableBlinking, suspend);
                     CreateTransitionWhenBlinkingIsDisabled(disableBlinking, suspend);
@@ -82,9 +82,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                         transition.AddCondition(AnimatorConditionMode.Equals, layer.stageValue, _activityStageName);
                     }
 
-                    if (Feature(FeatureToggles.ExposeDisableBlinkingOverride))
+                    if (Feature(FeatureToggles.ExposeDisableLipsyncOverride))
                     {
-                        transition.AddCondition(AnimatorConditionMode.Equals, 0, SharedLayerUtils.HaiGestureComboDisableBlinkingOverrideParamName);
+                        transition.AddCondition(AnimatorConditionMode.Equals, 0, SharedLayerUtils.HaiGestureComboDisableLipsyncOverrideParamName);
                     }
                 }
             }
@@ -107,7 +107,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             var driver = enableBlinking.AddStateMachineBehaviour<VRCAvatarParameterDriver>();
             driver.parameters = new List<VRC_AvatarParameterDriver.Parameter>
             {
-                new VRC_AvatarParameterDriver.Parameter {name = SharedLayerUtils.HaiGestureComboAreEyesClosed, value = 0}
+                new VRC_AvatarParameterDriver.Parameter {name = SharedLayerUtils.HaiGestureComboIsLipsyncLimited, value = 0}
             };
         }
 
@@ -116,7 +116,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             var driver = disableBlinking.AddStateMachineBehaviour<VRCAvatarParameterDriver>();
             driver.parameters = new List<VRC_AvatarParameterDriver.Parameter>
             {
-                new VRC_AvatarParameterDriver.Parameter {name = SharedLayerUtils.HaiGestureComboAreEyesClosed, value = 1}
+                new VRC_AvatarParameterDriver.Parameter {name = SharedLayerUtils.HaiGestureComboIsLipsyncLimited, value = 1}
             };
         }
 
@@ -124,12 +124,12 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         {
             var transition = from.AddTransition(to);
             SharedLayerUtils.SetupDefaultBlinkingTransition(transition);
-            transition.AddCondition(AnimatorConditionMode.NotEqual, 0, SharedLayerUtils.HaiGestureComboDisableBlinkingOverrideParamName);
+            transition.AddCondition(AnimatorConditionMode.NotEqual, 0, SharedLayerUtils.HaiGestureComboDisableLipsyncOverrideParamName);
         }
 
         private static AnimatorState CreateSuspendState(AnimatorStateMachine machine, AnimationClip emptyClip)
         {
-            var enableBlinking = machine.AddState("SuspendBlinking", SharedLayerUtils.GridPosition(1, 1));
+            var enableBlinking = machine.AddState("SuspendLipsync", SharedLayerUtils.GridPosition(1, 1));
             enableBlinking.motion = emptyClip;
             enableBlinking.writeDefaultValues = WriteDefaultsForLogicalStates;
             return enableBlinking;
@@ -138,11 +138,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private static AnimatorState CreateBlinkingState(AnimatorStateMachine machine, VRC_AnimatorTrackingControl.TrackingType type,
             AnimationClip emptyClip)
         {
-            var enableBlinking = machine.AddState(type == VRC_AnimatorTrackingControl.TrackingType.Tracking ? "EnableBlinking" : "DisableBlinking", SharedLayerUtils.GridPosition(type == VRC_AnimatorTrackingControl.TrackingType.Tracking ? 0 : 2, 3));
+            var enableBlinking = machine.AddState(type == VRC_AnimatorTrackingControl.TrackingType.Tracking ? "EnableLipsync" : "DisableLipsync", SharedLayerUtils.GridPosition(type == VRC_AnimatorTrackingControl.TrackingType.Tracking ? 0 : 2, 3));
             enableBlinking.motion = emptyClip;
             enableBlinking.writeDefaultValues = WriteDefaultsForLogicalStates;
             var tracking = enableBlinking.AddStateMachineBehaviour<VRCAnimatorTrackingControl>();
-            tracking.trackingEyes = type;
+            tracking.trackingMouth = type;
             return enableBlinking;
         }
 
@@ -160,7 +160,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         private AnimatorStateMachine ReinitializeLayer()
         {
-            return _animatorGenerator.CreateOrRemakeLayerAtSameIndex("Hai_GestureBlinking", 0f, _logicalAvatarMask).ExposeMachine();
+            return _animatorGenerator.CreateOrRemakeLayerAtSameIndex("Hai_GestureLipsync", 0f, _logicalAvatarMask).ExposeMachine();
         }
 
         private bool Feature(FeatureToggles feature)

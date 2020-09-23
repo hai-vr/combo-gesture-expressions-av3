@@ -27,6 +27,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public SerializedProperty logicalAvatarMask;
         public SerializedProperty doNotGenerateControllerLayer;
         public SerializedProperty doNotGenerateBlinkingOverrideLayer;
+        public SerializedProperty doNotGenerateLipsyncOverrideLayer;
 
         public SerializedProperty conflictPreventionMode;
         public SerializedProperty conflictFxLayerMode;
@@ -57,6 +58,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             logicalAvatarMask = serializedObject.FindProperty("logicalAvatarMask");
             doNotGenerateControllerLayer = serializedObject.FindProperty("doNotGenerateControllerLayer");
             doNotGenerateBlinkingOverrideLayer = serializedObject.FindProperty("doNotGenerateBlinkingOverrideLayer");
+            doNotGenerateLipsyncOverrideLayer = serializedObject.FindProperty("doNotGenerateLipsyncOverrideLayer");
 
             conflictPreventionMode = serializedObject.FindProperty("conflictPreventionMode");
             conflictFxLayerMode = serializedObject.FindProperty("conflictFxLayerMode");
@@ -194,6 +196,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 GenControllerWarning(true);
                 EditorGUILayout.PropertyField(doNotGenerateBlinkingOverrideLayer, new GUIContent("Don't generate Blinking layer"));
                 GenBlinkingWarning(true);
+                EditorGUILayout.PropertyField(doNotGenerateLipsyncOverrideLayer, new GUIContent("Don't generate Lipsync layer"));
 
                 EditorGUILayout.LabelField("Animation Conflict Prevention", EditorStyles.boldLabel);
                 EditorGUILayout.PropertyField(conflictPreventionMode, new GUIContent("Mode"));
@@ -340,6 +343,7 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
                 | (exposeAreEyesClosed.boolValue ? FeatureToggles.ExposeAreEyesClosed : 0)
                 | (doNotGenerateControllerLayer.boolValue ? FeatureToggles.DoNotGenerateControllerLayer : 0)
                 | (doNotGenerateBlinkingOverrideLayer.boolValue ? FeatureToggles.DoNotGenerateBlinkingOverrideLayer : 0)
+                | (doNotGenerateLipsyncOverrideLayer.boolValue ? FeatureToggles.DoNotGenerateLipsyncOverrideLayer : 0)
                 ,
                 compiler.conflictPreventionMode,
                 compiler.conflictFxLayerMode,

@@ -14,6 +14,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
     {
         SetFaceExpressions,
         PreventEyesBlinking,
+        MakeLipsyncMovementsSubtle,
         CombineFaceExpressions,
         OtherOptions
     }
@@ -123,6 +124,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 case EditorMode.PreventEyesBlinking:
                     LayoutPreventEyesBlinking();
                     break;
+                case EditorMode.MakeLipsyncMovementsSubtle:
+                    LayoutMakeLipsyncMovementsSubtle();
+                    break;
                 case EditorMode.CombineFaceExpressions:
                     LayoutFaceExpressionCombiner();
                     break;
@@ -143,7 +147,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             GUILayout.BeginArea(new Rect(0, singleLineHeight, position.width, singleLineHeight * 3));
             _editorMode = (EditorMode) GUILayout.Toolbar((int) _editorMode, new[]
             {
-                "Set face expressions", "Prevent eyes blinking", "Combine face expressions", "Other options"
+                "Set face expressions", "Prevent eyes blinking", "Make lipsync movements subtle", "Combine face expressions", "Other options"
             });
             if (_editorMode == 0)
             {
@@ -399,6 +403,27 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             {
                 GUILayout.BeginArea(RectAt(element % mod, element / mod));
                 DrawBlinkingSwitch(allClips[element]);
+                GUILayout.EndArea();
+            }
+            GUILayout.EndArea();
+            GUILayout.Box(
+                "",
+                GUIStyle.none,
+                GUILayout.Width(GuiSquareHeight + GuiSquareHeight * mod + singleLineHeight * 2),
+                GUILayout.Height(GuiSquareHeight + GuiSquareHeight * (allClips.Count / mod) + singleLineHeight * 2)
+            );
+        }
+
+        private void LayoutMakeLipsyncMovementsSubtle()
+        {
+            GUILayout.Label("Select face expressions with a <b>wide open mouth</b>.", _largeFont);
+            GUILayout.BeginArea(new Rect(0, singleLineHeight * 3, position.width, GuiSquareHeight * 8));
+            var allClips = new HashSet<AnimationClip>(activity.OrderedAnimations().Where(clip => clip != null)).ToList();
+            var mod = Math.Max(3, Math.Min(8, (int)Math.Sqrt(allClips.Count)));
+            for (var element = 0; element < allClips.Count; element++)
+            {
+                GUILayout.BeginArea(RectAt(element % mod, element / mod));
+                DrawLipsyncSwitch(allClips[element]);
                 GUILayout.EndArea();
             }
             GUILayout.EndArea();
@@ -684,6 +709,43 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 else
                 {
                     activity.blinking.Add(element);
+                }
+            }
+        }
+
+        private void DrawLipsyncSwitch(AnimationClip element)
+        {
+            var isRegisteredAsLipsync = activity.limitedLipsync.Contains(element);
+
+            if (isRegisteredAsLipsync) {
+                var col = GUI.color;
+                try
+                {
+                    GUI.color = new Color(0.44f, 0.65f, 1f);
+                    GUI.Box(new Rect(0, 0, GuiSquareWidth, GuiSquareHeight), "");
+                }
+                finally
+                {
+                    GUI.color = col;
+                }
+            }
+            GUILayout.BeginArea(new Rect((GuiSquareWidth - PictureWidth) / 2, 0, PictureWidth, PictureHeight));
+            DrawPreviewOrRefreshButton(element);
+            GUILayout.EndArea();
+
+            GUILayout.Space(PictureHeight);
+            EditorGUI.BeginDisabledGroup(true);
+            EditorGUILayout.ObjectField(element, typeof(AnimationClip), true);
+            EditorGUI.EndDisabledGroup();
+            if (GUILayout.Button(isRegisteredAsLipsync ? "Limited Lipsync" : ""))
+            {
+                if (isRegisteredAsLipsync)
+                {
+                    activity.limitedLipsync.Remove(element);
+                }
+                else
+                {
+                    activity.limitedLipsync.Add(element);
                 }
             }
         }

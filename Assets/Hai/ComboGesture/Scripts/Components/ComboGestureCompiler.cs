@@ -23,6 +23,7 @@ namespace Hai.ComboGesture.Scripts.Components
 
         public bool doNotGenerateControllerLayer;
         public bool doNotGenerateBlinkingOverrideLayer;
+        public bool doNotGenerateLipsyncOverrideLayer;
 
         public AvatarMask expressionsAvatarMask;
         public AvatarMask logicalAvatarMask;
