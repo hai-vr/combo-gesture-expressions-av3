@@ -172,7 +172,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 ThereIsNoActivity() ||
                 TheOnlyActivityIsNull() ||
                 ThereIsNoActivityNameForMultipleActivities() ||
-                AnimationsAreGeneratedButThereIsNoAvatarDescriptor()
+                AnimationsAreGeneratedButThereIsNoAvatarDescriptor() ||
+                LipsyncIsIntegratedButThereIsNoCorrection()
             );
 
             bool ThereIsNoAnimatorController()
@@ -200,6 +201,14 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 return !compiler.bypassMandatoryAvatarDescriptor
                        && ConflictPrevention.Of(compiler.conflictPreventionMode).ShouldGenerateAnimations
                        && compiler.avatarDescriptor == null;
+            }
+
+            bool LipsyncIsIntegratedButThereIsNoCorrection()
+            {
+                return !compiler.bypassMandatoryAvatarDescriptor
+                    && !compiler.doNotGenerateLipsyncOverrideLayer
+                    && compiler.integrateLimitedLipsync
+                    && compiler.lipsyncForWideOpenMouth == null;
             }
 
             EditorGUILayout.Space();

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEditor;
-using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 {
@@ -46,7 +45,22 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             {"anim57", "ROCKNROLL + THUMBSUP"},
             {"anim66", "GUN x2"},
             {"anim67", "GUN + THUMBSUP"},
-            {"anim77", "THUMBSUP x2"}
+            {"anim77", "THUMBSUP x2"},
+            {"viseme0", "sil (0)"},
+            {"viseme1", "PP (1)"},
+            {"viseme2", "FF (2)"},
+            {"viseme3", "TH (3)"},
+            {"viseme4", "DD (4)"},
+            {"viseme5", "kk (5)"},
+            {"viseme6", "CH (6)"},
+            {"viseme7", "SS (7)"},
+            {"viseme8", "nn (8)"},
+            {"viseme9", "RR (9)"},
+            {"viseme10", "aa (10)"},
+            {"viseme11", "E (11)"},
+            {"viseme12", "ih (12)"},
+            {"viseme13", "oh (13)"},
+            {"viseme14", "ou (14)"},
         };
 
         private static readonly Dictionary<string, MergePair> ParameterToMerge = new Dictionary<string, MergePair>

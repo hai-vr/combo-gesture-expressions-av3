@@ -30,7 +30,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         private Dictionary<AnimationClip, Texture2D> _animationClipToTextureDict;
         private RenderTexture _renderTexture;
         public ComboGestureActivity activity;
+        public ComboGestureLimitedLipsync limitedLipsync;
         public SerializedObject serializedObject;
+        public SerializedObject serializedLimitedLipsync;
 
         private SerializedProperty _transitionDuration;
         private SerializedProperty _editorTool;
@@ -43,9 +45,11 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         private CgeActivityEditorDriver _driver;
         private CgeActivityEditorCombiner _combiner;
+        private CgeActivityEditorLipsync _lipsync;
         private string _combinerTarget;
         private string _combinerCandidateFileName;
         private bool _combinerIsLikelyEyesClosed;
+        private int _editorLipsyncTool;
 
         private static GUIStyle _middleAligned;
         private static GUIStyle _middleAlignedBold;
@@ -53,6 +57,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         private static GUIStyle _normalFont;
 
         private Vector2 scrollPos;
+        private int _limitedLipsyncPreviewIndex;
 
         private void OnEnable()
         {
@@ -70,6 +75,13 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 {
                     activity = selectedActivity;
                     serializedObject = null;
+                    Repaint();
+                }
+                var selectedLimitedLipsync = activeGameObject.GetComponent<ComboGestureLimitedLipsync>();
+                if (selectedLimitedLipsync != null && selectedLimitedLipsync != limitedLipsync)
+                {
+                    limitedLipsync = selectedLimitedLipsync;
+                    serializedLimitedLipsync = null;
                     Repaint();
                 }
             }
@@ -96,7 +108,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                     serializedObject.ApplyModifiedProperties();
                 }
 
-                if (activity.previewSetup == null)
+                if (!IsPreviewSetupValid())
                 {
                     _editorMode = EditorMode.OtherOptions;
                     _firstTimeSetup = true;
@@ -108,12 +120,23 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 return;
             }
 
-            if (_firstTimeSetup && activity.previewSetup != null)
+            if (limitedLipsync == null && serializedLimitedLipsync != null)
+            {
+                serializedLimitedLipsync = null;
+            }
+            if (limitedLipsync != null && (serializedLimitedLipsync == null || serializedLimitedLipsync.targetObject != limitedLipsync))
+            {
+                serializedLimitedLipsync = new SerializedObject(limitedLipsync);
+                _lipsync = new CgeActivityEditorLipsync(activity, limitedLipsync, Repaint);
+            }
+
+            if (_firstTimeSetup && IsPreviewSetupValid())
             {
                 _firstTimeSetup = false;
             }
 
             serializedObject.Update();
+            serializedLimitedLipsync?.Update();
 
             CreateToolbarArea();
 
@@ -140,6 +163,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             GUILayout.EndScrollView();
 
             serializedObject.ApplyModifiedProperties();
+
+            serializedLimitedLipsync?.ApplyModifiedProperties();
         }
 
         private void CreateToolbarArea()
@@ -149,7 +174,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             {
                 "Set face expressions", "Prevent eyes blinking", "Make lipsync movements subtle", "Combine face expressions", "Other options"
             });
-            if (_editorMode == 0)
+            if (_editorMode == EditorMode.SetFaceExpressions)
             {
                 GUILayout.BeginHorizontal();
                 GUILayout.Space(30);
@@ -161,6 +186,19 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 GUILayout.Space(30);
                 GUILayout.EndHorizontal();
                 _currentEditorToolValue = _editorTool.intValue;
+            }
+
+            if (_editorMode == EditorMode.MakeLipsyncMovementsSubtle)
+            {
+                GUILayout.BeginHorizontal();
+                GUILayout.Space(30);
+                _editorLipsyncTool = GUILayout.Toolbar(_editorLipsyncTool, new[]
+                {
+                    "Select wide open mouth", "Edit lipsync settings"
+                }, GUILayout.ExpandWidth(true));
+
+                GUILayout.Space(30);
+                GUILayout.EndHorizontal();
             }
 
             GUILayout.EndArea();
@@ -202,10 +240,20 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             GUILayout.EndArea();
         }
 
+        private bool IsPreviewSetupValid()
+        {
+            return activity.previewSetup != null && activity.previewSetup.IsValid();
+        }
+
         private void LayoutOtherOptions()
         {
-            if (_firstTimeSetup || activity.previewSetup == null)
+            if (_firstTimeSetup || !IsPreviewSetupValid())
             {
+                if (activity.previewSetup != null && !activity.previewSetup.IsValid())
+                {
+                    EditorGUILayout.LabelField("A preview setup was found but it is incomplete or invalid.");
+                }
+
                 EditorGUILayout.PropertyField(_previewSetup, new GUIContent("Preview setup"));
                 GUILayout.Space(15);
                 GUILayout.BeginHorizontal();
@@ -254,7 +302,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 {
                     new CgeActivityPreviewInternal(Repaint, activity, _animationClipToTextureDict, PictureWidth, PictureHeight, activity.editorArbitraryAnimations).Process(CgeActivityPreviewInternal.ProcessMode.RecalculateEverything, null);
                 }
-                EditorGUILayout.PropertyField(_editorArbitraryAnimations, new GUIContent("List of arbitrary animations to generate previews (Drag and drop assets directly on this title)"), true);
+                EditorGUILayout.PropertyField(_editorArbitraryAnimations, new GUIContent("List of arbitrary animations to &s (Drag and drop assets directly on this title)"), true);
                 EditorGUI.EndDisabledGroup();
 
                 EditorGUI.BeginDisabledGroup(!AnimationMode.InAnimationMode());
@@ -416,23 +464,151 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         private void LayoutMakeLipsyncMovementsSubtle()
         {
-            GUILayout.Label("Select face expressions with a <b>wide open mouth</b>.", _largeFont);
-            GUILayout.BeginArea(new Rect(0, singleLineHeight * 3, position.width, GuiSquareHeight * 8));
-            var allClips = new HashSet<AnimationClip>(activity.OrderedAnimations().Where(clip => clip != null)).ToList();
-            var mod = Math.Max(3, Math.Min(8, (int)Math.Sqrt(allClips.Count)));
-            for (var element = 0; element < allClips.Count; element++)
+            if (_editorLipsyncTool == 1)
             {
-                GUILayout.BeginArea(RectAt(element % mod, element / mod));
-                DrawLipsyncSwitch(allClips[element]);
+                BeginLayoutUsing(GuiSquareHeight * 8);
+                LayoutLimitedLipsyncEditor();
+                EndLayout();
+            }
+            else
+            {
+                GUILayout.Label("Select face expressions with a <b>wide open mouth</b>.", _largeFont);
+                GUILayout.BeginArea(new Rect(0, singleLineHeight * 3, position.width, GuiSquareHeight * 8));
+                var allClips = new HashSet<AnimationClip>(activity.OrderedAnimations().Where(clip => clip != null)).ToList();
+                var mod = Math.Max(3, Math.Min(8, (int)Math.Sqrt(allClips.Count)));
+                for (var element = 0; element < allClips.Count; element++)
+                {
+                    GUILayout.BeginArea(RectAt(element % mod, element / mod));
+                    DrawLipsyncSwitch(allClips[element]);
+                    GUILayout.EndArea();
+                }
+                GUILayout.EndArea();
+                GUILayout.Box(
+                    "",
+                    GUIStyle.none,
+                    GUILayout.Width(GuiSquareHeight + GuiSquareHeight * mod + singleLineHeight * 2),
+                    GUILayout.Height(GuiSquareHeight + GuiSquareHeight * (allClips.Count / mod) + singleLineHeight * 2)
+                );
+            }
+        }
+
+        private void LayoutLimitedLipsyncEditor()
+        {
+            Rect RectAt(int xGrid, int yGrid)
+            {
+                return new Rect(xGrid * GuiSquareWidth * 2, yGrid * GuiSquareHeight * 2, GuiSquareWidth * 2, GuiSquareHeight * 2);
+            }
+
+            if (limitedLipsync == null) {
+                EditorGUILayout.LabelField("Select a ComboGestureLimitedLipsync component in the scene or choose one:");
+                limitedLipsync = (ComboGestureLimitedLipsync) EditorGUILayout.ObjectField(null, typeof(ComboGestureLimitedLipsync), true);
+                return;
+            }
+
+            void DrawLipsync(int visemeNumber)
+            {
+                GUILayout.Label(_driver.ShortTranslation("viseme" + visemeNumber), _middleAligned);
+
+                GUILayout.BeginArea(new Rect((GuiSquareWidth * 2 - PictureWidth * 2) / 2, singleLineHeight, PictureWidth * 2, PictureHeight * 2 + singleLineHeight * 4));
+                GUILayout.Box(_lipsync.TextureForViseme(visemeNumber), GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true));
+
+                EditorGUI.BeginDisabledGroup(AnimationMode.InAnimationMode());
+                if (GUILayout.Button("Regenerate preview"))
+                {
+                    RegenerateLipsyncPreview(visemeNumber);
+                }
+                EditorGUI.EndDisabledGroup();
+
+                GUILayout.BeginHorizontal();
+                EditorGUILayout.LabelField("Amp Mul", GUILayout.Width(80));
+                EditorGUILayout.Slider(serializedLimitedLipsync.FindProperty("amplitude" + visemeNumber), 0f, 1f, GUIContent.none, GUILayout.Width(150));
+                GUILayout.EndHorizontal();
+                GUILayout.BeginHorizontal();
+                EditorGUILayout.LabelField("Duration Mul", GUILayout.Width(80));
+                EditorGUILayout.Slider(serializedLimitedLipsync.FindProperty("transition" + visemeNumber), 0f, 1f, GUIContent.none, GUILayout.Width(150));
+                GUILayout.EndHorizontal();
+                GUILayout.EndArea();
+
+                GUILayout.Space(PictureHeight);
+            }
+
+            GUILayout.BeginArea(RectAt(0, 0));
+            EditorGUILayout.LabelField("Limited Lipsync Component", EditorStyles.boldLabel);
+            limitedLipsync = (ComboGestureLimitedLipsync) EditorGUILayout.ObjectField(limitedLipsync, typeof(ComboGestureLimitedLipsync), true);
+
+            EditorGUILayout.PropertyField(serializedLimitedLipsync.FindProperty("limitation"), new GUIContent("Category"));
+            EditorGUILayout.Slider(serializedLimitedLipsync.FindProperty("amplitudeScale"), 0f, 0.25f, "Viseme Amplitude");
+            EditorGUILayout.Slider(serializedLimitedLipsync.FindProperty("amplitudeScale"), 0f, 1f, "(scaled to 1)");
+            EditorGUILayout.PropertyField(serializedLimitedLipsync.FindProperty("transitionDuration"), new GUIContent("Transition Duration (s)"));
+
+            EditorGUILayout.Separator();
+            EditorGUILayout.LabelField("Preview", EditorStyles.boldLabel);
+            var previewables = ListAllPreviewableNames();
+            if (previewables.Any()) {
+                if (_limitedLipsyncPreviewIndex >= previewables.Length)
+                {
+                    _limitedLipsyncPreviewIndex = 0;
+                }
+                _limitedLipsyncPreviewIndex = EditorGUILayout.Popup(
+                    _limitedLipsyncPreviewIndex,
+                    previewables
+                );
+                var avatarHasVisemeBlendShapes = IsPreviewSetupValid() && activity.previewSetup.avatarDescriptor.VisemeSkinnedMesh;
+                if (!avatarHasVisemeBlendShapes)
+                {
+                    EditorGUILayout.HelpBox("The avatar has no lipsync face mesh.", MessageType.Error);
+                }
+                EditorGUI.BeginDisabledGroup(AnimationMode.InAnimationMode());
+                if (GUILayout.Button("Regenerate all previews"))
+                {
+                    RegenerateLipsyncPreviews();
+                }
+                EditorGUI.EndDisabledGroup();
+            }
+            else
+            {
+                if (GUILayout.Button("Select an animation..."))
+                {
+                    _editorMode = EditorMode.MakeLipsyncMovementsSubtle;
+                    _editorLipsyncTool = 0;
+                }
+            }
+
+            GUILayout.EndArea();
+
+            for (var viseme = 0; viseme < 15; viseme++)
+            {
+                var gridIndex = viseme + 1;
+                GUILayout.BeginArea(RectAt(gridIndex % 4, gridIndex / 4));
+                DrawLipsync(viseme);
                 GUILayout.EndArea();
             }
-            GUILayout.EndArea();
-            GUILayout.Box(
-                "",
-                GUIStyle.none,
-                GUILayout.Width(GuiSquareHeight + GuiSquareHeight * mod + singleLineHeight * 2),
-                GUILayout.Height(GuiSquareHeight + GuiSquareHeight * (allClips.Count / mod) + singleLineHeight * 2)
-            );
+        }
+
+        private string[] ListAllPreviewableNames()
+        {
+            return activity.limitedLipsync
+                .Where(animation => animation.clip != null)
+                .Select(animation => animation.clip.name)
+                .ToArray();
+        }
+
+        private AnimationClip[] ListAllPreviewableClips()
+        {
+            return activity.limitedLipsync
+                .Where(animation => animation.clip != null)
+                .Select(animation => animation.clip)
+                .ToArray();
+        }
+
+        private void RegenerateLipsyncPreviews()
+        {
+            _lipsync.Prepare(ListAllPreviewableClips()[_limitedLipsyncPreviewIndex]);
+        }
+
+        private void RegenerateLipsyncPreview(int visemeNumber)
+        {
+            _lipsync.PrepareJust(ListAllPreviewableClips()[_limitedLipsyncPreviewIndex], visemeNumber);
         }
 
         private void LayoutFaceExpressionCombiner()
@@ -780,9 +956,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 {
                     InvisibleRankPreservingBox();
                     EditorGUI.BeginDisabledGroup(AnimationMode.InAnimationMode());
-                    if (GUILayout.Button(activity.previewSetup ? "Generate\npreview" : "Setup\npreview", GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true)))
+                    if (GUILayout.Button(IsPreviewSetupValid() ? "Generate\npreview" : "Setup\npreview", GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true)))
                     {
-                        if (activity.previewSetup)
+                        if (IsPreviewSetupValid())
                         {
                             new CgeActivityPreviewInternal(Repaint, activity, _animationClipToTextureDict, PictureWidth, PictureHeight, activity.editorArbitraryAnimations).Process(CgeActivityPreviewInternal.ProcessMode.CalculateMissing, element);
                         }

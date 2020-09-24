@@ -48,6 +48,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             var comboGesturePreviewSetup = newPreviewSetupGo.AddComponent<ComboGesturePreviewSetup>();
             comboGesturePreviewSetup.camera = camera;
             comboGesturePreviewSetup.previewDummy = avatarCopyGo.GetComponent<Animator>();
+            comboGesturePreviewSetup.avatarDescriptor = avatarCopyGo.GetComponent<VRCAvatarDescriptor>();
+            comboGesturePreviewSetup.autoHide = true;
 
             _activity.previewSetup = comboGesturePreviewSetup;
 
@@ -107,7 +109,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         {
             var avatarCopyGo = Object.Instantiate(maybeExistingAvatar.gameObject, newPreviewSetupGo.transform, true);
             avatarCopyGo.name = "CGEPreviewDummy";
-            Object.DestroyImmediate(avatarCopyGo.GetComponent(typeof(VRCAvatarDescriptor)));
             Object.DestroyImmediate(avatarCopyGo.GetComponent(typeof(PipelineManager)));
             avatarCopyGo.SetActive(true);
             if (!avatarCopyGo.GetComponent<Animator>())

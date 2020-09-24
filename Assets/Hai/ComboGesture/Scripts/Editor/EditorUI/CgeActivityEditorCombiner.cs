@@ -198,7 +198,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         private void CreatePreviews()
         {
-            if (_activity.previewSetup == null) return;
+            if (!IsPreviewSetupValid()) return;
 
             var animationsPreviews = new[] {_leftPreview, _rightPreview, _combinedPreview}.ToList();
             new CgePreviewProcessor(_activity.previewSetup, animationsPreviews, OnClipRendered).Capture();
@@ -206,7 +206,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         private void RegenerateCombinedPreview()
         {
-            if (_activity.previewSetup == null) return;
+            if (!IsPreviewSetupValid()) return;
 
             _combinedPreview = new AnimationPreview(GenerateCombinedClip(), _combinedPreview.RenderTexture);
 
@@ -246,6 +246,11 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             var finalPath = folder + finalFilename;
             AssetDatabase.CreateAsset(copyOfCombinedAnimation, finalPath);
             return AssetDatabase.LoadAssetAtPath<AnimationClip>(finalPath);
+        }
+
+        private bool IsPreviewSetupValid()
+        {
+            return _activity.previewSetup != null && _activity.previewSetup.IsValid();
         }
     }
 }
