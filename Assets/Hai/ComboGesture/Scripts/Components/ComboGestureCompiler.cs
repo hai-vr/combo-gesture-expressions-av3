@@ -18,6 +18,9 @@ namespace Hai.ComboGesture.Scripts.Components
         public AnimationClip customEmptyClip;
         public float analogBlinkingUpperThreshold = 0.95f;
 
+        public bool integrateLimitedLipsync;
+        public ComboGestureLimitedLipsync lipsyncForWideOpenMouth;
+
         public bool exposeDisableExpressions;
         public bool exposeDisableBlinkingOverride;
         public bool exposeAreEyesClosed;

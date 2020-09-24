@@ -136,8 +136,14 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             var element = limitedLipsyncReorderableList.serializedProperty.GetArrayElementAtIndex(index);
 
             EditorGUI.PropertyField(
-                new Rect(rect.x, rect.y, rect.width, EditorGUIUtility.singleLineHeight),
-                element,
+                new Rect(rect.x, rect.y, rect.width - 200, EditorGUIUtility.singleLineHeight),
+                element.FindPropertyRelative("clip"),
+                GUIContent.none
+            );
+
+            EditorGUI.PropertyField(
+                new Rect(rect.x + rect.width - 200, rect.y, 180, EditorGUIUtility.singleLineHeight),
+                element.FindPropertyRelative("limitation"),
                 GUIContent.none
             );
         }

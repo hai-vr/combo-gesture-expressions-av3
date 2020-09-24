@@ -47,12 +47,25 @@ namespace Hai.ComboGesture.Scripts.Components
         public AnimationClip anim11_R;
 
         public List<AnimationClip> blinking;
-        public List<AnimationClip> limitedLipsync;
+        public List<LimitedLipsyncAnimation> limitedLipsync;
 
         public ComboGesturePreviewSetup previewSetup;
         public bool editorLegacyFoldout;
         public bool editorTool;
         public AnimationClip[] editorArbitraryAnimations;
+
+        [System.Serializable]
+        public struct LimitedLipsyncAnimation
+        {
+            public AnimationClip clip;
+            public LipsyncLimitation limitation;
+        }
+
+        [System.Serializable]
+        public enum LipsyncLimitation
+        {
+            WideOpenMouth
+        }
 
         public IEnumerable<AnimationClip> OrderedAnimations()
         {

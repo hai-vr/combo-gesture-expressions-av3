@@ -63,34 +63,33 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
                 if (_activityStageName != null)
                 {
-                    CreateTransitionWhenActivityIsOutOfBounds(enableBlinking, suspend);
-                    CreateTransitionWhenActivityIsOutOfBounds(disableBlinking, suspend);
+                    CreateTransitionWhenActivityIsOutOfBounds(machine, suspend);
                 }
 
                 if (Feature(FeatureToggles.ExposeDisableLipsyncOverride))
                 {
-                    CreateTransitionWhenBlinkingIsDisabled(enableBlinking, suspend);
-                    CreateTransitionWhenBlinkingIsDisabled(disableBlinking, suspend);
-                }
-
-                foreach (var layer in _comboLayers)
-                {
-                    var transition = suspend.AddTransition(enableBlinking);
-                    SharedLayerUtils.SetupDefaultTransition(transition);
-                    if (_activityStageName != null)
-                    {
-                        transition.AddCondition(AnimatorConditionMode.Equals, layer.stageValue, _activityStageName);
-                    }
-
-                    if (Feature(FeatureToggles.ExposeDisableLipsyncOverride))
-                    {
-                        transition.AddCondition(AnimatorConditionMode.Equals, 0, SharedLayerUtils.HaiGestureComboDisableLipsyncOverrideParamName);
-                    }
+                    CreateTransitionWhenBlinkingIsDisabled(machine, suspend);
                 }
             }
 
             new GestureCBlinkingCombiner(combinator.IntermediateToBlinking, _activityStageName, _analogBlinkingUpperThreshold)
                 .Populate(enableBlinking, disableBlinking);
+
+            // Huge hack to avoid duplicating generation logic...
+            foreach (var enableBlinkingTransition in disableBlinking.transitions.Where(transition => transition.destinationState == enableBlinking).ToList())
+            {
+                var transition = machine.AddAnyStateTransition(enableBlinking);
+                transition.conditions = enableBlinkingTransition.conditions.ToArray();
+                transition.hasExitTime = enableBlinkingTransition.hasExitTime;
+                transition.exitTime = enableBlinkingTransition.exitTime;
+                transition.hasFixedDuration = enableBlinkingTransition.hasFixedDuration;
+                transition.offset = enableBlinkingTransition.offset;
+                transition.interruptionSource = enableBlinkingTransition.interruptionSource;
+                transition.canTransitionToSelf = enableBlinkingTransition.canTransitionToSelf;
+                transition.orderedInterruption = enableBlinkingTransition.orderedInterruption;
+                transition.duration = enableBlinkingTransition.duration;
+            }
+            machine.RemoveState(disableBlinking);
         }
 
         // FIXME: This is duplicate code
@@ -120,10 +119,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             };
         }
 
-        private static void CreateTransitionWhenBlinkingIsDisabled(AnimatorState from, AnimatorState to)
+        private static void CreateTransitionWhenBlinkingIsDisabled(AnimatorStateMachine machine, AnimatorState to)
         {
-            var transition = from.AddTransition(to);
+            var transition = machine.AddAnyStateTransition(to);
             SharedLayerUtils.SetupDefaultBlinkingTransition(transition);
+            transition.canTransitionToSelf = false;
             transition.AddCondition(AnimatorConditionMode.NotEqual, 0, SharedLayerUtils.HaiGestureComboDisableLipsyncOverrideParamName);
         }
 
@@ -146,10 +146,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             return enableBlinking;
         }
 
-        private void CreateTransitionWhenActivityIsOutOfBounds(AnimatorState from, AnimatorState to)
+        private void CreateTransitionWhenActivityIsOutOfBounds(AnimatorStateMachine machine, AnimatorState to)
         {
-            var transition = from.AddTransition(to);
+            var transition = machine.AddAnyStateTransition(to);
             SharedLayerUtils.SetupDefaultTransition(transition);
+            transition.canTransitionToSelf = false;
 
             foreach (var layer in _comboLayers)
             {
@@ -160,7 +161,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         private AnimatorStateMachine ReinitializeLayer()
         {
-            return _animatorGenerator.CreateOrRemakeLayerAtSameIndex("Hai_GestureLipsync", 0f, _logicalAvatarMask).ExposeMachine();
+            return _animatorGenerator.CreateOrRemakeLayerAtSameIndex("Hai_GestureLipsync", 1f, _logicalAvatarMask).ExposeMachine();
         }
 
         private bool Feature(FeatureToggles feature)

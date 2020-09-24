@@ -19,6 +19,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public SerializedProperty customEmptyClip;
         public SerializedProperty analogBlinkingUpperThreshold;
 
+        public SerializedProperty integrateLimitedLipsync;
+        public SerializedProperty lipsyncForWideOpenMouth;
+
         public SerializedProperty exposeDisableExpressions;
         public SerializedProperty exposeDisableBlinkingOverride;
         public SerializedProperty exposeAreEyesClosed;
@@ -49,6 +52,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             activityStageName = serializedObject.FindProperty("activityStageName");
             customEmptyClip = serializedObject.FindProperty("customEmptyClip");
             analogBlinkingUpperThreshold = serializedObject.FindProperty("analogBlinkingUpperThreshold");
+
+            integrateLimitedLipsync = serializedObject.FindProperty("integrateLimitedLipsync");
+            lipsyncForWideOpenMouth = serializedObject.FindProperty("lipsyncForWideOpenMouth");
 
             exposeDisableExpressions = serializedObject.FindProperty("exposeDisableExpressions");
             exposeDisableBlinkingOverride = serializedObject.FindProperty("exposeDisableBlinkingOverride");
@@ -118,18 +124,46 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             var compiler = AsCompiler();
 
             EditorGUI.BeginDisabledGroup(!conflictPrevention.ShouldGenerateAnimations);
-            EditorGUILayout.LabelField("Blink & Lipsync blendshapes correction", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Avatar blendshapes correction", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(avatarDescriptor, new GUIContent("Avatar descriptor"));
-            foreach (var blendShape in ComboGestureCompiler.FindBlinkBlendshapes(compiler))
-            {
-                EditorGUILayout.LabelField("- " + blendShape.Path + "::" + blendShape.BlendShapeName);
-            }
+            if (compiler.avatarDescriptor != null) {
+                var blinkBlendshapes = ComboGestureCompiler.FindBlinkBlendshapes(compiler);
+                if (blinkBlendshapes.Any())
+                {
+                    EditorGUILayout.LabelField("Blink correction", EditorStyles.boldLabel);
+                    EditorGUILayout.LabelField("Found blink blendshapes:");
+                    foreach (var blendShape in blinkBlendshapes)
+                    {
+                        EditorGUILayout.LabelField("- " + blendShape.Path + "::" + blendShape.BlendShapeName);
+                    }
+                }
+                else
+                {
+                    EditorGUILayout.LabelField("No blink blendshapes found");
+                }
 
-            var lipsyncBlendshapes = ComboGestureCompiler.FindLipsyncBlendshapes(compiler);
-            var firstLipsyncBlendshape = lipsyncBlendshapes.FirstOrDefault();
-            if (lipsyncBlendshapes.Count > 0)
-            {
-                EditorGUILayout.LabelField("- " + firstLipsyncBlendshape.Path + "::" + firstLipsyncBlendshape.BlendShapeName + " (+ " + (lipsyncBlendshapes.Count - 1) + " more...)");
+                EditorGUI.BeginDisabledGroup(compiler.doNotGenerateLipsyncOverrideLayer);
+                EditorGUILayout.LabelField("Limited Lipsync", EditorStyles.boldLabel);
+                EditorGUILayout.PropertyField(integrateLimitedLipsync, new GUIContent("Integrate limited lipsync"));
+                if (compiler.integrateLimitedLipsync && !compiler.doNotGenerateLipsyncOverrideLayer)
+                {
+                    EditorGUILayout.PropertyField(lipsyncForWideOpenMouth, new GUIContent("Lipsync correction"));
+                    var lipsyncBlendshapes = ComboGestureCompiler.FindLipsyncBlendshapes(compiler);
+                    if (lipsyncBlendshapes.Any())
+                    {
+                        var firstLipsyncBlendshape = lipsyncBlendshapes.FirstOrDefault();
+                        if (lipsyncBlendshapes.Any())
+                        {
+                            EditorGUILayout.LabelField("Found lipsync blendshapes:");
+                            EditorGUILayout.LabelField("- " + firstLipsyncBlendshape.Path + "::" + firstLipsyncBlendshape.BlendShapeName + " (+ " + (lipsyncBlendshapes.Count - 1) + " more...)");
+                        }
+                        else
+                        {
+                            EditorGUILayout.LabelField("No lipsync blendshapes found");
+                        }
+                    }
+                }
+                EditorGUI.EndDisabledGroup();
             }
             EditorGUI.EndDisabledGroup();
 

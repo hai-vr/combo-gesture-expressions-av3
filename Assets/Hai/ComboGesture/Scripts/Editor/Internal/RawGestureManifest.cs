@@ -29,7 +29,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         public static RawGestureManifest FromActivity(ComboGestureActivity activity, AnimationClip fallbackWhen00ClipIsNull)
         {
             var neutral = activity.anim00 ? activity.anim00 : fallbackWhen00ClipIsNull;
-            return new RawGestureManifest(activity.OrderedAnimations().Select(clip => clip ? clip : neutral).ToList(), activity.blinking, activity.limitedLipsync, activity.transitionDuration);
+            return new RawGestureManifest(activity.OrderedAnimations().Select(clip => clip ? clip : neutral).ToList(), activity.blinking, activity.limitedLipsync.Select(lipsyncAnimation => lipsyncAnimation.clip).ToList(), activity.transitionDuration);
         }
 
         public static RawGestureManifest AllSlotsFittedWithSameClip(AnimationClip clip)

@@ -715,7 +715,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         private void DrawLipsyncSwitch(AnimationClip element)
         {
-            var isRegisteredAsLipsync = activity.limitedLipsync.Contains(element);
+            var isRegisteredAsLipsync = activity.limitedLipsync.Exists(animation => animation.clip == element);
 
             if (isRegisteredAsLipsync) {
                 var col = GUI.color;
@@ -741,11 +741,15 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             {
                 if (isRegisteredAsLipsync)
                 {
-                    activity.limitedLipsync.Remove(element);
+                    activity.limitedLipsync.RemoveAll(animation => animation.clip == element);
                 }
                 else
                 {
-                    activity.limitedLipsync.Add(element);
+                    activity.limitedLipsync.Add(new ComboGestureActivity.LimitedLipsyncAnimation
+                    {
+                        clip = element,
+                        limitation = ComboGestureActivity.LipsyncLimitation.WideOpenMouth
+                    });
                 }
             }
         }
