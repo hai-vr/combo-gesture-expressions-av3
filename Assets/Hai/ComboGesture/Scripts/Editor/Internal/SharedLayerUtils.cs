@@ -1,4 +1,5 @@
-﻿using Hai.ComboGesture.Scripts.Components;
+﻿using System.Linq;
+using Hai.ComboGesture.Scripts.Components;
 using UnityEditor.Animations;
 using UnityEngine;
 
@@ -49,9 +50,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         internal const string HaiGestureComboParamName = "_Hai_GestureComboValue";
         internal const string HaiGestureComboDisableExpressionsParamName = "_Hai_GestureComboDisableExpressions";
-        internal const string HaiGestureComboAreEyesClosed = "_Hai_GestureComboAreEyesClosed";
+        internal const string HaiGestureComboAreEyesClosedParamName = "_Hai_GestureComboAreEyesClosed";
         internal const string HaiGestureComboDisableBlinkingOverrideParamName = "_Hai_GestureComboDisableBlinkingOverride";
-        internal const string HaiGestureComboIsLipsyncLimited = "_Hai_GestureComboIsLipsyncLimited";
+        internal const string HaiGestureComboIsLipsyncLimitedParamName = "_Hai_GestureComboIsLipsyncLimited";
         internal const string HaiGestureComboDisableLipsyncOverrideParamName = "_Hai_GestureComboDisableLipsyncOverride";
 
         public static RawGestureManifest FromManifest(ComboGestureActivity activity, AnimationClip fallbackWhen00ClipIsNull)
@@ -61,5 +62,12 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 : RawGestureManifest.FromActivity(activity, fallbackWhen00ClipIsNull);
         }
 
+        public static void CreateParamIfNotExists(AnimatorController controller, string paramName, AnimatorControllerParameterType type)
+        {
+            if (controller.parameters.FirstOrDefault(param => param.name == paramName) == null)
+            {
+                controller.AddParameter(paramName, type);
+            }
+        }
     }
 }

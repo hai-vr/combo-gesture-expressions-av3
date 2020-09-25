@@ -70,10 +70,12 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         public void DoOverwriteAnimatorFxLayer()
         {
-            EditorUtility.DisplayProgressBar("GestureCombo", "Starting", 0f);
             var emptyClip = GetOrCreateEmptyClip();
 
-            CreateParameters();
+            if (_activityStageName != null)
+            {
+                SharedLayerUtils.CreateParamIfNotExists(_animatorController, _activityStageName, AnimatorControllerParameterType.Int);
+            }
 
             if (!Feature(FeatureToggles.DoNotGenerateControllerLayer))
             {
@@ -135,45 +137,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
         }
 
-        private void CreateParameters()
-        {
-            CreateParamIfNotExists("GestureLeft", AnimatorControllerParameterType.Int);
-            CreateParamIfNotExists("GestureRight", AnimatorControllerParameterType.Int);
-            CreateParamIfNotExists("GestureLeftWeight", AnimatorControllerParameterType.Float);
-            CreateParamIfNotExists("GestureRightWeight", AnimatorControllerParameterType.Float);
-            CreateParamIfNotExists(SharedLayerUtils.HaiGestureComboParamName, AnimatorControllerParameterType.Int);
-
-            if (Feature(FeatureToggles.ExposeDisableExpressions))
-            {
-                CreateParamIfNotExists(SharedLayerUtils.HaiGestureComboDisableExpressionsParamName, AnimatorControllerParameterType.Int);
-            }
-
-            if (Feature(FeatureToggles.ExposeDisableBlinkingOverride))
-            {
-                CreateParamIfNotExists(SharedLayerUtils.HaiGestureComboDisableBlinkingOverrideParamName, AnimatorControllerParameterType.Int);
-            }
-
-            if (Feature(FeatureToggles.ExposeAreEyesClosed))
-            {
-                CreateParamIfNotExists(SharedLayerUtils.HaiGestureComboAreEyesClosed, AnimatorControllerParameterType.Int);
-            }
-
-            if (Feature(FeatureToggles.ExposeDisableLipsyncOverride))
-            {
-                CreateParamIfNotExists(SharedLayerUtils.HaiGestureComboDisableLipsyncOverrideParamName, AnimatorControllerParameterType.Int);
-            }
-
-            if (Feature(FeatureToggles.ExposeIsLipsyncLimited))
-            {
-                CreateParamIfNotExists(SharedLayerUtils.HaiGestureComboIsLipsyncLimited, AnimatorControllerParameterType.Int);
-            }
-
-            if (_activityStageName != null)
-            {
-                CreateParamIfNotExists(_activityStageName, AnimatorControllerParameterType.Int);
-            }
-        }
-
         private AnimationClip GetOrCreateEmptyClip()
         {
             var emptyClip = _customEmptyClip;
@@ -212,22 +175,27 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             return emptyClip;
         }
 
-        private void CreateParamIfNotExists(string paramName,
-            AnimatorControllerParameterType type)
-        {
-            if (_animatorController.parameters.FirstOrDefault(param => param.name == paramName) == null)
-            {
-                _animatorController.AddParameter(paramName, type);
-            }
-        }
-
         private void CreateOrReplaceController(AnimationClip emptyClip)
         {
+            SharedLayerUtils.CreateParamIfNotExists(_animatorController, SharedLayerUtils.HaiGestureComboParamName, AnimatorControllerParameterType.Int);
             new LayerForController(_animatorGenerator, _logicalAvatarMask, emptyClip).Create();
         }
 
         private void CreateOrReplaceExpressionsView(AnimationClip emptyClip)
         {
+            if (_activityStageName != null)
+            {
+                SharedLayerUtils.CreateParamIfNotExists(_animatorController, _activityStageName, AnimatorControllerParameterType.Int);
+            }
+            SharedLayerUtils.CreateParamIfNotExists(_animatorController, "GestureLeft", AnimatorControllerParameterType.Int);
+            SharedLayerUtils.CreateParamIfNotExists(_animatorController, "GestureRight", AnimatorControllerParameterType.Int);
+            SharedLayerUtils.CreateParamIfNotExists(_animatorController, "GestureLeftWeight", AnimatorControllerParameterType.Float);
+            SharedLayerUtils.CreateParamIfNotExists(_animatorController, "GestureRightWeight", AnimatorControllerParameterType.Float);
+            SharedLayerUtils.CreateParamIfNotExists(_animatorController, SharedLayerUtils.HaiGestureComboParamName, AnimatorControllerParameterType.Int);
+            if (Feature(FeatureToggles.ExposeDisableExpressions))
+            {
+                SharedLayerUtils.CreateParamIfNotExists(_animatorController, SharedLayerUtils.HaiGestureComboDisableExpressionsParamName, AnimatorControllerParameterType.Int);
+            }
             new LayerForExpressionsView(
                 _featuresToggles,
                 _animatorGenerator,
@@ -247,6 +215,18 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         private void CreateOrReplaceBlinkingOverrideView(AnimationClip emptyClip)
         {
+            if (_activityStageName != null)
+            {
+                SharedLayerUtils.CreateParamIfNotExists(_animatorController, _activityStageName, AnimatorControllerParameterType.Int);
+            }
+            if (Feature(FeatureToggles.ExposeDisableBlinkingOverride))
+            {
+                SharedLayerUtils.CreateParamIfNotExists(_animatorController, SharedLayerUtils.HaiGestureComboDisableBlinkingOverrideParamName, AnimatorControllerParameterType.Int);
+            }
+            if (Feature(FeatureToggles.ExposeAreEyesClosed))
+            {
+                SharedLayerUtils.CreateParamIfNotExists(_animatorController, SharedLayerUtils.HaiGestureComboAreEyesClosedParamName, AnimatorControllerParameterType.Int);
+            }
             new LayerForBlinkingOverrideView(
                 _activityStageName,
                 _comboLayers,
@@ -260,6 +240,18 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         private void CreateOrReplaceLipsyncOverrideView(AnimationClip emptyClip)
         {
+            if (_activityStageName != null)
+            {
+                SharedLayerUtils.CreateParamIfNotExists(_animatorController, _activityStageName, AnimatorControllerParameterType.Int);
+            }
+            if (Feature(FeatureToggles.ExposeIsLipsyncLimited))
+            {
+                SharedLayerUtils.CreateParamIfNotExists(_animatorController, SharedLayerUtils.HaiGestureComboIsLipsyncLimitedParamName, AnimatorControllerParameterType.Int);
+            }
+            if (Feature(FeatureToggles.ExposeDisableLipsyncOverride))
+            {
+                SharedLayerUtils.CreateParamIfNotExists(_animatorController, SharedLayerUtils.HaiGestureComboDisableLipsyncOverrideParamName, AnimatorControllerParameterType.Int);
+            }
             new LayerForLipsyncOverrideView(
                 _activityStageName,
                 _comboLayers,

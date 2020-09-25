@@ -106,7 +106,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             var driver = enableBlinking.AddStateMachineBehaviour<VRCAvatarParameterDriver>();
             driver.parameters = new List<VRC_AvatarParameterDriver.Parameter>
             {
-                new VRC_AvatarParameterDriver.Parameter {name = SharedLayerUtils.HaiGestureComboIsLipsyncLimited, value = 0}
+                new VRC_AvatarParameterDriver.Parameter {name = SharedLayerUtils.HaiGestureComboIsLipsyncLimitedParamName, value = 0}
             };
         }
 
@@ -115,7 +115,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             var driver = disableBlinking.AddStateMachineBehaviour<VRCAvatarParameterDriver>();
             driver.parameters = new List<VRC_AvatarParameterDriver.Parameter>
             {
-                new VRC_AvatarParameterDriver.Parameter {name = SharedLayerUtils.HaiGestureComboIsLipsyncLimited, value = 1}
+                new VRC_AvatarParameterDriver.Parameter {name = SharedLayerUtils.HaiGestureComboIsLipsyncLimitedParamName, value = 1}
             };
         }
 
