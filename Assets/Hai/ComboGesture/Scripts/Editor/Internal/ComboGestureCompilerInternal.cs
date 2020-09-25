@@ -6,6 +6,7 @@ using Hai.ComboGesture.Scripts.Editor.Internal.Reused;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
+using VRC.SDK3.Avatars.Components;
 using Object = UnityEngine.Object;
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal
@@ -29,10 +30,10 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly ConflictFxLayerMode _compilerConflictFxLayerMode;
         private readonly AnimationClip _compilerIgnoreParamList;
         private readonly AnimationClip _compilerFallbackParamList;
+        private readonly VRCAvatarDescriptor _avatarDescriptor;
         private readonly AvatarMask _expressionsAvatarMask;
         private readonly AvatarMask _logicalAvatarMask;
         private readonly AnimatorGenerator _animatorGenerator;
-        private readonly List<CurveKey> _blinkBlendshapes;
         private readonly AssetContainer _assetContainer;
 
         public ComboGestureCompilerInternal(string activityStageName,
@@ -45,8 +46,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             ConflictFxLayerMode compilerConflictFxLayerMode,
             AnimationClip compilerIgnoreParamList,
             AnimationClip compilerFallbackParamList,
-            List<CurveKey> blinkBlendshapes,
-            List<CurveKey> lipsyncBlendshapes,
+            VRCAvatarDescriptor avatarDescriptor,
             AvatarMask expressionsAvatarMask,
             AvatarMask logicalAvatarMask,
             AssetContainer assetContainer)
@@ -61,9 +61,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _compilerConflictFxLayerMode = compilerConflictFxLayerMode;
             _compilerIgnoreParamList = compilerIgnoreParamList;
             _compilerFallbackParamList = compilerFallbackParamList;
+            _avatarDescriptor = avatarDescriptor;
             _expressionsAvatarMask = expressionsAvatarMask;
             _logicalAvatarMask = logicalAvatarMask;
-            _blinkBlendshapes = blinkBlendshapes;
             _animatorGenerator = new AnimatorGenerator(_animatorController, new StatefulEmptyClipProvider(new ClipGenerator(_customEmptyClip, EmptyClipPath, "ComboGesture")));
             _assetContainer = assetContainer;
         }
@@ -207,7 +207,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 _compilerConflictFxLayerMode,
                 _compilerIgnoreParamList,
                 _compilerFallbackParamList,
-                _blinkBlendshapes,
+                new BlendshapesFinder(_avatarDescriptor).FindBlink().Select(key => key.AsCurveKey()).ToList(),
                 _animatorController,
                 _comboLayers
             ).Create();

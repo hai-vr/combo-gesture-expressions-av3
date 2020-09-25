@@ -69,5 +69,15 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 controller.AddParameter(paramName, type);
             }
         }
+
+        public static string ResolveRelativePath(Transform avatar, Transform item)
+        {
+            if (item.parent != avatar && item.parent != null)
+            {
+                return ResolveRelativePath(avatar, item.parent) + "/" + item.name;
+            }
+
+            return item.name;
+        }
     }
 }

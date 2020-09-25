@@ -127,7 +127,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             EditorGUILayout.LabelField("Avatar blendshapes correction", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(avatarDescriptor, new GUIContent("Avatar descriptor"));
             if (compiler.avatarDescriptor != null) {
-                var blinkBlendshapes = ComboGestureCompiler.FindBlinkBlendshapes(compiler);
+                var blinkBlendshapes = new BlendshapesFinder(compiler.avatarDescriptor).FindBlink();
                 if (blinkBlendshapes.Any())
                 {
                     EditorGUILayout.LabelField("Blink correction", EditorStyles.boldLabel);
@@ -148,7 +148,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 if (compiler.integrateLimitedLipsync && !compiler.doNotGenerateLipsyncOverrideLayer)
                 {
                     EditorGUILayout.PropertyField(lipsyncForWideOpenMouth, new GUIContent("Lipsync correction"));
-                    var lipsyncBlendshapes = ComboGestureCompiler.FindLipsyncBlendshapes(compiler);
+                    var lipsyncBlendshapes = new BlendshapesFinder(compiler.avatarDescriptor).FindLipsync();
                     if (lipsyncBlendshapes.Any())
                     {
                         var firstLipsyncBlendshape = lipsyncBlendshapes.FirstOrDefault();
@@ -406,12 +406,7 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
                 compiler.conflictFxLayerMode,
                 compiler.ignoreParamList,
                 compiler.fallbackParamList,
-                ComboGestureCompiler.FindBlinkBlendshapes(compiler)
-                    .Select(key => new CurveKey(key.Path, typeof(SkinnedMeshRenderer), "blendShape." + key.BlendShapeName))
-                    .ToList(),
-                ComboGestureCompiler.FindLipsyncBlendshapes(compiler)
-                    .Select(key => new CurveKey(key.Path, typeof(SkinnedMeshRenderer), "blendShape." + key.BlendShapeName))
-                    .ToList(),
+                compiler.avatarDescriptor,
                 compiler.expressionsAvatarMask,
                 compiler.logicalAvatarMask,
                 actualContainer
