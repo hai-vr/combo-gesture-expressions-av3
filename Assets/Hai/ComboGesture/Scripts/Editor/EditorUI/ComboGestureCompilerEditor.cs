@@ -157,7 +157,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 EditorGUILayout.PropertyField(integrateLimitedLipsync, new GUIContent("Integrate limited lipsync"));
                 if (compiler.integrateLimitedLipsync)
                 {
-                    EditorGUILayout.HelpBox("Limited Lipsync is a feature that will not work with the version of VRChat at the time this version of ComboGestureExpressions has been published.", MessageType.Error);
+                    EditorGUILayout.HelpBox(@"Limited Lipsync is a feature that will not work with the version of VRChat at the time this version of ComboGestureExpressions has been published.
+
+At the time this version has been published, generating the layer will break your Lipsync blendshapes.", MessageType.Error);
                 }
                 if (compiler.integrateLimitedLipsync && !compiler.doNotGenerateLipsyncOverrideLayer)
                 {
@@ -227,6 +229,19 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             EditorGUILayout.Space();
 
+            EditorGUILayout.LabelField("Synchronization", EditorStyles.boldLabel);
+            EditorGUILayout.HelpBox(
+@"Synchronization will regenerate CGE's animator layers and generate animations.
+- Only layers starting with 'Hai_Gesture' will be affected.
+- The avatar descriptor will not be modified.
+
+You should press synchronize when any of the following happens:
+- the order of layers in the animator controller changes,
+- an animation is modified,
+- a ComboGestureActivity is modified,
+- a ComboGestureLimitedLipsync is modified,
+- the avatar descriptor Eyelids or Lipsync is modified,
+- this Compiler is modified.", MessageType.Info);
             if (GUILayout.Button("Synchronize Animator FX GestureCombo layers"))
             {
                 DoGenerate();

@@ -235,6 +235,13 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             GUILayout.BeginArea(new Rect(Math.Max((position.width - totalWidth) / 2, 0), 0, totalWidth, totalHeight));
         }
 
+        private void BeginLayoutUsing(int totalHeight, int topHeight)
+        {
+            var totalWidth = GuiSquareWidth * 8;
+            GUILayout.Box("", GUIStyle.none, GUILayout.Width(totalWidth), GUILayout.Height(totalHeight));
+            GUILayout.BeginArea(new Rect(Math.Max((position.width - totalWidth) / 2, 0), topHeight, totalWidth, totalHeight));
+        }
+
         private static void EndLayout()
         {
             GUILayout.EndArea();
@@ -464,16 +471,20 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         private void LayoutMakeLipsyncMovementsSubtle()
         {
+            EditorGUILayout.HelpBox(@"Limited Lipsync is a feature that will not work with the version of VRChat at the time this version of ComboGestureExpressions has been published.
+
+At the time this version has been published, generating the layer will break your Lipsync blendshapes.", MessageType.Error);
+            var helpBoxHeightReverse = 60;
             if (_editorLipsyncTool == 1)
             {
-                BeginLayoutUsing(GuiSquareHeight * 8);
+                BeginLayoutUsing(GuiSquareHeight * 8, helpBoxHeightReverse);
                 LayoutLimitedLipsyncEditor();
                 EndLayout();
             }
             else
             {
                 GUILayout.Label("Select face expressions with a <b>wide open mouth</b>.", _largeFont);
-                GUILayout.BeginArea(new Rect(0, singleLineHeight * 3, position.width, GuiSquareHeight * 8));
+                GUILayout.BeginArea(new Rect(0, singleLineHeight * 3 + helpBoxHeightReverse, position.width, GuiSquareHeight * 8));
                 var allClips = new HashSet<AnimationClip>(activity.OrderedAnimations().Where(clip => clip != null)).ToList();
                 var mod = Math.Max(3, Math.Min(8, (int)Math.Sqrt(allClips.Count)));
                 for (var element = 0; element < allClips.Count; element++)
@@ -487,7 +498,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                     "",
                     GUIStyle.none,
                     GUILayout.Width(GuiSquareHeight + GuiSquareHeight * mod + singleLineHeight * 2),
-                    GUILayout.Height(GuiSquareHeight + GuiSquareHeight * (allClips.Count / mod) + singleLineHeight * 2)
+                    GUILayout.Height(GuiSquareHeight + GuiSquareHeight * (allClips.Count / mod) + singleLineHeight * 2 + helpBoxHeightReverse)
                 );
             }
         }
@@ -505,14 +516,14 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 return;
             }
 
-            void DrawLipsync(int visemeNumber)
+            void DrawLipsync(int visemeNumber, bool previewable)
             {
                 GUILayout.Label(_driver.ShortTranslation("viseme" + visemeNumber), _middleAligned);
 
                 GUILayout.BeginArea(new Rect((GuiSquareWidth * 2 - PictureWidth * 2) / 2, singleLineHeight, PictureWidth * 2, PictureHeight * 2 + singleLineHeight * 4));
                 GUILayout.Box(_lipsync.TextureForViseme(visemeNumber), GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true));
 
-                EditorGUI.BeginDisabledGroup(AnimationMode.InAnimationMode());
+                EditorGUI.BeginDisabledGroup(!previewable || AnimationMode.InAnimationMode());
                 if (GUILayout.Button("Regenerate preview"))
                 {
                     RegenerateLipsyncPreview(visemeNumber);
@@ -544,7 +555,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             EditorGUILayout.Separator();
             EditorGUILayout.LabelField("Preview", EditorStyles.boldLabel);
             var previewables = ListAllPreviewableNames();
-            if (previewables.Any()) {
+            var previewIsPossible = previewables.Any();
+            if (previewIsPossible) {
                 if (_limitedLipsyncPreviewIndex >= previewables.Length)
                 {
                     _limitedLipsyncPreviewIndex = 0;
@@ -580,7 +592,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             {
                 var gridIndex = viseme + 1;
                 GUILayout.BeginArea(RectAt(gridIndex % 4, gridIndex / 4));
-                DrawLipsync(viseme);
+                DrawLipsync(viseme, previewIsPossible);
                 GUILayout.EndArea();
             }
         }
