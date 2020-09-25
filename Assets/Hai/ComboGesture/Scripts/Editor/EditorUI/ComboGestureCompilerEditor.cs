@@ -389,30 +389,7 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
                 compiler.assetContainer = actualContainer.ExposeContainerAsset();
             }
 
-            new ComboGestureCompilerInternal(
-                compiler.activityStageName == "" ? null : compiler.activityStageName,
-                compiler.comboLayers,
-                compiler.animatorController,
-                compiler.customEmptyClip,
-                compiler.analogBlinkingUpperThreshold,
-                (exposeDisableExpressions.boolValue ? FeatureToggles.ExposeDisableExpressions : 0)
-                | (exposeDisableBlinkingOverride.boolValue ? FeatureToggles.ExposeDisableBlinkingOverride : 0)
-                | (exposeAreEyesClosed.boolValue ? FeatureToggles.ExposeAreEyesClosed : 0)
-                | (doNotGenerateControllerLayer.boolValue ? FeatureToggles.DoNotGenerateControllerLayer : 0)
-                | (doNotGenerateBlinkingOverrideLayer.boolValue ? FeatureToggles.DoNotGenerateBlinkingOverrideLayer : 0)
-                | (doNotGenerateLipsyncOverrideLayer.boolValue ? FeatureToggles.DoNotGenerateLipsyncOverrideLayer : 0)
-                ,
-                compiler.conflictPreventionMode,
-                compiler.conflictFxLayerMode,
-                compiler.ignoreParamList,
-                compiler.fallbackParamList,
-                compiler.avatarDescriptor,
-                compiler.expressionsAvatarMask,
-                compiler.logicalAvatarMask,
-                compiler.integrateLimitedLipsync,
-                compiler.lipsyncForWideOpenMouth,
-                actualContainer
-            ).DoOverwriteAnimatorFxLayer();
+            new ComboGestureCompilerInternal(compiler, actualContainer).DoOverwriteAnimatorFxLayer();
         }
 
         private static AssetContainer CreateContainerIfNotExists(ComboGestureCompiler compiler, string folderToCreateAssetIn)

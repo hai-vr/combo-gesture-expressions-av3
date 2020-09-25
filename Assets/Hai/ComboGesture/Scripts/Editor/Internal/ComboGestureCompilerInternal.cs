@@ -38,38 +38,30 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly AnimatorGenerator _animatorGenerator;
         private readonly AssetContainer _assetContainer;
 
-        public ComboGestureCompilerInternal(string activityStageName,
-            List<GestureComboStageMapper> comboLayers,
-            RuntimeAnimatorController animatorController,
-            AnimationClip customEmptyClip,
-            float analogBlinkingUpperThreshold,
-            FeatureToggles featuresToggles,
-            ConflictPreventionMode compilerConflictPreventionMode,
-            ConflictFxLayerMode compilerConflictFxLayerMode,
-            AnimationClip compilerIgnoreParamList,
-            AnimationClip compilerFallbackParamList,
-            VRCAvatarDescriptor avatarDescriptor,
-            AvatarMask expressionsAvatarMask,
-            AvatarMask logicalAvatarMask,
-            bool integrateLimitedLipsync,
-            ComboGestureLimitedLipsync limitedLipsync,
+        public ComboGestureCompilerInternal(
+            ComboGestureCompiler compiler,
             AssetContainer assetContainer)
         {
-            _activityStageName = activityStageName;
-            _comboLayers = comboLayers;
-            _animatorController = (AnimatorController) animatorController;
-            _customEmptyClip = customEmptyClip;
-            _analogBlinkingUpperThreshold = analogBlinkingUpperThreshold;
-            _featuresToggles = featuresToggles;
-            _conflictPrevention = ConflictPrevention.Of(compilerConflictPreventionMode);
-            _compilerConflictFxLayerMode = compilerConflictFxLayerMode;
-            _compilerIgnoreParamList = compilerIgnoreParamList;
-            _compilerFallbackParamList = compilerFallbackParamList;
-            _avatarDescriptor = avatarDescriptor;
-            _expressionsAvatarMask = expressionsAvatarMask;
-            _logicalAvatarMask = logicalAvatarMask;
-            _integrateLimitedLipsync = integrateLimitedLipsync;
-            _limitedLipsync = limitedLipsync;
+            _activityStageName = compiler.activityStageName == "" ? null : compiler.activityStageName;
+            _comboLayers = compiler.comboLayers;
+            _animatorController = (AnimatorController)compiler.animatorController;
+            _customEmptyClip = compiler.customEmptyClip;
+            _analogBlinkingUpperThreshold = compiler.analogBlinkingUpperThreshold;
+            _featuresToggles = (compiler.exposeDisableExpressions ? FeatureToggles.ExposeDisableExpressions : 0)
+                               | (compiler.exposeDisableBlinkingOverride ? FeatureToggles.ExposeDisableBlinkingOverride : 0)
+                               | (compiler.exposeAreEyesClosed ? FeatureToggles.ExposeAreEyesClosed : 0)
+                               | (compiler.doNotGenerateControllerLayer ? FeatureToggles.DoNotGenerateControllerLayer : 0)
+                               | (compiler.doNotGenerateBlinkingOverrideLayer ? FeatureToggles.DoNotGenerateBlinkingOverrideLayer : 0)
+                               | (compiler.doNotGenerateLipsyncOverrideLayer ? FeatureToggles.DoNotGenerateLipsyncOverrideLayer : 0);
+            _conflictPrevention = ConflictPrevention.Of(compiler.conflictPreventionMode);
+            _compilerConflictFxLayerMode = compiler.conflictFxLayerMode;
+            _compilerIgnoreParamList = compiler.ignoreParamList;
+            _compilerFallbackParamList = compiler.fallbackParamList;
+            _avatarDescriptor = compiler.avatarDescriptor;
+            _expressionsAvatarMask = compiler.expressionsAvatarMask;
+            _logicalAvatarMask = compiler.logicalAvatarMask;
+            _integrateLimitedLipsync = compiler.integrateLimitedLipsync;
+            _limitedLipsync = compiler.lipsyncForWideOpenMouth;
             _animatorGenerator = new AnimatorGenerator(_animatorController, new StatefulEmptyClipProvider(new ClipGenerator(_customEmptyClip, EmptyClipPath, "ComboGesture")));
             _assetContainer = assetContainer;
         }
