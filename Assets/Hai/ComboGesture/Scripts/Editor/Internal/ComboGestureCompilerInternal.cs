@@ -33,6 +33,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly VRCAvatarDescriptor _avatarDescriptor;
         private readonly AvatarMask _expressionsAvatarMask;
         private readonly AvatarMask _logicalAvatarMask;
+        private readonly bool _integrateLimitedLipsync;
+        private readonly ComboGestureLimitedLipsync _limitedLipsync;
         private readonly AnimatorGenerator _animatorGenerator;
         private readonly AssetContainer _assetContainer;
 
@@ -49,6 +51,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             VRCAvatarDescriptor avatarDescriptor,
             AvatarMask expressionsAvatarMask,
             AvatarMask logicalAvatarMask,
+            bool integrateLimitedLipsync,
+            ComboGestureLimitedLipsync limitedLipsync,
             AssetContainer assetContainer)
         {
             _activityStageName = activityStageName;
@@ -64,6 +68,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _avatarDescriptor = avatarDescriptor;
             _expressionsAvatarMask = expressionsAvatarMask;
             _logicalAvatarMask = logicalAvatarMask;
+            _integrateLimitedLipsync = integrateLimitedLipsync;
+            _limitedLipsync = limitedLipsync;
             _animatorGenerator = new AnimatorGenerator(_animatorController, new StatefulEmptyClipProvider(new ClipGenerator(_customEmptyClip, EmptyClipPath, "ComboGesture")));
             _assetContainer = assetContainer;
         }
@@ -91,7 +97,14 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
             if (!Feature(FeatureToggles.DoNotGenerateLipsyncOverrideLayer))
             {
-                CreateOrReplaceLipsyncOverrideView(emptyClip);
+                if (_integrateLimitedLipsync)
+                {
+                    CreateOrReplaceLipsyncOverrideView(emptyClip);
+                }
+                else
+                {
+                    DeleteLipsyncOverrideView();
+                }
             }
 
             ReapAnimator();
@@ -252,6 +265,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             {
                 SharedLayerUtils.CreateParamIfNotExists(_animatorController, SharedLayerUtils.HaiGestureComboDisableLipsyncOverrideParamName, AnimatorControllerParameterType.Int);
             }
+            SharedLayerUtils.CreateParamIfNotExists(_animatorController, "Viseme", AnimatorControllerParameterType.Int);
             new LayerForLipsyncOverrideView(
                 _activityStageName,
                 _comboLayers,
@@ -259,8 +273,16 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 _featuresToggles,
                 _logicalAvatarMask,
                 _animatorGenerator,
+                _avatarDescriptor,
+                _limitedLipsync,
+                _assetContainer,
                 emptyClip
             ).Create();
+        }
+
+        private void DeleteLipsyncOverrideView()
+        {
+            LayerForLipsyncOverrideView.Delete(_animatorGenerator);
         }
 
         private bool Feature(FeatureToggles feature)

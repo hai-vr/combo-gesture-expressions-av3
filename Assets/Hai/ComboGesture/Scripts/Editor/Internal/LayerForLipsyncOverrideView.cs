@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.Internal.Reused;
@@ -13,6 +14,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
     internal class LayerForLipsyncOverrideView
     {
         private const bool WriteDefaultsForLogicalStates = true;
+        private const bool WriteDefaultsForMotionStates = true;
+        private const string LipsyncLayerName = "Hai_GestureLipsync";
 
         private readonly string _activityStageName;
         private readonly List<GestureComboStageMapper> _comboLayers;
@@ -20,9 +23,12 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly FeatureToggles _featuresToggles;
         private readonly AvatarMask _logicalAvatarMask;
         private readonly AnimatorGenerator _animatorGenerator;
+        private readonly VRCAvatarDescriptor _avatarDescriptor;
+        private readonly ComboGestureLimitedLipsync _limitedLipsync;
+        private readonly AssetContainer _assetContainer;
         private readonly AnimationClip _emptyClip;
 
-        public LayerForLipsyncOverrideView(string activityStageName, List<GestureComboStageMapper> comboLayers, float analogBlinkingUpperThreshold, FeatureToggles featuresToggles, AvatarMask logicalAvatarMask, AnimatorGenerator animatorGenerator, AnimationClip emptyClip)
+        public LayerForLipsyncOverrideView(string activityStageName, List<GestureComboStageMapper> comboLayers, float analogBlinkingUpperThreshold, FeatureToggles featuresToggles, AvatarMask logicalAvatarMask, AnimatorGenerator animatorGenerator, VRCAvatarDescriptor avatarDescriptor, ComboGestureLimitedLipsync limitedLipsync, AssetContainer assetContainer, AnimationClip emptyClip)
         {
             _activityStageName = activityStageName;
             _comboLayers = comboLayers;
@@ -30,6 +36,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _featuresToggles = featuresToggles;
             _logicalAvatarMask = logicalAvatarMask;
             _animatorGenerator = animatorGenerator;
+            _avatarDescriptor = avatarDescriptor;
+            _limitedLipsync = limitedLipsync;
+            _assetContainer = assetContainer;
             _emptyClip = emptyClip;
         }
 
@@ -84,12 +93,89 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 transition.exitTime = enableBlinkingTransition.exitTime;
                 transition.hasFixedDuration = enableBlinkingTransition.hasFixedDuration;
                 transition.offset = enableBlinkingTransition.offset;
-                transition.interruptionSource = enableBlinkingTransition.interruptionSource;
-                transition.canTransitionToSelf = enableBlinkingTransition.canTransitionToSelf;
+                transition.interruptionSource = TransitionInterruptionSource.None;
                 transition.orderedInterruption = enableBlinkingTransition.orderedInterruption;
                 transition.duration = enableBlinkingTransition.duration;
+                transition.canTransitionToSelf = true;
             }
             machine.RemoveState(disableBlinking);
+
+            _assetContainer.RemoveAssetsStartingWith("zAUTOGEN_Lipsync_", typeof(AnimationClip));
+            var visemeClips = Enumerable.Range(0, 15)
+                .Select(visemeNumber =>
+                {
+                    var finalAmplitude = _limitedLipsync.amplitudeScale * FindVisemeAmplitudeTweak(visemeNumber);
+                    var clip = new AnimationClip {name = "zAUTOGEN_Lipsync_ " + visemeNumber};
+                    new VisemeAnimationMaker(_avatarDescriptor).OverrideAnimation(clip, visemeNumber, finalAmplitude);
+                    return clip;
+                })
+                .ToList();
+            foreach (var visemeClip in visemeClips)
+            {
+                _assetContainer.AddAnimation(visemeClip);
+            }
+            AssetContainer.GlobalSave();
+            for (var visemeNumber = 0; visemeNumber < visemeClips.Count; visemeNumber++)
+            {
+                var state = machine.AddState("A0 - Viseme " + visemeNumber, SharedLayerUtils.GridPosition(4, 2 + visemeNumber));
+                state.motion = visemeClips[visemeNumber];
+                state.writeDefaultValues = WriteDefaultsForMotionStates;
+
+                var tracking = state.AddStateMachineBehaviour<VRCAnimatorTrackingControl>();
+                tracking.trackingMouth = VRC_AnimatorTrackingControl.TrackingType.Animation;
+
+                var transition = machine.AddAnyStateTransition(state);
+                SharedLayerUtils.SetupDefaultTransition(transition);
+                transition.canTransitionToSelf = false;
+                transition.duration = _limitedLipsync.transitionDuration * FindVisemeTransitionTweak(visemeNumber);
+                transition.AddCondition(AnimatorConditionMode.Equals, visemeNumber, "Viseme");
+            }
+        }
+
+        private float FindVisemeAmplitudeTweak(int visemeNumber)
+        {
+            switch (visemeNumber)
+            {
+                case 0: return _limitedLipsync.amplitude0;
+                case 1: return _limitedLipsync.amplitude1;
+                case 2: return _limitedLipsync.amplitude2;
+                case 3: return _limitedLipsync.amplitude3;
+                case 4: return _limitedLipsync.amplitude4;
+                case 5: return _limitedLipsync.amplitude5;
+                case 6: return _limitedLipsync.amplitude6;
+                case 7: return _limitedLipsync.amplitude7;
+                case 8: return _limitedLipsync.amplitude8;
+                case 9: return _limitedLipsync.amplitude9;
+                case 10: return _limitedLipsync.amplitude10;
+                case 11: return _limitedLipsync.amplitude11;
+                case 12: return _limitedLipsync.amplitude12;
+                case 13: return _limitedLipsync.amplitude13;
+                case 14: return _limitedLipsync.amplitude14;
+                default: throw new IndexOutOfRangeException();
+            }
+        }
+
+        private float FindVisemeTransitionTweak(int visemeNumber)
+        {
+            switch (visemeNumber)
+            {
+                case 0: return _limitedLipsync.transition0;
+                case 1: return _limitedLipsync.transition1;
+                case 2: return _limitedLipsync.transition2;
+                case 3: return _limitedLipsync.transition3;
+                case 4: return _limitedLipsync.transition4;
+                case 5: return _limitedLipsync.transition5;
+                case 6: return _limitedLipsync.transition6;
+                case 7: return _limitedLipsync.transition7;
+                case 8: return _limitedLipsync.transition8;
+                case 9: return _limitedLipsync.transition9;
+                case 10: return _limitedLipsync.transition10;
+                case 11: return _limitedLipsync.transition11;
+                case 12: return _limitedLipsync.transition12;
+                case 13: return _limitedLipsync.transition13;
+                case 14: return _limitedLipsync.transition14;
+                default: throw new IndexOutOfRangeException();
+            }
         }
 
         // FIXME: This is duplicate code
@@ -99,7 +185,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 .Select((mapper, layerOrdinal) => new ActivityManifest(mapper.stageValue, SharedLayerUtils.FromManifest(mapper.activity, _emptyClip), layerOrdinal))
                 .ToList();
         }
-
 
         private static void CreateInternalParameterDriverWhenEyesAreOpen(AnimatorState enableBlinking)
         {
@@ -123,7 +208,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         {
             var transition = machine.AddAnyStateTransition(to);
             SharedLayerUtils.SetupDefaultBlinkingTransition(transition);
-            transition.canTransitionToSelf = false;
+            transition.canTransitionToSelf = true;
             transition.AddCondition(AnimatorConditionMode.NotEqual, 0, SharedLayerUtils.HaiGestureComboDisableLipsyncOverrideParamName);
         }
 
@@ -150,7 +235,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         {
             var transition = machine.AddAnyStateTransition(to);
             SharedLayerUtils.SetupDefaultTransition(transition);
-            transition.canTransitionToSelf = false;
+            transition.canTransitionToSelf = true;
 
             foreach (var layer in _comboLayers)
             {
@@ -161,12 +246,17 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         private AnimatorStateMachine ReinitializeLayer()
         {
-            return _animatorGenerator.CreateOrRemakeLayerAtSameIndex("Hai_GestureLipsync", 1f, _logicalAvatarMask).ExposeMachine();
+            return _animatorGenerator.CreateOrRemakeLayerAtSameIndex(LipsyncLayerName, 1f, _logicalAvatarMask).ExposeMachine();
         }
 
         private bool Feature(FeatureToggles feature)
         {
             return (_featuresToggles & feature) == feature;
+        }
+
+        public static void Delete(AnimatorGenerator animatorGenerator)
+        {
+            animatorGenerator.RemoveLayerIfExists(LipsyncLayerName);
         }
     }
 }

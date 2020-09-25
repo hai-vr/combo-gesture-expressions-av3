@@ -45,7 +45,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Reused
 
         internal Machinist CreateOrRemakeLayerAtSameIndex(string layerName, float weightWhenCreating, AvatarMask maskWhenCreating = null)
         {
-            var originalIndexToPreserveOrdering = _animatorController.layers.ToList().FindIndex(layer1 => layer1.name == layerName);
+            var originalIndexToPreserveOrdering = FindIndexOf(layerName);
             if (originalIndexToPreserveOrdering != -1)
             {
                 _animatorController.RemoveLayer(originalIndexToPreserveOrdering);
@@ -67,6 +67,20 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Reused
                 .WithAnyStatePosition(0, 7)
                 .WithEntryPosition(0, -1)
                 .WithExitPosition(7, -1);
+        }
+
+        internal int FindIndexOf(string layerName)
+        {
+            return _animatorController.layers.ToList().FindIndex(layer1 => layer1.name == layerName);
+        }
+
+        internal void RemoveLayerIfExists(string layerName)
+        {
+            var originalIndexToPreserveOrdering = _animatorController.layers.ToList().FindIndex(layer1 => layer1.name == layerName);
+            if (originalIndexToPreserveOrdering != -1)
+            {
+                _animatorController.RemoveLayer(originalIndexToPreserveOrdering);
+            }
         }
 
         private AnimatorControllerLayer TryGetLayer(string layerName)

@@ -409,6 +409,8 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
                 compiler.avatarDescriptor,
                 compiler.expressionsAvatarMask,
                 compiler.logicalAvatarMask,
+                compiler.integrateLimitedLipsync,
+                compiler.lipsyncForWideOpenMouth,
                 actualContainer
             ).DoOverwriteAnimatorFxLayer();
         }
