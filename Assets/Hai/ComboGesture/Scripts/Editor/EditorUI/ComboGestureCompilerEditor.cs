@@ -36,6 +36,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public SerializedProperty conflictFxLayerMode;
         public SerializedProperty ignoreParamList;
         public SerializedProperty fallbackParamList;
+        public SerializedProperty doNotIncludeBlinkBlendshapes;
         public SerializedProperty folderToGenerateNeutralizedAssetsIn;
 
         public SerializedProperty avatarDescriptor;
@@ -70,6 +71,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             conflictFxLayerMode = serializedObject.FindProperty("conflictFxLayerMode");
             ignoreParamList = serializedObject.FindProperty("ignoreParamList");
             fallbackParamList = serializedObject.FindProperty("fallbackParamList");
+            doNotIncludeBlinkBlendshapes = serializedObject.FindProperty("doNotIncludeBlinkBlendshapes");
             folderToGenerateNeutralizedAssetsIn = serializedObject.FindProperty("folderToGenerateNeutralizedAssetsIn");
 
             comboLayers = serializedObject.FindProperty("comboLayers");
@@ -127,24 +129,36 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             EditorGUILayout.LabelField("Avatar blendshapes correction", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(avatarDescriptor, new GUIContent("Avatar descriptor"));
             if (compiler.avatarDescriptor != null) {
-                var blinkBlendshapes = new BlendshapesFinder(compiler.avatarDescriptor).FindBlink();
-                if (blinkBlendshapes.Any())
+                EditorGUILayout.LabelField("Blink correction", EditorStyles.boldLabel);
+                if (!compiler.doNotIncludeBlinkBlendshapes)
                 {
-                    EditorGUILayout.LabelField("Blink correction", EditorStyles.boldLabel);
-                    EditorGUILayout.LabelField("Found blink blendshapes:");
-                    foreach (var blendShape in blinkBlendshapes)
+                    var blinkBlendshapes = new BlendshapesFinder(compiler.avatarDescriptor).FindBlink();
+                    if (blinkBlendshapes.Any())
                     {
-                        EditorGUILayout.LabelField("- " + blendShape.Path + "::" + blendShape.BlendShapeName);
+                        EditorGUILayout.LabelField("Found blink blendshapes:");
+                        foreach (var blendShape in blinkBlendshapes)
+                        {
+                            EditorGUILayout.LabelField("- " + blendShape.Path + "::" + blendShape.BlendShapeName);
+                        }
+                    }
+                    else
+                    {
+                        EditorGUILayout.LabelField("No blink blendshapes found");
                     }
                 }
                 else
                 {
-                    EditorGUILayout.LabelField("No blink blendshapes found");
+                    EditorGUILayout.PropertyField(doNotIncludeBlinkBlendshapes, new GUIContent("Do not include blink blendshapes"));
+                    EditorGUILayout.HelpBox("Blink blendshapes will not be corrected. This may result in residual eyelids blendshapes remaining active if the avatar was in the middle of blinking when the face expression had just changed to an expression with closed eyes.", MessageType.Warning);
                 }
 
                 EditorGUI.BeginDisabledGroup(compiler.doNotGenerateLipsyncOverrideLayer);
                 EditorGUILayout.LabelField("Limited Lipsync", EditorStyles.boldLabel);
                 EditorGUILayout.PropertyField(integrateLimitedLipsync, new GUIContent("Integrate limited lipsync"));
+                if (compiler.integrateLimitedLipsync)
+                {
+                    EditorGUILayout.HelpBox("Limited Lipsync is a feature that will not work with the version of VRChat at the time this version of ComboGestureExpressions has been published.", MessageType.Error);
+                }
                 if (compiler.integrateLimitedLipsync && !compiler.doNotGenerateLipsyncOverrideLayer)
                 {
                     EditorGUILayout.PropertyField(lipsyncForWideOpenMouth, new GUIContent("Lipsync correction"));
@@ -287,6 +301,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 EditorGUILayout.LabelField("Fallback generation", EditorStyles.boldLabel);
                 EditorGUILayout.PropertyField(ignoreParamList, new GUIContent("Ignored properties"));
                 EditorGUILayout.PropertyField(fallbackParamList, new GUIContent("Fallback values"));
+                EditorGUILayout.PropertyField(doNotIncludeBlinkBlendshapes, new GUIContent("Do not include blink blendshapes"));
                 EditorGUILayout.PropertyField(bypassMandatoryAvatarDescriptor, new GUIContent("Bypass mandatory avatar descriptor"));
                 EditorGUI.EndDisabledGroup();
             }

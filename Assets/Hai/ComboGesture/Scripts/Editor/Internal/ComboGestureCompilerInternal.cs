@@ -35,6 +35,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly AvatarMask _logicalAvatarMask;
         private readonly bool _integrateLimitedLipsync;
         private readonly ComboGestureLimitedLipsync _limitedLipsync;
+        private readonly bool _doNotIncludeBlinkBlendshapes;
         private readonly AnimatorGenerator _animatorGenerator;
         private readonly AssetContainer _assetContainer;
 
@@ -62,6 +63,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _logicalAvatarMask = compiler.logicalAvatarMask;
             _integrateLimitedLipsync = compiler.integrateLimitedLipsync;
             _limitedLipsync = compiler.lipsyncForWideOpenMouth;
+            _doNotIncludeBlinkBlendshapes = compiler.doNotIncludeBlinkBlendshapes;
             _animatorGenerator = new AnimatorGenerator(_animatorController, new StatefulEmptyClipProvider(new ClipGenerator(_customEmptyClip, EmptyClipPath, "ComboGesture")));
             _assetContainer = assetContainer;
         }
@@ -212,7 +214,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 _compilerConflictFxLayerMode,
                 _compilerIgnoreParamList,
                 _compilerFallbackParamList,
-                new BlendshapesFinder(_avatarDescriptor).FindBlink().Select(key => key.AsCurveKey()).ToList(),
+                _doNotIncludeBlinkBlendshapes
+                    ? new List<CurveKey>()
+                    : new BlendshapesFinder(_avatarDescriptor).FindBlink().Select(key => key.AsCurveKey()).ToList(),
                 _animatorController,
                 _comboLayers
             ).Create();
