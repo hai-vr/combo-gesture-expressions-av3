@@ -91,7 +91,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
             if (!Feature(FeatureToggles.DoNotGenerateLipsyncOverrideLayer))
             {
-                if (_integrateLimitedLipsync)
+                if (_integrateLimitedLipsync && _avatarDescriptor != null && _avatarDescriptor.VisemeSkinnedMesh != null)
                 {
                     CreateOrReplaceLipsyncOverrideView(emptyClip);
                 }
