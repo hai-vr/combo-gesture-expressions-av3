@@ -75,6 +75,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 {
                     activity = selectedActivity;
                     serializedObject = null;
+                    titleContent.text = "CGE/" + activity.name;
                     Repaint();
                 }
                 var selectedLimitedLipsync = activeGameObject.GetComponent<ComboGestureLimitedLipsync>();
