@@ -29,26 +29,31 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
     struct SideDecider
     {
-        public SideDecider(CurveKey key, bool choice)
+        public SideDecider(CurveKey key, float sampleValue, bool choice)
         {
             Key = key;
+            SampleValue = sampleValue;
             Choice = choice;
         }
 
         public CurveKey Key { get; }
+        public float SampleValue { get; }
         public bool Choice { get; set; }
     }
 
-    [Serializable]
     struct IntersectionDecider
     {
-        public IntersectionDecider(CurveKey key, IntersectionChoice choice)
+        public IntersectionDecider(CurveKey key, float sampleLeftValue, float sampleRightValue, IntersectionChoice choice)
         {
             Key = key;
+            SampleLeftValue = sampleLeftValue;
+            SampleRightValue = sampleRightValue;
             Choice = choice;
         }
 
         public CurveKey Key { get; }
+        public float SampleLeftValue { get; }
+        public float SampleRightValue { get; }
         public IntersectionChoice Choice { get; set; }
     }
 
@@ -132,21 +137,55 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 .ToList();
         }
 
-        private static CgeDecider CreateDeciders(HashSet<CurveKey> leftCurves, HashSet<CurveKey> rightCurves)
+        private static CgeDecider CreateDeciders(HashSet<SampledCurveKey> leftCurves, HashSet<SampledCurveKey> rightCurves)
         {
-            var leftDeciders = leftCurves
-                .Where(key => !rightCurves.Contains(key))
-                .Select(key => new SideDecider(key, true))
+            var leftUniques = new HashSet<CurveKey>(leftCurves.Select(key => key.CurveKey).ToList());
+            var rightUniques = new HashSet<CurveKey>(rightCurves.Select(key => key.CurveKey).ToList());
+
+            var leftDecidersUnsorted = leftCurves
+                .Where(key => !rightUniques.Contains(key.CurveKey))
+                .Select(key => new SideDecider(key.CurveKey, key.SampleValue, true))
+                .ToList();
+            var leftDeciders = leftDecidersUnsorted
+                .Where(decider => decider.SampleValue != 0)
+                .Concat(leftDecidersUnsorted
+                    .Where(decider => decider.SampleValue == 0))
                 .ToList();
 
-            var rightDeciders = rightCurves
-                .Where(key => !leftCurves.Contains(key))
-                .Select(key => new SideDecider(key, true))
+            var rightDecidersUnsorted = rightCurves
+                .Where(key => !leftUniques.Contains(key.CurveKey))
+                .Select(key => new SideDecider(key.CurveKey, key.SampleValue, true))
+                .ToList();
+            var rightDeciders = rightDecidersUnsorted
+                .Where(decider => decider.SampleValue != 0)
+                .Concat(rightDecidersUnsorted
+                    .Where(decider => decider.SampleValue == 0))
                 .ToList();
 
-            var intersectionDeciders = leftCurves
-                .Where(key => rightCurves.Contains(key))
-                .Select(key => new IntersectionDecider(key, IntersectionChoice.UseLeft))
+            var intersectionDecidersUnsorted = leftCurves
+                .Where(key => rightUniques.Contains(key.CurveKey))
+                .Select(key =>
+                {
+                    var leftValue = key.SampleValue;
+                    var rightValue = rightCurves.First(curveKey => curveKey.CurveKey == key.CurveKey).SampleValue;
+                    return new IntersectionDecider(
+                        key.CurveKey,
+                        leftValue,
+                        rightValue,
+                        leftValue >= rightValue ? IntersectionChoice.UseLeft : IntersectionChoice.UseRight);
+                })
+                .ToList();
+
+            var intersectionDeciders = intersectionDecidersUnsorted
+                .Where(decider => decider.SampleLeftValue != decider.SampleRightValue
+                    && decider.SampleLeftValue != 0 && decider.SampleRightValue != 0)
+                .Concat(intersectionDecidersUnsorted
+                    .Where(decider => decider.SampleLeftValue != decider.SampleRightValue
+                    && (decider.SampleLeftValue == 0 || decider.SampleRightValue == 0)))
+                .Concat(intersectionDecidersUnsorted
+                    .Where(decider => decider.SampleLeftValue == decider.SampleRightValue && decider.SampleLeftValue != 0))
+                .Concat(intersectionDecidersUnsorted
+                    .Where(decider => decider.SampleLeftValue == decider.SampleRightValue && decider.SampleLeftValue == 0))
                 .ToList();
 
             return new CgeDecider {left = leftDeciders, right = rightDeciders, intersection = intersectionDeciders};
@@ -157,19 +196,19 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             return _cgeDecider;
         }
 
-        public void UpdateSide(Side side, CurveKey keyToUpdate, bool newChoice)
+        public void UpdateSide(Side side, CurveKey keyToUpdate, float sampleValue, bool newChoice)
         {
             var sideDeciders = PickSide(side);
             var index = sideDeciders.FindIndex(decider => decider.Key == keyToUpdate);
-            sideDeciders[index] = new SideDecider(keyToUpdate, newChoice);
+            sideDeciders[index] = new SideDecider(keyToUpdate, sampleValue, newChoice);
 
             RegenerateCombinedPreview();
         }
 
-        public void UpdateIntersection(CurveKey keyToUpdate, IntersectionChoice newChoice)
+        public void UpdateIntersection(IntersectionDecider intersectionDecider, IntersectionChoice newChoice)
         {
-            var index = _cgeDecider.intersection.FindIndex(decider => decider.Key == keyToUpdate);
-            _cgeDecider.intersection[index] = new IntersectionDecider(keyToUpdate, newChoice);
+            var index = _cgeDecider.intersection.FindIndex(decider => decider.Key == intersectionDecider.Key);
+            _cgeDecider.intersection[index] = new IntersectionDecider(intersectionDecider.Key, intersectionDecider.SampleLeftValue, intersectionDecider.SampleRightValue, newChoice);
 
             RegenerateCombinedPreview();
         }
@@ -187,12 +226,12 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             }
         }
 
-        private HashSet<CurveKey> FilterAnimationClip(AnimationClip clip)
+        private HashSet<SampledCurveKey> FilterAnimationClip(AnimationClip clip)
         {
-            return new HashSet<CurveKey>(AnimationUtility.GetCurveBindings(clip)
-                .Select(CurveKey.FromBinding)
-                .Where(curveKey => !curveKey.IsMuscleCurve())
-                .Where(curveKey => curveKey.Path != "_ignored")
+            return new HashSet<SampledCurveKey>(AnimationUtility.GetCurveBindings(clip)
+                .Select(binding => new SampledCurveKey(CurveKey.FromBinding(binding), AnimationUtility.GetEditorCurve(clip, binding).keys[0].value))
+                .Where(sampledCurveKey => !sampledCurveKey.CurveKey.IsMuscleCurve())
+                .Where(sampledCurveKey => sampledCurveKey.CurveKey.Path != "_ignored")
                 .ToList());
         }
 

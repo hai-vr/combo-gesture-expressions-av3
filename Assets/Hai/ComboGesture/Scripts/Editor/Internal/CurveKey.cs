@@ -4,6 +4,46 @@ using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
+    public readonly struct SampledCurveKey
+    {
+        public CurveKey CurveKey { get; }
+        public float SampleValue { get; }
+
+        public SampledCurveKey(CurveKey curveKey, float sampleValue)
+        {
+            CurveKey = curveKey;
+            SampleValue = sampleValue;
+        }
+
+        public bool Equals(SampledCurveKey other)
+        {
+            return CurveKey.Equals(other.CurveKey) && SampleValue.Equals(other.SampleValue);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is SampledCurveKey other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return (CurveKey.GetHashCode() * 397) ^ SampleValue.GetHashCode();
+            }
+        }
+
+        public static bool operator ==(SampledCurveKey left, SampledCurveKey right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(SampledCurveKey left, SampledCurveKey right)
+        {
+            return !left.Equals(right);
+        }
+    }
+
     [Serializable]
     public readonly struct CurveKey
     {

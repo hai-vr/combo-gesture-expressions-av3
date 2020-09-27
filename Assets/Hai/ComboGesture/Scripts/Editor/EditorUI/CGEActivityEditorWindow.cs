@@ -683,9 +683,9 @@ At the time this version has been published, generating the layer will break you
                     EditorGUI.EndDisabledGroup();
                 }
 
-                if (GUILayout.Button("Use", GUILayout.Width(50)))
+                if (GUILayout.Button((value ? "" : "(") + sideDecider.SampleValue + (value ? "" : ")"), GUILayout.Width(50 - (sideDecider.SampleValue == 0 ? 20 : 0))))
                 {
-                    _combiner.UpdateSide(side, sideDecider.Key, !value);
+                    _combiner.UpdateSide(side, sideDecider.Key, sideDecider.SampleValue, !value);
                 }
 
                 if (side == Side.Right) {
@@ -719,7 +719,27 @@ At the time this version has been published, generating the layer will break you
                     GUILayout.Label(formattedName, _normalFont);
                     EditorGUI.EndDisabledGroup();
                 }
-                if (GUILayout.Button("Use", GUILayout.Width(80)))
+
+                bool useButton;
+                if (intersectionDecider.SampleLeftValue != intersectionDecider.SampleRightValue)
+                {
+                    var sampleValue = side == Side.Left ? intersectionDecider.SampleLeftValue : intersectionDecider.SampleRightValue;
+                    string message;
+                    if (intersectionDecider.Choice != IntersectionChoice.UseNone)
+                    {
+                        message = (side == Side.Left && valueAsBool ? "← " : "") + sampleValue + (side == Side.Right && valueAsBool ? " →" : "");
+                    }
+                    else
+                    {
+                        message = "(" + sampleValue + ")";
+                    }
+                    useButton = GUILayout.Button(message, GUILayout.Width(80 - (sampleValue == 0 ? 50 : 0)));
+                }
+                else
+                {
+                    useButton = GUILayout.Button("" + (side == Side.Left ? intersectionDecider.SampleLeftValue : intersectionDecider.SampleRightValue), GUILayout.Width(50 - (intersectionDecider.SampleLeftValue == 0 ? 20 : 0)));
+                }
+                if (useButton)
                 {
                     IntersectionChoice newChoice;
                     if (side == Side.Left)
@@ -730,7 +750,7 @@ At the time this version has been published, generating the layer will break you
                     {
                         newChoice = currentChoice != IntersectionChoice.UseRight ? IntersectionChoice.UseRight : IntersectionChoice.UseNone;
                     }
-                    _combiner.UpdateIntersection(intersectionDecider.Key, newChoice);
+                    _combiner.UpdateIntersection(intersectionDecider, newChoice);
                 }
                 if (side == Side.Right) {
                     EditorGUI.BeginDisabledGroup(!valueAsBool);
