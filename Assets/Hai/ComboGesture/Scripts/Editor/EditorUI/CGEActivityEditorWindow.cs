@@ -45,6 +45,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         private CgeActivityEditorDriver _driver;
         private CgeActivityEditorCombiner _combiner;
+        private bool _complexCombiner;
         private CgeActivityEditorLipsync _lipsync;
         private string _combinerTarget;
         private string _combinerCandidateFileName;
@@ -657,6 +658,8 @@ At the time this version has been published, generating the layer will break you
                 _editorMode = EditorMode.SetFaceExpressions;
             }
             GUILayout.Space(singleLineHeight * 2);
+            _complexCombiner = EditorGUILayout.Toggle("Show hidden", _complexCombiner);
+            GUILayout.Space(singleLineHeight * 2);
             GUILayout.EndVertical();
 
             GUILayout.BeginVertical(GUILayout.MaxWidth(CombinerPreviewWidth));
@@ -703,8 +706,6 @@ At the time this version has been published, generating the layer will break you
             var duplicate = intersectionDeciders.ToList(); // collection is being modified while iterating and I don't have time to fix this
             foreach (var intersectionDecider in duplicate)
             {
-                GUILayout.BeginHorizontal();
-
                 var currentChoice = intersectionDecider.Choice;
                 var valueAsBool = side == Side.Left && currentChoice == IntersectionChoice.UseLeft ||
                         side == Side.Right && currentChoice == IntersectionChoice.UseRight;
@@ -713,51 +714,78 @@ At the time this version has been published, generating the layer will break you
                     intersectionDecider.Key,
                     valueAsBool
                 );
-                if (side == Side.Left)
-                {
-                    EditorGUI.BeginDisabledGroup(!valueAsBool);
-                    GUILayout.Label(formattedName, _normalFont);
-                    EditorGUI.EndDisabledGroup();
-                }
 
-                bool useButton;
-                if (intersectionDecider.SampleLeftValue != intersectionDecider.SampleRightValue)
+                if (_complexCombiner || (side == Side.Left && intersectionDecider.SampleLeftValue != 0 || side == Side.Right && intersectionDecider.SampleRightValue != 0))
                 {
-                    var sampleValue = side == Side.Left ? intersectionDecider.SampleLeftValue : intersectionDecider.SampleRightValue;
-                    string message;
-                    if (intersectionDecider.Choice != IntersectionChoice.UseNone)
-                    {
-                        message = (side == Side.Left && valueAsBool ? "← " : "") + sampleValue + (side == Side.Right && valueAsBool ? " →" : "");
-                    }
-                    else
-                    {
-                        message = "(" + sampleValue + ")";
-                    }
-                    useButton = GUILayout.Button(message, GUILayout.Width(80 - (sampleValue == 0 ? 50 : 0)));
-                }
-                else
-                {
-                    useButton = GUILayout.Button("" + (side == Side.Left ? intersectionDecider.SampleLeftValue : intersectionDecider.SampleRightValue), GUILayout.Width(50 - (intersectionDecider.SampleLeftValue == 0 ? 20 : 0)));
-                }
-                if (useButton)
-                {
-                    IntersectionChoice newChoice;
+                    GUILayout.BeginHorizontal();
                     if (side == Side.Left)
                     {
-                        newChoice = currentChoice != IntersectionChoice.UseLeft ? IntersectionChoice.UseLeft : IntersectionChoice.UseNone;
+                        EditorGUI.BeginDisabledGroup(!valueAsBool);
+                        GUILayout.Label(formattedName, _normalFont);
+                        EditorGUI.EndDisabledGroup();
+                    }
+                    var sampleValue = side == Side.Left ? intersectionDecider.SampleLeftValue : intersectionDecider.SampleRightValue;
+                    bool useButton;
+                    if (intersectionDecider.SampleLeftValue != intersectionDecider.SampleRightValue)
+                    {
+                        string message;
+                        if (intersectionDecider.Choice != IntersectionChoice.UseNone)
+                        {
+                            message = (side == Side.Left && valueAsBool ? "← " : "") + sampleValue + (side == Side.Right && valueAsBool ? " →" : "");
+                        }
+                        else
+                        {
+                            message = "(" + sampleValue + ")";
+                        }
+                        useButton = GUILayout.Button(message, GUILayout.Width(80 - (sampleValue == 0 ? 50 : 0)));
                     }
                     else
                     {
-                        newChoice = currentChoice != IntersectionChoice.UseRight ? IntersectionChoice.UseRight : IntersectionChoice.UseNone;
+                        string message;
+                        if (intersectionDecider.Choice != IntersectionChoice.UseNone)
+                        {
+                            message = "" + sampleValue;
+                        }
+                        else
+                        {
+                            message = "(" + sampleValue + ")";
+                        }
+                        useButton = GUILayout.Button(message, GUILayout.Width(50 - (intersectionDecider.SampleLeftValue == 0 ? 20 : 0)));
                     }
-                    _combiner.UpdateIntersection(intersectionDecider, newChoice);
+                    if (useButton)
+                    {
+                        IntersectionChoice newChoice;
+                        if (_complexCombiner || intersectionDecider.SampleLeftValue != 0 && intersectionDecider.SampleRightValue != 0)
+                        {
+                            if (side == Side.Left)
+                            {
+                                newChoice = currentChoice != IntersectionChoice.UseLeft ? IntersectionChoice.UseLeft : IntersectionChoice.UseNone;
+                            }
+                            else
+                            {
+                                newChoice = currentChoice != IntersectionChoice.UseRight ? IntersectionChoice.UseRight : IntersectionChoice.UseNone;
+                            }
+                        }
+                        else
+                        {
+                            if (side == Side.Left)
+                            {
+                                newChoice = currentChoice != IntersectionChoice.UseLeft ? IntersectionChoice.UseLeft : IntersectionChoice.UseRight;
+                            }
+                            else
+                            {
+                                newChoice = currentChoice != IntersectionChoice.UseRight ? IntersectionChoice.UseRight : IntersectionChoice.UseLeft;
+                            }
+                        }
+                        _combiner.UpdateIntersection(intersectionDecider, newChoice);
+                    }
+                    if (side == Side.Right) {
+                        EditorGUI.BeginDisabledGroup(!valueAsBool);
+                        GUILayout.Label(formattedName, _normalFont);
+                        EditorGUI.EndDisabledGroup();
+                    }
+                    GUILayout.EndHorizontal();
                 }
-                if (side == Side.Right) {
-                    EditorGUI.BeginDisabledGroup(!valueAsBool);
-                    GUILayout.Label(formattedName, _normalFont);
-                    EditorGUI.EndDisabledGroup();
-                }
-                GUILayout.EndHorizontal();
             }
         }
 
