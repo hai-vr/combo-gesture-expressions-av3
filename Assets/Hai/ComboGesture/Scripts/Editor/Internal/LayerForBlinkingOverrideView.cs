@@ -21,8 +21,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly AvatarMask _logicalAvatarMask;
         private readonly AnimatorGenerator _animatorGenerator;
         private readonly AnimationClip _emptyClip;
+        private readonly bool _useGestureWeightCorrection;
 
-        public LayerForBlinkingOverrideView(string activityStageName, List<GestureComboStageMapper> comboLayers, float analogBlinkingUpperThreshold, FeatureToggles featuresToggles, AvatarMask logicalAvatarMask, AnimatorGenerator animatorGenerator, AnimationClip emptyClip)
+        public LayerForBlinkingOverrideView(string activityStageName, List<GestureComboStageMapper> comboLayers, float analogBlinkingUpperThreshold, FeatureToggles featuresToggles, AvatarMask logicalAvatarMask, AnimatorGenerator animatorGenerator, AnimationClip emptyClip, bool useGestureWeightCorrection)
         {
             _activityStageName = activityStageName;
             _comboLayers = comboLayers;
@@ -31,6 +32,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _logicalAvatarMask = logicalAvatarMask;
             _animatorGenerator = animatorGenerator;
             _emptyClip = emptyClip;
+            _useGestureWeightCorrection = useGestureWeightCorrection;
         }
 
         public void Create()
@@ -89,7 +91,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 }
             }
 
-            new GestureCBlinkingCombiner(combinator.IntermediateToBlinking, _activityStageName, _analogBlinkingUpperThreshold)
+            new GestureCBlinkingCombiner(combinator.IntermediateToBlinking, _activityStageName, _analogBlinkingUpperThreshold, _useGestureWeightCorrection)
                 .Populate(enableBlinking, disableBlinking);
         }
 

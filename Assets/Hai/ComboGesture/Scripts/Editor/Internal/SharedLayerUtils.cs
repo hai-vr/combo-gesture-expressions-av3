@@ -54,6 +54,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         internal const string HaiGestureComboDisableBlinkingOverrideParamName = "_Hai_GestureComboDisableBlinkingOverride";
         internal const string HaiGestureComboIsLipsyncLimitedParamName = "_Hai_GestureComboIsLipsyncLimited";
         internal const string HaiGestureComboDisableLipsyncOverrideParamName = "_Hai_GestureComboDisableLipsyncOverride";
+        internal const string HaiGestureComboLeftWeightProxy = "_Hai_GestureLWProxy";
+        internal const string HaiGestureComboRightWeightProxy = "_Hai_GestureRWProxy";
 
         public static RawGestureManifest FromManifest(ComboGestureActivity activity, AnimationClip fallbackWhen00ClipIsNull)
         {

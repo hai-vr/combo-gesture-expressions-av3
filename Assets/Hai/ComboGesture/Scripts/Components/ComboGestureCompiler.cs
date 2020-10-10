@@ -26,23 +26,34 @@ namespace Hai.ComboGesture.Scripts.Components
         public bool doNotGenerateControllerLayer;
         public bool doNotGenerateBlinkingOverrideLayer;
         public bool doNotGenerateLipsyncOverrideLayer;
+        public bool doNotGenerateWeightCorrectionLayer;
 
         public AvatarMask expressionsAvatarMask;
         public AvatarMask logicalAvatarMask;
+        public AvatarMask weightCorrectionAvatarMask;
 
         public ConflictPreventionMode conflictPreventionMode = ConflictPreventionMode.GenerateAnimationsWithWriteDefaults;
         public ConflictFxLayerMode conflictFxLayerMode = ConflictFxLayerMode.RemoveTransformsAndMuscles;
+        public WeightCorrectionMode weightCorrectionMode = WeightCorrectionMode.UseRecommendedConfiguration;
+        public BlinkCorrectionMode blinkCorrectionMode = BlinkCorrectionMode.UseRecommendedConfiguration;
 
         public bool editorAdvancedFoldout;
 
         public AnimationClip ignoreParamList;
         public AnimationClip fallbackParamList;
-        public bool doNotIncludeBlinkBlendshapes;
 
         public VRCAvatarDescriptor avatarDescriptor;
         public bool bypassMandatoryAvatarDescriptor;
 
+        public bool WillUseBlinkBlendshapeCorrection()
+        {
+            return blinkCorrectionMode == BlinkCorrectionMode.UseBlinkCorrection;
+        }
 
+        public bool WillUseGestureWeightCorrection()
+        {
+            return weightCorrectionMode != WeightCorrectionMode.UseNativeWeight;
+        }
     }
 
     [System.Serializable]
@@ -62,5 +73,17 @@ namespace Hai.ComboGesture.Scripts.Components
     public enum ConflictFxLayerMode
     {
         RemoveTransformsAndMuscles, KeepBoth, KeepOnlyTransformsAndMuscles
+    }
+
+    [System.Serializable]
+    public enum WeightCorrectionMode
+    {
+        UseRecommendedConfiguration, UseWeightCorrection, UseNativeWeight
+    }
+
+    [System.Serializable]
+    public enum BlinkCorrectionMode
+    {
+        UseRecommendedConfiguration, UseBlinkCorrection, DoNotUseBlinkCorrection
     }
 }

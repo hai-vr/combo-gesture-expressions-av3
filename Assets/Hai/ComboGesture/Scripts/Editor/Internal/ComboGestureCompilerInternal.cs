@@ -15,8 +15,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
     {
         private const string EmptyClipPath = "Assets/Hai/ComboGesture/Hai_ComboGesture_EmptyClip.anim";
 
-        public const string GestureLeftWeight = "GestureLeftWeight";
-        public const string GestureRightWeight = "GestureRightWeight";
         public const string GestureLeft = "GestureLeft";
         public const string GestureRight = "GestureRight";
 
@@ -33,11 +31,13 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly VRCAvatarDescriptor _avatarDescriptor;
         private readonly AvatarMask _expressionsAvatarMask;
         private readonly AvatarMask _logicalAvatarMask;
+        private readonly AvatarMask _weightCorrectionAvatarMask;
         private readonly bool _integrateLimitedLipsync;
         private readonly ComboGestureLimitedLipsync _limitedLipsync;
         private readonly bool _doNotIncludeBlinkBlendshapes;
         private readonly AnimatorGenerator _animatorGenerator;
         private readonly AssetContainer _assetContainer;
+        private readonly bool _useGestureWeightCorrection;
 
         public ComboGestureCompilerInternal(
             ComboGestureCompiler compiler,
@@ -53,7 +53,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                                | (compiler.exposeAreEyesClosed ? FeatureToggles.ExposeAreEyesClosed : 0)
                                | (compiler.doNotGenerateControllerLayer ? FeatureToggles.DoNotGenerateControllerLayer : 0)
                                | (compiler.doNotGenerateBlinkingOverrideLayer ? FeatureToggles.DoNotGenerateBlinkingOverrideLayer : 0)
-                               | (compiler.doNotGenerateLipsyncOverrideLayer ? FeatureToggles.DoNotGenerateLipsyncOverrideLayer : 0);
+                               | (compiler.doNotGenerateLipsyncOverrideLayer ? FeatureToggles.DoNotGenerateLipsyncOverrideLayer : 0)
+                               | (compiler.doNotGenerateWeightCorrectionLayer ? FeatureToggles.DoNotGenerateWeightCorrectionLayer : 0);
             _conflictPrevention = ConflictPrevention.Of(compiler.conflictPreventionMode);
             _compilerConflictFxLayerMode = compiler.conflictFxLayerMode;
             _compilerIgnoreParamList = compiler.ignoreParamList;
@@ -61,11 +62,13 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _avatarDescriptor = compiler.avatarDescriptor;
             _expressionsAvatarMask = compiler.expressionsAvatarMask;
             _logicalAvatarMask = compiler.logicalAvatarMask;
+            _weightCorrectionAvatarMask = compiler.weightCorrectionAvatarMask;
             _integrateLimitedLipsync = compiler.integrateLimitedLipsync;
             _limitedLipsync = compiler.lipsyncForWideOpenMouth;
-            _doNotIncludeBlinkBlendshapes = compiler.doNotIncludeBlinkBlendshapes;
+            _doNotIncludeBlinkBlendshapes = !compiler.WillUseBlinkBlendshapeCorrection();
             _animatorGenerator = new AnimatorGenerator(_animatorController, new StatefulEmptyClipProvider(new ClipGenerator(_customEmptyClip, EmptyClipPath, "ComboGesture")));
             _assetContainer = assetContainer;
+            _useGestureWeightCorrection = compiler.WillUseGestureWeightCorrection();
         }
 
         public void DoOverwriteAnimatorFxLayer()
@@ -80,6 +83,18 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             if (!Feature(FeatureToggles.DoNotGenerateControllerLayer))
             {
                 CreateOrReplaceController(emptyClip);
+            }
+
+            if (!Feature(FeatureToggles.DoNotGenerateWeightCorrectionLayer))
+            {
+                if (_useGestureWeightCorrection)
+                {
+                    CreateOrReplaceWeightCorrection(emptyClip);
+                }
+                else
+                {
+                    DeleteWeightCorrection();
+                }
             }
 
             CreateOrReplaceExpressionsView(emptyClip);
@@ -188,6 +203,17 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             new LayerForController(_animatorGenerator, _logicalAvatarMask, emptyClip).Create();
         }
 
+        private void CreateOrReplaceWeightCorrection(AnimationClip emptyClip)
+        {
+            SharedLayerUtils.CreateParamIfNotExists(_animatorController, "GestureLeft", AnimatorControllerParameterType.Int);
+            SharedLayerUtils.CreateParamIfNotExists(_animatorController, "GestureRight", AnimatorControllerParameterType.Int);
+            SharedLayerUtils.CreateParamIfNotExists(_animatorController, "GestureLeftWeight", AnimatorControllerParameterType.Float);
+            SharedLayerUtils.CreateParamIfNotExists(_animatorController, "GestureRightWeight", AnimatorControllerParameterType.Float);
+            SharedLayerUtils.CreateParamIfNotExists(_animatorController, SharedLayerUtils.HaiGestureComboLeftWeightProxy, AnimatorControllerParameterType.Float);
+            SharedLayerUtils.CreateParamIfNotExists(_animatorController, SharedLayerUtils.HaiGestureComboRightWeightProxy, AnimatorControllerParameterType.Float);
+            new LayerForWeightCorrection(_animatorGenerator, _weightCorrectionAvatarMask, emptyClip).Create();
+        }
+
         private void CreateOrReplaceExpressionsView(AnimationClip emptyClip)
         {
             if (_activityStageName != null)
@@ -218,7 +244,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                     ? new List<CurveKey>()
                     : new BlendshapesFinder(_avatarDescriptor).FindBlink().Select(key => key.AsCurveKey()).ToList(),
                 _animatorController,
-                _comboLayers
+                _comboLayers,
+                _useGestureWeightCorrection
             ).Create();
         }
 
@@ -243,7 +270,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 _featuresToggles,
                 _logicalAvatarMask,
                 _animatorGenerator,
-                emptyClip
+                emptyClip,
+                _useGestureWeightCorrection
             ).Create();
         }
 
@@ -272,13 +300,19 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 _avatarDescriptor,
                 _limitedLipsync,
                 _assetContainer,
-                emptyClip
+                emptyClip,
+                _useGestureWeightCorrection
             ).Create();
         }
 
         private void DeleteLipsyncOverrideView()
         {
             LayerForLipsyncOverrideView.Delete(_animatorGenerator);
+        }
+
+        private void DeleteWeightCorrection()
+        {
+            LayerForWeightCorrection.Delete(_animatorGenerator);
         }
 
         private bool Feature(FeatureToggles feature)

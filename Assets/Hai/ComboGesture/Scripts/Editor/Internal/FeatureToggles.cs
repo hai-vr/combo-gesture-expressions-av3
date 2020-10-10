@@ -14,5 +14,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         DoNotGenerateLipsyncOverrideLayer = 32,
         ExposeDisableLipsyncOverride = 64,
         ExposeIsLipsyncLimited = 128,
+        DoNotGenerateWeightCorrectionLayer = 256,
     }
 }

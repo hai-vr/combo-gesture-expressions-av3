@@ -28,15 +28,18 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         public SerializedProperty expressionsAvatarMask;
         public SerializedProperty logicalAvatarMask;
+        public SerializedProperty weightCorrectionAvatarMask;
         public SerializedProperty doNotGenerateControllerLayer;
         public SerializedProperty doNotGenerateBlinkingOverrideLayer;
         public SerializedProperty doNotGenerateLipsyncOverrideLayer;
+        public SerializedProperty doNotGenerateWeightCorrectionLayer;
 
         public SerializedProperty conflictPreventionMode;
         public SerializedProperty conflictFxLayerMode;
+        public SerializedProperty weightCorrectionMode;
+        public SerializedProperty blinkCorrectionMode;
         public SerializedProperty ignoreParamList;
         public SerializedProperty fallbackParamList;
-        public SerializedProperty doNotIncludeBlinkBlendshapes;
         public SerializedProperty folderToGenerateNeutralizedAssetsIn;
 
         public SerializedProperty avatarDescriptor;
@@ -63,15 +66,18 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             expressionsAvatarMask = serializedObject.FindProperty("expressionsAvatarMask");
             logicalAvatarMask = serializedObject.FindProperty("logicalAvatarMask");
+            weightCorrectionAvatarMask = serializedObject.FindProperty("weightCorrectionAvatarMask");
             doNotGenerateControllerLayer = serializedObject.FindProperty("doNotGenerateControllerLayer");
             doNotGenerateBlinkingOverrideLayer = serializedObject.FindProperty("doNotGenerateBlinkingOverrideLayer");
             doNotGenerateLipsyncOverrideLayer = serializedObject.FindProperty("doNotGenerateLipsyncOverrideLayer");
+            doNotGenerateWeightCorrectionLayer = serializedObject.FindProperty("doNotGenerateWeightCorrectionLayer");
 
             conflictPreventionMode = serializedObject.FindProperty("conflictPreventionMode");
             conflictFxLayerMode = serializedObject.FindProperty("conflictFxLayerMode");
+            weightCorrectionMode = serializedObject.FindProperty("weightCorrectionMode");
+            blinkCorrectionMode = serializedObject.FindProperty("blinkCorrectionMode");
             ignoreParamList = serializedObject.FindProperty("ignoreParamList");
             fallbackParamList = serializedObject.FindProperty("fallbackParamList");
-            doNotIncludeBlinkBlendshapes = serializedObject.FindProperty("doNotIncludeBlinkBlendshapes");
             folderToGenerateNeutralizedAssetsIn = serializedObject.FindProperty("folderToGenerateNeutralizedAssetsIn");
 
             comboLayers = serializedObject.FindProperty("comboLayers");
@@ -126,11 +132,12 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             var compiler = AsCompiler();
 
             EditorGUI.BeginDisabledGroup(!conflictPrevention.ShouldGenerateAnimations);
-            EditorGUILayout.LabelField("Avatar blendshapes correction", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Corrections", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(avatarDescriptor, new GUIContent("Avatar descriptor"));
             if (compiler.avatarDescriptor != null) {
-                EditorGUILayout.LabelField("Blink correction", EditorStyles.boldLabel);
-                if (!compiler.doNotIncludeBlinkBlendshapes)
+                EditorGUILayout.PropertyField(weightCorrectionMode, new GUIContent(FakeBooleanIcon(compiler.WillUseGestureWeightCorrection()) + "GestureWeight correction"));
+                EditorGUILayout.PropertyField(blinkCorrectionMode, new GUIContent(FakeBooleanIcon(compiler.WillUseBlinkBlendshapeCorrection()) + "Blink blendshapes correction"));
+                if (compiler.WillUseBlinkBlendshapeCorrection())
                 {
                     var blinkBlendshapes = new BlendshapesFinder(compiler.avatarDescriptor).FindBlink();
                     if (blinkBlendshapes.Any())
@@ -146,14 +153,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                         EditorGUILayout.LabelField("No blink blendshapes found");
                     }
                 }
-                else
-                {
-                    EditorGUILayout.PropertyField(doNotIncludeBlinkBlendshapes, new GUIContent("Do not include blink blendshapes"));
-                    EditorGUILayout.HelpBox("Blink blendshapes will not be corrected. This may result in residual eyelids blendshapes remaining active if the avatar was in the middle of blinking when the face expression had just changed to an expression with closed eyes.", MessageType.Warning);
-                }
 
                 EditorGUI.BeginDisabledGroup(compiler.doNotGenerateLipsyncOverrideLayer);
-                EditorGUILayout.LabelField("Limited Lipsync", EditorStyles.boldLabel);
                 EditorGUILayout.PropertyField(integrateLimitedLipsync, new GUIContent("Integrate limited lipsync"));
                 if (compiler.integrateLimitedLipsync)
                 {
@@ -182,6 +183,22 @@ At the time this version has been published, generating the layer will break you
                 EditorGUI.EndDisabledGroup();
             }
             EditorGUI.EndDisabledGroup();
+
+            EditorGUILayout.Space();
+
+            EditorGUILayout.LabelField("Synchronization", EditorStyles.boldLabel);
+            EditorGUILayout.HelpBox(
+                @"Synchronization will regenerate CGE's animator layers and generate animations.
+- Only layers starting with 'Hai_Gesture' will be affected.
+- The avatar descriptor will not be modified.
+
+You should press synchronize when any of the following happens:
+- the order of layers in the animator controller changes,
+- an animation is modified,
+- a ComboGestureActivity is modified,
+- a ComboGestureLimitedLipsync is modified,
+- the avatar descriptor Eyelids or Lipsync is modified,
+- this Compiler is modified.", MessageType.Info);
 
             EditorGUI.BeginDisabledGroup(
                 ThereIsNoAnimatorController() ||
@@ -227,21 +244,6 @@ At the time this version has been published, generating the layer will break you
                     && compiler.lipsyncForWideOpenMouth == null;
             }
 
-            EditorGUILayout.Space();
-
-            EditorGUILayout.LabelField("Synchronization", EditorStyles.boldLabel);
-            EditorGUILayout.HelpBox(
-@"Synchronization will regenerate CGE's animator layers and generate animations.
-- Only layers starting with 'Hai_Gesture' will be affected.
-- The avatar descriptor will not be modified.
-
-You should press synchronize when any of the following happens:
-- the order of layers in the animator controller changes,
-- an animation is modified,
-- a ComboGestureActivity is modified,
-- a ComboGestureLimitedLipsync is modified,
-- the avatar descriptor Eyelids or Lipsync is modified,
-- this Compiler is modified.", MessageType.Info);
             if (GUILayout.Button("Synchronize Animator FX GestureCombo layers"))
             {
                 DoGenerate();
@@ -278,11 +280,14 @@ You should press synchronize when any of the following happens:
                 EditorGUILayout.LabelField("Layer generation", EditorStyles.boldLabel);
                 EditorGUILayout.PropertyField(expressionsAvatarMask, new GUIContent("Add Avatar Mask to Expressions layer"));
                 EditorGUILayout.PropertyField(logicalAvatarMask, new GUIContent("Add Avatar Mask to Controller&Blinking layers"));
+                EditorGUILayout.PropertyField(weightCorrectionAvatarMask, new GUIContent("Add Avatar Mask to Weight Correction layer"));
                 EditorGUILayout.PropertyField(doNotGenerateControllerLayer, new GUIContent("Don't generate Controller layer"));
                 GenControllerWarning(true);
                 EditorGUILayout.PropertyField(doNotGenerateBlinkingOverrideLayer, new GUIContent("Don't generate Blinking layer"));
                 GenBlinkingWarning(true);
                 EditorGUILayout.PropertyField(doNotGenerateLipsyncOverrideLayer, new GUIContent("Don't generate Lipsync layer"));
+                EditorGUILayout.PropertyField(doNotGenerateWeightCorrectionLayer, new GUIContent("Don't generate Weight Correction layer"));
+                GenWeightCorrection(true);
 
                 EditorGUILayout.LabelField("Animation Conflict Prevention", EditorStyles.boldLabel);
                 EditorGUILayout.PropertyField(conflictPreventionMode, new GUIContent("Mode"));
@@ -309,14 +314,12 @@ You should press synchronize when any of the following happens:
                 EditorGUI.EndDisabledGroup();
 
                 CpmRemovalWarning(true);
-
                 EditorGUILayout.Separator();
 
                 EditorGUI.BeginDisabledGroup(!conflictPrevention.ShouldGenerateAnimations);
                 EditorGUILayout.LabelField("Fallback generation", EditorStyles.boldLabel);
                 EditorGUILayout.PropertyField(ignoreParamList, new GUIContent("Ignored properties"));
                 EditorGUILayout.PropertyField(fallbackParamList, new GUIContent("Fallback values"));
-                EditorGUILayout.PropertyField(doNotIncludeBlinkBlendshapes, new GUIContent("Do not include blink blendshapes"));
                 EditorGUILayout.PropertyField(bypassMandatoryAvatarDescriptor, new GUIContent("Bypass mandatory avatar descriptor"));
                 EditorGUI.EndDisabledGroup();
             }
@@ -324,11 +327,17 @@ You should press synchronize when any of the following happens:
             {
                 GenControllerWarning(false);
                 GenBlinkingWarning(false);
+                GenWeightCorrection(false);
                 CpmValueWarning(false);
                 CpmRemovalWarning(false);
             }
 
             serializedObject.ApplyModifiedProperties();
+        }
+
+        private static string FakeBooleanIcon(bool value)
+        {
+            return value ? "✓" : "×";
         }
 
         private void GenControllerWarning(bool advancedFoldoutIsOpen)
@@ -346,6 +355,16 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
             if (doNotGenerateBlinkingOverrideLayer.boolValue)
             {
                 EditorGUILayout.HelpBox(@"Blinking Override layer should usually be generated as it depends on all the activities of the compiler.
+
+This is not a normal usage of ComboGestureExpressions, and should not be used except in special cases." + (!advancedFoldoutIsOpen ? "\n\n(Advanced settings)" : ""), MessageType.Error);
+            }
+        }
+
+        private void GenWeightCorrection(bool advancedFoldoutIsOpen)
+        {
+            if (doNotGenerateWeightCorrectionLayer.boolValue)
+            {
+                EditorGUILayout.HelpBox(@"Weight correction layer should usually be generated, otherwise it may not be updated correctly on future updates of ComboGestureExpressions.
 
 This is not a normal usage of ComboGestureExpressions, and should not be used except in special cases." + (!advancedFoldoutIsOpen ? "\n\n(Advanced settings)" : ""), MessageType.Error);
             }

@@ -11,6 +11,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly RawGestureManifest _rgm;
         private readonly float _weightUpperThreshold;
         private readonly float _weightLowerThreshold;
+        private readonly string _gestureLeftWeight;
+        private readonly string _gestureRightWeight;
 
         private static readonly Dictionary<ValidQuadrant, TripleBlendCondition> QuadrantToTripleBlendMap = new Dictionary<ValidQuadrant, TripleBlendCondition>
         {
@@ -30,12 +32,14 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         private const AnimatorConditionMode IsEqualTo = AnimatorConditionMode.Equals;
 
-        public GestureCBlinkingCombiner(Dictionary<IntermediateBlinkingGroup, List<BlinkingCondition>> combinatorIntermediateToBlinking, string activityStageName, float analogBlinkingUpperThreshold)
+        public GestureCBlinkingCombiner(Dictionary<IntermediateBlinkingGroup, List<BlinkingCondition>> combinatorIntermediateToBlinking, string activityStageName, float analogBlinkingUpperThreshold, bool useGestureWeightCorrection)
         {
             _combinatorIntermediateToBlinking = combinatorIntermediateToBlinking;
             _activityStageName = activityStageName;
             _weightUpperThreshold = analogBlinkingUpperThreshold;
             _weightLowerThreshold = 1f - _weightUpperThreshold;
+            _gestureLeftWeight = useGestureWeightCorrection ? SharedLayerUtils.HaiGestureComboLeftWeightProxy : "GestureLeftWeight";
+            _gestureRightWeight = useGestureWeightCorrection ? SharedLayerUtils.HaiGestureComboRightWeightProxy : "GestureRightWeight";
         }
 
         public void Populate(AnimatorState enableBlinking, AnimatorState disableBlinking)
@@ -72,28 +76,28 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                                 ShareBlinkingCondition(transition, blinkingCondition, nullableStageValue);
                                 transition.AddCondition(AnimatorConditionMode.Equals, 1, ComboGestureCompilerInternal.GestureLeft);
                                 transition.AddCondition(AnimatorConditionMode.NotEqual, 1, ComboGestureCompilerInternal.GestureRight);
-                                transition.AddCondition(toPosing, threshold, ComboGestureCompilerInternal.GestureLeftWeight);
+                                transition.AddCondition(toPosing, threshold, _gestureLeftWeight);
                             }
                             {
                                 var transition = posingState.AddTransition(restingState);
                                 ShareBlinkingCondition(transition, blinkingCondition, nullableStageValue);
                                 transition.AddCondition(AnimatorConditionMode.Equals, 1, ComboGestureCompilerInternal.GestureLeft);
                                 transition.AddCondition(AnimatorConditionMode.NotEqual, 1, ComboGestureCompilerInternal.GestureRight);
-                                transition.AddCondition(toResting, threshold, ComboGestureCompilerInternal.GestureLeftWeight);
+                                transition.AddCondition(toResting, threshold, _gestureLeftWeight);
                             }
                             {
                                 var transition = restingState.AddTransition(posingState);
                                 ShareBlinkingCondition(transition, blinkingCondition, nullableStageValue);
                                 transition.AddCondition(AnimatorConditionMode.Equals, 1, ComboGestureCompilerInternal.GestureRight);
                                 transition.AddCondition(AnimatorConditionMode.NotEqual, 1, ComboGestureCompilerInternal.GestureLeft);
-                                transition.AddCondition(toPosing, threshold, ComboGestureCompilerInternal.GestureRightWeight);
+                                transition.AddCondition(toPosing, threshold, _gestureRightWeight);
                             }
                             {
                                 var transition = posingState.AddTransition(restingState);
                                 ShareBlinkingCondition(transition, blinkingCondition, nullableStageValue);
                                 transition.AddCondition(AnimatorConditionMode.Equals, 1, ComboGestureCompilerInternal.GestureRight);
                                 transition.AddCondition(AnimatorConditionMode.NotEqual, 1, ComboGestureCompilerInternal.GestureLeft);
-                                transition.AddCondition(toResting, threshold, ComboGestureCompilerInternal.GestureRightWeight);
+                                transition.AddCondition(toResting, threshold, _gestureRightWeight);
                             }
                         }
 
@@ -147,26 +151,26 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             {
                 if (tripleBlendCondition.Left == Affinity.Positive)
                 {
-                    toPosing.AddCondition(AnimatorConditionMode.Greater, _weightUpperThreshold, ComboGestureCompilerInternal.GestureLeftWeight);
-                    toResting.AddCondition(AnimatorConditionMode.Less, _weightUpperThreshold, ComboGestureCompilerInternal.GestureLeftWeight);
+                    toPosing.AddCondition(AnimatorConditionMode.Greater, _weightUpperThreshold, _gestureLeftWeight);
+                    toResting.AddCondition(AnimatorConditionMode.Less, _weightUpperThreshold, _gestureLeftWeight);
                 }
                 else
                 {
-                    toPosing.AddCondition(AnimatorConditionMode.Less, _weightLowerThreshold, ComboGestureCompilerInternal.GestureLeftWeight);
-                    toResting.AddCondition(AnimatorConditionMode.Greater, _weightLowerThreshold, ComboGestureCompilerInternal.GestureLeftWeight);
+                    toPosing.AddCondition(AnimatorConditionMode.Less, _weightLowerThreshold, _gestureLeftWeight);
+                    toResting.AddCondition(AnimatorConditionMode.Greater, _weightLowerThreshold, _gestureLeftWeight);
                 }
             }
             else
             {
                 if (tripleBlendCondition.Right == Affinity.Positive)
                 {
-                    toPosing.AddCondition(AnimatorConditionMode.Greater, _weightUpperThreshold, ComboGestureCompilerInternal.GestureRightWeight);
-                    toResting.AddCondition(AnimatorConditionMode.Less, _weightUpperThreshold, ComboGestureCompilerInternal.GestureRightWeight);
+                    toPosing.AddCondition(AnimatorConditionMode.Greater, _weightUpperThreshold, _gestureRightWeight);
+                    toResting.AddCondition(AnimatorConditionMode.Less, _weightUpperThreshold, _gestureRightWeight);
                 }
                 else
                 {
-                    toPosing.AddCondition(AnimatorConditionMode.Less, _weightLowerThreshold, ComboGestureCompilerInternal.GestureRightWeight);
-                    toResting.AddCondition(AnimatorConditionMode.Greater, _weightLowerThreshold, ComboGestureCompilerInternal.GestureRightWeight);
+                    toPosing.AddCondition(AnimatorConditionMode.Less, _weightLowerThreshold, _gestureRightWeight);
+                    toResting.AddCondition(AnimatorConditionMode.Greater, _weightLowerThreshold, _gestureRightWeight);
                 }
             }
         }
@@ -179,12 +183,12 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 toPosing.AddCondition(
                     tripleBlendCondition.Left == Affinity.Positive ? AnimatorConditionMode.Greater : AnimatorConditionMode.Less,
                     tripleBlendCondition.Left == Affinity.Positive ? _weightUpperThreshold : _weightLowerThreshold,
-                    ComboGestureCompilerInternal.GestureLeftWeight
+                    _gestureLeftWeight
                 );
                 toPosing.AddCondition(
                     tripleBlendCondition.Right == Affinity.Positive ? AnimatorConditionMode.Greater : AnimatorConditionMode.Less,
                     tripleBlendCondition.Right == Affinity.Positive ? _weightUpperThreshold : _weightLowerThreshold,
-                    ComboGestureCompilerInternal.GestureRightWeight
+                    _gestureRightWeight
                 );
             }
             {
@@ -193,7 +197,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 toResting.AddCondition(
                     tripleBlendCondition.Left == Affinity.Positive ? AnimatorConditionMode.Less : AnimatorConditionMode.Greater,
                     tripleBlendCondition.Left == Affinity.Positive ? _weightUpperThreshold : _weightLowerThreshold,
-                    ComboGestureCompilerInternal.GestureLeftWeight
+                    _gestureLeftWeight
                 );
             }
             {
@@ -202,7 +206,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 toResting.AddCondition(
                     tripleBlendCondition.Right == Affinity.Positive ? AnimatorConditionMode.Less : AnimatorConditionMode.Greater,
                     tripleBlendCondition.Right == Affinity.Positive ? _weightUpperThreshold : _weightLowerThreshold,
-                    ComboGestureCompilerInternal.GestureRightWeight
+                    _gestureRightWeight
                 );
             }
         }
@@ -215,7 +219,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 toPosing.AddCondition(
                     tripleBlendCondition.Left == Affinity.Positive ? AnimatorConditionMode.Greater : AnimatorConditionMode.Less,
                     tripleBlendCondition.Left == Affinity.Positive ? _weightUpperThreshold : _weightLowerThreshold,
-                    ComboGestureCompilerInternal.GestureLeftWeight
+                    _gestureLeftWeight
                 );
             }
             {
@@ -224,7 +228,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 toPosing.AddCondition(
                     tripleBlendCondition.Right == Affinity.Positive ? AnimatorConditionMode.Greater : AnimatorConditionMode.Less,
                     tripleBlendCondition.Right == Affinity.Positive ? _weightUpperThreshold : _weightLowerThreshold,
-                    ComboGestureCompilerInternal.GestureRightWeight
+                    _gestureRightWeight
                 );
             }
             {
@@ -233,12 +237,12 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 toResting.AddCondition(
                     tripleBlendCondition.Left == Affinity.Positive ? AnimatorConditionMode.Less : AnimatorConditionMode.Greater,
                     tripleBlendCondition.Left == Affinity.Positive ? _weightUpperThreshold : _weightLowerThreshold,
-                    ComboGestureCompilerInternal.GestureLeftWeight
+                    _gestureLeftWeight
                 );
                 toResting.AddCondition(
                     tripleBlendCondition.Right == Affinity.Positive ? AnimatorConditionMode.Less : AnimatorConditionMode.Greater,
                     tripleBlendCondition.Right == Affinity.Positive ? _weightUpperThreshold : _weightLowerThreshold,
-                    ComboGestureCompilerInternal.GestureRightWeight
+                    _gestureRightWeight
                 );
             }
         }

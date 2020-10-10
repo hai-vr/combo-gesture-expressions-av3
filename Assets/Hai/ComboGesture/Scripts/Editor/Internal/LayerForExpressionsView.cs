@@ -24,9 +24,10 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly List<CurveKey> _blinkBlendshapes;
         private readonly AnimatorController _animatorController;
         private readonly List<GestureComboStageMapper> _comboLayers;
+        private readonly bool _useGestureWeightCorrection;
 
         public LayerForExpressionsView(FeatureToggles featuresToggles, AnimatorGenerator animatorGenerator, AvatarMask expressionsAvatarMask, AnimationClip emptyClip, string activityStageName, ConflictPrevention conflictPrevention, AssetContainer assetContainer, ConflictFxLayerMode compilerConflictFxLayerMode, AnimationClip compilerIgnoreParamList, AnimationClip compilerFallbackParamList,
-            List<CurveKey> blinkBlendshapes, AnimatorController animatorController, List<GestureComboStageMapper> comboLayers)
+            List<CurveKey> blinkBlendshapes, AnimatorController animatorController, List<GestureComboStageMapper> comboLayers, bool useGestureWeightCorrection)
         {
             _featuresToggles = featuresToggles;
             _animatorGenerator = animatorGenerator;
@@ -41,6 +42,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _blinkBlendshapes = blinkBlendshapes;
             _animatorController = animatorController;
             _comboLayers = comboLayers;
+            _useGestureWeightCorrection = useGestureWeightCorrection;
         }
 
         public void Create()
@@ -82,7 +84,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 machine,
                 combinator.IntermediateToTransition,
                 _activityStageName,
-                _conflictPrevention.ShouldWriteDefaults
+                _conflictPrevention.ShouldWriteDefaults,
+                _useGestureWeightCorrection
             ).Populate();
         }
 

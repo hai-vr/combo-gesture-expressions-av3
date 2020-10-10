@@ -18,14 +18,16 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly Dictionary<IntermediateAnimationGroup, List<TransitionCondition>> _intermediateToCombo;
         private readonly string _activityStageName;
         private readonly bool _shouldWriteDefaults;
+        private readonly bool _useGestureWeightCorrection;
 
         public GestureCExpressionCombiner(AnimatorController animatorController, AnimatorStateMachine machine,
-            Dictionary<IntermediateAnimationGroup, List<TransitionCondition>> intermediateToCombo, string activityStageName, bool shouldWriteDefaults)
+            Dictionary<IntermediateAnimationGroup, List<TransitionCondition>> intermediateToCombo, string activityStageName, bool shouldWriteDefaults, bool useGestureWeightCorrection)
         {
             _animatorController = animatorController;
             _machine = machine;
             _activityStageName = activityStageName;
             _shouldWriteDefaults = shouldWriteDefaults;
+            _useGestureWeightCorrection = useGestureWeightCorrection;
             _intermediateToCombo = intermediateToCombo;
         }
 
@@ -162,8 +164,13 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             var clipName = UnshimName(clip.name) + " " + clipNature + " " + UnshimName(resting.name);
             var newState = _machine.AddState(clipName,
                 offset + gridPosition + new Vector3(0, clipNature == ComboNature.BlendLeft ? -20 : 20, 0));
-            newState.motion = CreateBlendTree(resting, clip,
-                clipNature == ComboNature.BlendLeft ? "GestureLeftWeight" : "GestureRightWeight", clipName,
+            newState.motion = CreateBlendTree(
+                resting,
+                clip,
+                clipNature == ComboNature.BlendLeft
+                    ? (_useGestureWeightCorrection ? SharedLayerUtils.HaiGestureComboLeftWeightProxy : "GestureLeftWeight")
+                    : (_useGestureWeightCorrection ? SharedLayerUtils.HaiGestureComboRightWeightProxy : "GestureRightWeight"),
+                clipName,
                 _animatorController);
             newState.writeDefaultValues = _shouldWriteDefaults;
             return newState;
@@ -173,7 +180,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         {
             var clipName = UnshimName(clip.name) + " Dual " + UnshimName(resting.name);
             var newState = _machine.AddState(clipName, position);
-            newState.motion = CreateDualBlendTree(resting, clip, posingLeft, posingRight, clipName, _animatorController);
+            newState.motion = CreateDualBlendTree(resting, clip, posingLeft, posingRight, clipName, _animatorController, _useGestureWeightCorrection);
             newState.writeDefaultValues = _shouldWriteDefaults;
             return newState;
         }
@@ -199,7 +206,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         }
 
         private static Motion CreateDualBlendTree(Motion atZero, Motion atOne, Motion atLeft, Motion atRight, string clipName,
-            AnimatorController animatorController)
+            AnimatorController animatorController, bool useGestureWeightCorrection)
         {
             ChildMotion[] motions;
             if (atOne == atLeft && atOne == atRight)
@@ -221,11 +228,13 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                     new ChildMotion {motion = atOne, timeScale = 1, position = Vector2.right + Vector2.up},
                 };
             }
+
+
             var blendTree = new BlendTree
             {
                 name = "autoBT_" + clipName,
-                blendParameter = "GestureLeftWeight",
-                blendParameterY = "GestureRightWeight",
+                blendParameter = useGestureWeightCorrection ? SharedLayerUtils.HaiGestureComboLeftWeightProxy : "GestureLeftWeight",
+                blendParameterY = useGestureWeightCorrection ? SharedLayerUtils.HaiGestureComboRightWeightProxy : "GestureRightWeight",
                 blendType = BlendTreeType.FreeformDirectional2D,
                 children = motions
             };
