@@ -229,6 +229,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             {
                 SharedLayerUtils.CreateParamIfNotExists(_animatorController, SharedLayerUtils.HaiGestureComboDisableExpressionsParamName, AnimatorControllerParameterType.Int);
             }
+            SharedLayerUtils.CreateParamIfNotExists(_animatorController, "_Hai_GestureAnimBlink", AnimatorControllerParameterType.Float);
+            SharedLayerUtils.CreateParamIfNotExists(_animatorController, "_Hai_GestureAnimLSWide", AnimatorControllerParameterType.Float);
             new LayerForExpressionsView(
                 _featuresToggles,
                 _animatorGenerator,
@@ -263,6 +265,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             {
                 SharedLayerUtils.CreateParamIfNotExists(_animatorController, SharedLayerUtils.HaiGestureComboAreEyesClosedParamName, AnimatorControllerParameterType.Int);
             }
+            SharedLayerUtils.CreateParamIfNotExists(_animatorController, "_Hai_GestureAnimBlink", AnimatorControllerParameterType.Float);
             new LayerForBlinkingOverrideView(
                 _activityStageName,
                 _comboLayers,
@@ -290,6 +293,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 SharedLayerUtils.CreateParamIfNotExists(_animatorController, SharedLayerUtils.HaiGestureComboDisableLipsyncOverrideParamName, AnimatorControllerParameterType.Int);
             }
             SharedLayerUtils.CreateParamIfNotExists(_animatorController, "Viseme", AnimatorControllerParameterType.Int);
+            SharedLayerUtils.CreateParamIfNotExists(_animatorController, "_Hai_GestureAnimLSWide", AnimatorControllerParameterType.Float);
             new LayerForLipsyncOverrideView(
                 _activityStageName,
                 _comboLayers,

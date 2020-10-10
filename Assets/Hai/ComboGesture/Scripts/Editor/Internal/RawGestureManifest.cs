@@ -41,14 +41,82 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 0.1f);
         }
 
-        public RawGestureManifest NewFromRemappedAnimations(Dictionary<AnimationClip, AnimationClip> remapping)
+        public RawGestureManifest NewFromRemappedAnimations(Dictionary<QualifiedAnimation, AnimationClip> remapping)
         {
             return new RawGestureManifest(
-                AnimationClips().Select(clip => remapping[clip]).ToList(),
-                Blinking.Select(clip => remapping[clip]).ToList(),
-                LimitedLipsync.Select(clip => remapping[clip]).ToList(),
+                AnimationClips().Select(clip => remapping[Qualify(clip)]).ToList(),
+                Blinking.Select(clip => remapping[Qualify(clip)]).ToList(),
+                LimitedLipsync.Select(clip => remapping[Qualify(clip)]).ToList(),
                 TransitionDuration
             );
+        }
+
+        public QualifiedAnimation Qualify(AnimationClip clip)
+        {
+            return new QualifiedAnimation(
+                clip,
+                new Qualification(
+                    Blinking.Contains(clip),
+                    LimitedLipsync.Contains(clip) ? QualifiedLimitation.Wide : QualifiedLimitation.None
+                )
+            );
+        }
+
+        internal struct QualifiedAnimation
+        {
+            public QualifiedAnimation(AnimationClip clip, Qualification qualification)
+            {
+                Clip = clip;
+                Qualification = qualification;
+            }
+
+            public AnimationClip Clip { get; }
+            public Qualification Qualification { get; }
+        }
+
+        internal struct Qualification
+        {
+            public Qualification(bool isBlinking, QualifiedLimitation limitation)
+            {
+                IsBlinking = isBlinking;
+                Limitation = limitation;
+            }
+
+            public bool IsBlinking { get; }
+            public QualifiedLimitation Limitation { get; }
+
+            public bool Equals(Qualification other)
+            {
+                return IsBlinking == other.IsBlinking && Limitation == other.Limitation;
+            }
+
+            public override bool Equals(object obj)
+            {
+                return obj is Qualification other && Equals(other);
+            }
+
+            public override int GetHashCode()
+            {
+                unchecked
+                {
+                    return (IsBlinking.GetHashCode() * 397) ^ (int) Limitation;
+                }
+            }
+
+            public static bool operator ==(Qualification left, Qualification right)
+            {
+                return left.Equals(right);
+            }
+
+            public static bool operator !=(Qualification left, Qualification right)
+            {
+                return !left.Equals(right);
+            }
+        }
+
+        internal enum QualifiedLimitation
+        {
+            None, Wide
         }
 
         public AnimationClip Anim00() { return Manifest[0]; }

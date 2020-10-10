@@ -91,8 +91,13 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 }
             }
 
-            new GestureCBlinkingCombiner(combinator.IntermediateToBlinking, _activityStageName, _analogBlinkingUpperThreshold, _useGestureWeightCorrection)
-                .Populate(enableBlinking, disableBlinking);
+            var toDisable = enableBlinking.AddTransition(disableBlinking);
+            SetupBlinkingTransition(toDisable);
+            toDisable.AddCondition(AnimatorConditionMode.Less, _analogBlinkingUpperThreshold, "_Hai_GestureAnimBlink");
+
+            var toEnable = disableBlinking.AddTransition(enableBlinking);
+            SetupBlinkingTransition(toEnable);
+            toEnable.AddCondition(AnimatorConditionMode.Greater, _analogBlinkingUpperThreshold, "_Hai_GestureAnimBlink");
         }
 
         // FIXME: This is duplicate code
@@ -168,6 +173,24 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private bool Feature(FeatureToggles feature)
         {
             return (_featuresToggles & feature) == feature;
+        }
+
+        private static void SetupBlinkingTransition(AnimatorStateTransition transition)
+        {
+            SetupSourceTransition(transition);
+
+            transition.duration = 0;
+        }
+
+        private static void SetupSourceTransition(AnimatorStateTransition transition)
+        {
+            transition.hasExitTime = false;
+            transition.exitTime = 0;
+            transition.hasFixedDuration = true;
+            transition.offset = 0;
+            transition.interruptionSource = TransitionInterruptionSource.Source;
+            transition.canTransitionToSelf = false;
+            transition.orderedInterruption = true;
         }
     }
 }

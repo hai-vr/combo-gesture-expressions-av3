@@ -55,37 +55,41 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         internal List<ActivityManifest> NeutralizeManifestAnimations()
         {
-            var allAnimationClips = FindAllAnimationClips();
-            var allApplicableCurveKeys = FindAllApplicableCurveKeys(allAnimationClips);
+            var allQualifiedAnimations = QualifyAllAnimations();
+            var allApplicableCurveKeys = FindAllApplicableCurveKeys(new HashSet<AnimationClip>(allQualifiedAnimations.Select(animation => animation.Clip).ToList()));
 
-            var remapping = CreateAssetContainerWithNeutralizedAnimations(_assetContainer, allAnimationClips, allApplicableCurveKeys);
+            var remapping = CreateAssetContainerWithNeutralizedAnimations(_assetContainer, allQualifiedAnimations, allApplicableCurveKeys);
             return _originalActivityManifests.Select(manifest => RemapManifest(manifest, remapping)).ToList();
         }
 
-        private HashSet<AnimationClip> FindAllAnimationClips()
+        private HashSet<RawGestureManifest.QualifiedAnimation> QualifyAllAnimations()
         {
-            var allAnimationClips = _originalActivityManifests
-                .SelectMany(manifest => manifest.Manifest.AnimationClips())
-                .ToList();
-            return new HashSet<AnimationClip>(allAnimationClips);
+            return new HashSet<RawGestureManifest.QualifiedAnimation>(_originalActivityManifests
+                .SelectMany(manifest => manifest.Manifest.AnimationClips().Select(clip => manifest.Manifest.Qualify(clip)))
+                .ToList());
         }
 
-        private static ActivityManifest RemapManifest(ActivityManifest manifest, Dictionary<AnimationClip, AnimationClip> remapping)
+        private static ActivityManifest RemapManifest(ActivityManifest manifest, Dictionary<RawGestureManifest.QualifiedAnimation, AnimationClip> remapping)
         {
             var remappedManifest = manifest.Manifest.NewFromRemappedAnimations(remapping);
             return new ActivityManifest(manifest.StageValue, remappedManifest, manifest.LayerOrdinal);
         }
 
-        private Dictionary<AnimationClip, AnimationClip> CreateAssetContainerWithNeutralizedAnimations(AssetContainer container, HashSet<AnimationClip> allAnimationClips, HashSet<CurveKey> allApplicableCurveKeys)
+        private Dictionary<RawGestureManifest.QualifiedAnimation, AnimationClip> CreateAssetContainerWithNeutralizedAnimations(AssetContainer container, HashSet<RawGestureManifest.QualifiedAnimation> allQualifiedAnimations, HashSet<CurveKey> allApplicableCurveKeys)
         {
-            var remapping = new Dictionary<AnimationClip, AnimationClip>();
+            var remapping = new Dictionary<RawGestureManifest.QualifiedAnimation, AnimationClip>();
 
-            foreach (var animationClip in allAnimationClips)
+            foreach (var qualifiedAnimation in allQualifiedAnimations)
             {
-                var neutralizedAnimation = CopyAndNeutralize(animationClip, allApplicableCurveKeys);
+                var neutralizedAnimation = CopyAndNeutralize(qualifiedAnimation.Clip, allApplicableCurveKeys);
+                var blinking = qualifiedAnimation.Qualification.IsBlinking ? 1 : 0;
+                var wide = qualifiedAnimation.Qualification.Limitation == RawGestureManifest.QualifiedLimitation.Wide ? 1 : 0;
+                neutralizedAnimation.SetCurve("", typeof(Animator), "_Hai_GestureAnimBlink", AnimationCurve.Linear(0, blinking, 1 / 60f, blinking));
+                neutralizedAnimation.SetCurve("", typeof(Animator), "_Hai_GestureAnimWide", AnimationCurve.Linear(0, wide, 1 / 60f, wide));
+
                 container.AddAnimation(neutralizedAnimation);
 
-                remapping.Add(animationClip, neutralizedAnimation);
+                remapping.Add(qualifiedAnimation, neutralizedAnimation);
             }
 
             AssetContainer.GlobalSave();
