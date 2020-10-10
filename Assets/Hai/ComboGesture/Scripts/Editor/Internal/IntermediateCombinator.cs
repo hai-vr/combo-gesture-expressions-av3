@@ -15,14 +15,53 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             IntermediateToTransition = optimized;
         }
 
+        readonly struct ComboAndTransitionDuration
+        {
+            public ComboAndTransitionDuration(int combo, float transitionDuration)
+            {
+                Combo = combo;
+                TransitionDuration = transitionDuration;
+            }
+
+            private int Combo { get; }
+            private float TransitionDuration { get; }
+
+            public bool Equals(ComboAndTransitionDuration other)
+            {
+                return Combo == other.Combo && TransitionDuration.Equals(other.TransitionDuration);
+            }
+
+            public override bool Equals(object obj)
+            {
+                return obj is ComboAndTransitionDuration other && Equals(other);
+            }
+
+            public override int GetHashCode()
+            {
+                unchecked
+                {
+                    return (Combo * 397) ^ TransitionDuration.GetHashCode();
+                }
+            }
+
+            public static bool operator ==(ComboAndTransitionDuration left, ComboAndTransitionDuration right)
+            {
+                return left.Equals(right);
+            }
+
+            public static bool operator !=(ComboAndTransitionDuration left, ComboAndTransitionDuration right)
+            {
+                return !left.Equals(right);
+            }
+        }
+
         private static Dictionary<IntermediateAnimationGroup, List<TransitionCondition>> Optimize(Dictionary<IntermediateAnimationGroup, List<TransitionCondition>> exhaustive, int activityManifestsCount)
         {
             return exhaustive
                 .Select(pair =>
                 {
                     var conditions = pair.Value
-                        .GroupBy(
-                            condition => ((TransitionCondition.ActivityBoundTransitionCondition) condition).Combo.RawValue)
+                        .GroupBy(condition => new ComboAndTransitionDuration(((TransitionCondition.ActivityBoundTransitionCondition) condition).Combo.RawValue, condition.TransitionDuration))
                         .SelectMany(grouping =>
                         {
                             var groupingList = grouping.ToList();
