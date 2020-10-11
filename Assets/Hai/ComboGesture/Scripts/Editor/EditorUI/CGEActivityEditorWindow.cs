@@ -28,6 +28,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         private static readonly int GuiSquareHeight = (int) (singleLineHeight * 3 + PictureHeight);
 
         private Dictionary<AnimationClip, Texture2D> _animationClipToTextureDict;
+        private Dictionary<AnimationClip, Texture2D> _animationClipToTextureDictGray;
         private RenderTexture _renderTexture;
         public ComboGestureActivity activity;
         public ComboGestureLimitedLipsync limitedLipsync;
@@ -38,6 +39,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         private SerializedProperty _editorTool;
         private SerializedProperty _editorArbitraryAnimations;
         private SerializedProperty _previewSetup;
+        private SerializedProperty _enablePermutations;
         private int _currentEditorToolValue = -1;
         private EditorMode _editorMode;
         private bool _firstTimeSetup;
@@ -59,10 +61,24 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         private Vector2 scrollPos;
         private int _limitedLipsyncPreviewIndex;
+        private static readonly Color LeftSideBg;
+        private static readonly Color RightSideBg;
+        private static readonly Color NeutralSideBg;
+        private static readonly Color SymmetricalBg;
+        private bool _combinerIsAPermutation;
+
+        static CgeEditorWindow()
+        {
+            LeftSideBg = new Color(1f, 0.81f, 0.59f);
+            RightSideBg = new Color(0.7f, 0.9f, 1f);
+            NeutralSideBg = new Color(1f, 1f, 1f);
+            SymmetricalBg = new Color(0.7f, 0.7f, 0.7f);
+        }
 
         private void OnEnable()
         {
             _animationClipToTextureDict = new Dictionary<AnimationClip, Texture2D>();
+            _animationClipToTextureDictGray = new Dictionary<AnimationClip, Texture2D>();
             _driver = new CgeActivityEditorDriver();
         }
 
@@ -103,6 +119,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 _editorTool = serializedObject.FindProperty("editorTool");
                 _editorArbitraryAnimations = serializedObject.FindProperty("editorArbitraryAnimations");
                 _previewSetup = serializedObject.FindProperty("previewSetup");
+                _enablePermutations = serializedObject.FindProperty("enablePermutations");
 
                 if (_editorTool.intValue != _currentEditorToolValue && _currentEditorToolValue >= 0)
                 {
@@ -159,7 +176,14 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                     LayoutOtherOptions();
                     break;
                 default:
-                    LayoutActivityEditor();
+                    if (activity.enablePermutations)
+                    {
+                        LayoutPermutationEditor();
+                    }
+                    else
+                    {
+                        LayoutActivityEditor();
+                    }
                     break;
             }
             GUILayout.EndScrollView();
@@ -180,11 +204,17 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             {
                 GUILayout.BeginHorizontal();
                 GUILayout.Space(30);
-                _editorTool.intValue = GUILayout.Toolbar(_editorTool.intValue, new[]
+                if (!activity.enablePermutations)
                 {
-                    "All gestures", "Singles", "Analog Fist", "Combos"
-                }, GUILayout.ExpandWidth(true));
-
+                    _editorTool.intValue = GUILayout.Toolbar(_editorTool.intValue, new[]
+                    {
+                        "All combos", "Singles", "Analog Fist", "Combos", "Permutations"
+                    }, GUILayout.ExpandWidth(true));
+                }
+                else
+                {
+                    _editorTool.intValue = GUILayout.Toolbar(_editorTool.intValue, new[] {"Combos", "Permutations"});
+                }
                 GUILayout.Space(30);
                 GUILayout.EndHorizontal();
                 _currentEditorToolValue = _editorTool.intValue;
@@ -222,6 +252,30 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                     BeginLayoutUsing(GuiSquareHeight * 8);
                     LayoutComboMatrixProjection();
                     break;
+                case 4:
+
+                    GUILayout.BeginHorizontal();
+                    GUILayout.FlexibleSpace();
+                    GUILayout.BeginVertical(GUILayout.Width(800));
+                    GUILayout.Label("<b>Permutations</b>", _largeFont);
+                    EditorGUILayout.LabelField("Permutations is an experimental feature. It allows animations to depend on which hand side is doing the gesture.");
+                    EditorGUILayout.LabelField("It is significantly harder to create and use an activity with permutations.");
+                    EditorGUILayout.LabelField("Consider using multiple Activities instead before deciding to use permutations.");
+                    EditorGUILayout.LabelField("When a permutation is not defined, the other side will be used.");
+                    GUILayout.Space(15);
+                    GUILayout.Label("Do you really want to use permutations?", _largeFont);
+                    if (GUILayout.Button("Enable permutations for this activity", GUILayout.Width(300)))
+                    {
+                        _enablePermutations.boolValue = true;
+                        _editorTool.intValue = 1;
+                    }
+                    EditorGUILayout.LabelField("Permutations can be disabled later. Permutations are saved even after disabling permutations.");
+                    EditorGUILayout.LabelField("Compiling an activity with permutations disabled will not take any saved permutation into account.");
+                    GUILayout.EndVertical();
+                    GUILayout.FlexibleSpace();
+                    GUILayout.EndHorizontal();
+
+                    break;
                 default:
                     BeginLayoutUsing(GuiSquareHeight * 8);
                     LayoutFullMatrixProjection();
@@ -230,9 +284,33 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             EndLayout();
         }
 
+        private void LayoutPermutationEditor()
+        {
+            switch (_editorTool.intValue)
+            {
+                case 0:
+                    BeginPermutationLayoutUsing();
+                    LayoutPermutationMatrixProjection(true);
+                    break;
+                default:
+                    BeginPermutationLayoutUsing();
+                    LayoutPermutationMatrixProjection();
+                    break;
+            }
+            EndLayout();
+        }
+
         private void BeginLayoutUsing(int totalHeight)
         {
             var totalWidth = GuiSquareWidth * 8;
+            GUILayout.Box("", GUIStyle.none, GUILayout.Width(totalWidth), GUILayout.Height(totalHeight));
+            GUILayout.BeginArea(new Rect(Math.Max((position.width - totalWidth) / 2, 0), 0, totalWidth, totalHeight));
+        }
+
+        private void BeginPermutationLayoutUsing()
+        {
+            var totalHeight = GuiSquareHeight * 9;
+            var totalWidth = GuiSquareWidth * 9;
             GUILayout.Box("", GUIStyle.none, GUILayout.Width(totalWidth), GUILayout.Height(totalHeight));
             GUILayout.BeginArea(new Rect(Math.Max((position.width - totalWidth) / 2, 0), 0, totalWidth, totalHeight));
         }
@@ -309,7 +387,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
                 if (GUILayout.Button("Regenerate all previews"))
                 {
-                    new CgeActivityPreviewInternal(Repaint, activity, _animationClipToTextureDict, PictureWidth, PictureHeight, activity.editorArbitraryAnimations).Process(CgeActivityPreviewInternal.ProcessMode.RecalculateEverything, null);
+                    new CgeActivityPreviewInternal(Repaint, activity, _animationClipToTextureDict, _animationClipToTextureDictGray, PictureWidth, PictureHeight, activity.editorArbitraryAnimations).Process(CgeActivityPreviewInternal.ProcessMode.RecalculateEverything, null);
                 }
                 EditorGUILayout.PropertyField(_editorArbitraryAnimations, new GUIContent("List of arbitrary animations to &s (Drag and drop assets directly on this title)"), true);
                 EditorGUI.EndDisabledGroup();
@@ -339,7 +417,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         private void GenerateMissingPreviews()
         {
-            new CgeActivityPreviewInternal(Repaint, activity, _animationClipToTextureDict, PictureWidth, PictureHeight, activity.editorArbitraryAnimations).Process(CgeActivityPreviewInternal.ProcessMode.CalculateMissing, null);
+            new CgeActivityPreviewInternal(Repaint, activity, _animationClipToTextureDict, _animationClipToTextureDictGray, PictureWidth, PictureHeight, activity.editorArbitraryAnimations).Process(CgeActivityPreviewInternal.ProcessMode.CalculateMissing, null);
         }
 
         private void LayoutFistMatrixProjection()
@@ -439,6 +517,67 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             GUILayout.BeginArea(RectAt(1, 0));
             DrawTransitionEdit();
             GUILayout.EndArea();
+        }
+
+        private void LayoutPermutationMatrixProjection(bool partial = false)
+        {
+            for (var sideA = 0; sideA < 8; sideA++)
+            {
+                for (var sideB = 0; sideB < 8; sideB++)
+                {
+                    GUILayout.BeginArea(RectAt(sideB, sideA));
+                    DrawInner("anim" + sideA + "" + sideB, "anim" + sideB + "" + sideA, partial);
+                    GUILayout.EndArea();
+                }
+            }
+            for (var side = 1; side < 8; side++)
+            {
+                GUILayout.BeginArea(RectAt(8, side));
+                DrawInner("anim0" + side, "anim" + side + "0", partial);
+                GUILayout.EndArea();
+
+                GUILayout.BeginArea(RectAt(side, 8));
+                DrawInner("anim" + side + "0", "anim0" + side, partial);
+                GUILayout.EndArea();
+            }
+
+            GUILayout.BeginArea(RectAt(0, 8));
+            DrawColoredBackground(LeftSideBg);
+            DrawInner("anim11_L");
+            GUILayout.EndArea();
+            GUILayout.BeginArea(RectAt(8, 0));
+            DrawColoredBackground(RightSideBg);
+            DrawInner("anim11_R");
+            GUILayout.EndArea();
+
+            GUILayout.BeginArea(RectAt(8, 8));
+            DrawTransitionEdit();
+            GUILayout.Space(singleLineHeight);
+            if (GUILayout.Button("Disable permutations", GUILayout.ExpandWidth(true), GUILayout.Height(singleLineHeight * 2)))
+            {
+                _enablePermutations.boolValue = false;
+                _editorTool.intValue = 4;
+            }
+            GUILayout.EndArea();
+        }
+
+        private static Color SelectColorBasedOnSide(int sideA, int sideB)
+        {
+            Color color;
+            if (sideA > sideB)
+            {
+                color = SymmetricalBg;
+            }
+            else if (sideA < sideB)
+            {
+                color = SymmetricalBg;
+            }
+            else
+            {
+                color = NeutralSideBg;
+            }
+
+            return color;
         }
 
         private void LayoutFullMatrixProjection()
@@ -660,7 +799,7 @@ At the time this version has been published, generating the layer will break you
             GUILayout.Space(20);
             GUILayout.Box(_combiner.CombinedTexture(), GUILayout.Width(CombinerPreviewWidth), GUILayout.Height(CombinerPreviewHeight));
             _combinerCandidateFileName = GUILayout.TextField(_combinerCandidateFileName, GUILayout.MaxWidth(CombinerPreviewWidth));
-            if (GUILayout.Button("Save and assign to " + _driver.ShortTranslation(_combinerTarget), GUILayout.MaxWidth(CombinerPreviewWidth)))
+            if (GUILayout.Button("Save and assign to " + _driver.ShortTranslation((_combinerIsAPermutation ? "p_" : "") + _combinerTarget), GUILayout.MaxWidth(CombinerPreviewWidth)))
             {
                 var savedClip = _combiner.SaveTo(_combinerCandidateFileName);
                 serializedObject.FindProperty(_combinerTarget).objectReferenceValue = savedClip;
@@ -823,15 +962,63 @@ At the time this version has been published, generating the layer will break you
 
         private void DrawInner(string propertyPath)
         {
+            DrawInner(propertyPath, null);
+        }
+
+        private void DrawInner(string propertyPath, string oppositePath, bool partial = false)
+        {
+            var usePermutations = oppositePath != null;
             var property = serializedObject.FindProperty(propertyPath);
-            GUILayout.Label(_driver.ShortTranslation(propertyPath), _driver.IsSymmetrical(propertyPath) ? _middleAlignedBold : _middleAligned);
+            var oppositeProperty = usePermutations ? serializedObject.FindProperty(oppositePath) : null;
+            var isLeftHand = String.Compare(propertyPath, oppositePath, StringComparison.Ordinal) > 0;
+            if (usePermutations)
+            {
+                if (propertyPath == oppositePath)
+                {
+                    DrawColoredBackground(NeutralSideBg);
+                }
+                else if ((isLeftHand && property.objectReferenceValue != null || !isLeftHand && oppositeProperty.objectReferenceValue != null) && property.objectReferenceValue != oppositeProperty.objectReferenceValue)
+                {
+                    DrawColoredBackground(isLeftHand ? LeftSideBg : RightSideBg);
+                }
+                else
+                {
+                    if (isLeftHand && partial)
+                    {
+                        // FIXME Rank preservation
+                        BeginInvisibleRankPreservingArea();
+                        EndInvisibleRankPreservingArea();
+                        BeginInvisibleRankPreservingArea();
+                        InvisibleRankPreservingButton();
+                        EndInvisibleRankPreservingArea();
+                        return;
+                    }
+                    DrawColoredBackground(SymmetricalBg);
+                }
+            }
+
+            var translatableProperty = (usePermutations ? "p_" : "") + propertyPath;
+            GUILayout.Label(_driver.ShortTranslation(translatableProperty), _driver.IsSymmetrical(translatableProperty) ? _middleAlignedBold : _middleAligned);
 
             GUILayout.BeginArea(new Rect((GuiSquareWidth - PictureWidth) / 2, singleLineHeight, PictureWidth, PictureHeight));
             var element = property.objectReferenceValue != null ? (AnimationClip) property.objectReferenceValue : null;
-            DrawPreviewOrRefreshButton(element);
+            if (element != null)
+            {
+                DrawPreviewOrRefreshButton(element);
+            }
+            else if (usePermutations)
+            {
+                if (oppositeProperty.objectReferenceValue != null && propertyPath != oppositePath && isLeftHand)
+                {
+                    // FIXME: Rank preservation
+                    // DrawColoredBackground(RightSideBg);
+                    DrawInnerReversal(oppositePath);
+                }
+            }
+
             GUILayout.EndArea();
 
-            if (_driver.IsAPropertyThatCanBeCombined(propertyPath))
+            if (_driver.IsAPropertyThatCanBeCombined(propertyPath, usePermutations))
             {
                 var rect = element != null
                     ? new Rect(GuiSquareWidth - 2 * singleLineHeight, PictureHeight - singleLineHeight * 0.5f, singleLineHeight * 2, singleLineHeight * 1.5f)
@@ -843,7 +1030,7 @@ At the time this version has been published, generating the layer will break you
                 if (GUILayout.Button(element != null ? "+": "+ Combine"))
                 {
                     var merge = _driver.ProvideCombinationPropertySources(propertyPath);
-                    OpenMergeWindowFor(merge.Left, merge.Right, propertyPath);
+                    OpenMergeWindowFor(merge.Left, merge.Right, propertyPath, usePermutations);
                 }
                 GUILayout.EndArea();
                 EditorGUI.EndDisabledGroup();
@@ -894,6 +1081,17 @@ At the time this version has been published, generating the layer will break you
             EditorGUILayout.PropertyField(property, GUIContent.none);
         }
 
+        private void DrawInnerReversal(string propertyPath)
+        {
+            var property = serializedObject.FindProperty(propertyPath);
+
+            var edge = (GuiSquareWidth - PictureWidth) / 2;
+            GUILayout.BeginArea(new Rect(edge, singleLineHeight / 2, PictureWidth - edge * 2, PictureHeight - singleLineHeight));
+            var element = property.objectReferenceValue != null ? (AnimationClip) property.objectReferenceValue : null;
+            DrawPreviewOrRefreshButton(element, true);
+            GUILayout.EndArea();
+        }
+
         private void DrawTransitionEdit()
         {
             GUILayout.BeginArea(new Rect((GuiSquareWidth - PictureWidth) / 2, singleLineHeight, PictureWidth, PictureHeight));
@@ -914,7 +1112,7 @@ At the time this version has been published, generating the layer will break you
             GUILayout.EndArea();
         }
 
-        private void OpenMergeWindowFor(string left, string right, string propertyPath)
+        private void OpenMergeWindowFor(string left, string right, string propertyPath, bool usePermutations)
         {
             var leftAnim = serializedObject.FindProperty(left).objectReferenceValue;
             var rightAnim = serializedObject.FindProperty(right).objectReferenceValue;
@@ -926,6 +1124,7 @@ At the time this version has been published, generating the layer will break you
             _combiner.Prepare();
 
             _combinerTarget = propertyPath;
+            _combinerIsAPermutation = usePermutations;
             _combinerCandidateFileName = "cge_" + leftAnim.name + "__combined__" + rightAnim.name;
 
             _combinerIsLikelyEyesClosed = activity.blinking.Contains(leftAnim) || activity.blinking.Contains(rightAnim);
@@ -943,17 +1142,9 @@ At the time this version has been published, generating the layer will break you
         {
             var isRegisteredAsBlinking = activity.blinking.Contains(element);
 
-            if (isRegisteredAsBlinking) {
-                var col = GUI.color;
-                try
-                {
-                    GUI.color = new Color(0.44f, 0.65f, 1f);
-                    GUI.Box(new Rect(0, 0, GuiSquareWidth, GuiSquareHeight), "");
-                }
-                finally
-                {
-                    GUI.color = col;
-                }
+            if (isRegisteredAsBlinking)
+            {
+                DrawColoredBackground(new Color(0.44f, 0.65f, 1f));
             }
             GUILayout.BeginArea(new Rect((GuiSquareWidth - PictureWidth) / 2, 0, PictureWidth, PictureHeight));
             DrawPreviewOrRefreshButton(element);
@@ -1029,14 +1220,15 @@ At the time this version has been published, generating the layer will break you
             EditorGUI.EndDisabledGroup();
         }
 
-        private void DrawPreviewOrRefreshButton(AnimationClip element)
+        private void DrawPreviewOrRefreshButton(AnimationClip element, bool grayscale = false)
         {
             if (element != null) {
                 var clipIsInDict = _animationClipToTextureDict.ContainsKey(element);
 
                 if (clipIsInDict)
                 {
-                    GUILayout.Box(_animationClipToTextureDict[element], GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true));
+                    var texture = grayscale ? _animationClipToTextureDictGray[element] : _animationClipToTextureDict[element];
+                    GUILayout.Box(texture, GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true));
                     InvisibleRankPreservingButton();
                 }
                 else
@@ -1047,7 +1239,7 @@ At the time this version has been published, generating the layer will break you
                     {
                         if (IsPreviewSetupValid())
                         {
-                            new CgeActivityPreviewInternal(Repaint, activity, _animationClipToTextureDict, PictureWidth, PictureHeight, activity.editorArbitraryAnimations).Process(CgeActivityPreviewInternal.ProcessMode.CalculateMissing, element);
+                            new CgeActivityPreviewInternal(Repaint, activity, _animationClipToTextureDict, _animationClipToTextureDictGray, PictureWidth, PictureHeight, activity.editorArbitraryAnimations).Process(CgeActivityPreviewInternal.ProcessMode.CalculateMissing, element);
                         }
                         else
                         {
@@ -1077,6 +1269,20 @@ At the time this version has been published, generating the layer will break you
         private void DoAutoSetupPreview()
         {
             _setupResult = new AutoSetupPreview(activity).AutoSetup();
+        }
+
+        private static void DrawColoredBackground(Color color)
+        {
+            var col = GUI.color;
+            try
+            {
+                GUI.color = color;
+                GUI.Box(new Rect(0, 0, GuiSquareWidth, GuiSquareHeight), "");
+            }
+            finally
+            {
+                GUI.color = col;
+            }
         }
     }
 }

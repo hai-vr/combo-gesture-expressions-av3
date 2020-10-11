@@ -5,6 +5,7 @@ using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.EditorUI;
 using UnityEditor;
 using UnityEngine;
+using Object = System.Object;
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
@@ -14,15 +15,17 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly Action _onClipRenderedFn;
         private readonly ComboGestureActivity _activity;
         private readonly Dictionary<AnimationClip, Texture2D> _animationClipToTextureDict;
+        private readonly Dictionary<AnimationClip, Texture2D> _animationClipToTextureDictGray;
         private readonly int _pictureWidth;
         private readonly int _pictureHeight;
         private readonly AnimationClip[] _editorArbitraryAnimations;
 
-        public CgeActivityPreviewInternal(Action onClipRenderedFn, ComboGestureActivity activity, Dictionary<AnimationClip, Texture2D> animationClipToTextureDict, int pictureWidth, int pictureHeight, AnimationClip[] editorArbitraryAnimations)
+        public CgeActivityPreviewInternal(Action onClipRenderedFn, ComboGestureActivity activity, Dictionary<AnimationClip, Texture2D> animationClipToTextureDict, Dictionary<AnimationClip, Texture2D> animationClipToTextureDictGray, int pictureWidth, int pictureHeight, AnimationClip[] editorArbitraryAnimations)
         {
             _onClipRenderedFn = onClipRenderedFn;
             _activity = activity;
             _animationClipToTextureDict = animationClipToTextureDict;
+            _animationClipToTextureDictGray = animationClipToTextureDictGray;
             _pictureWidth = pictureWidth;
             _pictureHeight = pictureHeight;
             _editorArbitraryAnimations = editorArbitraryAnimations ?? new AnimationClip[]{};
@@ -49,7 +52,28 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private void OnClipRendered(AnimationPreview animationPreview)
         {
             _animationClipToTextureDict[animationPreview.Clip] = animationPreview.RenderTexture;
+            _animationClipToTextureDictGray[animationPreview.Clip] = GrayscaleCopyOf(animationPreview.RenderTexture);
             _onClipRenderedFn.Invoke();
+        }
+
+        private static Texture2D GrayscaleCopyOf(Texture2D originalTexture)
+        {
+            var texture = UnityEngine.Object.Instantiate(originalTexture);
+            var mipCount = Mathf.Min(3, texture.mipmapCount);
+
+            for (var mip = 0; mip < mipCount; ++mip)
+            {
+                var cols = texture.GetPixels(mip);
+                for (var i = 0; i < cols.Length; ++i)
+                {
+                    var value = (cols[i].r + cols[i].g + cols[i].b) / 3f;
+                    cols[i] = new Color(value, value, value);
+                }
+                texture.SetPixels(cols, mip);
+            }
+            texture.Apply(false);
+
+            return texture;
         }
 
         private static List<AnimationPreview> ToPrioritizedList(Dictionary<AnimationClip, Texture2D> clipDictionary, AnimationClip prioritize)
