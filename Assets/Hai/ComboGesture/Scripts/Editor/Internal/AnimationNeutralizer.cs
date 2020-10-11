@@ -82,10 +82,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             foreach (var qualifiedAnimation in allQualifiedAnimations)
             {
                 var neutralizedAnimation = CopyAndNeutralize(qualifiedAnimation.Clip, allApplicableCurveKeys);
-                var blinking = qualifiedAnimation.Qualification.IsBlinking ? 1 : 0;
-                var wide = qualifiedAnimation.Qualification.Limitation == RawGestureManifest.QualifiedLimitation.Wide ? 1 : 0;
-                neutralizedAnimation.SetCurve("", typeof(Animator), "_Hai_GestureAnimBlink", AnimationCurve.Linear(0, blinking, 1 / 60f, blinking));
-                neutralizedAnimation.SetCurve("", typeof(Animator), "_Hai_GestureAnimWide", AnimationCurve.Linear(0, wide, 1 / 60f, wide));
+
+                MutateCurvesForAnimatedAnimatorParameters(neutralizedAnimation, qualifiedAnimation);
 
                 container.AddAnimation(neutralizedAnimation);
 
@@ -95,6 +93,17 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             AssetContainer.GlobalSave();
 
             return remapping;
+        }
+
+        private void MutateCurvesForAnimatedAnimatorParameters(AnimationClip neutralizedAnimation, RawGestureManifest.QualifiedAnimation qualifiedAnimation)
+        {
+            if (_compilerConflictFxLayerMode != ConflictFxLayerMode.KeepOnlyTransformsAndMuscles)
+            {
+                var blinking = qualifiedAnimation.Qualification.IsBlinking ? 1 : 0;
+                var wide = qualifiedAnimation.Qualification.Limitation == RawGestureManifest.QualifiedLimitation.Wide ? 1 : 0;
+                neutralizedAnimation.SetCurve("", typeof(Animator), "_Hai_GestureAnimBlink", AnimationCurve.Linear(0, blinking, 1 / 60f, blinking));
+                neutralizedAnimation.SetCurve("", typeof(Animator), "_Hai_GestureAnimWide", AnimationCurve.Linear(0, wide, 1 / 60f, wide));
+            }
         }
 
         private AnimationClip CopyAndNeutralize(AnimationClip animationClipToBePreserved, HashSet<CurveKey> allApplicableCurveKeys)
