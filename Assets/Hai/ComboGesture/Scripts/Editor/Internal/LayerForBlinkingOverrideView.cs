@@ -93,11 +93,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
             var toDisable = enableBlinking.AddTransition(disableBlinking);
             SetupBlinkingTransition(toDisable);
-            toDisable.AddCondition(AnimatorConditionMode.Less, _analogBlinkingUpperThreshold, "_Hai_GestureAnimBlink");
+            toDisable.AddCondition(AnimatorConditionMode.Greater, _analogBlinkingUpperThreshold, "_Hai_GestureAnimBlink");
 
             var toEnable = disableBlinking.AddTransition(enableBlinking);
             SetupBlinkingTransition(toEnable);
-            toEnable.AddCondition(AnimatorConditionMode.Greater, _analogBlinkingUpperThreshold, "_Hai_GestureAnimBlink");
+            toEnable.AddCondition(AnimatorConditionMode.Less, _analogBlinkingUpperThreshold, "_Hai_GestureAnimBlink");
         }
 
         // FIXME: This is duplicate code

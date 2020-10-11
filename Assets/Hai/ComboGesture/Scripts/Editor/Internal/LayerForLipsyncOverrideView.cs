@@ -86,11 +86,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
             var toDisable = enableBlinking.AddTransition(disableBlinking);
             SetupBlinkingTransition(toDisable);
-            toDisable.AddCondition(AnimatorConditionMode.Less, _analogBlinkingUpperThreshold, "_Hai_GestureAnimLSWide");
+            toDisable.AddCondition(AnimatorConditionMode.Greater, _analogBlinkingUpperThreshold, "_Hai_GestureAnimLSWide");
 
             var toEnable = disableBlinking.AddTransition(enableBlinking);
             SetupBlinkingTransition(toEnable);
-            toEnable.AddCondition(AnimatorConditionMode.Greater, _analogBlinkingUpperThreshold, "_Hai_GestureAnimLSWide");
+            toEnable.AddCondition(AnimatorConditionMode.Less, _analogBlinkingUpperThreshold, "_Hai_GestureAnimLSWide");
 
             // Huge hack to avoid duplicating generation logic...
             foreach (var enableBlinkingTransition in disableBlinking.transitions.Where(transition => transition.destinationState == enableBlinking).ToList())
