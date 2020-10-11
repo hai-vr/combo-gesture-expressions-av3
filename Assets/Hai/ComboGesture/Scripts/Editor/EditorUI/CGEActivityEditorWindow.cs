@@ -364,6 +364,10 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 GUILayout.EndArea();
             }
 
+            GUILayout.BeginArea(RectAt(1, 0));
+            DrawTransitionEdit();
+            GUILayout.EndArea();
+
             GUILayout.BeginArea(RectAt(0, 3));
             DrawInner("anim00");
             GUILayout.EndArea();
@@ -400,6 +404,10 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                     GUILayout.EndArea();
                 }
             }
+
+            GUILayout.BeginArea(RectAt(1, 0));
+            DrawTransitionEdit();
+            GUILayout.EndArea();
         }
 
         private void LayoutComboMatrixProjection()
@@ -427,6 +435,10 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                     }
                 }
             }
+
+            GUILayout.BeginArea(RectAt(1, 0));
+            DrawTransitionEdit();
+            GUILayout.EndArea();
         }
 
         private void LayoutFullMatrixProjection()
@@ -440,6 +452,10 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                     GUILayout.EndArea();
                 }
             }
+
+            GUILayout.BeginArea(RectAt(0, 1));
+            DrawTransitionEdit();
+            GUILayout.EndArea();
 
             GUILayout.BeginArea(RectAt(0, 4));
             DrawInner("anim11_L");
@@ -876,6 +892,16 @@ At the time this version has been published, generating the layer will break you
 
             GUILayout.Space(PictureHeight);
             EditorGUILayout.PropertyField(property, GUIContent.none);
+        }
+
+        private void DrawTransitionEdit()
+        {
+            GUILayout.BeginArea(new Rect((GuiSquareWidth - PictureWidth) / 2, singleLineHeight, PictureWidth, PictureHeight));
+            GUILayout.Label("Transition duration");
+            GUILayout.Label("(in seconds)");
+            EditorGUILayout.Slider(_transitionDuration, 0f, 1f, GUIContent.none);
+            GUILayout.EndArea();
+            GUILayout.Space(PictureHeight);
         }
 
         private static void BeginInvisibleRankPreservingArea()
