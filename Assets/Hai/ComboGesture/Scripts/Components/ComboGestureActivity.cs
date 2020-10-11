@@ -46,6 +46,36 @@ namespace Hai.ComboGesture.Scripts.Components
         public AnimationClip anim11_L;
         public AnimationClip anim11_R;
 
+        public bool enablePermutations;
+        public AnimationClip anim10;
+        public AnimationClip anim20;
+        public AnimationClip anim21;
+        public AnimationClip anim30;
+        public AnimationClip anim31;
+        public AnimationClip anim32;
+        public AnimationClip anim40;
+        public AnimationClip anim41;
+        public AnimationClip anim42;
+        public AnimationClip anim43;
+        public AnimationClip anim50;
+        public AnimationClip anim51;
+        public AnimationClip anim52;
+        public AnimationClip anim53;
+        public AnimationClip anim54;
+        public AnimationClip anim60;
+        public AnimationClip anim61;
+        public AnimationClip anim62;
+        public AnimationClip anim63;
+        public AnimationClip anim64;
+        public AnimationClip anim65;
+        public AnimationClip anim70;
+        public AnimationClip anim71;
+        public AnimationClip anim72;
+        public AnimationClip anim73;
+        public AnimationClip anim74;
+        public AnimationClip anim75;
+        public AnimationClip anim76;
+
         public List<AnimationClip> blinking;
         public List<LimitedLipsyncAnimation> limitedLipsync;
 
