@@ -10,6 +10,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
     internal class LayerForController
     {
+        private const string ControllerLayerName = "Hai_GestureCtrl";
         private const bool WriteDefaultsForLogicalStates = true;
 
         private readonly AnimatorGenerator _animatorGenerator;
@@ -63,7 +64,12 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         private AnimatorStateMachine ReinitializeLayer()
         {
-            return _animatorGenerator.CreateOrRemakeLayerAtSameIndex("Hai_GestureCtrl", 0f, _logicalAvatarMask).ExposeMachine();
+            return _animatorGenerator.CreateOrRemakeLayerAtSameIndex(ControllerLayerName, 0f, _logicalAvatarMask).ExposeMachine();
+        }
+
+        public static void Delete(AnimatorGenerator animatorGenerator)
+        {
+            animatorGenerator.RemoveLayerIfExists(ControllerLayerName);
         }
     }
 }

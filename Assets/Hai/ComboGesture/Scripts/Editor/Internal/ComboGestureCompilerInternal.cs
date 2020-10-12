@@ -54,6 +54,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                                | (compiler.exposeDisableBlinkingOverride ? FeatureToggles.ExposeDisableBlinkingOverride : 0)
                                | (compiler.exposeAreEyesClosed ? FeatureToggles.ExposeAreEyesClosed : 0)
                                | (compiler.doNotGenerateControllerLayer ? FeatureToggles.DoNotGenerateControllerLayer : 0)
+                               | (compiler.forceGenerationOfControllerLayer ? FeatureToggles.ForceGenerationOfControllerLayer : 0)
                                | (compiler.doNotGenerateBlinkingOverrideLayer ? FeatureToggles.DoNotGenerateBlinkingOverrideLayer : 0)
                                | (compiler.doNotGenerateLipsyncOverrideLayer ? FeatureToggles.DoNotGenerateLipsyncOverrideLayer : 0)
                                | (compiler.doNotGenerateWeightCorrectionLayer ? FeatureToggles.DoNotGenerateWeightCorrectionLayer : 0);
@@ -84,7 +85,14 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
             if (!Feature(FeatureToggles.DoNotGenerateControllerLayer))
             {
-                CreateOrReplaceController(emptyClip);
+                if (Feature(FeatureToggles.ForceGenerationOfControllerLayer))
+                {
+                    CreateOrReplaceController(emptyClip);
+                }
+                else
+                {
+                    DeleteController();
+                }
             }
 
             if (!Feature(FeatureToggles.DoNotGenerateWeightCorrectionLayer))
@@ -226,7 +234,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             SharedLayerUtils.CreateParamIfNotExists(_animatorController, "GestureRight", AnimatorControllerParameterType.Int);
             SharedLayerUtils.CreateParamIfNotExists(_animatorController, "GestureLeftWeight", AnimatorControllerParameterType.Float);
             SharedLayerUtils.CreateParamIfNotExists(_animatorController, "GestureRightWeight", AnimatorControllerParameterType.Float);
-            SharedLayerUtils.CreateParamIfNotExists(_animatorController, SharedLayerUtils.HaiGestureComboParamName, AnimatorControllerParameterType.Int);
             if (Feature(FeatureToggles.ExposeDisableExpressions))
             {
                 SharedLayerUtils.CreateParamIfNotExists(_animatorController, SharedLayerUtils.HaiGestureComboDisableExpressionsParamName, AnimatorControllerParameterType.Int);
@@ -314,6 +321,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private void DeleteLipsyncOverrideView()
         {
             LayerForLipsyncOverrideView.Delete(_animatorGenerator);
+        }
+
+        private void DeleteController()
+        {
+            LayerForController.Delete(_animatorGenerator);
         }
 
         private void DeleteWeightCorrection()

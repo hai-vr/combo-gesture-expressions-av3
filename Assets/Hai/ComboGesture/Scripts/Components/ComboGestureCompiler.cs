@@ -24,6 +24,7 @@ namespace Hai.ComboGesture.Scripts.Components
         public bool exposeAreEyesClosed;
 
         public bool doNotGenerateControllerLayer;
+        public bool forceGenerationOfControllerLayer;
         public bool doNotGenerateBlinkingOverrideLayer;
         public bool doNotGenerateLipsyncOverrideLayer;
         public bool doNotGenerateWeightCorrectionLayer;

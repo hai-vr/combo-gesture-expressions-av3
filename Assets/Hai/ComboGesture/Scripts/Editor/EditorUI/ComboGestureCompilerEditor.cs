@@ -30,6 +30,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public SerializedProperty logicalAvatarMask;
         public SerializedProperty weightCorrectionAvatarMask;
         public SerializedProperty doNotGenerateControllerLayer;
+        public SerializedProperty forceGenerationOfControllerLayer;
         public SerializedProperty doNotGenerateBlinkingOverrideLayer;
         public SerializedProperty doNotGenerateLipsyncOverrideLayer;
         public SerializedProperty doNotGenerateWeightCorrectionLayer;
@@ -68,6 +69,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             logicalAvatarMask = serializedObject.FindProperty("logicalAvatarMask");
             weightCorrectionAvatarMask = serializedObject.FindProperty("weightCorrectionAvatarMask");
             doNotGenerateControllerLayer = serializedObject.FindProperty("doNotGenerateControllerLayer");
+            forceGenerationOfControllerLayer = serializedObject.FindProperty("forceGenerationOfControllerLayer");
             doNotGenerateBlinkingOverrideLayer = serializedObject.FindProperty("doNotGenerateBlinkingOverrideLayer");
             doNotGenerateLipsyncOverrideLayer = serializedObject.FindProperty("doNotGenerateLipsyncOverrideLayer");
             doNotGenerateWeightCorrectionLayer = serializedObject.FindProperty("doNotGenerateWeightCorrectionLayer");
@@ -281,12 +283,14 @@ You should press synchronize when any of the following happens:
                 EditorGUILayout.PropertyField(expressionsAvatarMask, new GUIContent("Add Avatar Mask to Expressions layer"));
                 EditorGUILayout.PropertyField(logicalAvatarMask, new GUIContent("Add Avatar Mask to Controller&Blinking layers"));
                 EditorGUILayout.PropertyField(weightCorrectionAvatarMask, new GUIContent("Add Avatar Mask to Weight Correction layer"));
-                EditorGUILayout.PropertyField(doNotGenerateControllerLayer, new GUIContent("Don't generate Controller layer"));
-                GenControllerWarning(true);
-                EditorGUILayout.PropertyField(doNotGenerateBlinkingOverrideLayer, new GUIContent("Don't generate Blinking layer"));
+                EditorGUILayout.PropertyField(doNotGenerateControllerLayer, new GUIContent("Don't update Controller layer"));
+                EditorGUI.BeginDisabledGroup(compiler.doNotGenerateControllerLayer);
+                EditorGUILayout.PropertyField(forceGenerationOfControllerLayer, new GUIContent("Force generation of Controller layer"));
+                EditorGUI.EndDisabledGroup();
+                EditorGUILayout.PropertyField(doNotGenerateBlinkingOverrideLayer, new GUIContent("Don't update Blinking layer"));
                 GenBlinkingWarning(true);
-                EditorGUILayout.PropertyField(doNotGenerateLipsyncOverrideLayer, new GUIContent("Don't generate Lipsync layer"));
-                EditorGUILayout.PropertyField(doNotGenerateWeightCorrectionLayer, new GUIContent("Don't generate Weight Correction layer"));
+                EditorGUILayout.PropertyField(doNotGenerateLipsyncOverrideLayer, new GUIContent("Don't update Lipsync layer"));
+                EditorGUILayout.PropertyField(doNotGenerateWeightCorrectionLayer, new GUIContent("Don't update Weight Correction layer"));
                 GenWeightCorrection(true);
 
                 EditorGUILayout.LabelField("Animation Conflict Prevention", EditorStyles.boldLabel);
@@ -325,7 +329,6 @@ You should press synchronize when any of the following happens:
             }
             else
             {
-                GenControllerWarning(false);
                 GenBlinkingWarning(false);
                 GenWeightCorrection(false);
                 CpmValueWarning(false);
@@ -338,16 +341,6 @@ You should press synchronize when any of the following happens:
         private static string FakeBooleanIcon(bool value)
         {
             return value ? "✓" : "×";
-        }
-
-        private void GenControllerWarning(bool advancedFoldoutIsOpen)
-        {
-            if (doNotGenerateControllerLayer.boolValue)
-            {
-                EditorGUILayout.HelpBox(@"Controller layer should usually be generated, otherwise it may not be updated correctly on future updates of ComboGestureExpressions.
-
-This is not a normal usage of ComboGestureExpressions, and should not be used except in special cases." + (!advancedFoldoutIsOpen ? "\n\n(Advanced settings)" : ""), MessageType.Error);
-            }
         }
 
         private void GenBlinkingWarning(bool advancedFoldoutIsOpen)
