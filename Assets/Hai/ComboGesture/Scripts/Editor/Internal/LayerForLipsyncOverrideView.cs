@@ -51,10 +51,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             var machine = ReinitializeLayer();
 
             var activityManifests = CreateManifest();
-            var combinator = IntermediateBlinkingCombinator.ForLimitedLipsync(activityManifests);
-            if (!combinator.IntermediateToBlinking.ContainsKey(IntermediateBlinkingGroup.NewMotion(true)) &&
-                !combinator.IntermediateToBlinking.ContainsKey(IntermediateBlinkingGroup.NewBlend(true, false)) &&
-                !combinator.IntermediateToBlinking.ContainsKey(IntermediateBlinkingGroup.NewBlend(false, true)))
+            if (activityManifests.Any(manifest => manifest.Manifest.RequiresLimitedLipsync()))
             {
                 return;
             }

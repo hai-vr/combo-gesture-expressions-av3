@@ -1,7 +1,1 @@
-﻿namespace Hai.ComboGesture.Scripts.Editor.Internal
-{
-    public enum IntermediateNature
-    {
-        Motion, Blend, TripleBlend
-    }
-}
+﻿// Leave empty - Assets cannot be removed on future .unitypackage releases.

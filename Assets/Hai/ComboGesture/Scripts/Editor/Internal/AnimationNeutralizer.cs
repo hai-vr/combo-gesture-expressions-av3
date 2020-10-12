@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Hai.ComboGesture.Scripts.Components;
+using Hai.ComboGesture.Scripts.Editor.Internal.Model;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -62,22 +63,22 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             return _originalActivityManifests.Select(manifest => RemapManifest(manifest, remapping)).ToList();
         }
 
-        private HashSet<RawGestureManifest.QualifiedAnimation> QualifyAllAnimations()
+        private HashSet<QualifiedAnimation> QualifyAllAnimations()
         {
-            return new HashSet<RawGestureManifest.QualifiedAnimation>(_originalActivityManifests
-                .SelectMany(manifest => manifest.Manifest.AnimationClips().Select(clip => manifest.Manifest.Qualify(clip)))
+            return new HashSet<QualifiedAnimation>(_originalActivityManifests
+                .SelectMany(manifest => manifest.Manifest.AllQualifiedAnimations())
                 .ToList());
         }
 
-        private static ActivityManifest RemapManifest(ActivityManifest manifest, Dictionary<RawGestureManifest.QualifiedAnimation, AnimationClip> remapping)
+        private static ActivityManifest RemapManifest(ActivityManifest manifest, Dictionary<QualifiedAnimation, AnimationClip> remapping)
         {
             var remappedManifest = manifest.Manifest.NewFromRemappedAnimations(remapping);
             return new ActivityManifest(manifest.StageValue, remappedManifest, manifest.LayerOrdinal);
         }
 
-        private Dictionary<RawGestureManifest.QualifiedAnimation, AnimationClip> CreateAssetContainerWithNeutralizedAnimations(AssetContainer container, HashSet<RawGestureManifest.QualifiedAnimation> allQualifiedAnimations, HashSet<CurveKey> allApplicableCurveKeys)
+        private Dictionary<QualifiedAnimation, AnimationClip> CreateAssetContainerWithNeutralizedAnimations(AssetContainer container, HashSet<QualifiedAnimation> allQualifiedAnimations, HashSet<CurveKey> allApplicableCurveKeys)
         {
-            var remapping = new Dictionary<RawGestureManifest.QualifiedAnimation, AnimationClip>();
+            var remapping = new Dictionary<QualifiedAnimation, AnimationClip>();
 
             foreach (var qualifiedAnimation in allQualifiedAnimations)
             {
@@ -95,12 +96,12 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             return remapping;
         }
 
-        private void MutateCurvesForAnimatedAnimatorParameters(AnimationClip neutralizedAnimation, RawGestureManifest.QualifiedAnimation qualifiedAnimation)
+        private void MutateCurvesForAnimatedAnimatorParameters(AnimationClip neutralizedAnimation, QualifiedAnimation qualifiedAnimation)
         {
             if (_compilerConflictFxLayerMode != ConflictFxLayerMode.KeepOnlyTransformsAndMuscles)
             {
                 var blinking = qualifiedAnimation.Qualification.IsBlinking ? 1 : 0;
-                var wide = qualifiedAnimation.Qualification.Limitation == RawGestureManifest.QualifiedLimitation.Wide ? 1 : 0;
+                var wide = qualifiedAnimation.Qualification.Limitation == QualifiedLimitation.Wide ? 1 : 0;
                 neutralizedAnimation.SetCurve("", typeof(Animator), "_Hai_GestureAnimBlink", AnimationCurve.Linear(0, blinking, 1 / 60f, blinking));
                 neutralizedAnimation.SetCurve("", typeof(Animator), "_Hai_GestureAnimWide", AnimationCurve.Linear(0, wide, 1 / 60f, wide));
             }

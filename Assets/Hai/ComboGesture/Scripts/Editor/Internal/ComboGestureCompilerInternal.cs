@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Hai.ComboGesture.Scripts.Components;
+using Hai.ComboGesture.Scripts.Editor.Internal.Infra;
+using Hai.ComboGesture.Scripts.Editor.Internal.Model;
 using Hai.ComboGesture.Scripts.Editor.Internal.Reused;
 using UnityEditor;
 using UnityEditor.Animations;
@@ -328,10 +330,10 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
     class ActivityManifest
     {
         public int StageValue { get; }
-        public RawGestureManifest Manifest { get; }
+        public PermutationManifest Manifest { get; }
         public int LayerOrdinal { get; }
 
-        public ActivityManifest(int stageValue, RawGestureManifest manifest, int layerOrdinal)
+        public ActivityManifest(int stageValue, PermutationManifest manifest, int layerOrdinal)
         {
             StageValue = stageValue;
             Manifest = manifest;

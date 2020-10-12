@@ -613,7 +613,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         {
             GUILayout.Label("Select face expressions with <b>both eyes closed</b>.", _largeFont);
             GUILayout.BeginArea(new Rect(0, singleLineHeight * 3, position.width, GuiSquareHeight * 8));
-            var allClips = new HashSet<AnimationClip>(activity.OrderedAnimations().Where(clip => clip != null)).ToList();
+            var allClips = activity.AllDistinctAnimations();
             var mod = Math.Max(3, Math.Min(8, (int)Math.Sqrt(allClips.Count)));
             for (var element = 0; element < allClips.Count; element++)
             {
@@ -646,7 +646,7 @@ At the time this version has been published, generating the layer will break you
             {
                 GUILayout.Label("Select face expressions with a <b>wide open mouth</b>.", _largeFont);
                 GUILayout.BeginArea(new Rect(0, singleLineHeight * 3 + helpBoxHeightReverse, position.width, GuiSquareHeight * 8));
-                var allClips = new HashSet<AnimationClip>(activity.OrderedAnimations().Where(clip => clip != null)).ToList();
+                var allClips = new HashSet<AnimationClip>(activity.AllDistinctAnimations()).ToList();
                 var mod = Math.Max(3, Math.Min(8, (int)Math.Sqrt(allClips.Count)));
                 for (var element = 0; element < allClips.Count; element++)
                 {

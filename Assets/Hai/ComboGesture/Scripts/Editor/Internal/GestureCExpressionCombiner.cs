@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Hai.ComboGesture.Scripts.Editor.Internal.Model;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
@@ -15,13 +16,13 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
     {
         private readonly AnimatorController _animatorController;
         private readonly AnimatorStateMachine _machine;
-        private readonly Dictionary<IntermediateAnimationGroup, List<TransitionCondition>> _intermediateToCombo;
+        private readonly Dictionary<IAnimatedBehavior, List<TransitionCondition>> _intermediateToCombo;
         private readonly string _activityStageName;
         private readonly bool _shouldWriteDefaults;
         private readonly bool _useGestureWeightCorrection;
 
         public GestureCExpressionCombiner(AnimatorController animatorController, AnimatorStateMachine machine,
-            Dictionary<IntermediateAnimationGroup, List<TransitionCondition>> intermediateToCombo, string activityStageName, bool shouldWriteDefaults, bool useGestureWeightCorrection)
+            Dictionary<IAnimatedBehavior, List<TransitionCondition>> intermediateToCombo, string activityStageName, bool shouldWriteDefaults, bool useGestureWeightCorrection)
         {
             _animatorController = animatorController;
             _machine = machine;
@@ -40,16 +41,16 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 var intermediateAnimationGroup = entry.Key;
                 var transitionConditions = entry.Value;
 
-                switch (intermediateAnimationGroup.Nature)
+                switch (intermediateAnimationGroup.Nature())
                 {
-                    case IntermediateNature.Motion:
-                        ForMotion(intermediateAnimationGroup, transitionConditions);
+                    case AnimatedBehaviorNature.Single:
+                        ForMotion((SingleAnimatedBehavior)intermediateAnimationGroup, transitionConditions);
                         break;
-                    case IntermediateNature.Blend:
-                        ForBlend(transitionConditions, intermediateAnimationGroup);
+                    case AnimatedBehaviorNature.Analog:
+                        ForBlend(transitionConditions, (AnalogAnimatedBehavior)intermediateAnimationGroup);
                         break;
-                    case IntermediateNature.TripleBlend:
-                        ForBlend(transitionConditions, intermediateAnimationGroup);
+                    case AnimatedBehaviorNature.DualAnalog:
+                        ForBlend(transitionConditions, (DualAnalogAnimatedBehavior)intermediateAnimationGroup);
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -57,15 +58,15 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
         }
 
-        private void ForMotion(IntermediateAnimationGroup intermediateAnimationGroup,
+        private void ForMotion(SingleAnimatedBehavior intermediateAnimationGroup,
             List<TransitionCondition> transitionConditions)
         {
-            var state = CreateMotionState(intermediateAnimationGroup.Posing,
+            var state = CreateMotionState(intermediateAnimationGroup.Posing.Clip,
                 ToPotentialGridPosition(transitionConditions[0]));
             foreach (var transitionCondition in transitionConditions)
             {
                 CreateMotionTransition(GetNullableStageValue(transitionCondition), state,
-                    transitionCondition.Combo.RawValue,
+                    transitionCondition.Permutation,
                     transitionCondition.TransitionDuration);
             }
         }
@@ -73,60 +74,64 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private static Vector3 ToPotentialGridPosition(TransitionCondition transitionCondition)
         {
             var positionInList = transitionCondition.LayerOrdinal;
-            return GridPosition(transitionCondition.Combo.Right, positionInList * 8 + transitionCondition.Combo.Left);
+            return GridPosition((int)transitionCondition.Permutation.Right, positionInList * 8 + (int)transitionCondition.Permutation.Left);
         }
 
         private void ForBlend(List<TransitionCondition> transitionConditions,
-            IntermediateAnimationGroup intermediateAnimationGroup)
+            AnalogAnimatedBehavior intermediateAnimationGroup)
         {
-            AnimatorState dualBlendState = null;
             AnimatorState leftBlendState = null;
             AnimatorState rightBlendState = null;
             foreach (var transitionCondition in transitionConditions)
             {
                 var nullableTransition = GetNullableStageValue(transitionCondition);
-                if (transitionCondition.Combo.IsSymmetrical)
+                if (leftBlendState == null)
                 {
-                    if (dualBlendState == null)
-                    {
-                        dualBlendState = CreateDualBlendState(intermediateAnimationGroup.Posing,
-                            intermediateAnimationGroup.Resting, ToPotentialGridPosition(transitionCondition),
-                            intermediateAnimationGroup.PosingLeft, intermediateAnimationGroup.PosingRight);
-                    }
-
-                    CreateDualTransition(nullableTransition, transitionCondition.Combo.RawValue, dualBlendState,
-                        transitionCondition.TransitionDuration);
+                    leftBlendState = CreateSidedBlendState(intermediateAnimationGroup.Squeezing.Clip,
+                        ToPotentialGridPosition(transitionCondition), intermediateAnimationGroup.Resting.Clip,
+                        Vector3.zero, ComboNature.BlendLeft);
                 }
-                else
+
+                if (rightBlendState == null)
                 {
-                    if (leftBlendState == null)
-                    {
-                        leftBlendState = CreateSidedBlendState(intermediateAnimationGroup.Posing,
-                            ToPotentialGridPosition(transitionCondition), intermediateAnimationGroup.Resting,
-                            Vector3.zero, ComboNature.BlendLeft);
-                    }
-
-                    if (rightBlendState == null)
-                    {
-                        rightBlendState = CreateSidedBlendState(intermediateAnimationGroup.Posing,
-                            ToPotentialGridPosition(transitionCondition), intermediateAnimationGroup.Resting,
-                            Vector3.zero, ComboNature.BlendRight);
-                    }
-
-                    CreateSidedTransition(nullableTransition, transitionCondition.Combo.RawValue,
-                        leftBlendState, ComboNature.BlendLeft, transitionCondition.TransitionDuration);
-                    CreateSidedTransition(nullableTransition, transitionCondition.Combo.RawValue,
-                        rightBlendState, ComboNature.BlendRight, transitionCondition.TransitionDuration);
+                    rightBlendState = CreateSidedBlendState(intermediateAnimationGroup.Squeezing.Clip,
+                        ToPotentialGridPosition(transitionCondition), intermediateAnimationGroup.Resting.Clip,
+                        Vector3.zero, ComboNature.BlendRight);
                 }
+
+                CreateSidedTransition(nullableTransition,
+                    leftBlendState, ComboNature.BlendLeft, transitionCondition.TransitionDuration);
+                CreateSidedTransition(nullableTransition,
+                    rightBlendState, ComboNature.BlendRight, transitionCondition.TransitionDuration);
             }
         }
 
-        private void CreateMotionTransition(int? stageValue, AnimatorState state, int comboRawValue,
+        private void ForBlend(List<TransitionCondition> transitionConditions,
+            DualAnalogAnimatedBehavior intermediateAnimationGroup)
+        {
+            AnimatorState dualBlendState = null;
+            foreach (var transitionCondition in transitionConditions)
+            {
+                var nullableTransition = GetNullableStageValue(transitionCondition);
+                if (dualBlendState == null)
+                {
+                    dualBlendState = CreateDualBlendState(intermediateAnimationGroup.BothSqueezing.Clip,
+                        intermediateAnimationGroup.Resting.Clip, ToPotentialGridPosition(transitionCondition),
+                        intermediateAnimationGroup.LeftSqueezing.Clip, intermediateAnimationGroup.RightSqueezing.Clip);
+                }
+
+                CreateDualTransition(nullableTransition, transitionCondition.Permutation, dualBlendState,
+                    transitionCondition.TransitionDuration);
+            }
+        }
+
+        private void CreateMotionTransition(int? stageValue, AnimatorState state, Permutation comboRawValue,
             float transitionDuration)
         {
             var transition = _machine.AddAnyStateTransition(state);
             SetupComboTransition(transition, transitionDuration);
-            transition.AddCondition(IsEqualTo, comboRawValue, SharedLayerUtils.HaiGestureComboParamName);
+            transition.AddCondition(IsEqualTo, (float)(comboRawValue.Left), SharedLayerUtils.GestureLeft);
+            transition.AddCondition(IsEqualTo, (float)(comboRawValue.Right), SharedLayerUtils.GestureRight);
             if (stageValue != null) transition.AddCondition(IsEqualTo, (int) stageValue, _activityStageName);
         }
 
@@ -138,23 +143,22 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             return newState;
         }
 
-        private void CreateSidedTransition(int? stageValue,
-            int comboRawValue, AnimatorState state, ComboNature clipNature, float transitionDuration)
+        private void CreateSidedTransition(int? stageValue, AnimatorState state, ComboNature clipNature, float transitionDuration)
         {
             var transition = _machine.AddAnyStateTransition(state);
             SetupComboTransition(transition, transitionDuration);
-            transition.AddCondition(IsEqualTo, comboRawValue, SharedLayerUtils.HaiGestureComboParamName);
-            transition.AddCondition(IsEqualTo, 1, clipNature == ComboNature.BlendLeft ? "GestureLeft" : "GestureRight");
+            transition.AddCondition(IsEqualTo, 1, clipNature == ComboNature.BlendLeft ? SharedLayerUtils.GestureLeft : SharedLayerUtils.GestureRight);
             transition.AddCondition(AnimatorConditionMode.NotEqual, 1,
-                clipNature == ComboNature.BlendRight ? "GestureLeft" : "GestureRight");
+                clipNature == ComboNature.BlendRight ? SharedLayerUtils.GestureLeft : SharedLayerUtils.GestureRight);
             if (stageValue != null) transition.AddCondition(IsEqualTo, (int) stageValue, _activityStageName);
         }
 
-        private void CreateDualTransition(int? stageValue, int comboRawValue, AnimatorState state, float transitionDuration)
+        private void CreateDualTransition(int? stageValue, Permutation comboRawValue, AnimatorState state, float transitionDuration)
         {
             var transition = _machine.AddAnyStateTransition(state);
             SetupComboTransition(transition, transitionDuration);
-            transition.AddCondition(IsEqualTo, comboRawValue, SharedLayerUtils.HaiGestureComboParamName);
+            transition.AddCondition(IsEqualTo, (float)(comboRawValue.Left), SharedLayerUtils.GestureLeft);
+            transition.AddCondition(IsEqualTo, (float)(comboRawValue.Right), SharedLayerUtils.GestureRight);
             if (stageValue != null) transition.AddCondition(IsEqualTo, (int) stageValue, _activityStageName);
         }
 
