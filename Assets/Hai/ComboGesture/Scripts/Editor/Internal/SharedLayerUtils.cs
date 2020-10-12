@@ -1,5 +1,7 @@
 ﻿using System.Linq;
 using Hai.ComboGesture.Scripts.Components;
+using Hai.ComboGesture.Scripts.Editor.Internal.Infra;
+using Hai.ComboGesture.Scripts.Editor.Internal.Model;
 using UnityEditor.Animations;
 using UnityEngine;
 
@@ -48,6 +50,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             return new Vector3(x * 200 , y * 70, 0);
         }
 
+        internal const string GestureLeft = "GestureLeft";
+        internal const string GestureRight = "GestureRight";
         internal const string HaiGestureComboParamName = "_Hai_GestureComboValue";
         internal const string HaiGestureComboDisableExpressionsParamName = "_Hai_GestureComboDisableExpressions";
         internal const string HaiGestureComboAreEyesClosedParamName = "_Hai_GestureComboAreEyesClosed";
@@ -57,11 +61,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         internal const string HaiGestureComboLeftWeightProxy = "_Hai_GestureLWProxy";
         internal const string HaiGestureComboRightWeightProxy = "_Hai_GestureRWProxy";
 
-        public static RawGestureManifest FromManifest(ComboGestureActivity activity, AnimationClip fallbackWhen00ClipIsNull)
+        public static PermutationManifest FromManifest(ComboGestureActivity activity, AnimationClip fallbackWhen00ClipIsNull)
         {
             return activity == null
-                ? RawGestureManifest.AllSlotsFittedWithSameClip(fallbackWhen00ClipIsNull)
-                : RawGestureManifest.FromActivity(activity, fallbackWhen00ClipIsNull);
+                ? ActivityToPermutationManifest.FromNothing(fallbackWhen00ClipIsNull)
+                : ActivityToPermutationManifest.FromActivity(activity, fallbackWhen00ClipIsNull);
         }
 
         public static void CreateParamIfNotExists(AnimatorController controller, string paramName, AnimatorControllerParameterType type)

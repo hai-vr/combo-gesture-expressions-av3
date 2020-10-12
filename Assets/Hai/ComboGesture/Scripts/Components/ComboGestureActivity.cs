@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Components
@@ -97,7 +98,7 @@ namespace Hai.ComboGesture.Scripts.Components
             WideOpenMouth
         }
 
-        public IEnumerable<AnimationClip> OrderedAnimations()
+        public List<AnimationClip> AllDistinctAnimations()
         {
             return new[]
             {
@@ -110,8 +111,19 @@ namespace Hai.ComboGesture.Scripts.Components
                 anim66, anim67,
                 anim77,
                 //
-                anim11_L == null ? anim11 : anim11_L, anim11_R == null ? anim11 : anim11_R
-            };
+                anim11_L == null ? anim11 : anim11_L, anim11_R == null ? anim11 : anim11_R,
+                //
+                anim10,
+                anim20, anim21,
+                anim30, anim31, anim32,
+                anim40, anim41, anim42, anim43,
+                anim50, anim51, anim52, anim53, anim54,
+                anim60, anim61, anim62, anim63, anim64, anim65,
+                anim70, anim71, anim72, anim73, anim74, anim75, anim76,
+            }
+                .Where(clip => clip != null)
+                .Distinct()
+                .ToList();
         }
     }
 }

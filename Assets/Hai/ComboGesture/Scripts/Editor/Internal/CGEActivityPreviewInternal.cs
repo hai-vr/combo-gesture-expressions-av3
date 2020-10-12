@@ -96,10 +96,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         private Dictionary<AnimationClip, Texture2D> GatherAnimations(ProcessMode processMode)
         {
-            var allAvailableAnimations = new HashSet<AnimationClip>(_editorArbitraryAnimations);
-            allAvailableAnimations.UnionWith(_activity.OrderedAnimations());
+            var enumerable = _editorArbitraryAnimations
+                .Distinct()
+                .Where(clip => clip != null)
+                .Union(_activity.AllDistinctAnimations());
 
-            var enumerable = allAvailableAnimations.Where(clip => clip != null);
             if (processMode == ProcessMode.CalculateMissing)
             {
                 enumerable = enumerable.Where(clip => !_animationClipToTextureDict.ContainsKey(clip));
