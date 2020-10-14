@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.Internal.Infra;
 using Hai.ComboGesture.Scripts.Editor.Internal.Model;
@@ -61,11 +62,19 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         internal const string HaiGestureComboLeftWeightProxy = "_Hai_GestureLWProxy";
         internal const string HaiGestureComboRightWeightProxy = "_Hai_GestureRWProxy";
 
-        public static PermutationManifest FromManifest(ComboGestureActivity activity, AnimationClip fallbackWhen00ClipIsNull)
+        public static IManifest FromMapper(GestureComboStageMapper mapper, AnimationClip fallbackWhenAnyClipIsNull)
         {
-            return activity == null
-                ? ActivityToPermutationManifest.FromNothing(fallbackWhen00ClipIsNull)
-                : ActivityToPermutationManifest.FromActivity(activity, fallbackWhen00ClipIsNull);
+            switch (mapper.kind)
+            {
+                case GestureComboStageKind.Activity:
+                    return mapper.activity == null
+                        ? ActivityToPermutationManifest.FromNothing(fallbackWhenAnyClipIsNull) // TODO: It may be possible to create a specific manifest for that
+                        : ActivityToPermutationManifest.FromActivity(mapper.activity, fallbackWhenAnyClipIsNull);
+                case GestureComboStageKind.Puppet:
+                    return PuppetToPuppetManifest.FromPuppet(mapper.puppet);
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
         public static void CreateParamIfNotExists(AnimatorController controller, string paramName, AnimatorControllerParameterType type)

@@ -46,6 +46,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             AssetDatabase.AddObjectToAsset(animation, _holder);
         }
 
+        public void AddBlendTree(BlendTree blendTree)
+        {
+            AssetDatabase.AddObjectToAsset(blendTree, _holder);
+        }
+
         public void RemoveAssetsStartingWith(string prefix, Type typeOfAssets)
         {
             var allSubAssets = AssetDatabase.LoadAllAssetsAtPath(AssetDatabase.GetAssetPath(_holder));

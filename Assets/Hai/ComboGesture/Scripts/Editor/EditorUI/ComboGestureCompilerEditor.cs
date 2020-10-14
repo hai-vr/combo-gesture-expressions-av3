@@ -197,7 +197,9 @@ At the time this version has been published, generating the layer will break you
 You should press synchronize when any of the following happens:
 - the order of layers in the animator controller changes,
 - an animation is modified,
+- a blend tree is modified,
 - a ComboGestureActivity is modified,
+- a ComboGesturePuppet is modified,
 - a ComboGestureLimitedLipsync is modified,
 - the avatar descriptor Eyelids or Lipsync is modified,
 - this Compiler is modified.", MessageType.Info);
@@ -458,8 +460,17 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
             var element = comboLayersReorderableList.serializedProperty.GetArrayElementAtIndex(index);
 
             EditorGUI.PropertyField(
-                new Rect(rect.x, rect.y, rect.width - 70, EditorGUIUtility.singleLineHeight),
-                element.FindPropertyRelative("activity"),
+                new Rect(rect.x, rect.y, 70, EditorGUIUtility.singleLineHeight),
+                element.FindPropertyRelative("kind"),
+                GUIContent.none
+            );
+
+            var kind = (GestureComboStageKind) element.FindPropertyRelative("kind").intValue;
+            EditorGUI.PropertyField(
+                new Rect(rect.x + 70, rect.y, rect.width - 70 - 70, EditorGUIUtility.singleLineHeight),
+                kind != GestureComboStageKind.Puppet
+                    ? element.FindPropertyRelative("activity")
+                    : element.FindPropertyRelative("puppet"),
                 GUIContent.none
             );
 

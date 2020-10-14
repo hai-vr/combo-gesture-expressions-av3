@@ -8,13 +8,28 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
     {
         public Dictionary<IAnimatedBehavior, List<TransitionCondition>> IntermediateToTransition { get; }
 
-        public IntermediateCombinator(List<ActivityManifest> activityManifests)
+        public IntermediateCombinator(List<ManifestBinding> activityManifests)
         {
-            var exhaustive = DecomposeIntoIntermediateToTransitions(activityManifests);
+            var exhaustive = DecomposePermutationsIntoIntermediateToTransitions(activityManifests);
 
-            var optimized = Optimize(exhaustive, activityManifests.Count);
+            Dictionary<IAnimatedBehavior, List<TransitionCondition>> representation = Optimize(exhaustive, activityManifests.Count);
 
-            IntermediateToTransition = optimized;
+            var puppetManifests = activityManifests
+                .Where(binding => binding.Manifest.Kind() == ManifestKind.Puppet)
+                .ToList();
+
+            foreach (var binding in puppetManifests)
+            {
+                var puppet = (PuppetManifest) binding.Manifest;
+
+                representation.Add(puppet.Behavior, new List<TransitionCondition>{new TransitionCondition.PuppetBoundTransitionCondition(
+                    binding.StageValue,
+                    puppet.TransitionDuration(),
+                    binding.LayerOrdinal
+                )});
+            }
+
+            IntermediateToTransition = representation;
         }
 
         readonly struct PermutationAndTransitionDuration
@@ -86,19 +101,21 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 .ToDictionary(pair => pair.Key, pair => pair.Value);
         }
 
-        private static Dictionary<IAnimatedBehavior, List<TransitionCondition>> DecomposeIntoIntermediateToTransitions(List<ActivityManifest> activityManifests)
+        private static Dictionary<IAnimatedBehavior, List<TransitionCondition>> DecomposePermutationsIntoIntermediateToTransitions(List<ManifestBinding> activityManifests)
         {
             return activityManifests
-                .SelectMany(Decompose)
+                .Where(binding => binding.Manifest.Kind() == ManifestKind.Permutation)
+                .SelectMany(DecomposePermutation)
                 .GroupBy(entry => entry.IntermediateAnimationGroup)
                 .ToDictionary(grouping => grouping.Key, grouping => grouping.Select(combosition => combosition.TransitionCondition).ToList());
         }
 
-        private static List<AnimToTransitionEntry> Decompose(ActivityManifest activityManifest)
+        private static List<AnimToTransitionEntry> DecomposePermutation(ManifestBinding manifestBinding)
         {
-            return activityManifest.Manifest.Poses
+            var manifest = (PermutationManifest)manifestBinding.Manifest;
+            return manifest.Poses
                 .Select(pair => new AnimToTransitionEntry(
-                    new TransitionCondition.ActivityBoundTransitionCondition(activityManifest.StageValue, activityManifest.Manifest.TransitionDuration, pair.Key, activityManifest.LayerOrdinal),
+                    new TransitionCondition.ActivityBoundTransitionCondition(manifestBinding.StageValue, manifest.TransitionDuration(), pair.Key, manifestBinding.LayerOrdinal),
                     pair.Value
                 ))
                 .ToList();
@@ -120,7 +137,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
     internal abstract class TransitionCondition
     {
         public float TransitionDuration { get; }
-        public Permutation Permutation { get; }
+        public Permutation Permutation { get; } // Can be null...?
         public int LayerOrdinal { get; }
 
         private TransitionCondition(float transitionDuration, Permutation permutation, int layerOrdinal)
@@ -140,6 +157,18 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 StageValue = stageValue;
             }
         }
+
+        internal class PuppetBoundTransitionCondition : TransitionCondition
+        {
+            public int StageValue { get; }
+
+            public PuppetBoundTransitionCondition(int stageValue, float transitionDuration,
+                int layerOrdinal) : base(transitionDuration, null, layerOrdinal)
+            {
+                StageValue = stageValue;
+            }
+        }
+
         internal class AlwaysTransitionCondition : TransitionCondition
         {
             public AlwaysTransitionCondition(float transitionDuration, Permutation permutation,

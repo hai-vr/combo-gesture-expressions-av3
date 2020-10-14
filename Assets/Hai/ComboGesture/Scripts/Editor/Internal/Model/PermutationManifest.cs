@@ -2,19 +2,45 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using UnityEditor.Animations;
 using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
 {
-    public class PermutationManifest
+    public interface IManifest
+    {
+        ManifestKind Kind();
+        bool RequiresBlinking();
+        bool RequiresLimitedLipsync();
+        IEnumerable<QualifiedAnimation> AllQualifiedAnimations();
+        IEnumerable<BlendTree> AllBlendTreesFoundRecursively();
+        IManifest NewFromRemappedAnimations(Dictionary<QualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendToRemappedBlend);
+    }
+
+    public enum ManifestKind
+    {
+        Permutation, Puppet
+    }
+
+    public class PermutationManifest : IManifest
     {
         public ReadOnlyDictionary<Permutation, IAnimatedBehavior> Poses { get; }
-        public float TransitionDuration { get; }
+        private readonly float _transitionDuration;
 
         public PermutationManifest(Dictionary<Permutation, IAnimatedBehavior> poses, float transitionDuration)
         {
             Poses = new ReadOnlyDictionary<Permutation, IAnimatedBehavior>(poses);
-            TransitionDuration = transitionDuration;
+            _transitionDuration = transitionDuration;
+        }
+
+        public ManifestKind Kind()
+        {
+            return ManifestKind.Permutation;
+        }
+
+        public float TransitionDuration()
+        {
+            return _transitionDuration;
         }
 
         public bool RequiresBlinking()
@@ -32,15 +58,20 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
             return Poses.Values.SelectMany(behavior => behavior.QualifiedAnimations()).ToList();
         }
 
-        public PermutationManifest NewFromRemappedAnimations(Dictionary<QualifiedAnimation, AnimationClip> remapping)
+        public IEnumerable<BlendTree> AllBlendTreesFoundRecursively()
+        {
+            return new List<BlendTree>();
+        }
+
+        public IManifest NewFromRemappedAnimations(Dictionary<QualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)
         {
             var newPoses = new Dictionary<Permutation, IAnimatedBehavior>(Poses);
             foreach (var permutation in newPoses.Keys.ToList())
             {
-                newPoses[permutation] = newPoses[permutation].Remapping(remapping);
+                newPoses[permutation] = newPoses[permutation].Remapping(remapping, blendRemapping);
             }
 
-            return new PermutationManifest(newPoses, TransitionDuration);
+            return new PermutationManifest(newPoses, _transitionDuration);
         }
     }
 
@@ -48,14 +79,15 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
     {
         AnimatedBehaviorNature Nature();
         IEnumerable<QualifiedAnimation> QualifiedAnimations();
-        IAnimatedBehavior Remapping(Dictionary<QualifiedAnimation, AnimationClip> remapping);
+        IAnimatedBehavior Remapping(Dictionary<QualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping);
     }
 
     public enum AnimatedBehaviorNature
     {
         Single,
         Analog,
-        DualAnalog
+        DualAnalog,
+        Puppet
     }
 
     class SingleAnimatedBehavior : IAnimatedBehavior
@@ -82,7 +114,12 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
             return new[] {Posing};
         }
 
-        public IAnimatedBehavior Remapping(Dictionary<QualifiedAnimation, AnimationClip> remapping)
+        public IEnumerable<BlendTree> AllBlendTreesFoundRecursively()
+        {
+            return new List<BlendTree>();
+        }
+
+        public IAnimatedBehavior Remapping(Dictionary<QualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)
         {
             return Of(Remap(remapping, Posing));
         }
@@ -147,7 +184,12 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
             return new[] {Resting, Squeezing};
         }
 
-        public IAnimatedBehavior Remapping(Dictionary<QualifiedAnimation, AnimationClip> remapping)
+        public IEnumerable<BlendTree> AllBlendTreesFoundRecursively()
+        {
+            return new List<BlendTree>();
+        }
+
+        public IAnimatedBehavior Remapping(Dictionary<QualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)
         {
             return Maybe(
                 SingleAnimatedBehavior.Remap(remapping, Resting),
@@ -232,7 +274,12 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
             return new[] {Resting, LeftSqueezing, RightSqueezing, BothSqueezing};
         }
 
-        public IAnimatedBehavior Remapping(Dictionary<QualifiedAnimation, AnimationClip> remapping)
+        public IEnumerable<BlendTree> AllBlendTreesFoundRecursively()
+        {
+            return new List<BlendTree>();
+        }
+
+        public IAnimatedBehavior Remapping(Dictionary<QualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)
         {
             return Maybe(
                 SingleAnimatedBehavior.Remap(remapping, Resting),
@@ -293,6 +340,75 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
         }
 
         public static bool operator !=(DualAnalogAnimatedBehavior left, DualAnalogAnimatedBehavior right)
+        {
+            return !Equals(left, right);
+        }
+    }
+
+    public class PuppetAnimatedBehavior : IAnimatedBehavior
+    {
+        public readonly BlendTree Tree;
+        public List<QualifiedAnimation> Qualifications { get; }
+
+        private PuppetAnimatedBehavior(BlendTree tree, List<QualifiedAnimation> qualifications)
+        {
+            Tree = tree;
+            Qualifications = qualifications;
+        }
+
+        public static PuppetAnimatedBehavior Of(BlendTree blendTree, List<QualifiedAnimation> qualifications)
+        {
+            return new PuppetAnimatedBehavior(blendTree, qualifications);
+        }
+
+        public AnimatedBehaviorNature Nature()
+        {
+            return AnimatedBehaviorNature.Puppet;
+        }
+
+        public IEnumerable<QualifiedAnimation> QualifiedAnimations()
+        {
+            return Qualifications.ToList();
+        }
+
+        public IAnimatedBehavior Remapping(Dictionary<QualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)
+        {
+            var newQualifications = Qualifications
+                .Select(qualification => remapping.ContainsKey(qualification)
+                    ? qualification.NewInstanceWithClip(remapping[qualification])
+                    : qualification)
+                .ToList();
+
+            return Of(blendRemapping[Tree], newQualifications);
+        }
+
+        protected bool Equals(PuppetAnimatedBehavior other)
+        {
+            return Equals(Tree, other.Tree) && Equals(Qualifications, other.Qualifications);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((PuppetAnimatedBehavior) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return ((Tree != null ? Tree.GetHashCode() : 0) * 397) ^ (Qualifications != null ? Qualifications.GetHashCode() : 0);
+            }
+        }
+
+        public static bool operator ==(PuppetAnimatedBehavior left, PuppetAnimatedBehavior right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(PuppetAnimatedBehavior left, PuppetAnimatedBehavior right)
         {
             return !Equals(left, right);
         }

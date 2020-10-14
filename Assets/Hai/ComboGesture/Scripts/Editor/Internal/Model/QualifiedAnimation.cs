@@ -2,6 +2,11 @@
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
 {
+        /**
+         * A qualified animation is an animation clip with expression metadata: Are eyes blinking? What shape is the mouth?
+         * A single animation file may be qualified differently in different places.
+         * Usually, the animation file qualification is consistent within a single Manifest, and may vary across other Manifests.
+         */
         public readonly struct QualifiedAnimation
         {
             public QualifiedAnimation(AnimationClip clip, Qualification qualification)

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Hai.ComboGesture.Scripts.Components;
-using Hai.ComboGesture.Scripts.Editor.Internal.Infra;
 using Hai.ComboGesture.Scripts.Editor.Internal.Model;
 using Hai.ComboGesture.Scripts.Editor.Internal.Reused;
 using UnityEditor;
@@ -16,9 +15,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
     internal class ComboGestureCompilerInternal
     {
         private const string EmptyClipPath = "Assets/Hai/ComboGesture/Hai_ComboGesture_EmptyClip.anim";
-
-        public const string GestureLeft = "GestureLeft";
-        public const string GestureRight = "GestureRight";
 
         private readonly string _activityStageName;
         private readonly List<GestureComboStageMapper> _comboLayers;
@@ -107,18 +103,20 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 }
             }
 
-            CreateOrReplaceExpressionsView(emptyClip);
+            var manifestBindings = CreateManifestBindings(emptyClip);
+
+            CreateOrReplaceExpressionsView(emptyClip, manifestBindings);
 
             if (!Feature(FeatureToggles.DoNotGenerateBlinkingOverrideLayer))
             {
-                CreateOrReplaceBlinkingOverrideView(emptyClip);
+                CreateOrReplaceBlinkingOverrideView(emptyClip, manifestBindings);
             }
 
             if (!Feature(FeatureToggles.DoNotGenerateLipsyncOverrideLayer))
             {
                 if (_integrateLimitedLipsync && _avatarDescriptor != null && _avatarDescriptor.VisemeSkinnedMesh != null)
                 {
-                    CreateOrReplaceLipsyncOverrideView(emptyClip);
+                    CreateOrReplaceLipsyncOverrideView(emptyClip, manifestBindings);
                 }
                 else
                 {
@@ -134,6 +132,17 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 AssetDatabase.Refresh();
             }
             EditorUtility.ClearProgressBar();
+        }
+
+        private List<ManifestBinding> CreateManifestBindings(AnimationClip emptyClip)
+        {
+            return _comboLayers
+                .Select((mapper, layerOrdinal) => new ManifestBinding(
+                    mapper.stageValue,
+                    SharedLayerUtils.FromMapper(mapper, emptyClip),
+                    layerOrdinal
+                ))
+                .ToList();
         }
 
         private void ReapAnimator()
@@ -224,7 +233,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             new LayerForWeightCorrection(_animatorGenerator, _weightCorrectionAvatarMask, emptyClip).Create();
         }
 
-        private void CreateOrReplaceExpressionsView(AnimationClip emptyClip)
+        private void CreateOrReplaceExpressionsView(AnimationClip emptyClip, List<ManifestBinding> manifestBindings)
         {
             if (_activityStageName != null)
             {
@@ -256,11 +265,12 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                     : new BlendshapesFinder(_avatarDescriptor).FindBlink().Select(key => key.AsCurveKey()).ToList(),
                 _animatorController,
                 _comboLayers,
-                _useGestureWeightCorrection
+                _useGestureWeightCorrection,
+                manifestBindings
             ).Create();
         }
 
-        private void CreateOrReplaceBlinkingOverrideView(AnimationClip emptyClip)
+        private void CreateOrReplaceBlinkingOverrideView(AnimationClip emptyClip, List<ManifestBinding> manifestBindings)
         {
             if (_activityStageName != null)
             {
@@ -283,11 +293,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 _logicalAvatarMask,
                 _animatorGenerator,
                 emptyClip,
-                _useGestureWeightCorrection
+                manifestBindings
             ).Create();
         }
 
-        private void CreateOrReplaceLipsyncOverrideView(AnimationClip emptyClip)
+        private void CreateOrReplaceLipsyncOverrideView(AnimationClip emptyClip, List<ManifestBinding> manifestBindings)
         {
             if (_activityStageName != null)
             {
@@ -314,7 +324,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 _limitedLipsync,
                 _assetContainer,
                 emptyClip,
-                _useGestureWeightCorrection
+                manifestBindings
             ).Create();
         }
 
@@ -339,13 +349,13 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         }
     }
 
-    class ActivityManifest
+    class ManifestBinding
     {
         public int StageValue { get; }
-        public PermutationManifest Manifest { get; }
+        public IManifest Manifest { get; }
         public int LayerOrdinal { get; }
 
-        public ActivityManifest(int stageValue, PermutationManifest manifest, int layerOrdinal)
+        public ManifestBinding(int stageValue, IManifest manifest, int layerOrdinal)
         {
             StageValue = stageValue;
             Manifest = manifest;

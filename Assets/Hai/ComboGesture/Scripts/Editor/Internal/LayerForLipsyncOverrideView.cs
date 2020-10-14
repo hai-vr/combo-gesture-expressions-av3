@@ -27,10 +27,19 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly ComboGestureLimitedLipsync _limitedLipsync;
         private readonly AssetContainer _assetContainer;
         private readonly AnimationClip _emptyClip;
-        private readonly bool _useGestureWeightCorrection;
+        private readonly List<ManifestBinding> _manifestBindings;
 
-        public LayerForLipsyncOverrideView(string activityStageName, List<GestureComboStageMapper> comboLayers, float analogBlinkingUpperThreshold, FeatureToggles featuresToggles, AvatarMask logicalAvatarMask, AnimatorGenerator animatorGenerator, VRCAvatarDescriptor avatarDescriptor, ComboGestureLimitedLipsync limitedLipsync, AssetContainer assetContainer, AnimationClip emptyClip,
-            bool useGestureWeightCorrection)
+        public LayerForLipsyncOverrideView(string activityStageName,
+            List<GestureComboStageMapper> comboLayers,
+            float analogBlinkingUpperThreshold,
+            FeatureToggles featuresToggles,
+            AvatarMask logicalAvatarMask,
+            AnimatorGenerator animatorGenerator,
+            VRCAvatarDescriptor avatarDescriptor,
+            ComboGestureLimitedLipsync limitedLipsync,
+            AssetContainer assetContainer,
+            AnimationClip emptyClip,
+            List<ManifestBinding> manifestBindings)
         {
             _activityStageName = activityStageName;
             _comboLayers = comboLayers;
@@ -42,7 +51,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _limitedLipsync = limitedLipsync;
             _assetContainer = assetContainer;
             _emptyClip = emptyClip;
-            _useGestureWeightCorrection = useGestureWeightCorrection;
+            _manifestBindings = manifestBindings;
         }
 
         public void Create()
@@ -50,8 +59,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             EditorUtility.DisplayProgressBar("GestureCombo", "Clearing lipsync override layer", 0f);
             var machine = ReinitializeLayer();
 
-            var activityManifests = CreateManifest();
-            if (activityManifests.Any(manifest => manifest.Manifest.RequiresLimitedLipsync()))
+            if (!_manifestBindings.Any(manifest => manifest.Manifest.RequiresLimitedLipsync()))
             {
                 return;
             }
@@ -181,14 +189,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 case 14: return _limitedLipsync.transition14;
                 default: throw new IndexOutOfRangeException();
             }
-        }
-
-        // FIXME: This is duplicate code
-        private List<ActivityManifest> CreateManifest()
-        {
-            return _comboLayers
-                .Select((mapper, layerOrdinal) => new ActivityManifest(mapper.stageValue, SharedLayerUtils.FromManifest(mapper.activity, _emptyClip), layerOrdinal))
-                .ToList();
         }
 
         private static void CreateInternalParameterDriverWhenEyesAreOpen(AnimatorState enableBlinking)

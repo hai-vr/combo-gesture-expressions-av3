@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Hai.ComboGesture.Scripts.Components;
+using Hai.ComboGesture.Scripts.Editor.Internal.Model;
 using Hai.ComboGesture.Scripts.Editor.Internal.Reused;
 using UnityEditor;
 using UnityEditor.Animations;
@@ -21,9 +23,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly AvatarMask _logicalAvatarMask;
         private readonly AnimatorGenerator _animatorGenerator;
         private readonly AnimationClip _emptyClip;
-        private readonly bool _useGestureWeightCorrection;
+        private readonly List<ManifestBinding> _manifestBindings;
 
-        public LayerForBlinkingOverrideView(string activityStageName, List<GestureComboStageMapper> comboLayers, float analogBlinkingUpperThreshold, FeatureToggles featuresToggles, AvatarMask logicalAvatarMask, AnimatorGenerator animatorGenerator, AnimationClip emptyClip, bool useGestureWeightCorrection)
+        public LayerForBlinkingOverrideView(string activityStageName, List<GestureComboStageMapper> comboLayers, float analogBlinkingUpperThreshold, FeatureToggles featuresToggles, AvatarMask logicalAvatarMask, AnimatorGenerator animatorGenerator, AnimationClip emptyClip, List<ManifestBinding> manifestBindings)
         {
             _activityStageName = activityStageName;
             _comboLayers = comboLayers;
@@ -32,7 +34,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _logicalAvatarMask = logicalAvatarMask;
             _animatorGenerator = animatorGenerator;
             _emptyClip = emptyClip;
-            _useGestureWeightCorrection = useGestureWeightCorrection;
+            _manifestBindings = manifestBindings;
         }
 
         public void Create()
@@ -40,8 +42,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             EditorUtility.DisplayProgressBar("GestureCombo", "Clearing eyes blinking override layer", 0f);
             var machine = ReinitializeLayer();
 
-            var activityManifests = CreateManifest();
-            if (activityManifests.Any(manifest => manifest.Manifest.RequiresBlinking()))
+            if (!_manifestBindings.Any(manifest => manifest.Manifest.RequiresBlinking()))
             {
                 return;
             }
@@ -96,15 +97,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             SetupBlinkingTransition(toEnable);
             toEnable.AddCondition(AnimatorConditionMode.Less, _analogBlinkingUpperThreshold, "_Hai_GestureAnimBlink");
         }
-
-        // FIXME: This is duplicate code
-        private List<ActivityManifest> CreateManifest()
-        {
-            return _comboLayers
-                .Select((mapper, layerOrdinal) => new ActivityManifest(mapper.stageValue, SharedLayerUtils.FromManifest(mapper.activity, _emptyClip), layerOrdinal))
-                .ToList();
-        }
-
 
         private static void CreateInternalParameterDriverWhenEyesAreOpen(AnimatorState enableBlinking)
         {
