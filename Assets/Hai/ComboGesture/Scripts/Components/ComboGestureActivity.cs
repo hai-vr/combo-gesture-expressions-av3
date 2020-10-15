@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using UnityEditor.Animations;
 using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Components
@@ -8,74 +9,74 @@ namespace Hai.ComboGesture.Scripts.Components
     {
         public float transitionDuration = 0.1f;
 
-        public AnimationClip anim00;
-        public AnimationClip anim01;
-        public AnimationClip anim02;
-        public AnimationClip anim03;
-        public AnimationClip anim04;
-        public AnimationClip anim05;
-        public AnimationClip anim06;
-        public AnimationClip anim07;
-        public AnimationClip anim11;
-        public AnimationClip anim12;
-        public AnimationClip anim13;
-        public AnimationClip anim14;
-        public AnimationClip anim15;
-        public AnimationClip anim16;
-        public AnimationClip anim17;
-        public AnimationClip anim22;
-        public AnimationClip anim23;
-        public AnimationClip anim24;
-        public AnimationClip anim25;
-        public AnimationClip anim26;
-        public AnimationClip anim27;
-        public AnimationClip anim33;
-        public AnimationClip anim34;
-        public AnimationClip anim35;
-        public AnimationClip anim36;
-        public AnimationClip anim37;
-        public AnimationClip anim44;
-        public AnimationClip anim45;
-        public AnimationClip anim46;
-        public AnimationClip anim47;
-        public AnimationClip anim55;
-        public AnimationClip anim56;
-        public AnimationClip anim57;
-        public AnimationClip anim66;
-        public AnimationClip anim67;
-        public AnimationClip anim77;
+        public Motion anim00;
+        public Motion anim01;
+        public Motion anim02;
+        public Motion anim03;
+        public Motion anim04;
+        public Motion anim05;
+        public Motion anim06;
+        public Motion anim07;
+        public Motion anim11;
+        public Motion anim12;
+        public Motion anim13;
+        public Motion anim14;
+        public Motion anim15;
+        public Motion anim16;
+        public Motion anim17;
+        public Motion anim22;
+        public Motion anim23;
+        public Motion anim24;
+        public Motion anim25;
+        public Motion anim26;
+        public Motion anim27;
+        public Motion anim33;
+        public Motion anim34;
+        public Motion anim35;
+        public Motion anim36;
+        public Motion anim37;
+        public Motion anim44;
+        public Motion anim45;
+        public Motion anim46;
+        public Motion anim47;
+        public Motion anim55;
+        public Motion anim56;
+        public Motion anim57;
+        public Motion anim66;
+        public Motion anim67;
+        public Motion anim77;
         public AnimationClip anim11_L;
         public AnimationClip anim11_R;
 
         public bool enablePermutations;
-        public AnimationClip anim10;
-        public AnimationClip anim20;
-        public AnimationClip anim21;
-        public AnimationClip anim30;
-        public AnimationClip anim31;
-        public AnimationClip anim32;
-        public AnimationClip anim40;
-        public AnimationClip anim41;
-        public AnimationClip anim42;
-        public AnimationClip anim43;
-        public AnimationClip anim50;
-        public AnimationClip anim51;
-        public AnimationClip anim52;
-        public AnimationClip anim53;
-        public AnimationClip anim54;
-        public AnimationClip anim60;
-        public AnimationClip anim61;
-        public AnimationClip anim62;
-        public AnimationClip anim63;
-        public AnimationClip anim64;
-        public AnimationClip anim65;
-        public AnimationClip anim70;
-        public AnimationClip anim71;
-        public AnimationClip anim72;
-        public AnimationClip anim73;
-        public AnimationClip anim74;
-        public AnimationClip anim75;
-        public AnimationClip anim76;
+        public Motion anim10;
+        public Motion anim20;
+        public Motion anim21;
+        public Motion anim30;
+        public Motion anim31;
+        public Motion anim32;
+        public Motion anim40;
+        public Motion anim41;
+        public Motion anim42;
+        public Motion anim43;
+        public Motion anim50;
+        public Motion anim51;
+        public Motion anim52;
+        public Motion anim53;
+        public Motion anim54;
+        public Motion anim60;
+        public Motion anim61;
+        public Motion anim62;
+        public Motion anim63;
+        public Motion anim64;
+        public Motion anim65;
+        public Motion anim70;
+        public Motion anim71;
+        public Motion anim72;
+        public Motion anim73;
+        public Motion anim74;
+        public Motion anim75;
+        public Motion anim76;
 
         public List<AnimationClip> blinking;
         public List<LimitedLipsyncAnimation> limitedLipsync;
@@ -100,6 +101,22 @@ namespace Hai.ComboGesture.Scripts.Components
 
         public List<AnimationClip> AllDistinctAnimations()
         {
+            var direct = AllMotions()
+                .OfType<AnimationClip>()
+                .ToList();
+            var insideBlends = AllMotions()
+                .OfType<BlendTree>()
+                .SelectMany(ComboGesturePuppet.AllAnimationsOf)
+                .ToList();
+
+            return direct.Concat(insideBlends)
+                .Where(clip => clip != null)
+                .Distinct()
+                .ToList();
+        }
+
+        private Motion[] AllMotions()
+        {
             return new[]
             {
                 anim00, anim01, anim02, anim03, anim04, anim05, anim06, anim07,
@@ -120,10 +137,7 @@ namespace Hai.ComboGesture.Scripts.Components
                 anim50, anim51, anim52, anim53, anim54,
                 anim60, anim61, anim62, anim63, anim64, anim65,
                 anim70, anim71, anim72, anim73, anim74, anim75, anim76,
-            }
-                .Where(clip => clip != null)
-                .Distinct()
-                .ToList();
+            };
         }
     }
 }

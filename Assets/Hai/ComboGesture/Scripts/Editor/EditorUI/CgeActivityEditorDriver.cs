@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 {
@@ -250,7 +251,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             var left = serializedObject.FindProperty(mergePair.Left).objectReferenceValue;
             var right = serializedObject.FindProperty(mergePair.Right).objectReferenceValue;
 
-            return left != null && right != null && left != right;
+            return left is AnimationClip && right is AnimationClip && left != right;
         }
 
         public bool AreCombinationSourcesIdentical(SerializedObject serializedObject, string propertyPath)

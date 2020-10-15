@@ -60,7 +60,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
 
         public IEnumerable<BlendTree> AllBlendTreesFoundRecursively()
         {
-            return new List<BlendTree>();
+            return Poses.Values.SelectMany(behavior => behavior.AllBlendTreesFoundRecursively()).Distinct().ToList();
         }
 
         public IManifest NewFromRemappedAnimations(Dictionary<QualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)
@@ -79,6 +79,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
     {
         AnimatedBehaviorNature Nature();
         IEnumerable<QualifiedAnimation> QualifiedAnimations();
+        IEnumerable<BlendTree> AllBlendTreesFoundRecursively();
         IAnimatedBehavior Remapping(Dictionary<QualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping);
     }
 
@@ -87,7 +88,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
         Single,
         Analog,
         DualAnalog,
-        Puppet
+        Puppet,
+        PuppetToAnalog,
+        PuppetToDualAnalog,
     }
 
     class SingleAnimatedBehavior : IAnimatedBehavior
@@ -348,12 +351,12 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
     public class PuppetAnimatedBehavior : IAnimatedBehavior
     {
         public readonly BlendTree Tree;
-        public List<QualifiedAnimation> Qualifications { get; }
+        private readonly HashSet<QualifiedAnimation> _qualifications;
 
         private PuppetAnimatedBehavior(BlendTree tree, List<QualifiedAnimation> qualifications)
         {
             Tree = tree;
-            Qualifications = qualifications;
+            _qualifications = new HashSet<QualifiedAnimation>(qualifications);
         }
 
         public static PuppetAnimatedBehavior Of(BlendTree blendTree, List<QualifiedAnimation> qualifications)
@@ -368,12 +371,17 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
 
         public IEnumerable<QualifiedAnimation> QualifiedAnimations()
         {
-            return Qualifications.ToList();
+            return _qualifications.ToList();
+        }
+
+        public IEnumerable<BlendTree> AllBlendTreesFoundRecursively()
+        {
+            return PuppetManifest.FindAllBlendTreesIncludingItself(Tree);
         }
 
         public IAnimatedBehavior Remapping(Dictionary<QualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)
         {
-            var newQualifications = Qualifications
+            var newQualifications = _qualifications
                 .Select(qualification => remapping.ContainsKey(qualification)
                     ? qualification.NewInstanceWithClip(remapping[qualification])
                     : qualification)
@@ -384,7 +392,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
 
         protected bool Equals(PuppetAnimatedBehavior other)
         {
-            return Equals(Tree, other.Tree) && Equals(Qualifications, other.Qualifications);
+            return Equals(Tree, other.Tree) && _qualifications.SetEquals(other._qualifications);
         }
 
         public override bool Equals(object obj)
@@ -399,7 +407,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
         {
             unchecked
             {
-                return ((Tree != null ? Tree.GetHashCode() : 0) * 397) ^ (Qualifications != null ? Qualifications.GetHashCode() : 0);
+                return ((Tree != null ? Tree.GetHashCode() : 0) * 397); // FIXME: this is a bad hashcode, qualifications list is ignored due to list hashcode
             }
         }
 
@@ -409,6 +417,178 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
         }
 
         public static bool operator !=(PuppetAnimatedBehavior left, PuppetAnimatedBehavior right)
+        {
+            return !Equals(left, right);
+        }
+    }
+
+    class PuppetToAnalogAnimatedBehavior : IAnimatedBehavior
+    {
+        public BlendTree Resting { get; }
+        public QualifiedAnimation Squeezing { get; }
+        public List<QualifiedAnimation> QualificationsOfTree { get; }
+
+        private PuppetToAnalogAnimatedBehavior(BlendTree resting, QualifiedAnimation squeezing, List<QualifiedAnimation> qualificationsOfTreeOfTree)
+        {
+            Resting = resting;
+            Squeezing = squeezing;
+            QualificationsOfTree = qualificationsOfTreeOfTree;
+        }
+
+        public AnimatedBehaviorNature Nature()
+        {
+            return AnimatedBehaviorNature.PuppetToAnalog;
+        }
+
+        public IEnumerable<QualifiedAnimation> QualifiedAnimations()
+        {
+            return new [] {Squeezing}.Concat(QualificationsOfTree).ToList();
+        }
+
+        public IEnumerable<BlendTree> AllBlendTreesFoundRecursively()
+        {
+            return PuppetManifest.FindAllBlendTreesIncludingItself(Resting);
+        }
+
+        public IAnimatedBehavior Remapping(Dictionary<QualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)
+        {
+            var newQualificationsOfTree = QualificationsOfTree
+                .Select(qualification => remapping.ContainsKey(qualification)
+                    ? qualification.NewInstanceWithClip(remapping[qualification])
+                    : qualification)
+                .ToList();
+            var newSqueezing = remapping.ContainsKey(Squeezing) ? Squeezing.NewInstanceWithClip(remapping[Squeezing]) : Squeezing;
+
+            return Of(blendRemapping[Resting], newSqueezing, newQualificationsOfTree);
+        }
+
+        public static PuppetToAnalogAnimatedBehavior Of(BlendTree resting, QualifiedAnimation squeezing, List<QualifiedAnimation> qualificationsOfTree)
+        {
+            return new PuppetToAnalogAnimatedBehavior(resting, squeezing, qualificationsOfTree);
+        }
+
+        protected bool Equals(PuppetToAnalogAnimatedBehavior other)
+        {
+            return Equals(Resting, other.Resting) && Squeezing.Equals(other.Squeezing) && QualificationsOfTree.SequenceEqual(other.QualificationsOfTree);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((PuppetToAnalogAnimatedBehavior) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = (Resting != null ? Resting.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ Squeezing.GetHashCode();
+                // FIXME: this is a bad hashcode, qualifications list is ignored due to list hashcode
+                return hashCode;
+            }
+        }
+
+        public static bool operator ==(PuppetToAnalogAnimatedBehavior left, PuppetToAnalogAnimatedBehavior right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(PuppetToAnalogAnimatedBehavior left, PuppetToAnalogAnimatedBehavior right)
+        {
+            return !Equals(left, right);
+        }
+    }
+
+    class PuppetToDualAnalogAnimatedBehavior : IAnimatedBehavior
+    {
+        public BlendTree Resting { get; }
+        public QualifiedAnimation LeftSqueezing { get; }
+        public QualifiedAnimation RightSqueezing { get; }
+        public QualifiedAnimation BothSqueezing { get; }
+        public List<QualifiedAnimation> QualificationsOfTree { get; }
+
+        private PuppetToDualAnalogAnimatedBehavior(BlendTree resting, QualifiedAnimation leftSqueezing, QualifiedAnimation rightSqueezing, QualifiedAnimation bothSqueezing, List<QualifiedAnimation> qualificationsOfTree)
+        {
+            QualificationsOfTree = qualificationsOfTree;
+
+            Resting = resting;
+            LeftSqueezing = leftSqueezing;
+            RightSqueezing = rightSqueezing;
+            BothSqueezing = bothSqueezing;
+        }
+
+        AnimatedBehaviorNature IAnimatedBehavior.Nature()
+        {
+            return AnimatedBehaviorNature.PuppetToDualAnalog;
+        }
+
+        public IEnumerable<QualifiedAnimation> QualifiedAnimations()
+        {
+            return new[] {LeftSqueezing, RightSqueezing, BothSqueezing}.Concat(QualificationsOfTree).ToList();
+        }
+
+        public IEnumerable<BlendTree> AllBlendTreesFoundRecursively()
+        {
+            return new List<BlendTree>();
+        }
+
+        public IAnimatedBehavior Remapping(Dictionary<QualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)
+        {
+            var newQualificationsOfTree = QualificationsOfTree
+                .Select(qualification => remapping.ContainsKey(qualification)
+                    ? qualification.NewInstanceWithClip(remapping[qualification])
+                    : qualification)
+                .ToList();
+
+            return Of(
+                blendRemapping[Resting],
+                SingleAnimatedBehavior.Remap(remapping, LeftSqueezing),
+                SingleAnimatedBehavior.Remap(remapping, RightSqueezing),
+                SingleAnimatedBehavior.Remap(remapping, BothSqueezing),
+                newQualificationsOfTree
+            );
+        }
+
+        public static PuppetToDualAnalogAnimatedBehavior Of(BlendTree resting, QualifiedAnimation leftSqueezing, QualifiedAnimation rightSqueezing, QualifiedAnimation bothSqueezing, List<QualifiedAnimation> qualificationsOfTree)
+        {
+            return new PuppetToDualAnalogAnimatedBehavior(resting, leftSqueezing, rightSqueezing, bothSqueezing, qualificationsOfTree);
+        }
+
+        protected bool Equals(PuppetToDualAnalogAnimatedBehavior other)
+        {
+            return Equals(Resting, other.Resting) && LeftSqueezing.Equals(other.LeftSqueezing) && RightSqueezing.Equals(other.RightSqueezing) && BothSqueezing.Equals(other.BothSqueezing) && QualificationsOfTree.SequenceEqual(other.QualificationsOfTree);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((PuppetToDualAnalogAnimatedBehavior) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = (Resting != null ? Resting.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ LeftSqueezing.GetHashCode();
+                hashCode = (hashCode * 397) ^ RightSqueezing.GetHashCode();
+                hashCode = (hashCode * 397) ^ BothSqueezing.GetHashCode();
+                // FIXME: this is a bad hashcode, qualifications list is ignored due to list hashcode
+                return hashCode;
+            }
+        }
+
+        public static bool operator ==(PuppetToDualAnalogAnimatedBehavior left, PuppetToDualAnalogAnimatedBehavior right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(PuppetToDualAnalogAnimatedBehavior left, PuppetToDualAnalogAnimatedBehavior right)
         {
             return !Equals(left, right);
         }

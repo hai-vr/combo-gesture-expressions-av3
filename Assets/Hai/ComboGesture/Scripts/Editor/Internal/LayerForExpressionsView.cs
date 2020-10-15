@@ -88,7 +88,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                     _compilerIgnoreParamList,
                     _compilerFallbackParamList,
                     _blinkBlendshapes,
-                    _assetContainer
+                    _assetContainer,
+                    _useGestureWeightCorrection
                 ).NeutralizeManifestAnimations();
             }
 

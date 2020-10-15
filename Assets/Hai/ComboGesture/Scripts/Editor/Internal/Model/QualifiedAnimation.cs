@@ -50,6 +50,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
             {
                 return new QualifiedAnimation(clip, Qualification);
             }
+
+            public override string ToString()
+            {
+                return $"{nameof(Clip)}: {Clip}, {nameof(Qualification)}: {Qualification}";
+            }
         }
 
         public readonly struct Qualification
@@ -89,6 +94,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
             public static bool operator !=(Qualification left, Qualification right)
             {
                 return !left.Equals(right);
+            }
+
+            public override string ToString()
+            {
+                return $"{nameof(IsBlinking)}: {IsBlinking}, {nameof(Limitation)}: {Limitation}";
             }
         }
 

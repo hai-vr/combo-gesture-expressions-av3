@@ -1010,10 +1010,12 @@ At the time this version has been published, generating the layer will break you
             GUILayout.Label(_driver.ShortTranslation(translatableProperty), _driver.IsSymmetrical(translatableProperty) ? _middleAlignedBold : _middleAligned);
 
             GUILayout.BeginArea(new Rect((GuiSquareWidth - PictureWidth) / 2, singleLineHeight, PictureWidth, PictureHeight));
-            var element = property.objectReferenceValue != null ? (AnimationClip) property.objectReferenceValue : null;
+            var element = property.objectReferenceValue != null ? (Motion) property.objectReferenceValue : null;
             if (element != null)
             {
-                DrawPreviewOrRefreshButton(element);
+                if (element is AnimationClip) {
+                    DrawPreviewOrRefreshButton((AnimationClip) element);
+                }
             }
             else if (usePermutations)
             {
@@ -1128,7 +1130,7 @@ At the time this version has been published, generating the layer will break you
 
             var edge = (GuiSquareWidth - PictureWidth) / 2;
             GUILayout.BeginArea(new Rect(edge, singleLineHeight / 2, PictureWidth - edge * 2, PictureHeight - singleLineHeight));
-            var element = property.objectReferenceValue != null ? (AnimationClip) property.objectReferenceValue : null;
+            var element = property.objectReferenceValue is AnimationClip ? (AnimationClip) property.objectReferenceValue : null;
             DrawPreviewOrRefreshButton(element, true);
             GUILayout.EndArea();
         }

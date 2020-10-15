@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Hai.ComboGesture.Scripts.Editor.Internal.Model;
+using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
@@ -10,9 +12,19 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         public IntermediateCombinator(List<ManifestBinding> activityManifests)
         {
-            var exhaustive = DecomposePermutationsIntoIntermediateToTransitions(activityManifests);
+            var exhaustive = DecomposePermutationsIntoBehaviors(activityManifests);
+            var permutationRepresentation = OptimizeCollapsableConditions(exhaustive, activityManifests.Count);
+            var puppetRepresentation = DecomposePuppetsIntoBehaviors(activityManifests);
 
-            Dictionary<IAnimatedBehavior, List<TransitionCondition>> representation = Optimize(exhaustive, activityManifests.Count);
+            IntermediateToTransition = permutationRepresentation
+                .Concat(puppetRepresentation)
+                .ToDictionary(p => p.Key, p => p.Value);
+                // FIXME: There will be an duplicate key issue if a puppet behavior happens to be used for both a Permutation activity and a Puppet activity
+        }
+
+        private static Dictionary<IAnimatedBehavior, List<TransitionCondition>> DecomposePuppetsIntoBehaviors(List<ManifestBinding> activityManifests)
+        {
+            Dictionary<IAnimatedBehavior, List<TransitionCondition>> puppetRepresentation = new Dictionary<IAnimatedBehavior, List<TransitionCondition>>();
 
             var puppetManifests = activityManifests
                 .Where(binding => binding.Manifest.Kind() == ManifestKind.Puppet)
@@ -22,14 +34,17 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             {
                 var puppet = (PuppetManifest) binding.Manifest;
 
-                representation.Add(puppet.Behavior, new List<TransitionCondition>{new TransitionCondition.PuppetBoundTransitionCondition(
-                    binding.StageValue,
-                    puppet.TransitionDuration(),
-                    binding.LayerOrdinal
-                )});
+                puppetRepresentation.Add(puppet.Behavior, new List<TransitionCondition>
+                {
+                    new TransitionCondition.PuppetBoundTransitionCondition(
+                        binding.StageValue,
+                        puppet.TransitionDuration(),
+                        binding.LayerOrdinal
+                    )
+                });
             }
 
-            IntermediateToTransition = representation;
+            return puppetRepresentation;
         }
 
         readonly struct PermutationAndTransitionDuration
@@ -72,7 +87,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
         }
 
-        private static Dictionary<IAnimatedBehavior, List<TransitionCondition>> Optimize(Dictionary<IAnimatedBehavior, List<TransitionCondition>> exhaustive, int activityManifestsCount)
+        private static Dictionary<IAnimatedBehavior, List<TransitionCondition>> OptimizeCollapsableConditions(Dictionary<IAnimatedBehavior, List<TransitionCondition>> exhaustive, int activityManifestsCount)
         {
             return exhaustive
                 .Select(pair =>
@@ -101,17 +116,35 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 .ToDictionary(pair => pair.Key, pair => pair.Value);
         }
 
-        private static Dictionary<IAnimatedBehavior, List<TransitionCondition>> DecomposePermutationsIntoIntermediateToTransitions(List<ManifestBinding> activityManifests)
+        private static Dictionary<IAnimatedBehavior, List<TransitionCondition>> DecomposePermutationsIntoBehaviors(List<ManifestBinding> activityManifests)
         {
             return activityManifests
                 .Where(binding => binding.Manifest.Kind() == ManifestKind.Permutation)
                 .SelectMany(DecomposePermutation)
-                .GroupBy(entry => entry.IntermediateAnimationGroup)
+                .GroupBy(entry => entry.Behavior)
                 .ToDictionary(grouping => grouping.Key, grouping => grouping.Select(combosition => combosition.TransitionCondition).ToList());
         }
 
         private static List<AnimToTransitionEntry> DecomposePermutation(ManifestBinding manifestBinding)
         {
+            Debug.Log(
+                ((PermutationManifest) manifestBinding.Manifest).Poses
+                .Where(pair => pair.Value is PuppetAnimatedBehavior).Count() + " total"
+            );
+            Debug.Log(
+                ((PermutationManifest) manifestBinding.Manifest).Poses
+                .Select(pair => pair.Value)
+                .OfType<PuppetAnimatedBehavior>()
+                .Distinct().Count() + " distinct"
+            );
+            foreach (var kvp in ((PermutationManifest) manifestBinding.Manifest).Poses.Where(pair => pair.Value is PuppetAnimatedBehavior))
+            {
+                var animatedBehavior = (PuppetAnimatedBehavior)kvp.Value;
+                Debug.Log(animatedBehavior.Tree);
+                var enumerable = animatedBehavior.QualifiedAnimations().Select(animation => animation.ToString());
+                Debug.Log(string.Join(", ", enumerable));
+            }
+
             var manifest = (PermutationManifest)manifestBinding.Manifest;
             return manifest.Poses
                 .Select(pair => new AnimToTransitionEntry(
@@ -125,12 +158,12 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
     internal class AnimToTransitionEntry
     {
         public TransitionCondition TransitionCondition { get; }
-        public IAnimatedBehavior IntermediateAnimationGroup { get; }
+        public IAnimatedBehavior Behavior { get; }
 
-        public AnimToTransitionEntry(TransitionCondition transitionCondition, IAnimatedBehavior intermediateAnimationGroup)
+        public AnimToTransitionEntry(TransitionCondition transitionCondition, IAnimatedBehavior behavior)
         {
             TransitionCondition = transitionCondition;
-            IntermediateAnimationGroup = intermediateAnimationGroup;
+            Behavior = behavior;
         }
     }
 

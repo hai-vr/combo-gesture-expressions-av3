@@ -28,23 +28,28 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
 
         public bool RequiresBlinking()
         {
-            return Behavior.Qualifications.Any(qualifiedAnimation => qualifiedAnimation.Qualification.IsBlinking);
+            return Behavior.QualifiedAnimations().Any(qualifiedAnimation => qualifiedAnimation.Qualification.IsBlinking);
         }
 
         public bool RequiresLimitedLipsync()
         {
-            return Behavior.Qualifications.Any(qualifiedAnimation => qualifiedAnimation.Qualification.Limitation != QualifiedLimitation.None);
+            return Behavior.QualifiedAnimations().Any(qualifiedAnimation => qualifiedAnimation.Qualification.Limitation != QualifiedLimitation.None);
         }
 
         public IEnumerable<QualifiedAnimation> AllQualifiedAnimations()
         {
-            return Behavior.Qualifications;
+            return Behavior.QualifiedAnimations();
         }
 
         public IEnumerable<BlendTree> AllBlendTreesFoundRecursively()
         {
-            var blendTrees = new HashSet<BlendTree> {Behavior.Tree};
-            foreach (var blendTree in FindAllBlendTreesInside(Behavior.Tree))
+            return FindAllBlendTreesIncludingItself(Behavior.Tree);
+        }
+
+        public static IEnumerable<BlendTree> FindAllBlendTreesIncludingItself(BlendTree tree)
+        {
+            var blendTrees = new HashSet<BlendTree> {tree};
+            foreach (var blendTree in FindAllBlendTreesOnlyInside(tree))
             {
                 blendTrees.Add(blendTree);
             }
@@ -52,7 +57,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
             return blendTrees.ToList();
         }
 
-        private static List<BlendTree> FindAllBlendTreesInside(BlendTree tree)
+        private static List<BlendTree> FindAllBlendTreesOnlyInside(BlendTree tree)
         {
             return tree.children
                 .Select(motion => motion.motion)
@@ -61,7 +66,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
                 {
                     var foundTree = (BlendTree) motion;
                     var foundTreeAndSubtrees = new List<BlendTree> {foundTree};
-                    foreach (var subtree in FindAllBlendTreesInside(foundTree))
+                    foreach (var subtree in FindAllBlendTreesIncludingItself(foundTree))
                     {
                         foundTreeAndSubtrees.Add(subtree);
                     }

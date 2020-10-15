@@ -34,7 +34,7 @@ namespace Hai.ComboGesture.Scripts.Components
             return AllAnimationsOf(mainTree);
         }
 
-        private static List<AnimationClip> AllAnimationsOf(BlendTree tree)
+        public static List<AnimationClip> AllAnimationsOf(BlendTree tree)
         {
             return tree.children
                 .Select(childMotion => childMotion.motion)
