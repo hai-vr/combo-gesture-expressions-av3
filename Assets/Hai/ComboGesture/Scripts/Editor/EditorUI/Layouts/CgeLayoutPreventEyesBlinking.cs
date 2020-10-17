@@ -20,7 +20,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
         {
             GUILayout.Label("Select face expressions with <b>both eyes closed</b>.", CgeLayoutCommon.LargeFont);
             GUILayout.BeginArea(new Rect(0, CgeLayoutCommon.SingleLineHeight * 3, position.width, CgeLayoutCommon.GuiSquareHeight * 8));
-            var allClips = _editorEffector.GetActivity().AllDistinctAnimations();
+            var allClips = _editorEffector.AllDistinctAnimations();
             var mod = Math.Max(3, Math.Min(8, (int)Math.Sqrt(allClips.Count)));
             for (var element = 0; element < allClips.Count; element++)
             {
@@ -39,7 +39,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
 
         private void DrawBlinkingSwitch(AnimationClip element)
         {
-            var isRegisteredAsBlinking = _editorEffector.GetActivity().blinking.Contains(element);
+            var isRegisteredAsBlinking = _editorEffector.MutableBlinking().Contains(element);
 
             if (isRegisteredAsBlinking)
             {
@@ -58,11 +58,11 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             {
                 if (isRegisteredAsBlinking)
                 {
-                    _editorEffector.GetActivity().blinking.Remove(element);
+                    _editorEffector.MutableBlinking().Remove(element);
                 }
                 else
                 {
-                    _editorEffector.GetActivity().blinking.Add(element);
+                    _editorEffector.MutableBlinking().Add(element);
                 }
             }
         }

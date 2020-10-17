@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.EditorUI;
+using Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors;
 using UnityEditor;
 using UnityEngine;
-using Object = System.Object;
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
@@ -13,22 +12,22 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
     {
 
         private readonly Action _onClipRenderedFn;
-        private readonly ComboGestureActivity _activity;
+        private readonly CgeEditorEffector _effector;
         private readonly Dictionary<AnimationClip, Texture2D> _animationClipToTextureDict;
         private readonly Dictionary<AnimationClip, Texture2D> _animationClipToTextureDictGray;
         private readonly int _pictureWidth;
         private readonly int _pictureHeight;
         private readonly AnimationClip[] _editorArbitraryAnimations;
 
-        public CgeActivityPreviewInternal(Action onClipRenderedFn, ComboGestureActivity activity, Dictionary<AnimationClip, Texture2D> animationClipToTextureDict, Dictionary<AnimationClip, Texture2D> animationClipToTextureDictGray, int pictureWidth, int pictureHeight)
+        public CgeActivityPreviewInternal(Action onClipRenderedFn, CgeEditorEffector effector, Dictionary<AnimationClip, Texture2D> animationClipToTextureDict, Dictionary<AnimationClip, Texture2D> animationClipToTextureDictGray, int pictureWidth, int pictureHeight)
         {
             _onClipRenderedFn = onClipRenderedFn;
-            _activity = activity;
+            _effector = effector;
             _animationClipToTextureDict = animationClipToTextureDict;
             _animationClipToTextureDictGray = animationClipToTextureDictGray;
             _pictureWidth = pictureWidth;
             _pictureHeight = pictureHeight;
-            _editorArbitraryAnimations = _activity.editorArbitraryAnimations ?? new AnimationClip[]{};
+            _editorArbitraryAnimations = _effector.GetActivity()?.editorArbitraryAnimations ?? new AnimationClip[]{};
         }
 
         public enum ProcessMode
@@ -46,7 +45,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             var clipDictionary = GatherAnimations(processMode);
             var animationPreviews = ToPrioritizedList(clipDictionary, prioritize);
 
-            new CgePreviewProcessor(_activity.previewSetup, animationPreviews, OnClipRendered).Capture();
+            new CgePreviewProcessor(_effector.PreviewSetup(), animationPreviews, OnClipRendered).Capture();
         }
 
         private void OnClipRendered(AnimationPreview animationPreview)
@@ -99,7 +98,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             var enumerable = _editorArbitraryAnimations
                 .Distinct()
                 .Where(clip => clip != null)
-                .Union(_activity.AllDistinctAnimations());
+                .Union(_effector.AllDistinctAnimations());
 
             if (processMode == ProcessMode.CalculateMissing)
             {

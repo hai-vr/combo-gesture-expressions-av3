@@ -30,14 +30,32 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
 
         public void RetargetActivity(ComboGestureActivity activity)
         {
-            _editorEffector.SetActivity(activity);
+            _editorEffector.NowEditingActivity(activity);
             if (!_editorEffector.IsPreviewSetupValid())
             {
-                _editorEffector.SwitchTo(EditorMode.OtherOptions);
+                _editorEffector.SwitchTo(ActivityEditorMode.OtherOptions);
                 _editorEffector.MarkFirstTimeSetup();
             }
 
             _window.titleContent = new GUIContent("CGE/" + activity.name);
+        }
+
+        public void ShowPuppet(ComboGesturePuppet puppet)
+        {
+            RetargetPuppet(puppet);
+            _window.Show();
+        }
+
+        public void RetargetPuppet(ComboGesturePuppet puppet)
+        {
+            _editorEffector.NowEditingPuppet(puppet);
+            if (!_editorEffector.IsPreviewSetupValid())
+            {
+                _editorEffector.SwitchTo(ActivityEditorMode.OtherOptions);
+                _editorEffector.MarkFirstTimeSetup();
+            }
+
+            _window.titleContent = new GUIContent("CGE/" + puppet.name);
         }
     }
 }

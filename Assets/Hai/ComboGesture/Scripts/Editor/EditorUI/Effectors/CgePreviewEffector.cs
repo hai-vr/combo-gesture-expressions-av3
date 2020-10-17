@@ -42,7 +42,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
         {
             return new CgeActivityPreviewInternal(
                 repaintCallback,
-                _editorEffector.GetActivity(),
+                _editorEffector,
                 _cgePreviewState.AnimationClipToTextureDict,
                 _cgePreviewState.AnimationClipToTextureDictGray,
                 CgeLayoutCommon.PictureWidth,

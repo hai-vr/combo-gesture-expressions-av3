@@ -1,14 +1,20 @@
-﻿using Hai.ComboGesture.Scripts.Components;
+﻿using System;
+using System.Collections.Generic;
+using Hai.ComboGesture.Scripts.Components;
 using UnityEditor;
+using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
 {
     public class CgeEditorState
     {
+        public CurrentlyEditing CurrentlyEditing = CurrentlyEditing.Nothing;
         public ComboGestureActivity Activity { get; internal set; }
+        public ComboGesturePuppet Puppet { get; internal set; }
         internal SerializedObject SerializedObject;
 
-        public EditorMode Mode { get; internal set; }
+        public int Mode { get; internal set; }
+
         public int CurrentEditorToolValue = -1;
 
         public bool FirstTimeSetup;
@@ -30,9 +36,11 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
         public SerializedProperty SpPreviewSetup() => _state.SerializedObject.FindProperty("previewSetup");
         public SerializedProperty SpEnablePermutations() => _state.SerializedObject.FindProperty("enablePermutations");
 
-        public void SetActivity(ComboGestureActivity selectedActivity)
+        public void NowEditingActivity(ComboGestureActivity selectedActivity)
         {
+            _state.CurrentlyEditing = CurrentlyEditing.Activity;
             _state.Activity = selectedActivity;
+            _state.Puppet = null;
             _state.SerializedObject = new SerializedObject(_state.Activity);
 
             if (SpEditorTool().intValue != _state.CurrentEditorToolValue && _state.CurrentEditorToolValue >= 0)
@@ -40,6 +48,14 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
                 SpEditorTool().intValue = _state.CurrentEditorToolValue;
                 ApplyModifiedProperties();
             }
+        }
+
+        public void NowEditingPuppet(ComboGesturePuppet selectedPuppet)
+        {
+            _state.CurrentlyEditing = CurrentlyEditing.Puppet;
+            _state.Activity = null;
+            _state.Puppet = selectedPuppet;
+            _state.SerializedObject = new SerializedObject(_state.Puppet);
         }
 
         public SerializedProperty SpProperty(string property)
@@ -59,22 +75,47 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
 
         public bool IsPreviewSetupValid()
         {
-            return _state.Activity.previewSetup != null && _state.Activity.previewSetup.IsValid();
+            switch (_state.CurrentlyEditing)
+            {
+                case CurrentlyEditing.Nothing:
+                    return false;
+                case CurrentlyEditing.Activity:
+                    return  _state.Activity.previewSetup != null && _state.Activity.previewSetup.IsValid();
+                case CurrentlyEditing.Puppet:
+                    return  _state.Puppet.previewSetup != null && _state.Puppet.previewSetup.IsValid();
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
-        public void SwitchTo(EditorMode mode)
+        public void SwitchTo(ActivityEditorMode mode)
         {
-            _state.Mode = mode;
+            _state.Mode = (int) mode;
         }
 
-        public EditorMode CurrentMode()
+        public void SwitchTo(PuppetEditorMode mode)
         {
-            return _state.Mode;
+            _state.Mode = (int) mode;
+        }
+
+        public ActivityEditorMode CurrentActivityMode()
+        {
+            return (ActivityEditorMode) _state.Mode;
+        }
+
+        public PuppetEditorMode CurrentPuppetMode()
+        {
+            return (PuppetEditorMode) _state.Mode;
         }
 
         public ComboGestureActivity GetActivity()
         {
             return _state.Activity;
+        }
+
+        public ComboGesturePuppet GetPuppet()
+        {
+            return _state.Puppet;
         }
 
         public bool IsFirstTimeSetup()
@@ -106,5 +147,77 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
         {
             _state.CurrentEditorToolValue = value;
         }
+
+        public CurrentlyEditing GetCurrentlyEditing()
+        {
+            return _state.CurrentlyEditing;
+        }
+
+        public List<AnimationClip> AllDistinctAnimations()
+        {
+            switch (_state.CurrentlyEditing)
+            {
+                case CurrentlyEditing.Nothing:
+                    return new List<AnimationClip>();
+                case CurrentlyEditing.Activity:
+                    return _state.Activity.AllDistinctAnimations();
+                case CurrentlyEditing.Puppet:
+                    return _state.Puppet.AllDistinctAnimations();
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        public List<AnimationClip> MutableBlinking()
+        {
+            switch (_state.CurrentlyEditing)
+            {
+                case CurrentlyEditing.Nothing:
+                    return new List<AnimationClip>();
+                case CurrentlyEditing.Activity:
+                    return _state.Activity.blinking;
+                case CurrentlyEditing.Puppet:
+                    return _state.Puppet.blinking;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        public ComboGesturePreviewSetup PreviewSetup()
+        {
+            switch (_state.CurrentlyEditing)
+            {
+                case CurrentlyEditing.Nothing:
+                    return null;
+                case CurrentlyEditing.Activity:
+                    return _state.Activity.previewSetup;
+                case CurrentlyEditing.Puppet:
+                    return _state.Puppet.previewSetup;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        public List<ComboGestureActivity.LimitedLipsyncAnimation> MutableLimitedLipsync()
+        {
+            switch (_state.CurrentlyEditing)
+            {
+                case CurrentlyEditing.Nothing:
+                    return null;
+                case CurrentlyEditing.Activity:
+                    return _state.Activity.limitedLipsync;
+                case CurrentlyEditing.Puppet:
+                    return _state.Puppet.limitedLipsync;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+    }
+
+    public enum CurrentlyEditing
+    {
+        Nothing,
+        Activity,
+        Puppet
     }
 }

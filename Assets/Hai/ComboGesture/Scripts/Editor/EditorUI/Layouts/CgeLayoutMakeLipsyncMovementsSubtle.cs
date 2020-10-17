@@ -10,18 +10,11 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
 {
     public class LipsyncState
     {
-        public ComboGestureLimitedLipsync LimitedLipsync { get; private set; }
+        public ComboGestureLimitedLipsync LimitedLipsync { get; internal set; }
         public SerializedObject SerializedLimitedLipsync;
         public CgeActivityEditorLipsync Lipsync;
         public int EditorLipsyncTool;
         public int LimitedLipsyncPreviewIndex;
-
-        public void SetLimitedLipsync(ComboGestureLimitedLipsync limitedLipsync, ComboGestureActivity activity, Action repaintCallback)
-        {
-            LimitedLipsync = limitedLipsync;
-            SerializedLimitedLipsync = new SerializedObject(limitedLipsync);
-            Lipsync = new CgeActivityEditorLipsync(activity, limitedLipsync, repaintCallback);
-        }
     }
 
     public class CgeLayoutMakeLipsyncMovementsSubtle
@@ -54,7 +47,7 @@ At the time this version has been published, generating the layer will break you
             {
                 GUILayout.Label("Select face expressions with a <b>wide open mouth</b>.", CgeLayoutCommon.LargeFont);
                 GUILayout.BeginArea(new Rect(0, CgeLayoutCommon.SingleLineHeight * 3 + helpBoxHeightReverse, position.width, CgeLayoutCommon.GuiSquareHeight * 8));
-                var allClips = new HashSet<AnimationClip>(_editorEffector.GetActivity().AllDistinctAnimations()).ToList();
+                var allClips = new HashSet<AnimationClip>(_editorEffector.AllDistinctAnimations()).ToList();
                 var mod = Math.Max(3, Math.Min(8, (int)Math.Sqrt(allClips.Count)));
                 for (var element = 0; element < allClips.Count; element++)
                 {
@@ -73,7 +66,7 @@ At the time this version has been published, generating the layer will break you
         }
         private void DrawLipsyncSwitch(AnimationClip element)
         {
-            var isRegisteredAsLipsync = _editorEffector.GetActivity().limitedLipsync.Exists(animation => animation.clip == element);
+            var isRegisteredAsLipsync = _editorEffector.MutableLimitedLipsync().Exists(animation => animation.clip == element);
 
             if (isRegisteredAsLipsync) {
                 var col = GUI.color;
@@ -100,11 +93,11 @@ At the time this version has been published, generating the layer will break you
             {
                 if (isRegisteredAsLipsync)
                 {
-                    _editorEffector.GetActivity().limitedLipsync.RemoveAll(animation => animation.clip == element);
+                    _editorEffector.MutableLimitedLipsync().RemoveAll(animation => animation.clip == element);
                 }
                 else
                 {
-                    _editorEffector.GetActivity().limitedLipsync.Add(new ComboGestureActivity.LimitedLipsyncAnimation
+                    _editorEffector.MutableLimitedLipsync().Add(new ComboGestureActivity.LimitedLipsyncAnimation
                     {
                         clip = element,
                         limitation = ComboGestureActivity.LipsyncLimitation.WideOpenMouth
@@ -183,7 +176,7 @@ At the time this version has been published, generating the layer will break you
                     _lipsyncState.LimitedLipsyncPreviewIndex,
                     previewables
                 );
-                var avatarHasVisemeBlendShapes = _editorEffector.IsPreviewSetupValid() && _editorEffector.GetActivity().previewSetup.avatarDescriptor.VisemeSkinnedMesh;
+                var avatarHasVisemeBlendShapes = _editorEffector.IsPreviewSetupValid() && _editorEffector.PreviewSetup().avatarDescriptor.VisemeSkinnedMesh;
                 if (!avatarHasVisemeBlendShapes)
                 {
                     EditorGUILayout.HelpBox("The avatar has no lipsync face mesh.", MessageType.Error);
@@ -199,7 +192,7 @@ At the time this version has been published, generating the layer will break you
             {
                 if (GUILayout.Button("Select an animation..."))
                 {
-                    _editorEffector.SwitchTo(EditorMode.MakeLipsyncMovementsSubtle);
+                    _editorEffector.SwitchTo(ActivityEditorMode.MakeLipsyncMovementsSubtle);
                     _lipsyncState.EditorLipsyncTool = 0;
                 }
             }
@@ -217,7 +210,7 @@ At the time this version has been published, generating the layer will break you
 
         private string[] ListAllPreviewableNames()
         {
-            return _editorEffector.GetActivity().limitedLipsync
+            return _editorEffector.MutableLimitedLipsync()
                 .Where(animation => animation.clip != null)
                 .Select(animation => animation.clip.name)
                 .ToArray();
@@ -225,7 +218,7 @@ At the time this version has been published, generating the layer will break you
 
         private AnimationClip[] ListAllPreviewableClips()
         {
-            return _editorEffector.GetActivity().limitedLipsync
+            return _editorEffector.MutableLimitedLipsync()
                 .Where(animation => animation.clip != null)
                 .Select(animation => animation.clip)
                 .ToArray();
@@ -246,9 +239,11 @@ At the time this version has been published, generating the layer will break you
             _lipsyncState.SerializedLimitedLipsync?.Update();
         }
 
-        public void SetLipsync(ComboGestureLimitedLipsync selectedLimitedLipsync, Action repaintCallback)
+        public void SetLipsync(ComboGestureLimitedLipsync limitedLipsync, Action repaintCallback)
         {
-            _lipsyncState.SetLimitedLipsync(selectedLimitedLipsync, _editorEffector.GetActivity(), repaintCallback);
+            _lipsyncState.LimitedLipsync = limitedLipsync;
+            _lipsyncState.SerializedLimitedLipsync = new SerializedObject(limitedLipsync);
+            _lipsyncState.Lipsync = new CgeActivityEditorLipsync(limitedLipsync, repaintCallback, _editorEffector);
         }
 
         public bool IsLimitedLipsyncSameAs(ComboGestureLimitedLipsync selectedLimitedLipsync)

@@ -97,7 +97,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                         }
                         else
                         {
-                            _editorEffector.SwitchTo(EditorMode.OtherOptions);
+                            _editorEffector.SwitchTo(ActivityEditorMode.OtherOptions);
                         }
                     }
                     EditorGUI.EndDisabledGroup();
@@ -142,7 +142,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                         }
                         else
                         {
-                            _editorEffector.SwitchTo(EditorMode.OtherOptions);
+                            _editorEffector.SwitchTo(ActivityEditorMode.OtherOptions);
                         }
                     }
                     EditorGUI.EndDisabledGroup();

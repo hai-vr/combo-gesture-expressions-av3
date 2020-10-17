@@ -38,7 +38,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                     DoAutoSetupPreview();
                     if (_editorEffector.GetSetupResult() != AutoSetupPreview.SetupResult.NoAvatarFound)
                     {
-                        _editorEffector.SwitchTo(EditorMode.SetFaceExpressions);
+                        _editorEffector.SwitchTo(ActivityEditorMode.SetFaceExpressions);
                     }
                 }
                 GUILayout.FlexibleSpace();

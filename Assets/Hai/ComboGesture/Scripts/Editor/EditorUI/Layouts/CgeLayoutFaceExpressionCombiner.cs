@@ -49,7 +49,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
         {
             _combinerState.DoSetCombiner(_editorEffector.GetActivity(), leftAnim, rightAnim, propertyPath, usePermutations, repaintCallback);
 
-            _editorEffector.SwitchTo(EditorMode.AdditionalEditors);
+            _editorEffector.SwitchTo(ActivityEditorMode.AdditionalEditors);
         }
 
         public void Layout(Action repaintCallback)
@@ -103,7 +103,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                 _editorEffector.GetActivity().blinking.Add(savedClip);
             }
 
-            _editorEffector.SwitchTo(EditorMode.SetFaceExpressions);
+            _editorEffector.SwitchTo(ActivityEditorMode.SetFaceExpressions);
         }
 
         private void LayoutSideDecider(List<SideDecider> sideDeciders, Side side)
