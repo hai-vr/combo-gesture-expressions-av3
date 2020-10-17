@@ -24,7 +24,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
         {
             if (_editorEffector.IsFirstTimeSetup() || !_editorEffector.IsPreviewSetupValid())
             {
-                if (_editorEffector.GetActivity().previewSetup != null && !_editorEffector.GetActivity().previewSetup.IsValid())
+                if (_editorEffector.HasPreviewSetupWhichIsInvalid())
                 {
                     EditorGUILayout.LabelField("A preview setup was found but it is incomplete or invalid.");
                 }

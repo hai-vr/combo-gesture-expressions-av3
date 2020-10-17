@@ -130,7 +130,19 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
 
         public void TryAutoSetup()
         {
-            _state.SetupResult = new AutoSetupPreview(_state.Activity).AutoSetup();
+            switch (_state.CurrentlyEditing)
+            {
+                case CurrentlyEditing.Nothing:
+                    break;
+                case CurrentlyEditing.Activity:
+                    _state.SetupResult = new AutoSetupPreview(this).AutoSetup();
+                    break;
+                case CurrentlyEditing.Puppet:
+                    _state.SetupResult = new AutoSetupPreview(this).AutoSetup();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
         public void MarkFirstTimeSetup()
@@ -155,6 +167,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
 
         public List<AnimationClip> AllDistinctAnimations()
         {
+            // FIXME: Use polymorphism
             switch (_state.CurrentlyEditing)
             {
                 case CurrentlyEditing.Nothing:
@@ -208,6 +221,38 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
                     return _state.Activity.limitedLipsync;
                 case CurrentlyEditing.Puppet:
                     return _state.Puppet.limitedLipsync;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        public bool HasPreviewSetupWhichIsInvalid()
+        {
+            switch (_state.CurrentlyEditing)
+            {
+                case CurrentlyEditing.Nothing:
+                    return false;
+                case CurrentlyEditing.Activity:
+                    return _state.Activity.previewSetup != null && !_state.Activity.previewSetup.IsValid();
+                case CurrentlyEditing.Puppet:
+                    return _state.Puppet.previewSetup != null && !_state.Puppet.previewSetup.IsValid();
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        public void SetPreviewSetup(ComboGesturePreviewSetup previewSetup)
+        {
+            switch (_state.CurrentlyEditing)
+            {
+                case CurrentlyEditing.Nothing:
+                    break;
+                case CurrentlyEditing.Activity:
+                    _state.Activity.previewSetup = previewSetup;
+                    break;
+                case CurrentlyEditing.Puppet:
+                    _state.Puppet.previewSetup = previewSetup;
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }

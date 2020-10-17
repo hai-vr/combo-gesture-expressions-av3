@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Hai.ComboGesture.Scripts.Components;
+using Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using VRC.Core;
@@ -10,11 +11,11 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 {
     public class AutoSetupPreview
     {
-        private readonly ComboGestureActivity _activity;
+        private readonly CgeEditorEffector _effector;
 
-        public AutoSetupPreview(ComboGestureActivity activity)
+        public AutoSetupPreview(CgeEditorEffector effector)
         {
-            _activity = activity;
+            _effector = effector;
         }
 
         public enum SetupResult
@@ -28,7 +29,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             if (maybeExistingPreviewSetup != null)
             {
-                _activity.previewSetup = maybeExistingPreviewSetup;
+                _effector.SetPreviewSetup(maybeExistingPreviewSetup);
                 return SetupResult.ReusedExistsAndValidInScene;
             }
 
@@ -51,7 +52,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             comboGesturePreviewSetup.avatarDescriptor = avatarCopyGo.GetComponent<VRCAvatarDescriptor>();
             comboGesturePreviewSetup.autoHide = true;
 
-            _activity.previewSetup = comboGesturePreviewSetup;
+            _effector.SetPreviewSetup(comboGesturePreviewSetup);
 
             return SetupResult.CreatedNew;
         }
