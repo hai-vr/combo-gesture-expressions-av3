@@ -3,6 +3,7 @@ using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors;
 using Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts;
 using UnityEditor;
+using UnityEditor.Animations;
 using UnityEngine;
 using static UnityEditor.EditorGUIUtility;
 
@@ -13,7 +14,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         SetFaceExpressions,
         PreventEyesBlinking,
         MakeLipsyncMovementsSubtle,
-        CombineFaceExpressions,
+        AdditionalEditors,
         OtherOptions
     }
 
@@ -96,7 +97,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 case EditorMode.MakeLipsyncMovementsSubtle:
                     _layoutMakeLipsyncMovementsSubtle.Layout(position, Repaint);
                     break;
-                case EditorMode.CombineFaceExpressions:
+                case EditorMode.AdditionalEditors:
                     _layoutFaceExpressionCombiner.Layout(Repaint);
                     break;
                 case EditorMode.OtherOptions:
@@ -126,7 +127,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             GUILayout.BeginArea(new Rect(0, singleLineHeight, position.width, singleLineHeight * 3));
             _editorEffector.SwitchTo((EditorMode) GUILayout.Toolbar((int) _editorEffector.CurrentMode(), new[]
             {
-                "Set face expressions", "Prevent eyes blinking", "Make lipsync movements subtle", "Combine face expressions", "Other options"
+                "Set face expressions", "Prevent eyes blinking", "Make lipsync movements subtle", "Additional editors", "Other options"
             }));
             if (_editorEffector.CurrentMode() == EditorMode.SetFaceExpressions)
             {
@@ -455,11 +456,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             var element = property.objectReferenceValue != null ? (Motion) property.objectReferenceValue : null;
             if (element != null)
             {
-                if (element is AnimationClip clip) {
-                    GUILayout.BeginArea(new Rect((CgeLayoutCommon.GuiSquareWidth - CgeLayoutCommon.PictureWidth) / 2, singleLineHeight, CgeLayoutCommon.PictureWidth, CgeLayoutCommon.PictureHeight));
-                    _common.DrawPreviewOrRefreshButton(clip);
-                    GUILayout.EndArea();
-                }
+                GUILayout.BeginArea(new Rect((CgeLayoutCommon.GuiSquareWidth - CgeLayoutCommon.PictureWidth) / 2, singleLineHeight, CgeLayoutCommon.PictureWidth, CgeLayoutCommon.PictureHeight));
+                _common.DrawPreviewOrRefreshButton(element);
+                GUILayout.EndArea();
             }
             else if (usePermutations)
             {
@@ -477,19 +476,32 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             }
 
 
-            if (_driver.IsAPropertyThatCanBeCombined(propertyPath, usePermutations))
+            if (_driver.IsAPropertyThatCanBeCombined(propertyPath, usePermutations) && !(element is BlendTree))
             {
-                var rect = element != null
+                var rect = element is AnimationClip
                     ? new Rect(CgeLayoutCommon.GuiSquareWidth - 2 * singleLineHeight, CgeLayoutCommon.PictureHeight - singleLineHeight * 0.5f, singleLineHeight * 2, singleLineHeight * 1.5f)
                     : new Rect(CgeLayoutCommon.GuiSquareWidth - 100, CgeLayoutCommon.PictureHeight - singleLineHeight * 0.5f, 100, singleLineHeight * 1.5f);
 
                 var areSourcesCompatible = _driver.AreCombinationSourcesDefinedAndCompatible(propertyPath);
                 EditorGUI.BeginDisabledGroup(!areSourcesCompatible);
                 GUILayout.BeginArea(rect);
-                if (GUILayout.Button(element != null ? "+": "+ Combine"))
+                if (GUILayout.Button((element != null ? "+" : "+ Combine")))
                 {
                     var merge = _driver.ProvideCombinationPropertySources(propertyPath);
                     OpenMergeWindowFor(merge.Left, merge.Right, propertyPath, usePermutations);
+                }
+                GUILayout.EndArea();
+                EditorGUI.EndDisabledGroup();
+            }
+            else if (element is BlendTree)
+            {
+                var rect = new Rect(CgeLayoutCommon.GuiSquareWidth - 20, CgeLayoutCommon.PictureHeight - singleLineHeight * 0.5f, 20, singleLineHeight * 1.5f);
+
+                EditorGUI.BeginDisabledGroup(false);
+                GUILayout.BeginArea(rect);
+                if (GUILayout.Button("?"))
+                {
+                    OpenBlendTreeAt(propertyPath);
                 }
                 GUILayout.EndArea();
                 EditorGUI.EndDisabledGroup();
@@ -579,7 +591,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             var edge = CgeLayoutCommon.GuiSquareWidth - CgeLayoutCommon.PictureWidth;
             GUILayout.BeginArea(new Rect(edge, singleLineHeight, CgeLayoutCommon.PictureWidth - edge, CgeLayoutCommon.PictureHeight - singleLineHeight));
-            var element = property.objectReferenceValue is AnimationClip clip ? clip : null;
+            var element = (Motion)property.objectReferenceValue;
             _common.DrawPreviewOrRefreshButton(element, true);
             GUILayout.EndArea();
         }
@@ -614,6 +626,13 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             if (!areBothAnimations) return;
 
             _layoutFaceExpressionCombiner.DoSetCombiner((AnimationClip) leftAnim, (AnimationClip) rightAnim, propertyPath, usePermutations, Repaint);
+        }
+
+        private void OpenBlendTreeAt(string propertyPath)
+        {
+            var blendTree = (BlendTree)_editorEffector.SpProperty(propertyPath).objectReferenceValue;
+
+
         }
 
         private void AutoSet(string propertyPath, string propertyPathToCopyFrom)

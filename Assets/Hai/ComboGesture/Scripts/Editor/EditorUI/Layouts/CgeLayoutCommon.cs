@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors;
 using UnityEditor;
+using UnityEditor.Animations;
 using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
@@ -67,19 +70,22 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             return new Rect(xGrid * GuiSquareWidth, yGrid * GuiSquareHeight, GuiSquareWidth, GuiSquareHeight);
         }
 
-        public void DrawPreviewOrRefreshButton(AnimationClip element, bool grayscale = false)
+        public void DrawPreviewOrRefreshButton(Motion element, bool grayscale = false)
         {
-            if (element != null) {
-                var clipIsInDict = _previewController.HasClip(element);
-
-                if (clipIsInDict)
+            if (element is AnimationClip clip) {
+                if (_previewController.HasClip(clip))
                 {
-                    var texture = grayscale ? _previewController.GetGrayscale(element) : _previewController.GetPicture(element);
-                    GUILayout.Box(texture, GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true));
+                    GUILayout.Box(Texture(grayscale, clip), GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true));
+                    InvisibleRankPreservingBox();
+                    InvisibleRankPreservingBox();
+                    InvisibleRankPreservingBox();
                     InvisibleRankPreservingButton();
                 }
                 else
                 {
+                    InvisibleRankPreservingBox();
+                    InvisibleRankPreservingBox();
+                    InvisibleRankPreservingBox();
                     InvisibleRankPreservingBox();
                     EditorGUI.BeginDisabledGroup(AnimationMode.InAnimationMode());
                     var isPreviewSetupValid = _editorEffector.IsPreviewSetupValid();
@@ -87,7 +93,52 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                     {
                         if (isPreviewSetupValid)
                         {
-                            _previewController.GenerateMissingPreviewsPrioritizing(_repaintCallback, element);
+                            _previewController.GenerateMissingPreviewsPrioritizing(_repaintCallback, clip);
+                        }
+                        else
+                        {
+                            _editorEffector.SwitchTo(EditorMode.OtherOptions);
+                        }
+                    }
+                    EditorGUI.EndDisabledGroup();
+                }
+            }
+            else if (element is BlendTree tree)
+            {
+                var animations = ComboGesturePuppet.AllAnimationsOf(tree);
+                if (animations.Count == 0)
+                {
+                    InvisibleRankPreservingBox();
+                    InvisibleRankPreservingBox();
+                    InvisibleRankPreservingBox();
+                    InvisibleRankPreservingBox();
+                    InvisibleRankPreservingButton();
+                }
+                else if (_previewController.HasClip(animations[0]))
+                {
+                    GUILayout.BeginHorizontal();
+                    TexturedBox(grayscale, animations, 0);
+                    TexturedBox(grayscale, animations, 1);
+                    GUILayout.EndHorizontal();
+                    GUILayout.BeginHorizontal();
+                    TexturedBox(grayscale, animations, 2);
+                    TexturedBox(grayscale, animations, 3);
+                    GUILayout.EndHorizontal();
+                    InvisibleRankPreservingButton();
+                }
+                else
+                {
+                    InvisibleRankPreservingBox();
+                    InvisibleRankPreservingBox();
+                    InvisibleRankPreservingBox();
+                    InvisibleRankPreservingBox();
+                    EditorGUI.BeginDisabledGroup(AnimationMode.InAnimationMode());
+                    var isPreviewSetupValid = _editorEffector.IsPreviewSetupValid();
+                    if (GUILayout.Button(isPreviewSetupValid ? "Generate\npreview" : "Setup\npreview", GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true)))
+                    {
+                        if (isPreviewSetupValid)
+                        {
+                            _previewController.GenerateMissingPreviewsPrioritizing(_repaintCallback, animations[0]);
                         }
                         else
                         {
@@ -100,8 +151,28 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             else
             {
                 InvisibleRankPreservingBox();
+                InvisibleRankPreservingBox();
+                InvisibleRankPreservingBox();
+                InvisibleRankPreservingBox();
                 InvisibleRankPreservingButton();
             }
+        }
+
+        private void TexturedBox(bool grayscale, List<AnimationClip> animations, int index)
+        {
+            if (animations.Count > index && _previewController.HasClip(animations[index]))
+            {
+                GUILayout.Box(Texture(grayscale, animations[index]), GUIStyle.none, GUILayout.Width(PictureWidth / 2), GUILayout.Height(PictureHeight / 2));
+            }
+            else
+            {
+                InvisibleRankPreservingBox();
+            }
+        }
+
+        private Texture Texture(bool grayscale, AnimationClip clip)
+        {
+            return grayscale ? _previewController.GetGrayscale(clip) : _previewController.GetPicture(clip);
         }
 
         private static void InvisibleRankPreservingBox()
