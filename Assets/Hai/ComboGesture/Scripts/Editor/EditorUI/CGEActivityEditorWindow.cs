@@ -29,11 +29,13 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
     {
         private readonly CgeLayoutCommon _common;
         private readonly CgeEditorEffector _editorEffector;
+        private readonly CgeBlendTreeEffector _blendTreeEffector;
         private readonly CgeLayoutPreventEyesBlinking _layoutPreventEyesBlinking;
         private readonly CgeLayoutMakeLipsyncMovementsSubtle _layoutMakeLipsyncMovementsSubtle;
         private readonly CgeLayoutFaceExpressionCombiner _layoutFaceExpressionCombiner;
         private readonly CgeLayoutOtherOptions _layoutOtherOptions;
         private readonly CgeLayoutSetFaceExpressions _layoutSetFaceExpressions;
+        private readonly CgeLayoutManipulateTrees _layoutManipulateTrees;
 
         private Vector2 _scrollPos;
         public CgeWindowHandler WindowHandler { get; }
@@ -42,6 +44,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         {
             _editorEffector = new CgeEditorEffector(new CgeEditorState());
             var previewController = new CgePreviewEffector(new CgePreviewState(), _editorEffector);
+            _blendTreeEffector = new CgeBlendTreeEffector(new CgeBlendTreeState());
             _common = new CgeLayoutCommon(Repaint, _editorEffector, previewController);
             var driver = new CgeActivityEditorDriver(_editorEffector);
             _layoutPreventEyesBlinking = new CgeLayoutPreventEyesBlinking(_common, _editorEffector);
@@ -49,6 +52,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             _layoutFaceExpressionCombiner = new CgeLayoutFaceExpressionCombiner(driver, _editorEffector, previewController);
             _layoutOtherOptions = new CgeLayoutOtherOptions(_common, _editorEffector, previewController);
             _layoutSetFaceExpressions = new CgeLayoutSetFaceExpressions(_common, driver, _layoutFaceExpressionCombiner /* FIXME it is not normal to inject the layout here */, _editorEffector, Repaint);
+            _layoutManipulateTrees = new CgeLayoutManipulateTrees(_common, driver, _editorEffector, Repaint, _blendTreeEffector);
 
             WindowHandler = new CgeWindowHandler(this, _editorEffector);
         }
@@ -218,7 +222,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 // ReSharper disable once RedundantCaseLabel
                 case PuppetEditorMode.ManipulateTrees:
                 default:
-                    // _layoutSetFaceExpressions.Layout(position);
+                    _layoutManipulateTrees.Layout(position);
                     break;
             }
             GUILayout.EndScrollView();

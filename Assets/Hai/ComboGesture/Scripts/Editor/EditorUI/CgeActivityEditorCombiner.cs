@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Hai.ComboGesture.Scripts.Components;
+using Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors;
 using Hai.ComboGesture.Scripts.Editor.Internal;
 using UnityEditor;
 using UnityEngine;
@@ -67,15 +68,17 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         private AnimationPreview _combinedPreview;
         private readonly ComboGestureActivity _activity;
         private readonly Action _onClipRenderedFn;
+        private readonly CgeEditorEffector _editorEffector;
         private CgeDecider _cgeDecider;
 
-        public CgeActivityEditorCombiner(ComboGestureActivity activity, AnimationClip leftAnim, AnimationClip rightAnim, Action onClipRenderedFn)
+        public CgeActivityEditorCombiner(ComboGestureActivity activity, AnimationClip leftAnim, AnimationClip rightAnim, Action onClipRenderedFn, CgeEditorEffector editorEffector)
         {
             _activity = activity;
             _leftPreview = new AnimationPreview(leftAnim, CgePreviewProcessor.NewPreviewTexture2D(CombinerPreviewWidth, CombinerPreviewHeight));
             _rightPreview = new AnimationPreview(rightAnim, CgePreviewProcessor.NewPreviewTexture2D(CombinerPreviewWidth, CombinerPreviewHeight));
             _combinedPreview = new AnimationPreview(new AnimationClip(), CgePreviewProcessor.NewPreviewTexture2D(CombinerPreviewWidth, CombinerPreviewHeight));
             _onClipRenderedFn = onClipRenderedFn;
+            _editorEffector = editorEffector;
         }
 
         public void Prepare()
@@ -237,7 +240,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         private void CreatePreviews()
         {
-            if (!IsPreviewSetupValid()) return;
+            if (!_editorEffector.IsPreviewSetupValid()) return;
 
             var animationsPreviews = new[] {_leftPreview, _rightPreview, _combinedPreview}.ToList();
             new CgePreviewProcessor(_activity.previewSetup, animationsPreviews, OnClipRendered).Capture();
@@ -245,7 +248,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         private void RegenerateCombinedPreview()
         {
-            if (!IsPreviewSetupValid()) return;
+            if (!_editorEffector.IsPreviewSetupValid()) return;
 
             _combinedPreview = new AnimationPreview(GenerateCombinedClip(), _combinedPreview.RenderTexture);
 
@@ -285,11 +288,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             var finalPath = folder + finalFilename;
             AssetDatabase.CreateAsset(copyOfCombinedAnimation, finalPath);
             return AssetDatabase.LoadAssetAtPath<AnimationClip>(finalPath);
-        }
-
-        private bool IsPreviewSetupValid()
-        {
-            return _activity.previewSetup != null && _activity.previewSetup.IsValid();
         }
     }
 }

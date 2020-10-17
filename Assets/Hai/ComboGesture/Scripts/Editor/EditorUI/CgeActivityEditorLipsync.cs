@@ -36,7 +36,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         public void Prepare(AnimationClip baseFace)
         {
-            if (!IsPreviewSetupValid()) return;
+            if (!_editorEffector.IsPreviewSetupValid()) return;
 
             for (var visemeNumber = 0; visemeNumber < _visemePreviews.Count; visemeNumber++)
             {
@@ -48,7 +48,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         public void PrepareJust(AnimationClip baseFace, int visemeNumber)
         {
-            if (!IsPreviewSetupValid()) return;
+            if (!_editorEffector.IsPreviewSetupValid()) return;
 
             _visemePreviews[visemeNumber] = new AnimationPreview(GenerateLipsyncClip(baseFace, visemeNumber), _visemePreviews[visemeNumber].RenderTexture);
 
@@ -91,11 +91,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         private void OnClipRendered(AnimationPreview obj)
         {
             _onClipRenderedFn.Invoke();
-        }
-
-        private bool IsPreviewSetupValid()
-        {
-            return _editorEffector.PreviewSetup() != null && _editorEffector.PreviewSetup().IsValid();
         }
 
         public Texture TextureForViseme(int visemeNumber)

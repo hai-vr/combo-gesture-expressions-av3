@@ -51,7 +51,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             _editorEffector.NowEditingPuppet(puppet);
             if (!_editorEffector.IsPreviewSetupValid())
             {
-                _editorEffector.SwitchTo(ActivityEditorMode.OtherOptions);
+                _editorEffector.SwitchTo(PuppetEditorMode.OtherOptions);
                 _editorEffector.MarkFirstTimeSetup();
             }
 
