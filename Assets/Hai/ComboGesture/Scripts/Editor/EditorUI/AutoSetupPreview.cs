@@ -8,7 +8,7 @@ using Object = UnityEngine.Object;
 
 namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 {
-    internal class AutoSetupPreview
+    public class AutoSetupPreview
     {
         private readonly ComboGestureActivity _activity;
 

@@ -1,17 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.Internal;
-using UnityEditor;
 using UnityEngine;
 using static UnityEngine.Object;
-using Object = System.Object;
 
 namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 {
-    internal class CgeActivityEditorLipsync
+    public class CgeActivityEditorLipsync
     {
         public const int LipsyncPreviewWidth = 240;
         public const int LipsyncPreviewHeight = 160;

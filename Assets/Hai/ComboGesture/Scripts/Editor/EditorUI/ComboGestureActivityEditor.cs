@@ -1,4 +1,5 @@
 ﻿using Hai.ComboGesture.Scripts.Components;
+using Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
@@ -237,10 +238,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             EditorGUI.BeginDisabledGroup(serializedObject.isEditingMultipleObjects);
             if (GUILayout.Button(new GUIContent("Open editor")))
             {
-                var window = EditorWindow.GetWindow<CgeEditorWindow>();
-                window.titleContent = new GUIContent("CGE/" + serializedObject.targetObject.name);
-                window.activity = (ComboGestureActivity)serializedObject.targetObject;
-                window.Show();
+                CgeWindowHandler.Obtain().ShowActivity((ComboGestureActivity)serializedObject.targetObject);
             }
 
             if (serializedObject.isEditingMultipleObjects)

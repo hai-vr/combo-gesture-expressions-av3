@@ -20,7 +20,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly int _pictureHeight;
         private readonly AnimationClip[] _editorArbitraryAnimations;
 
-        public CgeActivityPreviewInternal(Action onClipRenderedFn, ComboGestureActivity activity, Dictionary<AnimationClip, Texture2D> animationClipToTextureDict, Dictionary<AnimationClip, Texture2D> animationClipToTextureDictGray, int pictureWidth, int pictureHeight, AnimationClip[] editorArbitraryAnimations)
+        public CgeActivityPreviewInternal(Action onClipRenderedFn, ComboGestureActivity activity, Dictionary<AnimationClip, Texture2D> animationClipToTextureDict, Dictionary<AnimationClip, Texture2D> animationClipToTextureDictGray, int pictureWidth, int pictureHeight)
         {
             _onClipRenderedFn = onClipRenderedFn;
             _activity = activity;
@@ -28,7 +28,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _animationClipToTextureDictGray = animationClipToTextureDictGray;
             _pictureWidth = pictureWidth;
             _pictureHeight = pictureHeight;
-            _editorArbitraryAnimations = editorArbitraryAnimations ?? new AnimationClip[]{};
+            _editorArbitraryAnimations = _activity.editorArbitraryAnimations ?? new AnimationClip[]{};
         }
 
         public enum ProcessMode

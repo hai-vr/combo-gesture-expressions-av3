@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEditor;
+using Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors;
+using Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts;
 using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Editor.EditorUI
@@ -223,6 +224,13 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             {"anim71", "anim70"},
         };
 
+        private readonly CgeEditorEffector _editorEffector;
+
+        public CgeActivityEditorDriver(CgeEditorEffector editorEffector)
+        {
+            _editorEffector = editorEffector;
+        }
+
         public bool IsSymmetrical(string propertyPath)
         {
             return Translations[propertyPath].Contains("x2");
@@ -238,7 +246,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             return ParameterToMerge.ContainsKey(propertyPath) || usePermutations && ParameterToMergePermutations.ContainsKey(propertyPath);
         }
 
-        public bool AreCombinationSourcesDefinedAndCompatible(SerializedObject serializedObject, string propertyPath, bool usePermutations = false)
+        public bool AreCombinationSourcesDefinedAndCompatible(string propertyPath, bool usePermutations = false)
         {
             if (!IsAPropertyThatCanBeCombined(propertyPath, usePermutations))
             {
@@ -248,13 +256,13 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             var mergePair = !usePermutations
                 ? ParameterToMerge[propertyPath]
                 : (ParameterToMerge.ContainsKey(propertyPath) ? ParameterToMerge[propertyPath] : ParameterToMergePermutations[propertyPath]);
-            var left = serializedObject.FindProperty(mergePair.Left).objectReferenceValue;
-            var right = serializedObject.FindProperty(mergePair.Right).objectReferenceValue;
+            var left = _editorEffector.SpProperty(mergePair.Left).objectReferenceValue;
+            var right = _editorEffector.SpProperty(mergePair.Right).objectReferenceValue;
 
             return left is AnimationClip && right is AnimationClip && left != right;
         }
 
-        public bool AreCombinationSourcesIdentical(SerializedObject serializedObject, string propertyPath)
+        public bool AreCombinationSourcesIdentical(string propertyPath)
         {
             if (!IsAPropertyThatCanBeCombined(propertyPath))
             {
@@ -262,8 +270,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             }
 
             var mergePair = ParameterToMerge[propertyPath];
-            var left = serializedObject.FindProperty(mergePair.Left).objectReferenceValue;
-            var right = serializedObject.FindProperty(mergePair.Right).objectReferenceValue;
+            var left = _editorEffector.SpProperty(mergePair.Left).objectReferenceValue;
+            var right = _editorEffector.SpProperty(mergePair.Right).objectReferenceValue;
 
             return left != null && right != null && left == right;
         }

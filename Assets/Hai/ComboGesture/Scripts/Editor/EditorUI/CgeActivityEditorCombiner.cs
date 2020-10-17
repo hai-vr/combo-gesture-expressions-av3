@@ -10,24 +10,24 @@ using Object = UnityEngine.Object;
 
 namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 {
-    enum Side
+    public enum Side
     {
         Left, Right
     }
 
-    class CgeDecider
+    public class CgeDecider
     {
         public List<SideDecider> left;
         public List<SideDecider> right;
         public List<IntersectionDecider> intersection;
     }
 
-    enum IntersectionChoice
+    public enum IntersectionChoice
     {
         UseLeft, UseRight, UseNone
     }
 
-    struct SideDecider
+    public struct SideDecider
     {
         public SideDecider(CurveKey key, float sampleValue, bool choice)
         {
@@ -41,7 +41,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public bool Choice { get; set; }
     }
 
-    struct IntersectionDecider
+    public struct IntersectionDecider
     {
         public IntersectionDecider(CurveKey key, float sampleLeftValue, float sampleRightValue, IntersectionChoice choice)
         {
@@ -57,7 +57,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public IntersectionChoice Choice { get; set; }
     }
 
-    internal class CgeActivityEditorCombiner
+    public class CgeActivityEditorCombiner
     {
         public const int CombinerPreviewWidth = 240;
         public const int CombinerPreviewHeight = 160;
