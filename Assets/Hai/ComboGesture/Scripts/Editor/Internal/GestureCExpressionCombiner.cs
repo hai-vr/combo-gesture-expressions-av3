@@ -224,7 +224,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 maxThreshold = 1,
                 useAutomaticThresholds = true,
                 children = new[]
-                    {new ChildMotion {motion = atZero, timeScale = 1}, new ChildMotion {motion = atOne, timeScale = 1}}
+                    {new ChildMotion {motion = atZero, timeScale = 1}, new ChildMotion {motion = atOne, timeScale = 1}},
+                hideFlags = HideFlags.HideInHierarchy
             };
 
             RegisterBlendTreeAsAsset(animatorController, blendTree);
@@ -263,7 +264,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 blendParameter = useGestureWeightCorrection ? SharedLayerUtils.HaiGestureComboLeftWeightProxy : "GestureLeftWeight",
                 blendParameterY = useGestureWeightCorrection ? SharedLayerUtils.HaiGestureComboRightWeightProxy : "GestureRightWeight",
                 blendType = BlendTreeType.FreeformDirectional2D,
-                children = motions
+                children = motions,
+                hideFlags = HideFlags.HideInHierarchy
             };
 
             RegisterBlendTreeAsAsset(animatorController, blendTree);

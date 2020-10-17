@@ -74,7 +74,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                     var biTreesReferences = binding.Manifest.AllBlendTreesFoundRecursively()
                         .ToDictionary(
                             originalTree => originalTree,
-                            originalTree => new BlendTree()
+                            originalTree => new BlendTree { hideFlags = HideFlags.HideInHierarchy }
                         );
 
                     var blendToRemappedBlend = binding.Manifest.AllBlendTreesFoundRecursively()
