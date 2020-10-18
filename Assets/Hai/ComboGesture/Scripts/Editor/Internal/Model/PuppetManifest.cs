@@ -81,5 +81,10 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
         {
             return new PuppetManifest(_transitionDuration, (PuppetAnimatedBehavior)Behavior.Remapping(remapping, blendRemapping));
         }
+
+        public IManifest UsingRemappedWeights(Dictionary<BlendTree, AutoWeightTreeMapping> autoWeightRemapping)
+        {
+            return this;
+        }
     }
 }

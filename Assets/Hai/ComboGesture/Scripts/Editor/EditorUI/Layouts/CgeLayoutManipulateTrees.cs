@@ -140,7 +140,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                     : "Animation at rest", _blendTreeEffector.MiddleClip, typeof(AnimationClip), false);
             EditorGUI.BeginDisabledGroup(_blendTreeEffector.CurrentTemplate == PuppetTemplate.SingleAnalogWithHairTrigger);
             _blendTreeEffector.CenterSafety = EditorGUILayout.Toggle("Fix joystick snapping", _blendTreeEffector.CenterSafety);
-            _blendTreeEffector.Maximum = EditorGUILayout.Slider("Joystick maximum tilt", _blendTreeEffector.Maximum, 0.9f, 1.0f);
+            _blendTreeEffector.Maximum = EditorGUILayout.Slider("Joystick maximum tilt", _blendTreeEffector.Maximum, 0.1f, 1.0f);
             EditorGUI.EndDisabledGroup();
 
             if (GUILayout.Button("Create a new blend tree asset"))

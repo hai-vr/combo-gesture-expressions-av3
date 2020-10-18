@@ -15,6 +15,21 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
         IEnumerable<QualifiedAnimation> AllQualifiedAnimations();
         IEnumerable<BlendTree> AllBlendTreesFoundRecursively();
         IManifest NewFromRemappedAnimations(Dictionary<QualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendToRemappedBlend);
+        IManifest UsingRemappedWeights(Dictionary<BlendTree,AutoWeightTreeMapping> autoWeightRemapping);
+    }
+
+    public readonly struct AutoWeightTreeMapping
+    {
+        public AutoWeightTreeMapping(BlendTree original, BlendTree leftHand, BlendTree rightHand)
+        {
+            Original = original;
+            LeftHand = leftHand;
+            RightHand = rightHand;
+        }
+
+        public BlendTree Original { get; }
+        public BlendTree LeftHand { get; }
+        public BlendTree RightHand { get; }
     }
 
     public enum ManifestKind
@@ -69,6 +84,30 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
             foreach (var permutation in newPoses.Keys.ToList())
             {
                 newPoses[permutation] = newPoses[permutation].Remapping(remapping, blendRemapping);
+            }
+
+            return new PermutationManifest(newPoses, _transitionDuration);
+        }
+
+        public IManifest UsingRemappedWeights(Dictionary<BlendTree, AutoWeightTreeMapping> autoWeightRemapping)
+        {
+            var remappingLeft = autoWeightRemapping.ToDictionary(pair => pair.Key, pair => pair.Value.LeftHand);
+            var remappingRight = autoWeightRemapping.ToDictionary(pair => pair.Key, pair => pair.Value.RightHand);
+            var emptyDict = new Dictionary<QualifiedAnimation, AnimationClip>();
+
+            var newPoses = new Dictionary<Permutation, IAnimatedBehavior>(Poses);
+            foreach (var pair in Poses)
+            {
+                if (!pair.Key.IsSymmetrical()) {
+                    if (pair.Key.Left == HandPose.H1)
+                    {
+                        newPoses[pair.Key] = pair.Value.Remapping(emptyDict, remappingLeft);
+                    }
+                    if (pair.Key.Right == HandPose.H1)
+                    {
+                        newPoses[pair.Key] = pair.Value.Remapping(emptyDict, remappingRight);
+                    }
+                }
             }
 
             return new PermutationManifest(newPoses, _transitionDuration);
@@ -458,8 +497,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
                     : qualification)
                 .ToList();
             var newSqueezing = remapping.ContainsKey(Squeezing) ? Squeezing.NewInstanceWithClip(remapping[Squeezing]) : Squeezing;
+            var newBlendRemapping = blendRemapping.ContainsKey(Resting) ? blendRemapping[Resting] : Resting;
 
-            return Of(blendRemapping[Resting], newSqueezing, newQualificationsOfTree);
+            return Of(newBlendRemapping, newSqueezing, newQualificationsOfTree);
         }
 
         public static PuppetToAnalogAnimatedBehavior Of(BlendTree resting, QualifiedAnimation squeezing, List<QualifiedAnimation> qualificationsOfTree)

@@ -1,4 +1,5 @@
 ﻿using System;
+using Hai.ComboGesture.Scripts.Editor.Internal;
 using UnityEditor.Animations;
 using UnityEngine;
 
@@ -32,7 +33,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
 
             var blendTree = new BlendTree();
             blendTree.blendType = is2D ? BlendTreeType.FreeformDirectional2D : BlendTreeType.Simple1D;
-            blendTree.blendParameter = is2D ? "VRCFaceBlendH" : "_AutoGestureWeight";
+            blendTree.blendParameter = is2D ? "VRCFaceBlendH" : CgeBlendTreeAutoWeightCorrector.AutoGestureWeightParam;
             if (is2D) {
                 blendTree.blendParameterY = "VRCFaceBlendV";
             }
