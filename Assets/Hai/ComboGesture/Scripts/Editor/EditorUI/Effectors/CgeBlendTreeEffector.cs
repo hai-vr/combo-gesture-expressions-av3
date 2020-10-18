@@ -19,6 +19,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
         public float HorizontalFocalPoint = 0.5f;
         public float VerticalFocalPoint = 0.5f;
         public float DescaleLevel = 1f;
+        public BlendTree BlendTreeBeingEdited { get; set; }
 
         public CgeBlendTreeEffector(CgeBlendTreeState state)
         {

@@ -13,14 +13,16 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
         private readonly CgeLayoutFaceExpressionCombiner _layoutFaceExpressionCombiner; // FIXME: It is not normal to have the layout combiner here
         private readonly CgeEditorEffector _editorEffector;
         private readonly Action _repaintCallback;
+        private readonly CgeBlendTreeEffector _blendTreeEffector;
 
-        public CgeLayoutSetFaceExpressions(CgeLayoutCommon common, CgeActivityEditorDriver driver, CgeLayoutFaceExpressionCombiner layoutFaceExpressionCombiner, CgeEditorEffector editorEffector, Action repaintCallback)
+        public CgeLayoutSetFaceExpressions(CgeLayoutCommon common, CgeActivityEditorDriver driver, CgeLayoutFaceExpressionCombiner layoutFaceExpressionCombiner, CgeEditorEffector editorEffector, Action repaintCallback, CgeBlendTreeEffector blendTreeEffector)
         {
             _common = common;
             _driver = driver;
             _layoutFaceExpressionCombiner = layoutFaceExpressionCombiner;
             _editorEffector = editorEffector;
             _repaintCallback = repaintCallback;
+            _blendTreeEffector = blendTreeEffector;
         }
 
         public void Layout(Rect position)
@@ -500,8 +502,12 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
         private void OpenBlendTreeAt(string propertyPath)
         {
             var blendTree = (BlendTree)_editorEffector.SpProperty(propertyPath).objectReferenceValue;
-
-
+            _blendTreeEffector.BlendTreeBeingEdited = blendTree;
+            _editorEffector.SwitchAdditionalEditorTo(AdditionalEditorsMode.ViewBlendTrees);
+            if (_editorEffector.GetCurrentlyEditing() == CurrentlyEditing.Activity)
+            {
+                _editorEffector.SwitchTo(ActivityEditorMode.AdditionalEditors);
+            }
         }
 
         private void AutoSet(string propertyPath, string propertyPathToCopyFrom)

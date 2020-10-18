@@ -49,6 +49,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
         {
             _combinerState.DoSetCombiner(_editorEffector.GetActivity(), leftAnim, rightAnim, propertyPath, usePermutations, repaintCallback, _editorEffector);
 
+            _editorEffector.SwitchAdditionalEditorTo(AdditionalEditorsMode.CombineFaceExpressions);
             _editorEffector.SwitchTo(ActivityEditorMode.AdditionalEditors);
         }
 

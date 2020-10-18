@@ -14,6 +14,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
         internal SerializedObject SerializedObject;
 
         public int Mode { get; internal set; }
+        public AdditionalEditorsMode AdditionalEditor { get; set; }
 
         public int CurrentEditorToolValue = -1;
 
@@ -256,6 +257,16 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        public AdditionalEditorsMode GetAdditionalEditor()
+        {
+            return _state.AdditionalEditor;
+        }
+
+        public void SwitchAdditionalEditorTo(AdditionalEditorsMode mode)
+        {
+            _state.AdditionalEditor = mode;
         }
     }
 

@@ -25,6 +25,13 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         OtherOptions
     }
 
+    public enum AdditionalEditorsMode
+    {
+        CreateBlendTrees,
+        ViewBlendTrees,
+        CombineFaceExpressions
+    }
+
     public class CgeEditorWindow : EditorWindow
     {
         private readonly CgeLayoutCommon _common;
@@ -51,7 +58,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             _layoutMakeLipsyncMovementsSubtle = new CgeLayoutMakeLipsyncMovementsSubtle(_common, driver, _editorEffector);
             _layoutFaceExpressionCombiner = new CgeLayoutFaceExpressionCombiner(driver, _editorEffector, previewController);
             _layoutOtherOptions = new CgeLayoutOtherOptions(_common, _editorEffector, previewController);
-            _layoutSetFaceExpressions = new CgeLayoutSetFaceExpressions(_common, driver, _layoutFaceExpressionCombiner /* FIXME it is not normal to inject the layout here */, _editorEffector, Repaint);
+            _layoutSetFaceExpressions = new CgeLayoutSetFaceExpressions(_common, driver, _layoutFaceExpressionCombiner /* FIXME it is not normal to inject the layout here */, _editorEffector, Repaint, _blendTreeEffector);
             _layoutManipulateTrees = new CgeLayoutManipulateTrees(_common, driver, _editorEffector, Repaint, _blendTreeEffector);
 
             WindowHandler = new CgeWindowHandler(this, _editorEffector);
@@ -147,7 +154,20 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                     _layoutMakeLipsyncMovementsSubtle.Layout(position, Repaint);
                     break;
                 case ActivityEditorMode.AdditionalEditors:
-                    _layoutFaceExpressionCombiner.Layout(Repaint);
+                    switch (_editorEffector.GetAdditionalEditor())
+                    {
+                        case AdditionalEditorsMode.CreateBlendTrees:
+                            _layoutManipulateTrees.LayoutAssetCreator(position);
+                            break;
+                        case AdditionalEditorsMode.ViewBlendTrees:
+                            _layoutManipulateTrees.LayoutTreeViewer(position);
+                            break;
+                        case AdditionalEditorsMode.CombineFaceExpressions:
+                            _layoutFaceExpressionCombiner.Layout(Repaint);
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
                     break;
                 case ActivityEditorMode.OtherOptions:
                     _layoutOtherOptions.Layout(Repaint, position);
@@ -194,6 +214,10 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             if (_editorEffector.CurrentActivityMode() == ActivityEditorMode.MakeLipsyncMovementsSubtle)
             {
                 CreateLipsyncToolbar();
+            }
+            else if (_editorEffector.CurrentActivityMode() == ActivityEditorMode.AdditionalEditors)
+            {
+                CreateAdditionalEditorsToolbar();
             }
 
             GUILayout.EndArea();
@@ -253,6 +277,19 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             _layoutMakeLipsyncMovementsSubtle.SetEditorLipsync(GUILayout.Toolbar(_layoutMakeLipsyncMovementsSubtle.GetEditorLipsync(), new[]
             {
                 "Select wide open mouth", "Edit lipsync settings"
+            }, GUILayout.ExpandWidth(true)));
+
+            GUILayout.Space(30);
+            GUILayout.EndHorizontal();
+        }
+
+        private void CreateAdditionalEditorsToolbar()
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Space(30);
+            _editorEffector.SwitchAdditionalEditorTo((AdditionalEditorsMode)GUILayout.Toolbar((int)_editorEffector.GetAdditionalEditor(), new[]
+            {
+                "Create blend trees", "View blend trees", "Combine face expressions"
             }, GUILayout.ExpandWidth(true)));
 
             GUILayout.Space(30);

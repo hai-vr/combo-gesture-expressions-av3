@@ -17,6 +17,8 @@ namespace Hai.ComboGesture.Scripts.Components
         public List<ComboGestureActivity.LimitedLipsyncAnimation> limitedLipsync;
 
         public ComboGesturePreviewSetup previewSetup;
+        public bool editorLegacyFoldout;
+        public bool editorTool;
 
         [System.Serializable]
         public enum PuppetIntent

@@ -31,15 +31,34 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             LayoutBlendTreeViewer(position);
         }
 
+        public void LayoutAssetCreator(Rect position)
+        {
+            LayoutBlendTreeAssetCreator();
+        }
+
+        public void LayoutTreeViewer(Rect position)
+        {
+            LayoutBlendTreeViewer(position);
+        }
+
         private void LayoutBlendTreeViewer(Rect position)
         {
-            var mainTree = (BlendTree)_editorEffector.SpProperty("mainTree").objectReferenceValue;
-            if (mainTree == null) return;
+            BlendTree treeBeingEdited;
+            if (_editorEffector.GetCurrentlyEditing() == CurrentlyEditing.Puppet) {
+                treeBeingEdited = (BlendTree)_editorEffector.SpProperty("mainTree").objectReferenceValue;
+            }
+            else
+            {
+                treeBeingEdited = _blendTreeEffector.BlendTreeBeingEdited;
+            }
 
-            var xMin = mainTree.children.Select(motion => motion.position.x).Min();
-            var yMin = mainTree.children.Select(motion => motion.position.y).Min();
-            var xMax = mainTree.children.Select(motion => motion.position.x).Max();
-            var yMax = mainTree.children.Select(motion => motion.position.y).Max();
+            if (treeBeingEdited == null) return;
+
+            var is2D = treeBeingEdited.blendType == BlendTreeType.Simple1D || treeBeingEdited.blendType == BlendTreeType.Direct;
+            var xMin = treeBeingEdited.children.Select(motion => is2D ? motion.threshold : motion.position.x).Min();
+            var yMin = treeBeingEdited.children.Select(motion => is2D ? 0 : motion.position.y).Min();
+            var xMax = treeBeingEdited.children.Select(motion => is2D ? motion.threshold : motion.position.x).Max();
+            var yMax = treeBeingEdited.children.Select(motion => is2D ? 1 : motion.position.y).Max();
             var min = new Vector2(xMin, yMin);
             var max = new Vector2(xMax, yMax);
 
@@ -64,9 +83,12 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                 fixture + sliderThickness,
                 position.width - sliderThickness,
                 position.height - fixture - sliderThickness - CgeLayoutCommon.SingleLineHeight * 4));
-            foreach (var child in mainTree.children)
+            foreach (var child in treeBeingEdited.children)
             {
-                var centered = CalculateCentered(child.position, min, max, position, headerPadding, fixture, sliderThickness);
+                var posVec = is2D
+                    ? new Vector2(child.threshold, 0.5f)
+                    : child.position;
+                var centered = CalculateCentered(posVec, min, max, position, headerPadding, fixture, sliderThickness);
                 GUILayout.BeginArea(centered);
                 GUILayout.BeginArea(new Rect(0, 0, CgeLayoutCommon.PictureWidth, CgeLayoutCommon.PictureHeight));
                 _common.DrawPreviewOrRefreshButton(child.motion);
@@ -113,7 +135,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             EditorGUILayout.LabelField("Create a new blend tree", EditorStyles.boldLabel);
             _blendTreeEffector.CurrentTemplate = (PuppetTemplate) EditorGUILayout.EnumPopup("Template", _blendTreeEffector.CurrentTemplate);
             _blendTreeEffector.MiddleClip = (AnimationClip) EditorGUILayout.ObjectField(
-                _blendTreeEffector.CurrentTemplate == PuppetTemplate.SingleAnalogWithHairTrigger
+                _blendTreeEffector.CurrentTemplate != PuppetTemplate.SingleAnalogWithHairTrigger
                     ? "Joystick center animation"
                     : "Animation at rest", _blendTreeEffector.MiddleClip, typeof(AnimationClip), false);
             EditorGUI.BeginDisabledGroup(_blendTreeEffector.CurrentTemplate == PuppetTemplate.SingleAnalogWithHairTrigger);
@@ -129,6 +151,11 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                     if (_editorEffector.GetCurrentlyEditing() == CurrentlyEditing.Puppet)
                     {
                         _editorEffector.GetPuppet().mainTree = createdTree;
+                    }
+                    else
+                    {
+                        _blendTreeEffector.BlendTreeBeingEdited = createdTree;
+                        _editorEffector.SwitchAdditionalEditorTo(AdditionalEditorsMode.ViewBlendTrees);
                     }
                 }
             }
