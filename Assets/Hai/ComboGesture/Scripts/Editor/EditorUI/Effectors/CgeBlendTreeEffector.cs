@@ -16,6 +16,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
         public AnimationClip MiddleClip;
         public bool CenterSafety = true;
         public float Maximum = 0.97f;
+        public float HorizontalFocalPoint = 0.5f;
+        public float VerticalFocalPoint = 0.5f;
+        public float DescaleLevel = 1f;
 
         public CgeBlendTreeEffector(CgeBlendTreeState state)
         {
