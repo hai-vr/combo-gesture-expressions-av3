@@ -16,11 +16,13 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
     {
         private readonly CgePreviewState _cgePreviewState;
         private readonly CgeEditorEffector _editorEffector;
+        private readonly CgeBlendTreeEffector _blendTreeEffector;
 
-        public CgePreviewEffector(CgePreviewState cgePreviewState, CgeEditorEffector editorEffector)
+        public CgePreviewEffector(CgePreviewState cgePreviewState, CgeEditorEffector editorEffector, CgeBlendTreeEffector blendTreeEffector)
         {
             _cgePreviewState = cgePreviewState;
             _editorEffector = editorEffector;
+            _blendTreeEffector = blendTreeEffector;
         }
 
         public void GenerateMissingPreviews(Action repaintCallback)
@@ -43,6 +45,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
             return new CgeActivityPreviewInternal(
                 repaintCallback,
                 _editorEffector,
+                _blendTreeEffector,
                 _cgePreviewState.AnimationClipToTextureDict,
                 _cgePreviewState.AnimationClipToTextureDictGray,
                 CgeLayoutCommon.PictureWidth,

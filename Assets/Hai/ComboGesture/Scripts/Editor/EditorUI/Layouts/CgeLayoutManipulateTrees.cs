@@ -28,7 +28,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
         {
             LayoutPuppetSpecifics();
             LayoutBlendTreeAssetCreator();
-            LayoutBlendTreeViewer(position);
+            LayoutBlendTreeViewer(position, false);
         }
 
         public void LayoutAssetCreator(Rect position)
@@ -38,10 +38,10 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
 
         public void LayoutTreeViewer(Rect position)
         {
-            LayoutBlendTreeViewer(position);
+            LayoutBlendTreeViewer(position, true);
         }
 
-        private void LayoutBlendTreeViewer(Rect position)
+        private void LayoutBlendTreeViewer(Rect position, bool showAsset)
         {
             BlendTree treeBeingEdited;
             if (_editorEffector.GetCurrentlyEditing() == CurrentlyEditing.Puppet) {
@@ -50,6 +50,13 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             else
             {
                 treeBeingEdited = _blendTreeEffector.BlendTreeBeingEdited;
+            }
+
+            if (showAsset)
+            {
+                // EditorGUI.BeginDisabledGroup(true);
+                _blendTreeEffector.BlendTreeBeingEdited = (BlendTree) EditorGUILayout.ObjectField(treeBeingEdited, typeof(BlendTree), false);
+                // EditorGUI.EndDisabledGroup();
             }
 
             if (treeBeingEdited == null) return;
@@ -134,14 +141,42 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             EditorGUILayout.Separator();
             EditorGUILayout.LabelField("Create a new blend tree", EditorStyles.boldLabel);
             _blendTreeEffector.CurrentTemplate = (PuppetTemplate) EditorGUILayout.EnumPopup("Template", _blendTreeEffector.CurrentTemplate);
+            switch (_blendTreeEffector.CurrentTemplate)
+            {
+                case PuppetTemplate.FourDirections:
+                    EditorGUILayout.HelpBox("Joystick with 4 directions: Up, down, left, right.", MessageType.Info);
+                    break;
+                case PuppetTemplate.EightDirections:
+                    EditorGUILayout.HelpBox("Joystick with 8 directions: Up, down, left, right, and all of the diagonals in a circle shape.", MessageType.Info);
+                    break;
+                case PuppetTemplate.SixDirectionsPointingForward:
+                    EditorGUILayout.HelpBox("Joystick with 6 directions in a hexagon shape. The up and down directions are lined up.", MessageType.Info);
+                    break;
+                case PuppetTemplate.SixDirectionsPointingSideways:
+                    EditorGUILayout.HelpBox("Joystick with 6 directions in a hexagon shape. The left and right directions are lined up.", MessageType.Info);
+                    break;
+                case PuppetTemplate.SingleAnalogFistWithHairTrigger:
+                    EditorGUILayout.HelpBox("One-handed analog Fist.\nThe parameter _AutoGestureWeight will be automatically replaced with the appropriate hand weight parameter.", MessageType.Info);
+                    break;
+                case PuppetTemplate.SingleAnalogFistAndTwoDirections:
+                    EditorGUILayout.HelpBox("One-handed analog Fist with an option to combine it with one Joystick direction.\nThe parameter _AutoGestureWeight will be automatically replaced with the appropriate hand weight parameter.", MessageType.Info);
+                    break;
+                case PuppetTemplate.DualAnalogFist:
+                    EditorGUILayout.HelpBox("Two-handed analog Fist.\nThe parameter GestureRightWeight is on the X axis to better visualize the blend tree directions.", MessageType.Info);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            var isFistRelated = _blendTreeEffector.CurrentTemplate == PuppetTemplate.SingleAnalogFistWithHairTrigger
+                                || _blendTreeEffector.CurrentTemplate == PuppetTemplate.SingleAnalogFistAndTwoDirections
+                                || _blendTreeEffector.CurrentTemplate == PuppetTemplate.DualAnalogFist;
             _blendTreeEffector.MiddleClip = (AnimationClip) EditorGUILayout.ObjectField(
-                _blendTreeEffector.CurrentTemplate != PuppetTemplate.SingleAnalogWithHairTrigger
-                    ? "Joystick center animation"
-                    : "Animation at rest", _blendTreeEffector.MiddleClip, typeof(AnimationClip), false);
-            EditorGUI.BeginDisabledGroup(_blendTreeEffector.CurrentTemplate == PuppetTemplate.SingleAnalogWithHairTrigger);
-            _blendTreeEffector.CenterSafety = EditorGUILayout.Toggle("Fix joystick snapping", _blendTreeEffector.CenterSafety);
-            _blendTreeEffector.Maximum = EditorGUILayout.Slider("Joystick maximum tilt", _blendTreeEffector.Maximum, 0.1f, 1.0f);
-            EditorGUI.EndDisabledGroup();
+                isFistRelated ? "Animation at rest" : "Joystick center animation", _blendTreeEffector.MiddleClip, typeof(AnimationClip), false);
+            if (!isFistRelated) {
+                _blendTreeEffector.CenterSafety = EditorGUILayout.Toggle("Fix joystick snapping", _blendTreeEffector.CenterSafety);
+                _blendTreeEffector.Maximum = EditorGUILayout.Slider("Joystick maximum tilt", _blendTreeEffector.Maximum, 0.1f, 1.0f);
+            }
 
             if (GUILayout.Button("Create a new blend tree asset"))
             {

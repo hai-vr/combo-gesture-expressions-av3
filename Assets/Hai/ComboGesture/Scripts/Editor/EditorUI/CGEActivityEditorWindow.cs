@@ -50,8 +50,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public CgeEditorWindow()
         {
             _editorEffector = new CgeEditorEffector(new CgeEditorState());
-            var previewController = new CgePreviewEffector(new CgePreviewState(), _editorEffector);
             _blendTreeEffector = new CgeBlendTreeEffector(new CgeBlendTreeState());
+            var previewController = new CgePreviewEffector(new CgePreviewState(), _editorEffector, _blendTreeEffector);
             _common = new CgeLayoutCommon(Repaint, _editorEffector, previewController);
             var driver = new CgeActivityEditorDriver(_editorEffector);
             _layoutPreventEyesBlinking = new CgeLayoutPreventEyesBlinking(_common, _editorEffector);

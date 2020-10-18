@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.Internal;
 using UnityEditor.Animations;
 using UnityEngine;
@@ -29,13 +31,27 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
 
         public BlendTree CreateBlendTreeAsset()
         {
-            var is2D = CurrentTemplate != PuppetTemplate.SingleAnalogWithHairTrigger;
+            var is2D = CurrentTemplate != PuppetTemplate.SingleAnalogFistWithHairTrigger;
 
             var blendTree = new BlendTree();
             blendTree.blendType = is2D ? BlendTreeType.FreeformDirectional2D : BlendTreeType.Simple1D;
-            blendTree.blendParameter = is2D ? "VRCFaceBlendH" : CgeBlendTreeAutoWeightCorrector.AutoGestureWeightParam;
-            if (is2D) {
-                blendTree.blendParameterY = "VRCFaceBlendV";
+            if (CurrentTemplate == PuppetTemplate.DualAnalogFist)
+            {
+                blendTree.blendParameter = "GestureRightWeight";
+                blendTree.blendParameterY = "GestureLeftWeight";
+            }
+            else
+            {
+                blendTree.blendParameter = is2D ? "VRCFaceBlendH" : CgeBlendTreeAutoWeightCorrector.AutoGestureWeightParam;
+                if (is2D) {
+                    if (CurrentTemplate != PuppetTemplate.SingleAnalogFistAndTwoDirections) {
+                        blendTree.blendParameterY = "VRCFaceBlendV";
+                    }
+                    else
+                    {
+                        blendTree.blendParameterY = CgeBlendTreeAutoWeightCorrector.AutoGestureWeightParam;
+                    }
+                }
             }
 
             switch (CurrentTemplate)
@@ -72,17 +88,33 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
                     blendTree.AddChild(null, AtRevolution(1/12f + 5/6f));
                     blendTree.AddChild(null, AtRevolution(1/12f + 0/6f));
                     break;
-                case PuppetTemplate.SingleAnalogWithHairTrigger:
+                case PuppetTemplate.SingleAnalogFistWithHairTrigger:
                     blendTree.useAutomaticThresholds = false;
                     blendTree.AddChild(MiddleClip, 0f);
                     blendTree.AddChild(null, 0.8f);
                     blendTree.AddChild(null, 1.0f);
                     break;
+                case PuppetTemplate.SingleAnalogFistAndTwoDirections:
+                    blendTree.AddChild(null, new Vector2(-Maximum, 1));
+                    blendTree.AddChild(null, new Vector2(0, 1));
+                    blendTree.AddChild(null, new Vector2(Maximum, 1));
+                    blendTree.AddChild(MiddleClip, new Vector2(-1, 0));
+                    blendTree.AddChild(MiddleClip, new Vector2(0, 0));
+                    blendTree.AddChild(MiddleClip, new Vector2(1, 0));
+                    break;
+                case PuppetTemplate.DualAnalogFist:
+                    blendTree.AddChild(null, new Vector2(1, 1));
+                    blendTree.AddChild(null, new Vector2(1, 0));
+                    blendTree.AddChild(null, new Vector2(0, 1));
+                    blendTree.AddChild(MiddleClip, new Vector2(0, 0));
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
 
-            if (is2D)
+            if (is2D
+                && CurrentTemplate != PuppetTemplate.SingleAnalogFistAndTwoDirections
+                && CurrentTemplate != PuppetTemplate.DualAnalogFist)
             {
                 blendTree.AddChild(MiddleClip, new Vector2(0, 0));
                 if (CenterSafety)
@@ -103,6 +135,11 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
                 (float) (Math.Sin(revolutionAmount * Math.PI * 2) * Maximum),
                 (float) (Math.Cos(revolutionAmount * Math.PI * 2) * Maximum));
         }
+
+        public List<AnimationClip> AllAnimationsOfSelected()
+        {
+            return BlendTreeBeingEdited != null ? ComboGesturePuppet.AllAnimationsOf(BlendTreeBeingEdited) : new List<AnimationClip>();
+        }
     }
 
     public enum PuppetTemplate
@@ -111,6 +148,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
         EightDirections,
         SixDirectionsPointingForward,
         SixDirectionsPointingSideways,
-        SingleAnalogWithHairTrigger
+        SingleAnalogFistWithHairTrigger,
+        SingleAnalogFistAndTwoDirections,
+        DualAnalogFist
     }
 }

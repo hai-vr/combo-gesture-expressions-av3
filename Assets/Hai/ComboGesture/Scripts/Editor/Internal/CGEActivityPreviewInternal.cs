@@ -12,22 +12,24 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
     {
 
         private readonly Action _onClipRenderedFn;
-        private readonly CgeEditorEffector _effector;
+        private readonly CgeEditorEffector _editorEffector;
+        private readonly CgeBlendTreeEffector _blendTreeEffector;
         private readonly Dictionary<AnimationClip, Texture2D> _animationClipToTextureDict;
         private readonly Dictionary<AnimationClip, Texture2D> _animationClipToTextureDictGray;
         private readonly int _pictureWidth;
         private readonly int _pictureHeight;
         private readonly AnimationClip[] _editorArbitraryAnimations;
 
-        public CgeActivityPreviewInternal(Action onClipRenderedFn, CgeEditorEffector effector, Dictionary<AnimationClip, Texture2D> animationClipToTextureDict, Dictionary<AnimationClip, Texture2D> animationClipToTextureDictGray, int pictureWidth, int pictureHeight)
+        public CgeActivityPreviewInternal(Action onClipRenderedFn, CgeEditorEffector editorEffector, CgeBlendTreeEffector blendTreeEffector, Dictionary<AnimationClip, Texture2D> animationClipToTextureDict, Dictionary<AnimationClip, Texture2D> animationClipToTextureDictGray, int pictureWidth, int pictureHeight)
         {
             _onClipRenderedFn = onClipRenderedFn;
-            _effector = effector;
+            _editorEffector = editorEffector;
+            _blendTreeEffector = blendTreeEffector;
             _animationClipToTextureDict = animationClipToTextureDict;
             _animationClipToTextureDictGray = animationClipToTextureDictGray;
             _pictureWidth = pictureWidth;
             _pictureHeight = pictureHeight;
-            _editorArbitraryAnimations = _effector.GetActivity()?.editorArbitraryAnimations ?? new AnimationClip[]{};
+            _editorArbitraryAnimations = _editorEffector.GetActivity()?.editorArbitraryAnimations ?? new AnimationClip[]{};
         }
 
         public enum ProcessMode
@@ -45,7 +47,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             var clipDictionary = GatherAnimations(processMode);
             var animationPreviews = ToPrioritizedList(clipDictionary, prioritize);
 
-            new CgePreviewProcessor(_effector.PreviewSetup(), animationPreviews, OnClipRendered).Capture();
+            new CgePreviewProcessor(_editorEffector.PreviewSetup(), animationPreviews, OnClipRendered).Capture();
         }
 
         private void OnClipRendered(AnimationPreview animationPreview)
@@ -96,9 +98,10 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private Dictionary<AnimationClip, Texture2D> GatherAnimations(ProcessMode processMode)
         {
             var enumerable = _editorArbitraryAnimations
+                .Union(_editorEffector.AllDistinctAnimations())
+                .Union(_blendTreeEffector.AllAnimationsOfSelected())
                 .Distinct()
-                .Where(clip => clip != null)
-                .Union(_effector.AllDistinctAnimations());
+                .Where(clip => clip != null);
 
             if (processMode == ProcessMode.CalculateMissing)
             {
