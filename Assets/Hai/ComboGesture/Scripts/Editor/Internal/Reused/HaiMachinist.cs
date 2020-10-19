@@ -47,7 +47,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Reused
 
         public Transitionist AnyTransitionsTo(Statist destination)
         {
-            return new Transitionist(Statist.NewDefaultTransition(_machine.AddAnyStateTransition(destination._state)));
+            return new Transitionist(Statist.NewDefaultTransition(_machine.AddAnyStateTransition(destination.State)));
         }
 
         public AnimatorStateMachine ExposeMachine()
@@ -58,36 +58,36 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Reused
 
     internal class Statist
     {
-        internal readonly AnimatorState _state;
+        internal readonly AnimatorState State;
         private VRCAvatarParameterDriver _driver;
         private VRCAnimatorTrackingControl _tracking;
 
         internal Statist(AnimatorState state)
         {
-            _state = state;
+            State = state;
         }
 
         internal Statist WithAnimation(Motion clip)
         {
-            _state.motion = clip;
+            State.motion = clip;
             return this;
         }
 
         internal Transitionist TransitionsTo(Statist destination)
         {
-            return new Transitionist(NewDefaultTransition(_state.AddTransition(destination._state)));
+            return new Transitionist(NewDefaultTransition(State.AddTransition(destination.State)));
         }
 
         internal Statist AutomaticallyMovesTo(Statist destination)
         {
-            var transition = NewDefaultTransition(_state.AddTransition(destination._state));
+            var transition = NewDefaultTransition(State.AddTransition(destination.State));
             transition.hasExitTime = true;
             return this;
         }
 
         internal Transitionist Exits()
         {
-            return new Transitionist(NewDefaultTransition(_state.AddExitTransition()));
+            return new Transitionist(NewDefaultTransition(State.AddExitTransition()));
         }
 
         internal static AnimatorStateTransition NewDefaultTransition(AnimatorStateTransition transition)
@@ -126,13 +126,13 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Reused
         private void CreateDriverBehaviorIfNotExists()
         {
             if (_driver != null) return;
-            _driver = _state.AddStateMachineBehaviour<VRCAvatarParameterDriver>();
+            _driver = State.AddStateMachineBehaviour<VRCAvatarParameterDriver>();
             _driver.parameters = new List<VRC_AvatarParameterDriver.Parameter>();
         }
 
         public Statist WithWriteDefaultsSetTo(bool shouldWriteDefaults)
         {
-            _state.writeDefaultValues = shouldWriteDefaults;
+            State.writeDefaultValues = shouldWriteDefaults;
             return this;
         }
 
@@ -194,7 +194,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Reused
         private void CreateTrackingBehaviorIfNotExists()
         {
             if (_tracking != null) return;
-            _tracking = _state.AddStateMachineBehaviour<VRCAnimatorTrackingControl>();
+            _tracking = State.AddStateMachineBehaviour<VRCAnimatorTrackingControl>();
         }
 
         internal enum TrackingElement

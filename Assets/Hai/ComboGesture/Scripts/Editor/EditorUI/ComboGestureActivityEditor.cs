@@ -46,7 +46,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public SerializedProperty anim66;
         public SerializedProperty anim67;
         public SerializedProperty anim77;
+        // ReSharper disable once InconsistentNaming
         public SerializedProperty anim11_L;
+        // ReSharper disable once InconsistentNaming
         public SerializedProperty anim11_R;
 
         public SerializedProperty anim10;

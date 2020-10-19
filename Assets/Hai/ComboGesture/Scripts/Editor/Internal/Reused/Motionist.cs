@@ -3,12 +3,12 @@ using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal.Reused
 {
-    internal interface Assetist
+    internal interface IAssetist
     {
         Object AsAsset();
     }
-    
-    internal class Motionist : Assetist
+
+    internal class Motionist : IAssetist
     {
         private readonly AnimationClip _animationClip;
 
@@ -17,7 +17,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Reused
             return new Motionist(new AnimationClip())
                 .NonLooping();
         }
-        
+
         public Motionist(AnimationClip animationClip)
         {
             _animationClip = animationClip;

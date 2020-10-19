@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Hai.ComboGesture.Scripts.Editor.Internal.Model;
-using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal
 {

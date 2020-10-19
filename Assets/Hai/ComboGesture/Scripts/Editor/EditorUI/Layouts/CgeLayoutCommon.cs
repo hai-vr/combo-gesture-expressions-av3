@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors;
 using Hai.ComboGesture.Scripts.Editor.Internal.Processing;
 using UnityEditor;

@@ -18,9 +18,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
     public class CgeDecider
     {
-        public List<SideDecider> left;
-        public List<SideDecider> right;
-        public List<IntersectionDecider> intersection;
+        public List<SideDecider> Left;
+        public List<SideDecider> Right;
+        public List<IntersectionDecider> Intersection;
     }
 
     public enum IntersectionChoice
@@ -100,10 +100,10 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             var leftClipSettings = AnimationUtility.GetAnimationClipSettings(_leftPreview.Clip);
             AnimationUtility.SetAnimationClipSettings(generatedClip, leftClipSettings);
 
-            var leftSide = AllActiveOf(_cgeDecider.left)
+            var leftSide = AllActiveOf(_cgeDecider.Left)
                 .Concat(AllIntersectOf(IntersectionChoice.UseLeft));
 
-            var rightSide = AllActiveOf(_cgeDecider.right)
+            var rightSide = AllActiveOf(_cgeDecider.Right)
                 .Concat(AllIntersectOf(IntersectionChoice.UseRight));
 
             MutateClipUsing(_leftPreview.Clip, generatedClip, leftSide);
@@ -126,7 +126,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         private List<CurveKey> AllIntersectOf(IntersectionChoice intersectionChoice)
         {
-            return _cgeDecider.intersection
+            return _cgeDecider.Intersection
                 .Where(decider => decider.Choice == intersectionChoice)
                 .Select(decider => decider.Key)
                 .ToList();
@@ -191,7 +191,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                     .Where(decider => decider.SampleLeftValue == decider.SampleRightValue && decider.SampleLeftValue == 0))
                 .ToList();
 
-            return new CgeDecider {left = leftDeciders, right = rightDeciders, intersection = intersectionDeciders};
+            return new CgeDecider {Left = leftDeciders, Right = rightDeciders, Intersection = intersectionDeciders};
         }
 
         public CgeDecider GetDecider()
@@ -210,8 +210,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         public void UpdateIntersection(IntersectionDecider intersectionDecider, IntersectionChoice newChoice)
         {
-            var index = _cgeDecider.intersection.FindIndex(decider => decider.Key == intersectionDecider.Key);
-            _cgeDecider.intersection[index] = new IntersectionDecider(intersectionDecider.Key, intersectionDecider.SampleLeftValue, intersectionDecider.SampleRightValue, newChoice);
+            var index = _cgeDecider.Intersection.FindIndex(decider => decider.Key == intersectionDecider.Key);
+            _cgeDecider.Intersection[index] = new IntersectionDecider(intersectionDecider.Key, intersectionDecider.SampleLeftValue, intersectionDecider.SampleRightValue, newChoice);
 
             RegenerateCombinedPreview();
         }
@@ -221,9 +221,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             switch (side)
             {
                 case Side.Left:
-                    return _cgeDecider.left;
+                    return _cgeDecider.Left;
                 case Side.Right:
-                    return _cgeDecider.right;
+                    return _cgeDecider.Right;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(side), side, null);
             }

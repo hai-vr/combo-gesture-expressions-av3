@@ -323,7 +323,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             var translatableProperty = (usePermutations ? "p_" : "") + propertyPath;
             GUILayout.Label(_driver.ShortTranslation(translatableProperty), _driver.IsSymmetrical(translatableProperty) ? CgeLayoutCommon.MiddleAlignedBold : CgeLayoutCommon.MiddleAligned);
 
-            // ReSharper disable once PossibleLossOfFraction
             var element = property.objectReferenceValue != null ? (Motion) property.objectReferenceValue : null;
             if (element != null)
             {
@@ -335,13 +334,12 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             {
                 if (oppositeProperty.objectReferenceValue != null && propertyPath != oppositePath && isLeftHand)
                 {
-                    // FIXME: Rank preservation
-                    // LayoutCommon.DrawColoredBackground(LayoutCommon.RightSideBg);
                     DrawInnerReversal(oppositePath);
                 }
             }
             else
             {
+                // ReSharper disable once PossibleLossOfFraction
                 GUILayout.BeginArea(new Rect((CgeLayoutCommon.GuiSquareWidth - CgeLayoutCommon.PictureWidth) / 2, CgeLayoutCommon.SingleLineHeight, CgeLayoutCommon.PictureWidth, CgeLayoutCommon.PictureHeight));
                 GUILayout.EndArea();
             }
@@ -469,7 +467,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
 
         private void DrawTransitionEdit()
         {
-            // ReSharper disable once PossibleLossOfFraction
             GUILayout.BeginArea(new Rect((CgeLayoutCommon.GuiSquareWidth - CgeLayoutCommon.PictureWidth) / 2, CgeLayoutCommon.SingleLineHeight, CgeLayoutCommon.PictureWidth, CgeLayoutCommon.PictureHeight));
             GUILayout.Label("Transition duration");
             GUILayout.Label("(in seconds)");

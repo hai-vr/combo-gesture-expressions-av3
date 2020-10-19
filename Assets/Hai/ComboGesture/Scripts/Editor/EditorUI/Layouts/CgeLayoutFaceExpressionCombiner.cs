@@ -63,8 +63,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
 
             GUILayout.BeginVertical(GUILayout.MaxWidth(CgeActivityEditorCombiner.CombinerPreviewWidth));
             GUILayout.Box(_combinerState.Combiner.LeftTexture(), GUILayout.Width(CgeActivityEditorCombiner.CombinerPreviewWidth), GUILayout.Height(CgeActivityEditorCombiner.CombinerPreviewHeight));
-            LayoutIntersectionDecider(decider.intersection, Side.Left);
-            LayoutSideDecider(decider.left, Side.Left);
+            LayoutIntersectionDecider(decider.Intersection, Side.Left);
+            LayoutSideDecider(decider.Left, Side.Left);
             GUILayout.Space(CgeLayoutCommon.SingleLineHeight * 2);
             GUILayout.EndVertical();
 
@@ -83,8 +83,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
 
             GUILayout.BeginVertical(GUILayout.MaxWidth(CgeActivityEditorCombiner.CombinerPreviewWidth));
             GUILayout.Box(_combinerState.Combiner.RightTexture(), GUILayout.Width(CgeActivityEditorCombiner.CombinerPreviewWidth), GUILayout.Height(CgeActivityEditorCombiner.CombinerPreviewHeight));
-            LayoutIntersectionDecider(decider.intersection, Side.Right);
-            LayoutSideDecider(decider.right, Side.Right);
+            LayoutIntersectionDecider(decider.Intersection, Side.Right);
+            LayoutSideDecider(decider.Right, Side.Right);
             GUILayout.Space(CgeLayoutCommon.SingleLineHeight * 2);
             GUILayout.EndVertical();
 

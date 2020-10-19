@@ -10,17 +10,13 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
     public class CgeLayoutManipulateTrees
     {
         private readonly CgeLayoutCommon _common;
-        private readonly CgeActivityEditorDriver _driver;
         private readonly CgeEditorEffector _editorEffector;
-        private readonly Action _repaint;
         private readonly CgeBlendTreeEffector _blendTreeEffector;
 
-        public CgeLayoutManipulateTrees(CgeLayoutCommon common, CgeActivityEditorDriver driver, CgeEditorEffector editorEffector, Action repaint, CgeBlendTreeEffector blendTreeEffector)
+        public CgeLayoutManipulateTrees(CgeLayoutCommon common, CgeEditorEffector editorEffector, CgeBlendTreeEffector blendTreeEffector)
         {
             _common = common;
-            _driver = driver;
             _editorEffector = editorEffector;
-            _repaint = repaint;
             _blendTreeEffector = blendTreeEffector;
         }
 

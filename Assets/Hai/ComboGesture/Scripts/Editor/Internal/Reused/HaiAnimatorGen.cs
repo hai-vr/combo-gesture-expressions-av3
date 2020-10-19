@@ -22,13 +22,13 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Reused
             {
                 switch (parameterist)
                 {
-                    case IntParameterist p:
+                    case IntParameterist _:
                         CreateParamIfNotExists(parameterist.Name, AnimatorControllerParameterType.Int);
                         break;
-                    case FloatParameterist p:
+                    case FloatParameterist _:
                         CreateParamIfNotExists(parameterist.Name, AnimatorControllerParameterType.Float);
                         break;
-                    case BoolParameterist p:
+                    case BoolParameterist _:
                         CreateParamIfNotExists(parameterist.Name, AnimatorControllerParameterType.Bool);
                         break;
                 }

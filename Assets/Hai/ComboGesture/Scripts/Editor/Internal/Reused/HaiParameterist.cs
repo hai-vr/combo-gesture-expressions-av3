@@ -2,7 +2,7 @@
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal.Reused
 {
-    internal static class AV3Parameterists
+    internal static class Av3Parameterists
     {
         internal static BoolParameterist IsLocal = new BoolParameterist("IsLocal");
         internal static IntParameterist Viseme = new IntParameterist("Viseme");
@@ -17,7 +17,12 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Reused
         internal static FloatParameterist Upright = new FloatParameterist("Upright");
         internal static BoolParameterist Grounded = new BoolParameterist("Grounded");
         internal static BoolParameterist Seated = new BoolParameterist("Seated");
-        internal static BoolParameterist AFK = new BoolParameterist("AFK");
+        internal static BoolParameterist Afk = new BoolParameterist("AFK");
+        internal static IntParameterist TrackingType = new IntParameterist("TrackingType");
+        internal static IntParameterist VrMode = new IntParameterist("VRMode");
+        internal static BoolParameterist MuteSelf = new BoolParameterist("MuteSelf");
+        internal static BoolParameterist InStation = new BoolParameterist("InStation");
+
 
         internal static Action<Transitionist.TransitionContinuationist> ItIsRemote()
         {
@@ -29,7 +34,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Reused
             return continuationist => continuationist.And(IsLocal).IsTrue();
         }
     }
-    
+
     internal abstract class Parameterist
     {
         internal string Name { get; }

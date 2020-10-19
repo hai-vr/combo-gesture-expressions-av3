@@ -45,7 +45,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             {
                 CgeLayoutCommon.DrawColoredBackground(new Color(0.44f, 0.65f, 1f));
             }
-            // ReSharper disable once PossibleLossOfFraction
             GUILayout.BeginArea(new Rect((CgeLayoutCommon.GuiSquareWidth - CgeLayoutCommon.PictureWidth) / 2, 0, CgeLayoutCommon.PictureWidth, CgeLayoutCommon.PictureHeight));
             _common.DrawPreviewOrRefreshButton(element);
             GUILayout.EndArea();

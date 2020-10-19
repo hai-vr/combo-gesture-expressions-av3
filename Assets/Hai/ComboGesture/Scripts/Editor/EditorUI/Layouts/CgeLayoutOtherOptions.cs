@@ -118,7 +118,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
 
         private void DrawArbitrary(AnimationClip element)
         {
-            // ReSharper disable once PossibleLossOfFraction
             GUILayout.BeginArea(new Rect((CgeLayoutCommon.GuiSquareWidth - CgeLayoutCommon.PictureWidth) / 2, 0, CgeLayoutCommon.PictureWidth, CgeLayoutCommon.PictureHeight));
             _common.DrawPreviewOrRefreshButton(element);
             GUILayout.EndArea();

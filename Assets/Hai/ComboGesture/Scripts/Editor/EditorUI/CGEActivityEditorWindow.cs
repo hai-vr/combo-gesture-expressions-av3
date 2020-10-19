@@ -36,7 +36,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
     {
         private readonly CgeLayoutCommon _common;
         private readonly CgeEditorEffector _editorEffector;
-        private readonly CgeBlendTreeEffector _blendTreeEffector;
         private readonly CgeLayoutPreventEyesBlinking _layoutPreventEyesBlinking;
         private readonly CgeLayoutMakeLipsyncMovementsSubtle _layoutMakeLipsyncMovementsSubtle;
         private readonly CgeLayoutFaceExpressionCombiner _layoutFaceExpressionCombiner;
@@ -50,16 +49,16 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public CgeEditorWindow()
         {
             _editorEffector = new CgeEditorEffector(new CgeEditorState());
-            _blendTreeEffector = new CgeBlendTreeEffector(new CgeBlendTreeState());
-            var previewController = new CgePreviewEffector(new CgePreviewState(), _editorEffector, _blendTreeEffector);
+            var blendTreeEffector = new CgeBlendTreeEffector();
+            var previewController = new CgePreviewEffector(new CgePreviewState(), _editorEffector, blendTreeEffector);
             _common = new CgeLayoutCommon(Repaint, _editorEffector, previewController);
             var driver = new CgeActivityEditorDriver(_editorEffector);
             _layoutPreventEyesBlinking = new CgeLayoutPreventEyesBlinking(_common, _editorEffector);
             _layoutMakeLipsyncMovementsSubtle = new CgeLayoutMakeLipsyncMovementsSubtle(_common, driver, _editorEffector);
             _layoutFaceExpressionCombiner = new CgeLayoutFaceExpressionCombiner(driver, _editorEffector, previewController);
             _layoutOtherOptions = new CgeLayoutOtherOptions(_common, _editorEffector, previewController);
-            _layoutSetFaceExpressions = new CgeLayoutSetFaceExpressions(_common, driver, _layoutFaceExpressionCombiner /* FIXME it is not normal to inject the layout here */, _editorEffector, Repaint, _blendTreeEffector);
-            _layoutManipulateTrees = new CgeLayoutManipulateTrees(_common, driver, _editorEffector, Repaint, _blendTreeEffector);
+            _layoutSetFaceExpressions = new CgeLayoutSetFaceExpressions(_common, driver, _layoutFaceExpressionCombiner /* FIXME it is not normal to inject the layout here */, _editorEffector, Repaint, blendTreeEffector);
+            _layoutManipulateTrees = new CgeLayoutManipulateTrees(_common, _editorEffector, blendTreeEffector);
 
             WindowHandler = new CgeWindowHandler(this, _editorEffector);
         }

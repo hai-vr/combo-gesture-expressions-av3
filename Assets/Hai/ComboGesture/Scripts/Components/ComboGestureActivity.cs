@@ -43,7 +43,9 @@ namespace Hai.ComboGesture.Scripts.Components
         public Motion anim66;
         public Motion anim67;
         public Motion anim77;
+        // ReSharper disable once InconsistentNaming
         public AnimationClip anim11_L;
+        // ReSharper disable once InconsistentNaming
         public AnimationClip anim11_R;
 
         public bool enablePermutations;

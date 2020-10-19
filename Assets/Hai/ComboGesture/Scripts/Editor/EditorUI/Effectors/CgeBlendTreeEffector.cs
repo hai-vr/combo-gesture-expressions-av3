@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.Internal;
 using Hai.ComboGesture.Scripts.Editor.Internal.Processing;
 using UnityEditor.Animations;
@@ -8,14 +7,8 @@ using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
 {
-    public class CgeBlendTreeState
-    {
-    }
-
     public class CgeBlendTreeEffector
     {
-        private readonly CgeBlendTreeState _state;
-
         public PuppetTemplate CurrentTemplate;
         public AnimationClip MiddleClip;
         public bool CenterSafety = true;
@@ -24,11 +17,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
         public float VerticalFocalPoint = 0.5f;
         public float DescaleLevel = 1f;
         public BlendTree BlendTreeBeingEdited { get; set; }
-
-        public CgeBlendTreeEffector(CgeBlendTreeState state)
-        {
-            _state = state;
-        }
 
         public BlendTree CreateBlendTreeAsset()
         {

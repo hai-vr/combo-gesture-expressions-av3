@@ -16,7 +16,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly AnimatorGenerator _animatorGenerator;
         private readonly AvatarMask _weightCorrectionAvatarMask;
 
-        public LayerForWeightCorrection(AnimatorGenerator animatorGenerator, AvatarMask weightCorrectionAvatarMask, AnimationClip emptyClip)
+        public LayerForWeightCorrection(AnimatorGenerator animatorGenerator, AvatarMask weightCorrectionAvatarMask)
         {
             _animatorGenerator = animatorGenerator;
             _weightCorrectionAvatarMask = weightCorrectionAvatarMask;

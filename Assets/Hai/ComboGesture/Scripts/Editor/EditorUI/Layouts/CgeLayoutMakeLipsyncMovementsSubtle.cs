@@ -80,7 +80,6 @@ At the time this version has been published, generating the layer will break you
                     GUI.color = col;
                 }
             }
-            // ReSharper disable once PossibleLossOfFraction
             GUILayout.BeginArea(new Rect((CgeLayoutCommon.GuiSquareWidth - CgeLayoutCommon.PictureWidth) / 2, 0, CgeLayoutCommon.PictureWidth, CgeLayoutCommon.PictureHeight));
             _common.DrawPreviewOrRefreshButton(element);
             GUILayout.EndArea();
