@@ -210,7 +210,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Infra
 
         private static List<QualifiedAnimation> QualifyAll(ComboGestureActivity activity, BlendTree tree)
         {
-            return ComboGesturePuppet.AllAnimationsOf(tree)
+            return PuppetToPuppetManifest.AllAnimationsOf(tree)
                 .Select(clip => new QualifiedAnimation(
                     clip,
                     new Qualification(

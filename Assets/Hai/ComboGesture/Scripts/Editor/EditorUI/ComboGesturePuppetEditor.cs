@@ -79,6 +79,11 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         {
             serializedObject.Update();
 
+            if (mainTree.objectReferenceValue != null && mainTree.objectReferenceValue is AnimationClip)
+            {
+                mainTree.objectReferenceValue = null;
+            }
+
             EditorGUILayout.Separator();
             EditorGUI.BeginDisabledGroup(serializedObject.isEditingMultipleObjects);
             if (GUILayout.Button(new GUIContent("Open editor")))
@@ -111,7 +116,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         private void LegacyEditor()
         {
-            EditorGUILayout.PropertyField(mainTree, new GUIContent("Main tree"));
+            EditorGUILayout.PropertyField(mainTree, new GUIContent("Main BlendTree"));
             EditorGUILayout.PropertyField(intent, new GUIContent("Intent"));
 
             EditorGUILayout.Separator();

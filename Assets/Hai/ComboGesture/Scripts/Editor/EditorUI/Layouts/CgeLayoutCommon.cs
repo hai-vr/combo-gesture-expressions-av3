@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors;
+using Hai.ComboGesture.Scripts.Editor.Internal.Infra;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
@@ -105,7 +106,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             }
             else if (element is BlendTree tree)
             {
-                var animations = ComboGesturePuppet.AllAnimationsOf(tree);
+                var animations = PuppetToPuppetManifest.AllAnimationsOf(tree);
                 if (animations.Count == 0)
                 {
                     InvisibleRankPreservingBox();

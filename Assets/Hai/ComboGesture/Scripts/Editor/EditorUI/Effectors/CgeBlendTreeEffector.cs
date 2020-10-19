@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.Internal;
+using Hai.ComboGesture.Scripts.Editor.Internal.Infra;
 using UnityEditor.Animations;
 using UnityEngine;
 
@@ -138,7 +139,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
 
         public List<AnimationClip> AllAnimationsOfSelected()
         {
-            return BlendTreeBeingEdited != null ? ComboGesturePuppet.AllAnimationsOf(BlendTreeBeingEdited) : new List<AnimationClip>();
+            return BlendTreeBeingEdited != null ? PuppetToPuppetManifest.AllAnimationsOf(BlendTreeBeingEdited) : new List<AnimationClip>();
         }
     }
 

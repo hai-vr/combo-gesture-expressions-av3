@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using UnityEditor.Animations;
 using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Components
@@ -99,23 +97,7 @@ namespace Hai.ComboGesture.Scripts.Components
             WideOpenMouth
         }
 
-        public List<AnimationClip> AllDistinctAnimations()
-        {
-            var direct = AllMotions()
-                .OfType<AnimationClip>()
-                .ToList();
-            var insideBlends = AllMotions()
-                .OfType<BlendTree>()
-                .SelectMany(ComboGesturePuppet.AllAnimationsOf)
-                .ToList();
-
-            return direct.Concat(insideBlends)
-                .Where(clip => clip != null)
-                .Distinct()
-                .ToList();
-        }
-
-        private Motion[] AllMotions()
+        public Motion[] AllMotions()
         {
             return new[]
             {

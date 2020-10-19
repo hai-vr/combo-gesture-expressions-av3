@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Hai.ComboGesture.Scripts.Components;
+using Hai.ComboGesture.Scripts.Editor.Internal.Infra;
 using UnityEditor;
+using UnityEditor.Animations;
 using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
@@ -174,9 +177,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
                 case CurrentlyEditing.Nothing:
                     return new List<AnimationClip>();
                 case CurrentlyEditing.Activity:
-                    return _state.Activity.AllDistinctAnimations();
+                    return AllDistinctAnimations(_state.Activity);
                 case CurrentlyEditing.Puppet:
-                    return _state.Puppet.AllDistinctAnimations();
+                    return PuppetToPuppetManifest.AllDistinctAnimations(_state.Puppet);
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -267,6 +270,22 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
         public void SwitchAdditionalEditorTo(AdditionalEditorsMode mode)
         {
             _state.AdditionalEditor = mode;
+        }
+
+        public static List<AnimationClip> AllDistinctAnimations(ComboGestureActivity cga)
+        {
+            var direct = cga.AllMotions()
+                .OfType<AnimationClip>()
+                .ToList();
+            var insideBlends = cga.AllMotions()
+                .OfType<BlendTree>()
+                .SelectMany(PuppetToPuppetManifest.AllAnimationsOf)
+                .ToList();
+
+            return direct.Concat(insideBlends)
+                .Where(clip => clip != null)
+                .Distinct()
+                .ToList();
         }
     }
 

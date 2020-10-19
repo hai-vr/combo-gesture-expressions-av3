@@ -44,8 +44,18 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
         private void LayoutBlendTreeViewer(Rect position, bool showAsset)
         {
             BlendTree treeBeingEdited;
-            if (_editorEffector.GetCurrentlyEditing() == CurrentlyEditing.Puppet) {
-                treeBeingEdited = (BlendTree)_editorEffector.SpProperty("mainTree").objectReferenceValue;
+            if (_editorEffector.GetCurrentlyEditing() == CurrentlyEditing.Puppet)
+            {
+                var value = _editorEffector.SpProperty("mainTree").objectReferenceValue;
+                if (value != null && value is AnimationClip)
+                {
+                    _editorEffector.SpProperty("mainTree").objectReferenceValue = null;
+                    treeBeingEdited = null;
+                }
+                else
+                {
+                    treeBeingEdited = (BlendTree)value;
+                }
             }
             else
             {
