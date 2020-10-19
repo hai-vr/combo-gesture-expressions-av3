@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.Internal.Processing;
@@ -9,11 +8,58 @@ using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
 {
+    interface IActivityAccessor
+    {
+        List<AnimationClip> AllDistinctAnimations { get; }
+        List<AnimationClip> Blinking { get; }
+        ComboGesturePreviewSetup PreviewSetup { get; set; }
+        List<ComboGestureActivity.LimitedLipsyncAnimation> LimitedLipsync { get; }
+    }
+
+    class CgeActivityAccessor : IActivityAccessor
+    {
+        private readonly ComboGestureActivity _activity;
+
+        public CgeActivityAccessor(ComboGestureActivity activity)
+        {
+            _activity = activity;
+        }
+
+        public List<AnimationClip> AllDistinctAnimations => CgeEditorEffector.AllDistinctAnimations(_activity);
+        public List<AnimationClip> Blinking => _activity.blinking;
+        public List<ComboGestureActivity.LimitedLipsyncAnimation> LimitedLipsync => _activity.limitedLipsync;
+        public ComboGesturePreviewSetup PreviewSetup
+        {
+            get => _activity.previewSetup;
+            set => _activity.previewSetup = value;
+        }
+    }
+
+    class CgePuppetAccessor : IActivityAccessor
+    {
+        private readonly ComboGesturePuppet _puppet;
+
+        public CgePuppetAccessor(ComboGesturePuppet puppet)
+        {
+            _puppet = puppet;
+        }
+
+        public List<AnimationClip> AllDistinctAnimations => ManifestFromPuppet.AllDistinctAnimations(_puppet);
+        public List<AnimationClip> Blinking => _puppet.blinking;
+        public List<ComboGestureActivity.LimitedLipsyncAnimation> LimitedLipsync => _puppet.limitedLipsync;
+        public ComboGesturePreviewSetup PreviewSetup
+        {
+            get => _puppet.previewSetup;
+            set => _puppet.previewSetup = value;
+        }
+    }
+
     public class CgeEditorState
     {
         public CurrentlyEditing CurrentlyEditing = CurrentlyEditing.Nothing;
         public ComboGestureActivity Activity { get; internal set; }
         public ComboGesturePuppet Puppet { get; internal set; }
+        internal IActivityAccessor ActivityAccessor { get; set; }
         internal SerializedObject SerializedObject;
 
         public int Mode { get; internal set; }
@@ -46,6 +92,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
             _state.Activity = selectedActivity;
             _state.Puppet = null;
             _state.SerializedObject = new SerializedObject(_state.Activity);
+            _state.ActivityAccessor = new CgeActivityAccessor(_state.Activity);
 
             if (SpEditorTool().intValue != _state.CurrentEditorToolValue && _state.CurrentEditorToolValue >= 0)
             {
@@ -60,6 +107,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
             _state.Activity = null;
             _state.Puppet = selectedPuppet;
             _state.SerializedObject = new SerializedObject(_state.Puppet);
+            _state.ActivityAccessor = new CgePuppetAccessor(_state.Puppet);
         }
 
         public SerializedProperty SpProperty(string property)
@@ -75,21 +123,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
         public void ApplyModifiedProperties()
         {
             _state.SerializedObject.ApplyModifiedProperties();
-        }
-
-        public bool IsPreviewSetupValid()
-        {
-            switch (_state.CurrentlyEditing)
-            {
-                case CurrentlyEditing.Nothing:
-                    return false;
-                case CurrentlyEditing.Activity:
-                    return  _state.Activity.previewSetup != null && _state.Activity.previewSetup.IsValid();
-                case CurrentlyEditing.Puppet:
-                    return  _state.Puppet.previewSetup != null && _state.Puppet.previewSetup.IsValid();
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
         }
 
         public void SwitchTo(ActivityEditorMode mode)
@@ -134,19 +167,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
 
         public void TryAutoSetup()
         {
-            switch (_state.CurrentlyEditing)
-            {
-                case CurrentlyEditing.Nothing:
-                    break;
-                case CurrentlyEditing.Activity:
-                    _state.SetupResult = new AutoSetupPreview(this).AutoSetup();
-                    break;
-                case CurrentlyEditing.Puppet:
-                    _state.SetupResult = new AutoSetupPreview(this).AutoSetup();
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+            _state.SetupResult = new AutoSetupPreview(this).AutoSetup();
         }
 
         public void MarkFirstTimeSetup()
@@ -171,95 +192,37 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
 
         public List<AnimationClip> AllDistinctAnimations()
         {
-            // FIXME: Use polymorphism
-            switch (_state.CurrentlyEditing)
-            {
-                case CurrentlyEditing.Nothing:
-                    return new List<AnimationClip>();
-                case CurrentlyEditing.Activity:
-                    return AllDistinctAnimations(_state.Activity);
-                case CurrentlyEditing.Puppet:
-                    return ManifestFromPuppet.AllDistinctAnimations(_state.Puppet);
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+            return _state.ActivityAccessor.AllDistinctAnimations;
         }
 
         public List<AnimationClip> MutableBlinking()
         {
-            switch (_state.CurrentlyEditing)
-            {
-                case CurrentlyEditing.Nothing:
-                    return new List<AnimationClip>();
-                case CurrentlyEditing.Activity:
-                    return _state.Activity.blinking;
-                case CurrentlyEditing.Puppet:
-                    return _state.Puppet.blinking;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+            return _state.ActivityAccessor.Blinking;
         }
 
         public ComboGesturePreviewSetup PreviewSetup()
         {
-            switch (_state.CurrentlyEditing)
-            {
-                case CurrentlyEditing.Nothing:
-                    return null;
-                case CurrentlyEditing.Activity:
-                    return _state.Activity.previewSetup;
-                case CurrentlyEditing.Puppet:
-                    return _state.Puppet.previewSetup;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+            return _state.ActivityAccessor.PreviewSetup;
         }
 
         public List<ComboGestureActivity.LimitedLipsyncAnimation> MutableLimitedLipsync()
         {
-            switch (_state.CurrentlyEditing)
-            {
-                case CurrentlyEditing.Nothing:
-                    return null;
-                case CurrentlyEditing.Activity:
-                    return _state.Activity.limitedLipsync;
-                case CurrentlyEditing.Puppet:
-                    return _state.Puppet.limitedLipsync;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+            return _state.ActivityAccessor.LimitedLipsync;
+        }
+
+        public bool IsPreviewSetupValid()
+        {
+            return _state.ActivityAccessor.PreviewSetup != null && _state.ActivityAccessor.PreviewSetup.IsValid();
         }
 
         public bool HasPreviewSetupWhichIsInvalid()
         {
-            switch (_state.CurrentlyEditing)
-            {
-                case CurrentlyEditing.Nothing:
-                    return false;
-                case CurrentlyEditing.Activity:
-                    return _state.Activity.previewSetup != null && !_state.Activity.previewSetup.IsValid();
-                case CurrentlyEditing.Puppet:
-                    return _state.Puppet.previewSetup != null && !_state.Puppet.previewSetup.IsValid();
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+            return _state.ActivityAccessor.PreviewSetup != null && !_state.ActivityAccessor.PreviewSetup.IsValid();
         }
 
         public void SetPreviewSetup(ComboGesturePreviewSetup previewSetup)
         {
-            switch (_state.CurrentlyEditing)
-            {
-                case CurrentlyEditing.Nothing:
-                    break;
-                case CurrentlyEditing.Activity:
-                    _state.Activity.previewSetup = previewSetup;
-                    break;
-                case CurrentlyEditing.Puppet:
-                    _state.Puppet.previewSetup = previewSetup;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+            _state.ActivityAccessor.PreviewSetup = previewSetup;
         }
 
         public AdditionalEditorsMode GetAdditionalEditor()
