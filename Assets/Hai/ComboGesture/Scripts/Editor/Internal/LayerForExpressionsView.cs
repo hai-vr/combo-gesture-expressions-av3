@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Hai.ComboGesture.Scripts.Components;
+using Hai.ComboGesture.Scripts.Editor.Internal.Model;
 using Hai.ComboGesture.Scripts.Editor.Internal.Reused;
 using UnityEditor;
 using UnityEditor.Animations;
@@ -96,6 +99,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 // This remains true as long as the Animation Neutralizer is executed before this.
                 activityManifests = new CgeBlendTreeAutoWeightCorrector(activityManifests, _useGestureWeightCorrection, _assetContainer)
                     .MutateAndCorrectExistingBlendTrees();
+
+                foreach (var parameter in AllParametersUsedByBlendTrees(activityManifests))
+                {
+                    SharedLayerUtils.CreateParamIfNotExists(_animatorController, parameter, AnimatorControllerParameterType.Float);
+                }
             }
 
             var combinator = new IntermediateCombinator(activityManifests);
@@ -108,6 +116,32 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 _conflictPrevention.ShouldWriteDefaults,
                 _useGestureWeightCorrection
             ).Populate();
+        }
+
+        private static List<string> AllParametersUsedByBlendTrees(List<ManifestBinding> activityManifests)
+        {
+            return activityManifests
+                .SelectMany(binding => binding.Manifest.AllBlendTreesFoundRecursively())
+                .SelectMany(tree =>
+                {
+                    switch (tree.blendType)
+                    {
+                        case BlendTreeType.Simple1D:
+                            return new List<string> {tree.blendParameter};
+                        case BlendTreeType.SimpleDirectional2D:
+                            return new List<string> {tree.blendParameter, tree.blendParameterY};
+                        case BlendTreeType.FreeformDirectional2D:
+                            return new List<string> {tree.blendParameter, tree.blendParameterY};
+                        case BlendTreeType.FreeformCartesian2D:
+                            return new List<string> {tree.blendParameter, tree.blendParameterY};
+                        case BlendTreeType.Direct:
+                            return tree.children.Select(motion => motion.directBlendParameter).ToList();
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+                })
+                .Distinct()
+                .ToList();
         }
 
         private static void CreateTransitionWhenExpressionsAreDisabled(AnimatorStateMachine machine, AnimatorState defaultState)
