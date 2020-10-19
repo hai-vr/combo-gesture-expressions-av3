@@ -6,9 +6,9 @@ using Hai.ComboGesture.Scripts.Editor.Internal.Model;
 using UnityEditor.Animations;
 using UnityEngine;
 
-namespace Hai.ComboGesture.Scripts.Editor.Internal.Infra
+namespace Hai.ComboGesture.Scripts.Editor.Internal.Processing
 {
-    public class PuppetToPuppetManifest
+    public static class ManifestFromPuppet
     {
         public static IManifest FromPuppet(ComboGesturePuppet puppet)
         {

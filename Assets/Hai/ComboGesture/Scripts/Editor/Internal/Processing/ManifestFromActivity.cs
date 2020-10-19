@@ -6,16 +6,16 @@ using Hai.ComboGesture.Scripts.Editor.Internal.Model;
 using UnityEditor.Animations;
 using UnityEngine;
 
-namespace Hai.ComboGesture.Scripts.Editor.Internal.Infra
+namespace Hai.ComboGesture.Scripts.Editor.Internal.Processing
 {
-    public class ActivityToPermutationManifest
+    public static class ManifestFromActivity
     {
         public static PermutationManifest FromNothing(AnimationClip defaultClip)
         {
             var poses = new Dictionary<Permutation, IAnimatedBehavior>();
-            for (HandPose left = HandPose.H0; left <= HandPose.H7; left++)
+            for (var left = HandPose.H0; left <= HandPose.H7; left++)
             {
-                for (HandPose right = HandPose.H0; right <= HandPose.H7; right++)
+                for (var right = HandPose.H0; right <= HandPose.H7; right++)
                 {
                     poses.Add(Permutation.LeftRight(left, right), SingleAnimatedBehavior.Of(new QualifiedAnimation(defaultClip, new Qualification(false, QualifiedLimitation.None))));
                 }
@@ -210,7 +210,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Infra
 
         private static List<QualifiedAnimation> QualifyAll(ComboGestureActivity activity, BlendTree tree)
         {
-            return PuppetToPuppetManifest.AllAnimationsOf(tree)
+            return ManifestFromPuppet.AllAnimationsOf(tree)
                 .Select(clip => new QualifiedAnimation(
                     clip,
                     new Qualification(

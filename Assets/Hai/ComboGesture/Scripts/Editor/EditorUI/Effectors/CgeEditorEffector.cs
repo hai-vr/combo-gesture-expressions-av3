@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Hai.ComboGesture.Scripts.Components;
-using Hai.ComboGesture.Scripts.Editor.Internal.Infra;
+using Hai.ComboGesture.Scripts.Editor.Internal.Processing;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
@@ -179,7 +179,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
                 case CurrentlyEditing.Activity:
                     return AllDistinctAnimations(_state.Activity);
                 case CurrentlyEditing.Puppet:
-                    return PuppetToPuppetManifest.AllDistinctAnimations(_state.Puppet);
+                    return ManifestFromPuppet.AllDistinctAnimations(_state.Puppet);
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -279,7 +279,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
                 .ToList();
             var insideBlends = cga.AllMotions()
                 .OfType<BlendTree>()
-                .SelectMany(PuppetToPuppetManifest.AllAnimationsOf)
+                .SelectMany(ManifestFromPuppet.AllAnimationsOf)
                 .ToList();
 
             return direct.Concat(insideBlends)

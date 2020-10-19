@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq;
 using Hai.ComboGesture.Scripts.Components;
-using Hai.ComboGesture.Scripts.Editor.Internal.Infra;
 using Hai.ComboGesture.Scripts.Editor.Internal.Model;
+using Hai.ComboGesture.Scripts.Editor.Internal.Processing;
 using UnityEditor.Animations;
 using UnityEngine;
 
@@ -68,10 +68,10 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             {
                 case GestureComboStageKind.Activity:
                     return mapper.activity == null
-                        ? ActivityToPermutationManifest.FromNothing(fallbackWhenAnyClipIsNull) // TODO: It may be possible to create a specific manifest for that
-                        : ActivityToPermutationManifest.FromActivity(mapper.activity, fallbackWhenAnyClipIsNull);
+                        ? ManifestFromActivity.FromNothing(fallbackWhenAnyClipIsNull) // TODO: It may be possible to create a specific manifest for that
+                        : ManifestFromActivity.FromActivity(mapper.activity, fallbackWhenAnyClipIsNull);
                 case GestureComboStageKind.Puppet:
-                    return PuppetToPuppetManifest.FromPuppet(mapper.puppet);
+                    return ManifestFromPuppet.FromPuppet(mapper.puppet);
                 default:
                     throw new ArgumentOutOfRangeException();
             }
