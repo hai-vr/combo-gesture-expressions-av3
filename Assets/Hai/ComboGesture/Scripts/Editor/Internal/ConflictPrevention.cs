@@ -5,18 +5,18 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
     public class ConflictPrevention
     {
-        public bool ShouldGenerateAnimations { get; }
+        public bool ShouldGenerateExhaustiveAnimations { get; }
         public bool ShouldWriteDefaults { get; }
 
-        private static readonly ConflictPrevention OnlyWriteDefaults = new ConflictPrevention(false, true);
-        private static readonly ConflictPrevention GenerateAnimationsWithWriteDefaults = new ConflictPrevention(true, true);
-        private static readonly ConflictPrevention GenerateAnimationsWithoutWriteDefaults = new ConflictPrevention(true, false);
+        private static readonly ConflictPrevention CopyAnimationsWithWriteDefaults = new ConflictPrevention(false, true);
+        private static readonly ConflictPrevention GenerateExhaustiveAnimationsWithWriteDefaults = new ConflictPrevention(true, true);
+        private static readonly ConflictPrevention GenerateExhaustiveAnimationsWithoutWriteDefaults = new ConflictPrevention(true, false);
 
         // As the purpose of this class is to describe an enumeration,
         // the boolean parameter coding convention is purposefully broken here.
-        private ConflictPrevention(bool shouldGenerateAnimations, bool shouldWriteDefaults)
+        private ConflictPrevention(bool shouldGenerateExhaustiveAnimations, bool shouldWriteDefaults)
         {
-            ShouldGenerateAnimations = shouldGenerateAnimations;
+            ShouldGenerateExhaustiveAnimations = shouldGenerateExhaustiveAnimations;
             ShouldWriteDefaults = shouldWriteDefaults;
         }
 
@@ -25,13 +25,13 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             switch (mode)
             {
                 case ConflictPreventionMode.UseRecommendedConfiguration:
-                    return GenerateAnimationsWithWriteDefaults;
+                    return GenerateExhaustiveAnimationsWithWriteDefaults;
                 case ConflictPreventionMode.OnlyWriteDefaults:
-                    return OnlyWriteDefaults;
+                    return CopyAnimationsWithWriteDefaults;
                 case ConflictPreventionMode.GenerateAnimationsWithWriteDefaults:
-                    return GenerateAnimationsWithWriteDefaults;
+                    return GenerateExhaustiveAnimationsWithWriteDefaults;
                 case ConflictPreventionMode.GenerateAnimationsWithoutWriteDefaults:
-                    return GenerateAnimationsWithoutWriteDefaults;
+                    return GenerateExhaustiveAnimationsWithoutWriteDefaults;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(mode), mode, null);
             }

@@ -126,11 +126,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
             ReapAnimator();
 
-            var isAssetRefreshingRequired = _conflictPrevention.ShouldGenerateAnimations;
-            if (isAssetRefreshingRequired)
-            {
-                AssetDatabase.Refresh();
-            }
+            AssetDatabase.Refresh();
             EditorUtility.ClearProgressBar();
         }
 

@@ -133,7 +133,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             var compiler = AsCompiler();
 
-            EditorGUI.BeginDisabledGroup(!conflictPrevention.ShouldGenerateAnimations);
             EditorGUILayout.LabelField("Corrections", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(avatarDescriptor, new GUIContent("Avatar descriptor"));
             if (compiler.avatarDescriptor != null) {
@@ -184,7 +183,6 @@ At the time this version has been published, generating the layer will break you
                 }
                 EditorGUI.EndDisabledGroup();
             }
-            EditorGUI.EndDisabledGroup();
 
             EditorGUILayout.Space();
 
@@ -209,7 +207,7 @@ You should press synchronize when any of the following happens:
                 ThereIsNoActivity() ||
                 TheOnlyActivityIsNull() ||
                 ThereIsNoActivityNameForMultipleActivities() ||
-                AnimationsAreGeneratedButThereIsNoAvatarDescriptor() ||
+                ThereIsNoAvatarDescriptor() ||
                 LipsyncIsIntegratedButThereIsNoCorrection()
             );
 
@@ -233,10 +231,9 @@ You should press synchronize when any of the following happens:
                 return comboLayers.arraySize >= 2 && (activityStageName.stringValue == null || activityStageName.stringValue.Trim() == "");
             }
 
-            bool AnimationsAreGeneratedButThereIsNoAvatarDescriptor()
+            bool ThereIsNoAvatarDescriptor()
             {
                 return !compiler.bypassMandatoryAvatarDescriptor
-                       && ConflictPrevention.Of(compiler.conflictPreventionMode).ShouldGenerateAnimations
                        && compiler.avatarDescriptor == null;
             }
 
@@ -254,7 +251,7 @@ You should press synchronize when any of the following happens:
             }
             EditorGUI.EndDisabledGroup();
 
-            if (compiler.assetContainer != null && conflictPrevention.ShouldGenerateAnimations) {
+            if (compiler.assetContainer != null) {
                 EditorGUILayout.LabelField("Asset generation", EditorStyles.boldLabel);
                 EditorGUILayout.PropertyField(assetContainer, new GUIContent("Asset container"));
             }
@@ -300,7 +297,6 @@ You should press synchronize when any of the following happens:
 
                 CpmValueWarning(true);
 
-                EditorGUI.BeginDisabledGroup(!conflictPrevention.ShouldGenerateAnimations);
                 EditorGUILayout.LabelField("Animation generation", EditorStyles.boldLabel);
                 EditorGUILayout.PropertyField(assetContainer, new GUIContent("Asset container"));
 
@@ -317,17 +313,14 @@ You should press synchronize when any of the following happens:
                 EditorGUI.EndDisabledGroup();
 
                 EditorGUILayout.PropertyField(conflictFxLayerMode, new GUIContent("Transforms removal"));
-                EditorGUI.EndDisabledGroup();
 
                 CpmRemovalWarning(true);
                 EditorGUILayout.Separator();
 
-                EditorGUI.BeginDisabledGroup(!conflictPrevention.ShouldGenerateAnimations);
                 EditorGUILayout.LabelField("Fallback generation", EditorStyles.boldLabel);
                 EditorGUILayout.PropertyField(ignoreParamList, new GUIContent("Ignored properties"));
                 EditorGUILayout.PropertyField(fallbackParamList, new GUIContent("Fallback values"));
                 EditorGUILayout.PropertyField(bypassMandatoryAvatarDescriptor, new GUIContent("Bypass mandatory avatar descriptor"));
-                EditorGUI.EndDisabledGroup();
             }
             else
             {
@@ -368,7 +361,7 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
         private void CpmValueWarning(bool advancedFoldoutIsOpen)
         {
             var conflictPrevention = ConflictPrevention.Of((ConflictPreventionMode) conflictPreventionMode.intValue);
-            if (!conflictPrevention.ShouldGenerateAnimations)
+            if (!conflictPrevention.ShouldGenerateExhaustiveAnimations)
             {
                     EditorGUILayout.HelpBox(@"Using ""Only Write Defaults"" Mode will cause face expressions to conflict if your FX layer does not use ""Write Defaults"" on all layers. 
 If in doubt, ""Use Recommended Configuration"" Mode instead." + (!advancedFoldoutIsOpen ? "\n\n(Advanced settings)" : ""), MessageType.Error);
@@ -392,31 +385,27 @@ If you never use ""Write Defaults"" in your FX animator, this should not matter.
 
         private void CpmRemovalWarning(bool advancedFoldoutIsOpen)
         {
-            var conflictPrevention = ConflictPrevention.Of((ConflictPreventionMode) conflictPreventionMode.intValue);
-            if (conflictPrevention.ShouldGenerateAnimations)
+            switch ((ConflictFxLayerMode) conflictFxLayerMode.intValue)
             {
-                switch ((ConflictFxLayerMode) conflictFxLayerMode.intValue)
-                {
-                    case ConflictFxLayerMode.RemoveTransformsAndMuscles:
-                        if (advancedFoldoutIsOpen)
-                        {
-                            EditorGUILayout.HelpBox(@"Transforms and muscles will be removed.
+                case ConflictFxLayerMode.RemoveTransformsAndMuscles:
+                    if (advancedFoldoutIsOpen)
+                    {
+                        EditorGUILayout.HelpBox(@"Transforms and muscles will be removed.
 This is the default behavior.", MessageType.Info);
-                        }
-                        break;
-                    case ConflictFxLayerMode.KeepBoth:
-                            EditorGUILayout.HelpBox(@"Transforms and muscles will not be removed, but the FX Playable layer is not meant to manipulate them.
+                    }
+                    break;
+                case ConflictFxLayerMode.KeepBoth:
+                        EditorGUILayout.HelpBox(@"Transforms and muscles will not be removed, but the FX Playable layer is not meant to manipulate them.
 Not removing them might cause conflicts with other animations." + (!advancedFoldoutIsOpen ? "\n\n(Advanced settings)" : ""), MessageType.Warning);
-                        break;
-                    case ConflictFxLayerMode.KeepOnlyTransformsAndMuscles:
-                        EditorGUILayout.HelpBox(@"Everything will be removed except transforms and muscle animations.
+                    break;
+                case ConflictFxLayerMode.KeepOnlyTransformsAndMuscles:
+                    EditorGUILayout.HelpBox(@"Everything will be removed except transforms and muscle animations.
 However, the FX Playable layer is not meant to manipulate them.
 
 This is not a normal usage of ComboGestureExpressions, and should not be used except in special cases." + (!advancedFoldoutIsOpen ? "\n\n(Advanced settings)" : ""), MessageType.Error);
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
 
@@ -425,9 +414,7 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
             var compiler = AsCompiler();
 
             var folderToCreateAssetIn = ResolveFolderToCreateNeutralizedAssetsIn(compiler.folderToGenerateNeutralizedAssetsIn, compiler.animatorController);
-            var actualContainer = ConflictPrevention.Of(compiler.conflictPreventionMode).ShouldGenerateAnimations
-                ? CreateContainerIfNotExists(compiler, folderToCreateAssetIn)
-                : null;
+            var actualContainer = CreateContainerIfNotExists(compiler, folderToCreateAssetIn);
             if (actualContainer != null && compiler.assetContainer == null && !compiler.generateNewContainerEveryTime)
             {
                 compiler.assetContainer = actualContainer.ExposeContainerAsset();
