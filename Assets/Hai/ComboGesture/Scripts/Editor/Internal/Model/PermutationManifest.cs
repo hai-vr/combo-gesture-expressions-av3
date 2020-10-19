@@ -426,7 +426,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
                     : qualification)
                 .ToList();
 
-            return Of(blendRemapping[Tree], newQualifications);
+            return Of(blendRemapping.ContainsKey(Tree) ? blendRemapping[Tree] : Tree, newQualifications);
         }
 
         protected bool Equals(PuppetAnimatedBehavior other)

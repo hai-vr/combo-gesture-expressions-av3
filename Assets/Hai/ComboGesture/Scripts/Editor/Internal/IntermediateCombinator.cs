@@ -12,14 +12,13 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         public IntermediateCombinator(List<ManifestBinding> activityManifests)
         {
-            var exhaustive = DecomposePermutationsIntoBehaviors(activityManifests);
-            var permutationRepresentation = OptimizeCollapsableConditions(exhaustive, activityManifests.Count);
+            var permutationRepresentation = OptimizeCollapsableConditions(DecomposePermutationsIntoBehaviors(activityManifests), activityManifests.Count);
             var puppetRepresentation = DecomposePuppetsIntoBehaviors(activityManifests);
 
             IntermediateToTransition = permutationRepresentation
                 .Concat(puppetRepresentation)
-                .ToDictionary(p => p.Key, p => p.Value);
-                // FIXME: There will be an duplicate key issue if a puppet behavior happens to be used for both a Permutation activity and a Puppet activity
+                .GroupBy(pair => pair.Key, pair => pair.Value)
+                .ToDictionary(pair => pair.Key, grouping => grouping.SelectMany(list => list).ToList());
         }
 
         private static Dictionary<IAnimatedBehavior, List<TransitionCondition>> DecomposePuppetsIntoBehaviors(List<ManifestBinding> activityManifests)
@@ -127,24 +126,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         private static List<AnimToTransitionEntry> DecomposePermutation(ManifestBinding manifestBinding)
         {
-            Debug.Log(
-                ((PermutationManifest) manifestBinding.Manifest).Poses
-                .Where(pair => pair.Value is PuppetAnimatedBehavior).Count() + " total"
-            );
-            Debug.Log(
-                ((PermutationManifest) manifestBinding.Manifest).Poses
-                .Select(pair => pair.Value)
-                .OfType<PuppetAnimatedBehavior>()
-                .Distinct().Count() + " distinct"
-            );
-            foreach (var kvp in ((PermutationManifest) manifestBinding.Manifest).Poses.Where(pair => pair.Value is PuppetAnimatedBehavior))
-            {
-                var animatedBehavior = (PuppetAnimatedBehavior)kvp.Value;
-                Debug.Log(animatedBehavior.Tree);
-                var enumerable = animatedBehavior.QualifiedAnimations().Select(animation => animation.ToString());
-                Debug.Log(string.Join(", ", enumerable));
-            }
-
             var manifest = (PermutationManifest)manifestBinding.Manifest;
             return manifest.Poses
                 .Select(pair => new AnimToTransitionEntry(
