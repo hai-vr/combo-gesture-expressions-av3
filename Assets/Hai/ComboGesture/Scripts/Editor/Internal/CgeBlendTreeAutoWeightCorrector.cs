@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Hai.ComboGesture.Scripts.Editor.Internal.Model;
 using UnityEditor.Animations;
-using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
@@ -27,7 +26,22 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 .Where(binding => binding.Manifest.Kind() == ManifestKind.Permutation)
                 .SelectMany(binding => binding.Manifest.AllBlendTreesFoundRecursively())
                 .Distinct()
-                .Where(tree => tree.blendParameter == AutoGestureWeightParam || tree.blendParameterY == AutoGestureWeightParam)
+                .Where(tree =>
+                {
+                    switch (tree.blendType)
+                    {
+                        case BlendTreeType.Simple1D:
+                            return tree.blendParameter == AutoGestureWeightParam;
+                        case BlendTreeType.SimpleDirectional2D:
+                        case BlendTreeType.FreeformDirectional2D:
+                        case BlendTreeType.FreeformCartesian2D:
+                            return tree.blendParameter == AutoGestureWeightParam || tree.blendParameterY == AutoGestureWeightParam;
+                        case BlendTreeType.Direct:
+                            return tree.children.Any(motion => motion.directBlendParameter == AutoGestureWeightParam);
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+                })
                 .Select(originalTree =>
                 {
                     var newTreeForLeftSide = CopyTreeIdentically(originalTree, Side.Left);
@@ -51,7 +65,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 }).ToList();
         }
 
-        private ManifestBinding RemapManifest(ManifestBinding manifestBinding, Dictionary<BlendTree, AutoWeightTreeMapping> autoWeightRemapping)
+        private static ManifestBinding RemapManifest(ManifestBinding manifestBinding, Dictionary<BlendTree, AutoWeightTreeMapping> autoWeightRemapping)
         {
             var remappedManifest = manifestBinding.Manifest.UsingRemappedWeights(autoWeightRemapping);
             return new ManifestBinding(manifestBinding.StageValue, remappedManifest, manifestBinding.LayerOrdinal);
@@ -81,28 +95,18 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 newTree.RemoveChild(0);
             }
 
-            var blendType = newTree.blendType;
-            foreach (var copyOfChild in copyOfChildren)
-            {
-                var remappedMotion = copyOfChild.motion;
-
-                switch (blendType)
+            newTree.children = copyOfChildren
+                .Select(childMotion => new ChildMotion
                 {
-                    case BlendTreeType.Direct:
-                        newTree.AddChild(remappedMotion);
-                        break;
-                    case BlendTreeType.Simple1D:
-                        newTree.AddChild(remappedMotion, copyOfChild.threshold);
-                        break;
-                    case BlendTreeType.SimpleDirectional2D:
-                    case BlendTreeType.FreeformDirectional2D:
-                    case BlendTreeType.FreeformCartesian2D:
-                        newTree.AddChild(remappedMotion, copyOfChild.position);
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-            }
+                    motion = childMotion.motion,
+                    threshold = childMotion.threshold,
+                    position = childMotion.position,
+                    timeScale = childMotion.timeScale,
+                    cycleOffset = childMotion.cycleOffset,
+                    directBlendParameter = childMotion.directBlendParameter == AutoGestureWeightParam ? remappedAutoWeight : childMotion.directBlendParameter,
+                    mirror = childMotion.mirror
+                })
+                .ToArray();
 
             return newTree;
         }
