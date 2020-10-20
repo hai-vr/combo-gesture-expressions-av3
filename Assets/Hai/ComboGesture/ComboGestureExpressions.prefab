@@ -80,7 +80,43 @@ MonoBehaviour:
   anim66: {fileID: 0}
   anim67: {fileID: 0}
   anim77: {fileID: 0}
+  anim11_L: {fileID: 0}
+  anim11_R: {fileID: 0}
+  enablePermutations: 0
+  anim10: {fileID: 0}
+  anim20: {fileID: 0}
+  anim21: {fileID: 0}
+  anim30: {fileID: 0}
+  anim31: {fileID: 0}
+  anim32: {fileID: 0}
+  anim40: {fileID: 0}
+  anim41: {fileID: 0}
+  anim42: {fileID: 0}
+  anim43: {fileID: 0}
+  anim50: {fileID: 0}
+  anim51: {fileID: 0}
+  anim52: {fileID: 0}
+  anim53: {fileID: 0}
+  anim54: {fileID: 0}
+  anim60: {fileID: 0}
+  anim61: {fileID: 0}
+  anim62: {fileID: 0}
+  anim63: {fileID: 0}
+  anim64: {fileID: 0}
+  anim65: {fileID: 0}
+  anim70: {fileID: 0}
+  anim71: {fileID: 0}
+  anim72: {fileID: 0}
+  anim73: {fileID: 0}
+  anim74: {fileID: 0}
+  anim75: {fileID: 0}
+  anim76: {fileID: 0}
   blinking: []
+  limitedLipsync: []
+  previewSetup: {fileID: 0}
+  editorLegacyFoldout: 0
+  editorTool: 0
+  editorArbitraryAnimations: []
 --- !u!1 &3283190825608392735
 GameObject:
   m_ObjectHideFlags: 0
@@ -161,7 +197,43 @@ MonoBehaviour:
   anim66: {fileID: 0}
   anim67: {fileID: 0}
   anim77: {fileID: 0}
+  anim11_L: {fileID: 0}
+  anim11_R: {fileID: 0}
+  enablePermutations: 0
+  anim10: {fileID: 0}
+  anim20: {fileID: 0}
+  anim21: {fileID: 0}
+  anim30: {fileID: 0}
+  anim31: {fileID: 0}
+  anim32: {fileID: 0}
+  anim40: {fileID: 0}
+  anim41: {fileID: 0}
+  anim42: {fileID: 0}
+  anim43: {fileID: 0}
+  anim50: {fileID: 0}
+  anim51: {fileID: 0}
+  anim52: {fileID: 0}
+  anim53: {fileID: 0}
+  anim54: {fileID: 0}
+  anim60: {fileID: 0}
+  anim61: {fileID: 0}
+  anim62: {fileID: 0}
+  anim63: {fileID: 0}
+  anim64: {fileID: 0}
+  anim65: {fileID: 0}
+  anim70: {fileID: 0}
+  anim71: {fileID: 0}
+  anim72: {fileID: 0}
+  anim73: {fileID: 0}
+  anim74: {fileID: 0}
+  anim75: {fileID: 0}
+  anim76: {fileID: 0}
   blinking: []
+  limitedLipsync: []
+  previewSetup: {fileID: 0}
+  editorLegacyFoldout: 0
+  editorTool: 0
+  editorArbitraryAnimations: []
 --- !u!1 &8740833198627231348
 GameObject:
   m_ObjectHideFlags: 0
@@ -192,6 +264,7 @@ Transform:
   m_Children:
   - {fileID: 3126003865998017868}
   - {fileID: 4982018441344198109}
+  - {fileID: 1179769616845258488}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -209,9 +282,94 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   activityStageName: Activity
   comboLayers:
-  - activity: {fileID: 258466012350164061}
+  - kind: 0
+    activity: {fileID: 258466012350164061}
+    puppet: {fileID: 0}
     stageValue: 0
-  - activity: {fileID: 4210607655909169378}
+  - kind: 0
+    activity: {fileID: 4210607655909169378}
+    puppet: {fileID: 0}
     stageValue: 1
   animatorController: {fileID: 0}
+  useGesturePlayableLayer: 0
+  gesturePlayableLayerController: {fileID: 0}
+  folderToGenerateNeutralizedAssetsIn: {fileID: 0}
+  assetContainer: {fileID: 0}
+  generateNewContainerEveryTime: 0
   customEmptyClip: {fileID: 0}
+  analogBlinkingUpperThreshold: 0.95
+  integrateLimitedLipsync: 0
+  lipsyncForWideOpenMouth: {fileID: 0}
+  exposeDisableExpressions: 0
+  exposeDisableBlinkingOverride: 0
+  exposeAreEyesClosed: 0
+  doNotGenerateControllerLayer: 0
+  forceGenerationOfControllerLayer: 0
+  doNotGenerateBlinkingOverrideLayer: 0
+  doNotGenerateLipsyncOverrideLayer: 0
+  doNotGenerateWeightCorrectionLayer: 0
+  expressionsAvatarMask: {fileID: 0}
+  logicalAvatarMask: {fileID: 0}
+  weightCorrectionAvatarMask: {fileID: 0}
+  gesturePlayableLayerExpressionsAvatarMask: {fileID: 0}
+  gesturePlayableLayerTechnicalAvatarMask: {fileID: 0}
+  conflictPreventionMode: 2
+  conflictFxLayerMode: 0
+  weightCorrectionMode: 0
+  blinkCorrectionMode: 0
+  editorAdvancedFoldout: 0
+  ignoreParamList: {fileID: 0}
+  fallbackParamList: {fileID: 0}
+  avatarDescriptor: {fileID: 0}
+  bypassMandatoryAvatarDescriptor: 0
+--- !u!1 &8786870071787821454
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1179769616845258488}
+  - component: {fileID: 3091212272404124063}
+  m_Layer: 0
+  m_Name: Puppet
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1179769616845258488
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8786870071787821454}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 861670447307772719}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3091212272404124063
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8786870071787821454}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d9da21d457dc40b8a8c446a8b52a69fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  transitionDuration: 0.1
+  mainTree: {fileID: 0}
+  intent: 0
+  blinking: []
+  limitedLipsync: []
+  previewSetup: {fileID: 0}
+  editorLegacyFoldout: 0
+  editorTool: 0
