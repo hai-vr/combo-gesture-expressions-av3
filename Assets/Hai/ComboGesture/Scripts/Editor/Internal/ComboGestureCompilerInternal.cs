@@ -48,7 +48,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _activityStageName = compiler.activityStageName == "" ? null : compiler.activityStageName;
             _comboLayers = compiler.comboLayers;
             _animatorController = (AnimatorController)compiler.animatorController;
-            _gesturePlayableLayerController = (AnimatorController)compiler.gesturePlayableLayerController;
+            _gesturePlayableLayerController = compiler.gesturePlayableLayerController as AnimatorController;
             _customEmptyClip = compiler.customEmptyClip;
             _analogBlinkingUpperThreshold = compiler.analogBlinkingUpperThreshold;
             _featuresToggles = (compiler.exposeDisableExpressions ? FeatureToggles.ExposeDisableExpressions : 0)
