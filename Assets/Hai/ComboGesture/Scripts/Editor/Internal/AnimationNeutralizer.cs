@@ -207,7 +207,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         private void MutateCurvesForAnimatedAnimatorParameters(AnimationClip neutralizedAnimation, QualifiedAnimation qualifiedAnimation)
         {
-            if (_compilerConflictFxLayerMode != ConflictFxLayerMode.KeepOnlyTransformsAndMuscles)
+            if (_compilerConflictFxLayerMode != ConflictFxLayerMode.KeepOnlyTransformsAndMuscles && _compilerConflictFxLayerMode != ConflictFxLayerMode.KeepOnlyTransforms)
             {
                 var blinking = qualifiedAnimation.Qualification.IsBlinking ? 1 : 0;
                 var wide = qualifiedAnimation.Qualification.Limitation == QualifiedLimitation.Wide ? 1 : 0;
@@ -232,21 +232,42 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
             RemoveExistingTransformsAndMuscleAnimations(thisAnimationPaths, copyOfAnimationClip);
 
+            if (AnimationUtility.GetCurveBindings(copyOfAnimationClip).Length == 0)
+            {
+                Keyframe[] keyframes = {new Keyframe(0, 0), new Keyframe(1 / 60f, 0)};
+                var curve = new AnimationCurve(keyframes);
+                copyOfAnimationClip.SetCurve("_ignored", typeof(GameObject), "m_IsActive", curve);
+            }
+
             return copyOfAnimationClip;
         }
 
         private void RemoveExistingTransformsAndMuscleAnimations(List<CurveKey> thisAnimationPaths, AnimationClip copyOfAnimationClip)
         {
-            if (_compilerConflictFxLayerMode != ConflictFxLayerMode.KeepBoth)
+            if (_compilerConflictFxLayerMode == ConflictFxLayerMode.KeepBoth) return;
+
+            foreach (var curveKey in thisAnimationPaths)
             {
-                foreach (var curveKey in thisAnimationPaths)
+                if (ShouldRemoveCurve(curveKey))
                 {
-                    var isTransformOrMuscleCurve = curveKey.IsTransformOrMuscleCurve();
-                    if (_compilerConflictFxLayerMode == ConflictFxLayerMode.KeepOnlyTransformsAndMuscles ? !isTransformOrMuscleCurve : isTransformOrMuscleCurve)
-                    {
-                        copyOfAnimationClip.SetCurve(curveKey.Path, curveKey.Type, curveKey.PropertyName, null);
-                    }
+                    copyOfAnimationClip.SetCurve(curveKey.Path, curveKey.Type, curveKey.PropertyName, null);
                 }
+            }
+        }
+
+        private bool ShouldRemoveCurve(CurveKey curveKey)
+        {
+            switch (_compilerConflictFxLayerMode)
+            {
+                case ConflictFxLayerMode.RemoveTransformsAndMuscles:
+                    return curveKey.IsTransformOrMuscleCurve();
+                case ConflictFxLayerMode.KeepOnlyTransformsAndMuscles:
+                    return !curveKey.IsTransformOrMuscleCurve();
+                case ConflictFxLayerMode.KeepOnlyTransforms:
+                    return !curveKey.IsTransformCurve();
+                case ConflictFxLayerMode.KeepBoth:
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
 
@@ -282,6 +303,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                         case ConflictFxLayerMode.RemoveTransformsAndMuscles: return !curveKey.IsTransformOrMuscleCurve();
                         case ConflictFxLayerMode.KeepBoth: return true;
                         case ConflictFxLayerMode.KeepOnlyTransformsAndMuscles: return curveKey.IsTransformOrMuscleCurve();
+                        case ConflictFxLayerMode.KeepOnlyTransforms: return curveKey.IsTransformCurve();
                         default:
                             throw new ArgumentOutOfRangeException();
                     }

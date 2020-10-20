@@ -57,6 +57,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             return Type == typeof(Transform) || Type == typeof(Animator);
         }
 
+        public bool IsTransformCurve()
+        {
+            return Type == typeof(Transform);
+        }
+
         public bool IsMuscleCurve()
         {
             return Type == typeof(Animator);

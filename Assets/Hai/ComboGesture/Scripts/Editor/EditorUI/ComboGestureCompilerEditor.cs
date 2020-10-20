@@ -15,6 +15,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public ReorderableList comboLayersReorderableList;
         public SerializedProperty comboLayers;
         public SerializedProperty animatorController;
+        public SerializedProperty useGesturePlayableLayer;
+        public SerializedProperty gesturePlayableLayerController;
         public SerializedProperty activityStageName;
         public SerializedProperty customEmptyClip;
         public SerializedProperty analogBlinkingUpperThreshold;
@@ -29,6 +31,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public SerializedProperty expressionsAvatarMask;
         public SerializedProperty logicalAvatarMask;
         public SerializedProperty weightCorrectionAvatarMask;
+        public SerializedProperty gesturePlayableLayerExpressionsAvatarMask;
+        public SerializedProperty gesturePlayableLayerTechnicalAvatarMask;
         public SerializedProperty doNotGenerateControllerLayer;
         public SerializedProperty forceGenerationOfControllerLayer;
         public SerializedProperty doNotGenerateBlinkingOverrideLayer;
@@ -54,6 +58,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         private void OnEnable()
         {
             animatorController = serializedObject.FindProperty("animatorController");
+            useGesturePlayableLayer = serializedObject.FindProperty("useGesturePlayableLayer");
+            gesturePlayableLayerController = serializedObject.FindProperty("gesturePlayableLayerController");
             activityStageName = serializedObject.FindProperty("activityStageName");
             customEmptyClip = serializedObject.FindProperty("customEmptyClip");
             analogBlinkingUpperThreshold = serializedObject.FindProperty("analogBlinkingUpperThreshold");
@@ -68,6 +74,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             expressionsAvatarMask = serializedObject.FindProperty("expressionsAvatarMask");
             logicalAvatarMask = serializedObject.FindProperty("logicalAvatarMask");
             weightCorrectionAvatarMask = serializedObject.FindProperty("weightCorrectionAvatarMask");
+            gesturePlayableLayerExpressionsAvatarMask = serializedObject.FindProperty("gesturePlayableLayerExpressionsAvatarMask");
+            gesturePlayableLayerTechnicalAvatarMask = serializedObject.FindProperty("gesturePlayableLayerTechnicalAvatarMask");
             doNotGenerateControllerLayer = serializedObject.FindProperty("doNotGenerateControllerLayer");
             forceGenerationOfControllerLayer = serializedObject.FindProperty("forceGenerationOfControllerLayer");
             doNotGenerateBlinkingOverrideLayer = serializedObject.FindProperty("doNotGenerateBlinkingOverrideLayer");
@@ -98,6 +106,22 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             );
             comboLayersReorderableList.drawElementCallback = ComboLayersListElement;
             comboLayersReorderableList.drawHeaderCallback = ComboLayersListHeader;
+            comboLayersReorderableList.onAddCallback = list =>
+            {
+                ReorderableList.defaultBehaviours.DoAddButton(list);
+
+                if (comboLayers.arraySize <= 1)
+                {
+                    return;
+                }
+
+                var previous = comboLayers.GetArrayElementAtIndex(comboLayers.arraySize - 2).FindPropertyRelative("stageValue").intValue;
+                var newlyAddedElement = comboLayers.GetArrayElementAtIndex(comboLayers.arraySize - 1);
+                newlyAddedElement.FindPropertyRelative("stageValue").intValue = previous + 1;
+                newlyAddedElement.FindPropertyRelative("activity").objectReferenceValue = null;
+                newlyAddedElement.FindPropertyRelative("puppet").objectReferenceValue = null;
+                serializedObject.ApplyModifiedProperties();
+            };
 
             _guideIcon16 = AssetDatabase.LoadAssetAtPath<Texture>("Assets/Hai/ComboGesture/Icons/guide-16.png");
             _guideIcon32 = AssetDatabase.LoadAssetAtPath<Texture>("Assets/Hai/ComboGesture/Icons/guide-32.png");
@@ -112,7 +136,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
-            var conflictPrevention = ConflictPrevention.Of((ConflictPreventionMode) conflictPreventionMode.intValue);
+            var italic = new GUIStyle(GUI.skin.label) {fontStyle = FontStyle.Italic};
 
             _foldoutHelp = EditorGUILayout.Foldout(_foldoutHelp, new GUIContent("Help", _guideIcon32));
             if (_foldoutHelp)
@@ -124,7 +148,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             }
 
             EditorGUILayout.LabelField("Activities", EditorStyles.boldLabel);
-            EditorGUILayout.PropertyField(animatorController, new GUIContent("FX Animator Controller to overwrite"));
+            EditorGUILayout.LabelField("Make backups! The FX Animator Controller will be modified directly.", italic);
+            EditorGUILayout.PropertyField(animatorController, new GUIContent("FX Animator Controller"));
             EditorGUILayout.PropertyField(activityStageName, new GUIContent("Activity Stage name"));
 
             comboLayersReorderableList.DoLayoutList();
@@ -132,6 +157,16 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             EditorGUILayout.Separator();
 
             var compiler = AsCompiler();
+
+            bool ThereIsAnOverlap()
+            {
+                return comboLayers.arraySize != compiler.comboLayers.Select(mapper => mapper.stageValue).Distinct().Count();
+            }
+
+            if (ThereIsAnOverlap())
+            {
+                EditorGUILayout.HelpBox("Multiple stage values are overlapping", MessageType.Error);
+            }
 
             EditorGUILayout.LabelField("Corrections", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(avatarDescriptor, new GUIContent("Avatar descriptor"));
@@ -186,25 +221,24 @@ At the time this version has been published, generating the layer will break you
 
             EditorGUILayout.Space();
 
-            EditorGUILayout.LabelField("Synchronization", EditorStyles.boldLabel);
-            EditorGUILayout.HelpBox(
-                @"Synchronization will regenerate CGE's animator layers and generate animations.
-- Only layers starting with 'Hai_Gesture' will be affected.
-- The avatar descriptor will not be modified.
+            EditorGUILayout.LabelField("Support for ears/wings/tail/other transforms", EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(useGesturePlayableLayer, new GUIContent("Gesture playable layer support"));
+            if (useGesturePlayableLayer.boolValue)
+            {
+                EditorGUILayout.LabelField("Make backups! The Gesture Animator Controller will be modified directly.", italic);
+                EditorGUILayout.PropertyField(gesturePlayableLayerController, new GUIContent("Gesture Animator Controller"));
+                EditorGUILayout.HelpBox("Finger positions or other muscles are not supported.", MessageType.Info);
+            }
 
-You should press synchronize when any of the following happens:
-- the order of layers in the animator controller changes,
-- an animation is modified,
-- a blend tree is modified,
-- a ComboGestureActivity is modified,
-- a ComboGesturePuppet is modified,
-- a ComboGestureLimitedLipsync is modified,
-- the avatar descriptor Eyelids or Lipsync is modified,
-- this Compiler is modified.", MessageType.Info);
+            EditorGUILayout.Space();
+
+            EditorGUILayout.LabelField("Synchronization", EditorStyles.boldLabel);
 
             EditorGUI.BeginDisabledGroup(
                 ThereIsNoAnimatorController() ||
+                ThereIsNoGestureAnimatorController() ||
                 ThereIsNoActivity() ||
+                ThereIsAnOverlap() ||
                 TheOnlyActivityIsNull() ||
                 ThereIsNoActivityNameForMultipleActivities() ||
                 ThereIsNoAvatarDescriptor() ||
@@ -214,6 +248,11 @@ You should press synchronize when any of the following happens:
             bool ThereIsNoAnimatorController()
             {
                 return animatorController.objectReferenceValue == null;
+            }
+
+            bool ThereIsNoGestureAnimatorController()
+            {
+                return useGesturePlayableLayer.boolValue && gesturePlayableLayerController.objectReferenceValue == null;
             }
 
             bool ThereIsNoActivity()
@@ -245,11 +284,25 @@ You should press synchronize when any of the following happens:
                     && compiler.lipsyncForWideOpenMouth == null;
             }
 
-            if (GUILayout.Button("Synchronize Animator FX GestureCombo layers"))
+            if (GUILayout.Button(compiler.useGesturePlayableLayer ?
+                "Synchronize Animator FX and Gesture layers" :
+                "Synchronize Animator FX layers"))
             {
                 DoGenerate();
             }
             EditorGUI.EndDisabledGroup();
+
+            EditorGUILayout.HelpBox(
+                @"Synchronization will regenerate CGE's animator layers and generate animations.
+- Only layers starting with 'Hai_Gesture' will be affected.
+- The avatar descriptor will not be modified.
+
+You should press synchronize when any of the following happens:
+- this Compiler is modified,
+- an Activity, a Puppet, or a LimitedLipsync is modified,
+- an animation or a blend tree or avatar mask is modified,
+- the order of layers in any animator controller changes,
+- the avatar descriptor Eyelids or Lipsync is modified.", MessageType.Info);
 
             if (compiler.assetContainer != null) {
                 EditorGUILayout.LabelField("Asset generation", EditorStyles.boldLabel);
@@ -282,6 +335,8 @@ You should press synchronize when any of the following happens:
                 EditorGUILayout.PropertyField(expressionsAvatarMask, new GUIContent("Add Avatar Mask to Expressions layer"));
                 EditorGUILayout.PropertyField(logicalAvatarMask, new GUIContent("Add Avatar Mask to Controller&Blinking layers"));
                 EditorGUILayout.PropertyField(weightCorrectionAvatarMask, new GUIContent("Add Avatar Mask to Weight Correction layer"));
+                EditorGUILayout.PropertyField(gesturePlayableLayerExpressionsAvatarMask, new GUIContent("Use specific Avatar Mask on Gesture playable expressions layer"));
+                EditorGUILayout.PropertyField(gesturePlayableLayerTechnicalAvatarMask, new GUIContent("Use specific Avatar Mask on Gesture playable technical layers"));
                 EditorGUILayout.PropertyField(doNotGenerateControllerLayer, new GUIContent("Don't update Controller layer"));
                 EditorGUI.BeginDisabledGroup(compiler.doNotGenerateControllerLayer);
                 EditorGUILayout.PropertyField(forceGenerationOfControllerLayer, new GUIContent("Force generation of Controller layer"));
@@ -421,6 +476,10 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
             }
 
             new ComboGestureCompilerInternal(compiler, actualContainer).DoOverwriteAnimatorFxLayer();
+            if (compiler.useGesturePlayableLayer)
+            {
+                new ComboGestureCompilerInternal(compiler, actualContainer).DoOverwriteAnimatorGesturePlayableLayer();
+            }
         }
 
         private static AssetContainer CreateContainerIfNotExists(ComboGestureCompiler compiler, string folderToCreateAssetIn)
@@ -470,7 +529,8 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
 
         private static void ComboLayersListHeader(Rect rect)
         {
-            EditorGUI.LabelField(rect, "Gesture Combo Activities");
+            EditorGUI.LabelField(new Rect(rect.x, rect.y, rect.width - 70 - 51, EditorGUIUtility.singleLineHeight), "Gesture Combo Activities");
+            EditorGUI.LabelField(new Rect(rect.x + rect.width - 70 - 51, rect.y, 50 + 51, EditorGUIUtility.singleLineHeight), "Parameter Value");
         }
     }
 }

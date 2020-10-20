@@ -9,6 +9,8 @@ namespace Hai.ComboGesture.Scripts.Components
         public string activityStageName;
         public List<GestureComboStageMapper> comboLayers;
         public RuntimeAnimatorController animatorController;
+        public bool useGesturePlayableLayer;
+        public RuntimeAnimatorController gesturePlayableLayerController;
         public RuntimeAnimatorController folderToGenerateNeutralizedAssetsIn;
         public RuntimeAnimatorController assetContainer;
         public bool generateNewContainerEveryTime;
@@ -32,6 +34,8 @@ namespace Hai.ComboGesture.Scripts.Components
         public AvatarMask expressionsAvatarMask;
         public AvatarMask logicalAvatarMask;
         public AvatarMask weightCorrectionAvatarMask;
+        public AvatarMask gesturePlayableLayerExpressionsAvatarMask;
+        public AvatarMask gesturePlayableLayerTechnicalAvatarMask;
 
         public ConflictPreventionMode conflictPreventionMode = ConflictPreventionMode.GenerateAnimationsWithWriteDefaults;
         public ConflictFxLayerMode conflictFxLayerMode = ConflictFxLayerMode.RemoveTransformsAndMuscles;
@@ -81,7 +85,7 @@ namespace Hai.ComboGesture.Scripts.Components
     [System.Serializable]
     public enum ConflictFxLayerMode
     {
-        RemoveTransformsAndMuscles, KeepBoth, KeepOnlyTransformsAndMuscles
+        RemoveTransformsAndMuscles, KeepBoth, KeepOnlyTransformsAndMuscles, KeepOnlyTransforms
     }
 
     [System.Serializable]
