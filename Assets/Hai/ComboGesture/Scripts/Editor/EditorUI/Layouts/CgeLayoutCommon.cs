@@ -97,7 +97,14 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                         }
                         else
                         {
-                            _editorEffector.SwitchTo(ActivityEditorMode.OtherOptions);
+                            if (_editorEffector.GetCurrentlyEditing() == CurrentlyEditing.Activity)
+                            {
+                                _editorEffector.SwitchTo(ActivityEditorMode.OtherOptions);
+                            }
+                            else
+                            {
+                                _editorEffector.SwitchTo(PuppetEditorMode.OtherOptions);
+                            }
                         }
                     }
                     EditorGUI.EndDisabledGroup();

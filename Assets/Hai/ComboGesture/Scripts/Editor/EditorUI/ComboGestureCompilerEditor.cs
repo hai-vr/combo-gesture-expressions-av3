@@ -6,6 +6,7 @@ using Hai.ComboGesture.Scripts.Editor.Internal;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
+using BlendTree = UnityEditor.Animations.BlendTree;
 
 namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 {
@@ -163,9 +164,33 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 return comboLayers.arraySize != compiler.comboLayers.Select(mapper => mapper.stageValue).Distinct().Count();
             }
 
+            bool ThereIsAPuppetWithNoBlendTree()
+            {
+                return compiler.comboLayers
+                    .Where(mapper => mapper.kind == GestureComboStageKind.Puppet)
+                    .Where(mapper => mapper.puppet != null)
+                    .Any(mapper => !(mapper.puppet.mainTree is BlendTree));
+            }
+
+            bool ThereIsANullActivityOrPuppet()
+            {
+                return compiler.comboLayers.Any(mapper =>
+                    mapper.kind == GestureComboStageKind.Activity && mapper.activity == null
+                    || mapper.kind == GestureComboStageKind.Puppet && mapper.puppet == null
+                );
+            }
+
             if (ThereIsAnOverlap())
             {
-                EditorGUILayout.HelpBox("Multiple stage values are overlapping", MessageType.Error);
+                EditorGUILayout.HelpBox("Some Parameters Values are overlapping.", MessageType.Error);
+            }
+            else if (ThereIsAPuppetWithNoBlendTree())
+            {
+                EditorGUILayout.HelpBox("One of the puppets has no blend tree defined inside it.", MessageType.Error);
+            }
+            else if (ThereIsANullActivityOrPuppet())
+            {
+                EditorGUILayout.HelpBox("One of the activities is missing.", MessageType.Warning);
             }
 
             EditorGUILayout.LabelField("Corrections", EditorStyles.boldLabel);
@@ -239,7 +264,8 @@ At the time this version has been published, generating the layer will break you
                 ThereIsNoGestureAnimatorController() ||
                 ThereIsNoActivity() ||
                 ThereIsAnOverlap() ||
-                TheOnlyActivityIsNull() ||
+                ThereIsAPuppetWithNoBlendTree() ||
+                ThereIsANullActivityOrPuppet() ||
                 ThereIsNoActivityNameForMultipleActivities() ||
                 ThereIsNoAvatarDescriptor() ||
                 LipsyncIsIntegratedButThereIsNoCorrection()
@@ -258,11 +284,6 @@ At the time this version has been published, generating the layer will break you
             bool ThereIsNoActivity()
             {
                 return comboLayers.arraySize == 0;
-            }
-
-            bool TheOnlyActivityIsNull()
-            {
-                return compiler.comboLayers.Count == 1 && compiler.comboLayers[0].activity == null;
             }
 
             bool ThereIsNoActivityNameForMultipleActivities()
