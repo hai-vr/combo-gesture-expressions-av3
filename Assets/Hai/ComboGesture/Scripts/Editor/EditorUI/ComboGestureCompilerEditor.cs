@@ -151,7 +151,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             EditorGUILayout.LabelField("Activities", EditorStyles.boldLabel);
             EditorGUILayout.LabelField("Make backups! The FX Animator Controller will be modified directly.", italic);
             EditorGUILayout.PropertyField(animatorController, new GUIContent("FX Animator Controller"));
-            EditorGUILayout.PropertyField(activityStageName, new GUIContent("Activity Stage name"));
+            EditorGUILayout.PropertyField(activityStageName, new GUIContent("Parameter Name"));
 
             comboLayersReorderableList.DoLayoutList();
 
@@ -388,7 +388,7 @@ You should press synchronize when any of the following happens:
                 }
                 EditorGUI.EndDisabledGroup();
 
-                EditorGUILayout.PropertyField(conflictFxLayerMode, new GUIContent("Transforms removal"));
+                EditorGUILayout.PropertyField(conflictFxLayerMode, new GUIContent("FX Transforms removal"));
 
                 CpmRemovalWarning(true);
                 EditorGUILayout.Separator();
@@ -550,7 +550,7 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
 
         private static void ComboLayersListHeader(Rect rect)
         {
-            EditorGUI.LabelField(new Rect(rect.x, rect.y, rect.width - 70 - 51, EditorGUIUtility.singleLineHeight), "Gesture Combo Activities");
+            EditorGUI.LabelField(new Rect(rect.x, rect.y, rect.width - 70 - 51, EditorGUIUtility.singleLineHeight), "Mood sets");
             EditorGUI.LabelField(new Rect(rect.x + rect.width - 70 - 51, rect.y, 50 + 51, EditorGUIUtility.singleLineHeight), "Parameter Value");
         }
     }
