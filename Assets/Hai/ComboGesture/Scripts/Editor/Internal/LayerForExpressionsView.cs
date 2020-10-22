@@ -92,7 +92,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 _compilerFallbackParamList,
                 _blinkBlendshapes,
                 _assetContainer,
-                _useGestureWeightCorrection,
                 _conflictPrevention.ShouldGenerateExhaustiveAnimations,
                 _emptyClip
             ).NeutralizeManifestAnimations();
