@@ -480,6 +480,12 @@ However, the FX Playable layer is not meant to manipulate them.
 
 This is not a normal usage of ComboGestureExpressions, and should not be used except in special cases." + (!advancedFoldoutIsOpen ? "\n\n(Advanced settings)" : ""), MessageType.Error);
                     break;
+                case ConflictFxLayerMode.KeepOnlyTransforms:
+                    EditorGUILayout.HelpBox(@"Everything will be removed except transforms.
+However, the FX Playable layer is not meant to manipulate them.
+
+This is not a normal usage of ComboGestureExpressions, and should not be used except in special cases." + (!advancedFoldoutIsOpen ? "\n\n(Advanced settings)" : ""), MessageType.Error);
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
