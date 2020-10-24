@@ -301,7 +301,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                 {
                     CgeLayoutCommon.DrawColoredBackground(CgeLayoutCommon.NeutralSideBg);
                 }
-                else if (property.objectReferenceValue == null && oppositeProperty.objectReferenceValue == null || isLeftHand && property.objectReferenceValue == null && oppositeProperty.objectReferenceValue != null)
+                else if (property.objectReferenceValue == null && oppositeProperty.objectReferenceValue == null
+                         || isLeftHand && property.objectReferenceValue == null && oppositeProperty.objectReferenceValue != null
+                         || !isLeftHand && property.objectReferenceValue != null && oppositeProperty.objectReferenceValue == null)
                 {
                     if (isLeftHand && partial)
                     {
@@ -320,7 +322,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                 }
             }
 
-            var translatableProperty = (usePermutations ? "p_" : "") + propertyPath;
+            var translatableProperty = usePermutations
+                ? (partial && !isLeftHand && property.objectReferenceValue != null && oppositeProperty.objectReferenceValue == null ? propertyPath : ("p_" + propertyPath))
+                : propertyPath;
             GUILayout.Label(_driver.ShortTranslation(translatableProperty), _driver.IsSymmetrical(translatableProperty) ? CgeLayoutCommon.MiddleAlignedBold : CgeLayoutCommon.MiddleAligned);
 
             var element = property.objectReferenceValue != null ? (Motion) property.objectReferenceValue : null;
