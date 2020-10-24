@@ -212,7 +212,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 }
                 else
                 {
-                    _editorEffector.SpEditorTool().intValue = GUILayout.Toolbar(_editorEffector.SpEditorTool().intValue, new[] {"Combos", "Permutations"});
+                    _editorEffector.SpEditorTool().intValue = GUILayout.Toolbar(_editorEffector.SpEditorTool().intValue, new[] {"Simplified view", "Complete view", "Permutations"});
                 }
                 GUILayout.Space(30 + 120);
                 GUILayout.EndHorizontal();

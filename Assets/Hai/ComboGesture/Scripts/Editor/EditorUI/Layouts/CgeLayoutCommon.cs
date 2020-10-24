@@ -29,6 +29,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
         public static GUIStyle MiddleAlignedBold;
         public static GUIStyle LargeFont;
         public static GUIStyle NormalFont;
+        public static Texture GuideIcon32;
         private bool _isSimulationOfProSkin = false;
 
         public CgeLayoutCommon(Action repaintCallback, CgeEditorEffector editorEffector, CgePreviewEffector previewController)
@@ -68,6 +69,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                 MiddleAligned.normal.textColor = new Color(0.71f, 0.71f, 0.71f);
                 MiddleAlignedBold.normal.textColor = new Color(0.71f, 0.71f, 0.71f);
             }
+
+            GuideIcon32 = AssetDatabase.LoadAssetAtPath<Texture>("Assets/Hai/ComboGesture/Icons/guide-32.png");
         }
 
         public static void DrawColoredBackground(Color color)

@@ -36,6 +36,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                 LayoutActivityEditor(position);
             }
         }
+
         private void LayoutActivityEditor(Rect position)
         {
             switch (_editorEffector.SpEditorTool().intValue)
@@ -56,28 +57,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                     CgeLayoutCommon.EndLayout();
                     break;
                 case 4:
-
-                    GUILayout.BeginHorizontal();
-                    GUILayout.FlexibleSpace();
-                    GUILayout.BeginVertical(GUILayout.Width(800));
-                    GUILayout.Label("<b>Permutations</b>", CgeLayoutCommon.LargeFont);
-                    EditorGUILayout.LabelField("Permutations is an experimental feature. It allows animations to depend on which hand side is doing the gesture.");
-                    EditorGUILayout.LabelField("It is significantly harder to create and use an Activity with permutations.");
-                    EditorGUILayout.LabelField("Consider using multiple Activities instead before deciding to use permutations.");
-                    EditorGUILayout.LabelField("When a permutation is not defined, the other side will be used.");
-                    GUILayout.Space(15);
-                    GUILayout.Label("Do you really want to use permutations?", CgeLayoutCommon.LargeFont);
-                    if (GUILayout.Button("Enable permutations for this Activity", GUILayout.Width(300)))
-                    {
-                        _editorEffector.SpEnablePermutations().boolValue = true;
-                        _editorEffector.SpEditorTool().intValue = 1;
-                    }
-                    EditorGUILayout.LabelField("Permutations can be disabled later. Permutations are saved even after disabling permutations.");
-                    EditorGUILayout.LabelField("Compiling an Activity with permutations disabled will not take any saved permutation into account.");
-                    GUILayout.EndVertical();
-                    GUILayout.FlexibleSpace();
-                    GUILayout.EndHorizontal();
-
+                    LayoutAllPermutationTogglePage();
                     break;
                 default:
                     BeginLayoutUsing(CgeLayoutCommon.GuiSquareHeight * 8, position);
@@ -85,6 +65,48 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                     CgeLayoutCommon.EndLayout();
                     break;
             }
+        }
+
+        private void LayoutAllPermutationTogglePage()
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+            GUILayout.BeginVertical(GUILayout.Width(800));
+            GUILayout.Label("<b>Permutations</b>", CgeLayoutCommon.LargeFont);
+            EditorGUILayout.LabelField("Permutations is an experimental feature. It allows animations to depend on which hand side is doing the gesture.");
+            EditorGUILayout.LabelField("It is significantly harder to create and use an Activity with permutations.");
+            EditorGUILayout.LabelField("Consider using multiple Activities instead before deciding to use permutations.");
+            EditorGUILayout.LabelField("When a permutation is not defined, the other side will be used.");
+
+            if (GUILayout.Button(new GUIContent("Open documentation and tutorials", CgeLayoutCommon.GuideIcon32)))
+            {
+                Application.OpenURL("https://hai-vr.github.io/combo-gesture-expressions-av3/#permutations");
+            }
+
+            EditorGUILayout.LabelField("Permutations can be disabled later. Permutations are saved even after disabling permutations.");
+            EditorGUILayout.LabelField("Compiling an Activity with permutations disabled will not take any saved permutation into account.");
+
+            GUILayout.Space(15);
+            GUILayout.Label("Do you really want to use permutations?", CgeLayoutCommon.LargeFont);
+            var prev = _editorEffector.SpEnablePermutations().boolValue;
+            var current = GUILayout.Toggle(prev, "Enable permutations for this Activity", GUILayout.Width(300));
+            if (current != prev)
+            {
+                if (current)
+                {
+                    _editorEffector.SpEnablePermutations().boolValue = true;
+                    _editorEffector.SpEditorTool().intValue = 2;
+                }
+                else
+                {
+                    _editorEffector.SpEnablePermutations().boolValue = false;
+                    _editorEffector.SpEditorTool().intValue = 4;
+                }
+            }
+
+            GUILayout.EndVertical();
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
         }
 
         private void LayoutPermutationEditor(Rect position)
@@ -95,6 +117,10 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                     BeginPermutationLayoutUsing(position);
                     LayoutPermutationMatrixProjection(true);
                     break;
+                case 2:
+                    LayoutAllPermutationTogglePage();
+                    break;
+                case 1:
                 default:
                     BeginPermutationLayoutUsing(position);
                     LayoutPermutationMatrixProjection();
@@ -251,7 +277,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             GUILayout.BeginArea(RectAt(8, 8));
             DrawTransitionEdit();
 
-            if (GUILayout.Button("Disable permutations", GUILayout.ExpandWidth(true), GUILayout.Height(CgeLayoutCommon.SingleLineHeight * 2)))
+            if (!GUILayout.Toggle(true, "Enable permutations", GUILayout.ExpandWidth(true), GUILayout.Height(CgeLayoutCommon.SingleLineHeight * 2)))
             {
                 _editorEffector.SpEnablePermutations().boolValue = false;
                 _editorEffector.SpEditorTool().intValue = 4;
@@ -323,7 +349,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             }
 
             var translatableProperty = usePermutations
-                ? (partial && !isLeftHand && property.objectReferenceValue != null && oppositeProperty.objectReferenceValue == null ? propertyPath : ("p_" + propertyPath))
+                ? (partial && !isLeftHand && oppositeProperty.objectReferenceValue == null ? propertyPath : ("p_" + propertyPath))
                 : propertyPath;
             var isSymmetrical = _driver.IsSymmetrical(translatableProperty);
             if (!usePermutations)

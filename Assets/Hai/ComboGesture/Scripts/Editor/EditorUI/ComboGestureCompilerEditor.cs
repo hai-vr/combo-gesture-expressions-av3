@@ -132,7 +132,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             editorAdvancedFoldout = serializedObject.FindProperty("editorAdvancedFoldout");
         }
 
-        private bool _foldoutHelp;
         private Texture _guideIcon16;
         private Texture _guideIcon32;
 
@@ -141,13 +140,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             serializedObject.Update();
             var italic = new GUIStyle(GUI.skin.label) {fontStyle = FontStyle.Italic};
 
-            _foldoutHelp = EditorGUILayout.Foldout(_foldoutHelp, new GUIContent("Help", _guideIcon32));
-            if (_foldoutHelp)
+            if (GUILayout.Button(new GUIContent("Documentation and tutorials", _guideIcon32)))
             {
-                if (GUILayout.Button(new GUIContent("Open documentation and tutorials", _guideIcon32)))
-                {
-                    Application.OpenURL("https://hai-vr.github.io/combo-gesture-expressions-av3/");
-                }
+                Application.OpenURL("https://hai-vr.github.io/combo-gesture-expressions-av3/");
             }
 
             EditorGUILayout.LabelField("Activities", EditorStyles.boldLabel);
