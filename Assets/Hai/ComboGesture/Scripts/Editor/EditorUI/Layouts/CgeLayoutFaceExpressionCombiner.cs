@@ -13,6 +13,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
     {
         public CgeActivityEditorCombiner Combiner;
         public bool ComplexCombiner;
+        public bool ShowFullNames;
         public string CombinerTarget;
         public string CombinerCandidateFileName;
         public bool CombinerIsLikelyEyesClosed;
@@ -78,6 +79,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             }
             GUILayout.Space(CgeLayoutCommon.SingleLineHeight * 2);
             _combinerState.ComplexCombiner = EditorGUILayout.Toggle("Show hidden", _combinerState.ComplexCombiner);
+            _combinerState.ShowFullNames = EditorGUILayout.Toggle("Show full paths", _combinerState.ShowFullNames);
             GUILayout.Space(CgeLayoutCommon.SingleLineHeight * 2);
             GUILayout.EndVertical();
 
@@ -117,7 +119,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
 
                 if (side == Side.Left) {
                     EditorGUI.BeginDisabledGroup(!value);
-                    GUILayout.Label(ToFormattedName(sideDecider.Key, value), CgeLayoutCommon.NormalFont);
+                    GUILayout.Label(ToFormattedName(sideDecider.Key, value, _combinerState.ShowFullNames), CgeLayoutCommon.NormalFont);
                     EditorGUI.EndDisabledGroup();
                 }
 
@@ -128,7 +130,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
 
                 if (side == Side.Right) {
                     EditorGUI.BeginDisabledGroup(!value);
-                    GUILayout.Label(ToFormattedName(sideDecider.Key, value), CgeLayoutCommon.NormalFont);
+                    GUILayout.Label(ToFormattedName(sideDecider.Key, value, _combinerState.ShowFullNames), CgeLayoutCommon.NormalFont);
                     EditorGUI.EndDisabledGroup();
                 }
 
@@ -147,7 +149,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
 
                 var formattedName = ToFormattedName(
                     intersectionDecider.Key,
-                    valueAsBool
+                    valueAsBool,
+                    _combinerState.ShowFullNames
                 );
 
                 if (_combinerState.ComplexCombiner || (side == Side.Left && intersectionDecider.SampleLeftValue != 0 || side == Side.Right && intersectionDecider.SampleRightValue != 0))
@@ -224,15 +227,34 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             }
         }
 
-        private static string ToFormattedName(CurveKey key, bool value)
+        private static string ToFormattedName(CurveKey key, bool value, bool showFullPath)
         {
-            var niceName = key.PropertyName.Replace("blendShape.", "::") + " @ " + key.Path;
+            var propertyName =
+                key.PropertyName
+                    .Replace("blendShape.", "::")
+                    .Replace("localEulerAnglesRaw.", "rotation:")
+                    .Replace("m_LocalScale.", "scale:")
+                    .Replace("m_LocalPosition.", "position:");
+            var keyPath = showFullPath ? key.Path : SimplifyPath(key.Path);
+            var niceName = propertyName + " @ " + keyPath;
             if (value)
             {
                 return "<b>" + niceName + "</b>";
             }
 
             return niceName;
+        }
+
+        private static string SimplifyPath(string keyPath)
+        {
+            var split = keyPath.Split('/');
+            var parts = split.Length - 1;
+            if (parts <= 3)
+            {
+                return keyPath;
+            }
+
+            return "../" + split[split.Length - 2] + "/" + split[split.Length - 1];
         }
     }
 }

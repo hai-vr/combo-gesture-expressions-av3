@@ -61,7 +61,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             MiddleAligned = new GUIStyle("Label") {alignment = TextAnchor.MiddleCenter, clipping = TextClipping.Overflow};
             MiddleAlignedBold = new GUIStyle("Label") {alignment = TextAnchor.MiddleCenter, clipping = TextClipping.Overflow, fontStyle = FontStyle.Bold};
             LargeFont = new GUIStyle("Label") {fontSize = 20, richText = true};
-            NormalFont = new GUIStyle("Label");
+            NormalFont = new GUIStyle("Label") {richText = true};
 
             if (_isSimulationOfProSkin)
             {
