@@ -46,7 +46,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             RightSymmetricalBg = new Color(0.56f, 0.64f, 0.7f);
             InconsistentBg = new Color(1f, 0.41f, 0.54f);
             MiddleAligned = new GUIStyle {alignment = TextAnchor.MiddleCenter, clipping = TextClipping.Overflow};
-            MiddleAlignedBold = new GUIStyle(EditorStyles.boldLabel) {alignment = TextAnchor.MiddleCenter, clipping = TextClipping.Overflow};
+            MiddleAlignedBold = new GUIStyle {alignment = TextAnchor.MiddleCenter, clipping = TextClipping.Overflow, fontStyle = FontStyle.Bold};
             LargeFont = new GUIStyle {fontSize = 20};
             NormalFont = new GUIStyle();
         }
