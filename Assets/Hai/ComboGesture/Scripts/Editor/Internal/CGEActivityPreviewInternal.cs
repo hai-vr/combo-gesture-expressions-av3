@@ -18,9 +18,10 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly Dictionary<AnimationClip, Texture2D> _animationClipToTextureDictGray;
         private readonly int _pictureWidth;
         private readonly int _pictureHeight;
+        private readonly Action _onQueueTaskComplete;
         private readonly AnimationClip[] _editorArbitraryAnimations;
 
-        public CgeActivityPreviewInternal(Action onClipRenderedFn, CgeEditorEffector editorEffector, CgeBlendTreeEffector blendTreeEffector, Dictionary<AnimationClip, Texture2D> animationClipToTextureDict, Dictionary<AnimationClip, Texture2D> animationClipToTextureDictGray, int pictureWidth, int pictureHeight)
+        public CgeActivityPreviewInternal(Action onClipRenderedFn, CgeEditorEffector editorEffector, CgeBlendTreeEffector blendTreeEffector, Dictionary<AnimationClip, Texture2D> animationClipToTextureDict, Dictionary<AnimationClip, Texture2D> animationClipToTextureDictGray, int pictureWidth, int pictureHeight, Action onQueueTaskComplete)
         {
             _onClipRenderedFn = onClipRenderedFn;
             _editorEffector = editorEffector;
@@ -29,6 +30,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _animationClipToTextureDictGray = animationClipToTextureDictGray;
             _pictureWidth = pictureWidth;
             _pictureHeight = pictureHeight;
+            _onQueueTaskComplete = onQueueTaskComplete;
             _editorArbitraryAnimations = _editorEffector.GetActivity()?.editorArbitraryAnimations ?? new AnimationClip[]{};
         }
 
@@ -47,7 +49,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             var clipDictionary = GatherAnimations(processMode);
             var animationPreviews = ToPrioritizedList(clipDictionary, prioritize);
 
-            new CgePreviewProcessor(_editorEffector.PreviewSetup(), animationPreviews, OnClipRendered).Capture();
+            new CgePreviewProcessor(_editorEffector.PreviewSetup(), animationPreviews, OnClipRendered, _onQueueTaskComplete).Capture();
         }
 
         private void OnClipRendered(AnimationPreview animationPreview)

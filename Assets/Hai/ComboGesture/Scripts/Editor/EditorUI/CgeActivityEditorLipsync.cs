@@ -17,14 +17,16 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         private readonly ComboGestureLimitedLipsync _limitedLipsync;
         private readonly Action _onClipRenderedFn;
         private readonly CgeEditorEffector _editorEffector;
+        private readonly CgePreviewEffector _previewEffector;
 
         private readonly List<AnimationPreview> _visemePreviews;
 
-        public CgeActivityEditorLipsync(ComboGestureLimitedLipsync limitedLipsync, Action onClipRenderedFn, CgeEditorEffector editorEffector)
+        public CgeActivityEditorLipsync(ComboGestureLimitedLipsync limitedLipsync, Action onClipRenderedFn, CgeEditorEffector editorEffector, CgePreviewEffector previewEffector)
         {
             _limitedLipsync = limitedLipsync;
             _onClipRenderedFn = onClipRenderedFn;
             _editorEffector = editorEffector;
+            _previewEffector = previewEffector;
 
             _visemePreviews = Enumerable.Range(0, 15)
                 .Select(i => new AnimationPreview(
@@ -43,7 +45,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 _visemePreviews[visemeNumber] = new AnimationPreview(GenerateLipsyncClip(baseFace, visemeNumber), _visemePreviews[visemeNumber].RenderTexture);
             }
 
-            new CgePreviewProcessor(_editorEffector.PreviewSetup(), _visemePreviews.ToList(), OnClipRendered).Capture();
+            _previewEffector.GenerateSpecific(_visemePreviews.ToList(), OnClipRendered);
         }
 
         public void PrepareJust(AnimationClip baseFace, int visemeNumber)
@@ -52,7 +54,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             _visemePreviews[visemeNumber] = new AnimationPreview(GenerateLipsyncClip(baseFace, visemeNumber), _visemePreviews[visemeNumber].RenderTexture);
 
-            new CgePreviewProcessor(_editorEffector.PreviewSetup(), new[] {_visemePreviews[visemeNumber]}.ToList(), OnClipRendered).Capture();
+            _previewEffector.GenerateSpecific(new[] {_visemePreviews[visemeNumber]}.ToList(), OnClipRendered);
         }
 
         private AnimationClip GenerateLipsyncClip(AnimationClip baseFace, int visemeNumber)

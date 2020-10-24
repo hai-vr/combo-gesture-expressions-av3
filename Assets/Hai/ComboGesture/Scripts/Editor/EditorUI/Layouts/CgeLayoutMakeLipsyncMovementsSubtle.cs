@@ -22,13 +22,15 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
         private readonly CgeLayoutCommon _common;
         private readonly CgeActivityEditorDriver _driver;
         private readonly CgeEditorEffector _editorEffector;
+        private readonly CgePreviewEffector _previewEffector;
         private readonly LipsyncState _lipsyncState = new LipsyncState();
 
-        public CgeLayoutMakeLipsyncMovementsSubtle(CgeLayoutCommon common, CgeActivityEditorDriver driver, CgeEditorEffector editorEffector)
+        public CgeLayoutMakeLipsyncMovementsSubtle(CgeLayoutCommon common, CgeActivityEditorDriver driver, CgeEditorEffector editorEffector, CgePreviewEffector previewEffector)
         {
             _common = common;
             _driver = driver;
             _editorEffector = editorEffector;
+            _previewEffector = previewEffector;
         }
 
         public void Layout(Rect position, Action repaintCallback)
@@ -242,7 +244,7 @@ At the time this version has been published, generating the layer will break you
         {
             _lipsyncState.LimitedLipsync = limitedLipsync;
             _lipsyncState.SerializedLimitedLipsync = new SerializedObject(limitedLipsync);
-            _lipsyncState.Lipsync = new CgeActivityEditorLipsync(limitedLipsync, repaintCallback, _editorEffector);
+            _lipsyncState.Lipsync = new CgeActivityEditorLipsync(limitedLipsync, repaintCallback, _editorEffector, _previewEffector);
         }
 
         public bool IsLimitedLipsyncSameAs(ComboGestureLimitedLipsync selectedLimitedLipsync)

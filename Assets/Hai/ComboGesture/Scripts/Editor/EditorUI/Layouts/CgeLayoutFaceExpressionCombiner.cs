@@ -18,9 +18,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
         public bool CombinerIsLikelyEyesClosed;
         public bool CombinerIsAPermutation;
 
-        public void DoSetCombiner(ComboGestureActivity activity, AnimationClip leftAnim, AnimationClip rightAnim, string propertyPath, bool usePermutations, Action repaintCallback, CgeEditorEffector editorEffector)
+        public void DoSetCombiner(ComboGestureActivity activity, AnimationClip leftAnim, AnimationClip rightAnim, string propertyPath, bool usePermutations, Action repaintCallback, CgeEditorEffector editorEffector, CgePreviewEffector previewController)
         {
-            Combiner = new CgeActivityEditorCombiner(activity, leftAnim, rightAnim, repaintCallback, editorEffector /* FIXME: it is not normal to pass the effector here*/);
+            Combiner = new CgeActivityEditorCombiner(activity, leftAnim, rightAnim, repaintCallback, editorEffector /* FIXME: it is not normal to pass the effector here*/, previewController);
             Combiner.Prepare();
 
             CombinerTarget = propertyPath;
@@ -47,7 +47,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
 
         public void DoSetCombiner(AnimationClip leftAnim, AnimationClip rightAnim, String propertyPath, bool usePermutations, Action repaintCallback)
         {
-            _combinerState.DoSetCombiner(_editorEffector.GetActivity(), leftAnim, rightAnim, propertyPath, usePermutations, repaintCallback, _editorEffector);
+            _combinerState.DoSetCombiner(_editorEffector.GetActivity(), leftAnim, rightAnim, propertyPath, usePermutations, repaintCallback, _editorEffector, _previewController);
 
             _editorEffector.SwitchAdditionalEditorTo(AdditionalEditorsMode.CombineFaceExpressions);
             _editorEffector.SwitchTo(ActivityEditorMode.AdditionalEditors);

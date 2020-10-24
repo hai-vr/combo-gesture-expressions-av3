@@ -17,27 +17,69 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
         private readonly CgePreviewState _cgePreviewState;
         private readonly CgeEditorEffector _editorEffector;
         private readonly CgeBlendTreeEffector _blendTreeEffector;
+        private readonly List<Action> _queue;
+        private bool isProcessing;
 
         public CgePreviewEffector(CgePreviewState cgePreviewState, CgeEditorEffector editorEffector, CgeBlendTreeEffector blendTreeEffector)
         {
             _cgePreviewState = cgePreviewState;
             _editorEffector = editorEffector;
             _blendTreeEffector = blendTreeEffector;
+            _queue = new List<Action>();
         }
 
         public void GenerateMissingPreviews(Action repaintCallback)
         {
-            Previewer(repaintCallback).Process(CgeActivityPreviewInternal.ProcessMode.CalculateMissing, null);
+            _queue.Add(() => Previewer(repaintCallback).Process(CgeActivityPreviewInternal.ProcessMode.CalculateMissing, null));
+            WakeQueue();
         }
 
         public void GenerateMissingPreviewsPrioritizing(Action repaintCallback, AnimationClip element)
         {
-            Previewer(repaintCallback).Process(CgeActivityPreviewInternal.ProcessMode.CalculateMissing, element);
+            _queue.Add(() => Previewer(repaintCallback).Process(CgeActivityPreviewInternal.ProcessMode.CalculateMissing, element));
+            WakeQueue();
         }
 
         public void GenerateAll(Action repaintCallback)
         {
-            Previewer(repaintCallback).Process(CgeActivityPreviewInternal.ProcessMode.RecalculateEverything, null);
+            _queue.Add(() => Previewer(repaintCallback).Process(CgeActivityPreviewInternal.ProcessMode.RecalculateEverything, null));
+            WakeQueue();
+        }
+
+        public void GenerateSpecific(List<AnimationPreview> animationsPreviews, Action<AnimationPreview> onClipRendered)
+        {
+            _queue.Add(() => new CgePreviewProcessor(_editorEffector.PreviewSetup(), animationsPreviews, onClipRendered, OnQueueTaskComplete).Capture());
+            WakeQueue();
+        }
+
+        private void WakeQueue()
+        {
+            if (isProcessing || _queue.Count == 0)
+            {
+                return;
+            }
+
+            isProcessing = true;
+            ExecuteNextInQueue();
+        }
+
+        private void ExecuteNextInQueue()
+        {
+            var first = _queue[0];
+            _queue.RemoveAt(0);
+            first.Invoke();
+        }
+
+        private void OnQueueTaskComplete()
+        {
+            if (_queue.Count == 0)
+            {
+                isProcessing = false;
+            }
+            else
+            {
+                ExecuteNextInQueue();
+            }
         }
 
         private CgeActivityPreviewInternal Previewer(Action repaintCallback)
@@ -49,7 +91,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
                 _cgePreviewState.AnimationClipToTextureDict,
                 _cgePreviewState.AnimationClipToTextureDictGray,
                 CgeLayoutCommon.PictureWidth,
-                CgeLayoutCommon.PictureHeight
+                CgeLayoutCommon.PictureHeight,
+                OnQueueTaskComplete
             );
         }
 

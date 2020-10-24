@@ -24,6 +24,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         private readonly ComboGesturePreviewSetup _previewSetup;
         private readonly List<AnimationPreview> _animationPreviews;
         private readonly Action<AnimationPreview> _onClipRendered;
+        private readonly Action _onQueueTaskComplete;
         private readonly Animator _dummy;
         private RenderTexture _renderTexture;
         private object _repaintFn;
@@ -31,11 +32,12 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         private static bool StopGenerating { get; set; }
 
-        public CgePreviewProcessor(ComboGesturePreviewSetup previewSetup, List<AnimationPreview> animationPreviews, Action<AnimationPreview> onClipRendered)
+        public CgePreviewProcessor(ComboGesturePreviewSetup previewSetup, List<AnimationPreview> animationPreviews, Action<AnimationPreview> onClipRendered, Action onQueueTaskComplete = null)
         {
             _previewSetup = previewSetup;
             _animationPreviews = animationPreviews;
             _onClipRendered = onClipRendered;
+            _onQueueTaskComplete = onQueueTaskComplete ?? (() => {});
             _dummy = previewSetup.previewDummy;
         }
 
@@ -72,7 +74,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 });
             }
 
-            var cleanupQueue = new List<Action<int>> {i => Terminate(generatedCamera)};
+            var cleanupQueue = new List<Action<int>> {i => Terminate(generatedCamera), i => _onQueueTaskComplete.Invoke()};
             EditorApplication.delayCall += () => RunAsync(queue, cleanupQueue);
         }
 
