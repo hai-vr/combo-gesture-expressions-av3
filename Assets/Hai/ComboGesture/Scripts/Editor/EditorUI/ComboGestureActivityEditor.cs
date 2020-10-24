@@ -275,46 +275,46 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 WhenFoldoutAll(null);
             }
 
-            _foldoutFist = EditorGUILayout.Foldout(_foldoutFist, "Show FIST gestures");
+            _foldoutFist = EditorGUILayout.Foldout(_foldoutFist, "Show Fist gestures");
             if (_foldoutFist)
             {
-                WhenFoldoutAll("FIST");
+                WhenFoldoutAll("Fist");
             }
 
-            _foldoutHandopen = EditorGUILayout.Foldout(_foldoutHandopen, "Show OPEN gestures");
+            _foldoutHandopen = EditorGUILayout.Foldout(_foldoutHandopen, "Show Open gestures");
             if (_foldoutHandopen)
             {
-                WhenFoldoutAll("OPEN");
+                WhenFoldoutAll("Open");
             }
 
-            _foldoutFingerpoint = EditorGUILayout.Foldout(_foldoutFingerpoint, "Show POINT gestures");
+            _foldoutFingerpoint = EditorGUILayout.Foldout(_foldoutFingerpoint, "Show Point gestures");
             if (_foldoutFingerpoint)
             {
-                WhenFoldoutAll("POINT");
+                WhenFoldoutAll("Point");
             }
 
-            _foldoutVictory = EditorGUILayout.Foldout(_foldoutVictory, "Show PEACE gestures");
+            _foldoutVictory = EditorGUILayout.Foldout(_foldoutVictory, "Show Victory gestures");
             if (_foldoutVictory)
             {
-                WhenFoldoutAll("PEACE");
+                WhenFoldoutAll("Victory");
             }
 
-            _foldoutRocknroll = EditorGUILayout.Foldout(_foldoutRocknroll, "Show ROCKNROLL gestures");
+            _foldoutRocknroll = EditorGUILayout.Foldout(_foldoutRocknroll, "Show RockNRoll gestures");
             if (_foldoutRocknroll)
             {
-                WhenFoldoutAll("ROCKNROLL");
+                WhenFoldoutAll("RockNRoll");
             }
 
-            _foldoutHandpistol = EditorGUILayout.Foldout(_foldoutHandpistol, "Show GUN gestures");
+            _foldoutHandpistol = EditorGUILayout.Foldout(_foldoutHandpistol, "Show Gun gestures");
             if (_foldoutHandpistol)
             {
-                WhenFoldoutAll("GUN");
+                WhenFoldoutAll("Gun");
             }
 
-            _foldoutThumbsup = EditorGUILayout.Foldout(_foldoutThumbsup, "Show THUMBSUP gestures");
+            _foldoutThumbsup = EditorGUILayout.Foldout(_foldoutThumbsup, "Show ThumbsUp gestures");
             if (_foldoutThumbsup)
             {
-                WhenFoldoutAll("THUMBSUP");
+                WhenFoldoutAll("ThumbsUp");
             }
 
             EditorGUILayout.PropertyField(enablePermutations, new GUIContent("Enable permutations"));
@@ -343,75 +343,75 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         private void WhenFoldoutAll(string filter)
         {
-            CreatePropertyField(anim01, "Exactly one FIST", filter);
-            CreatePropertyField(anim02, "Exactly one OPEN", filter);
-            CreatePropertyField(anim03, "Exactly one POINT", filter);
-            CreatePropertyField(anim04, "Exactly one PEACE", filter);
-            CreatePropertyField(anim05, "Exactly one ROCKNROLL", filter);
-            CreatePropertyField(anim06, "Exactly one GUN", filter);
-            CreatePropertyField(anim07, "Exactly one THUMBSUP", filter);
-            CreatePropertyField(anim11, "FIST on both hands", filter);
-            CreatePropertyField(anim11_L, "  - Left FIST only", filter);
-            CreatePropertyField(anim11_R, "  - Right FIST only", filter);
-            CreatePropertyField(anim12, "FIST and OPEN", filter);
-            CreatePropertyField(anim13, "FIST and POINT", filter);
-            CreatePropertyField(anim14, "FIST and PEACE", filter);
-            CreatePropertyField(anim15, "FIST and ROCKNROLL", filter);
-            CreatePropertyField(anim16, "FIST and GUN", filter);
-            CreatePropertyField(anim17, "FIST and THUMBSUP", filter);
-            CreatePropertyField(anim22, "OPEN on both hands", filter);
-            CreatePropertyField(anim23, "OPEN and POINT", filter);
-            CreatePropertyField(anim24, "OPEN and PEACE", filter);
-            CreatePropertyField(anim25, "OPEN and ROCKNROLL", filter);
-            CreatePropertyField(anim26, "OPEN and GUN", filter);
-            CreatePropertyField(anim27, "OPEN and THUMBSUP", filter);
-            CreatePropertyField(anim33, "POINT on both hands", filter);
-            CreatePropertyField(anim34, "POINT and PEACE", filter);
-            CreatePropertyField(anim35, "POINT and ROCKNROLL", filter);
-            CreatePropertyField(anim36, "POINT and GUN", filter);
-            CreatePropertyField(anim37, "POINT and THUMBSUP", filter);
-            CreatePropertyField(anim44, "PEACE on both hands", filter);
-            CreatePropertyField(anim45, "PEACE and ROCKNROLL", filter);
-            CreatePropertyField(anim46, "PEACE and GUN", filter);
-            CreatePropertyField(anim47, "PEACE and THUMBSUP", filter);
-            CreatePropertyField(anim55, "ROCKNROLL on both hands", filter);
-            CreatePropertyField(anim56, "ROCKNROLL and GUN", filter);
-            CreatePropertyField(anim57, "ROCKNROLL and THUMBSUP", filter);
-            CreatePropertyField(anim66, "GUN on both hands", filter);
-            CreatePropertyField(anim67, "GUN and THUMBSUP", filter);
-            CreatePropertyField(anim77, "THUMBSUP on both hands", filter);
+            CreatePropertyField(anim01, "Exactly one Fist", filter);
+            CreatePropertyField(anim02, "Exactly one Open", filter);
+            CreatePropertyField(anim03, "Exactly one Point", filter);
+            CreatePropertyField(anim04, "Exactly one Victory", filter);
+            CreatePropertyField(anim05, "Exactly one RockNRoll", filter);
+            CreatePropertyField(anim06, "Exactly one Gun", filter);
+            CreatePropertyField(anim07, "Exactly one ThumbsUp", filter);
+            CreatePropertyField(anim11, "Fist on both hands", filter);
+            CreatePropertyField(anim11_L, "  - Left Fist only", filter);
+            CreatePropertyField(anim11_R, "  - Right Fist only", filter);
+            CreatePropertyField(anim12, "Fist and Open", filter);
+            CreatePropertyField(anim13, "Fist and Point", filter);
+            CreatePropertyField(anim14, "Fist and Victory", filter);
+            CreatePropertyField(anim15, "Fist and RockNRoll", filter);
+            CreatePropertyField(anim16, "Fist and Gun", filter);
+            CreatePropertyField(anim17, "Fist and ThumbsUp", filter);
+            CreatePropertyField(anim22, "Open on both hands", filter);
+            CreatePropertyField(anim23, "Open and Point", filter);
+            CreatePropertyField(anim24, "Open and Victory", filter);
+            CreatePropertyField(anim25, "Open and RockNRoll", filter);
+            CreatePropertyField(anim26, "Open and Gun", filter);
+            CreatePropertyField(anim27, "Open and ThumbsUp", filter);
+            CreatePropertyField(anim33, "Point on both hands", filter);
+            CreatePropertyField(anim34, "Point and Victory", filter);
+            CreatePropertyField(anim35, "Point and RockNRoll", filter);
+            CreatePropertyField(anim36, "Point and Gun", filter);
+            CreatePropertyField(anim37, "Point and ThumbsUp", filter);
+            CreatePropertyField(anim44, "Victory on both hands", filter);
+            CreatePropertyField(anim45, "Victory and RockNRoll", filter);
+            CreatePropertyField(anim46, "Victory and Gun", filter);
+            CreatePropertyField(anim47, "Victory and ThumbsUp", filter);
+            CreatePropertyField(anim55, "RockNRoll on both hands", filter);
+            CreatePropertyField(anim56, "RockNRoll and Gun", filter);
+            CreatePropertyField(anim57, "RockNRoll and ThumbsUp", filter);
+            CreatePropertyField(anim66, "Gun on both hands", filter);
+            CreatePropertyField(anim67, "Gun and ThumbsUp", filter);
+            CreatePropertyField(anim77, "ThumbsUp on both hands", filter);
         }
 
         private void WhenFoldoutPermutations()
         {
-            CreatePropertyField(anim10, "Permutation FIST > None", null);
-            CreatePropertyField(anim20, "Permutation OPEN > None", null);
-            CreatePropertyField(anim21, "Permutation OPEN > FIST", null);
-            CreatePropertyField(anim30, "Permutation POINT > None", null);
-            CreatePropertyField(anim31, "Permutation POINT > FIST", null);
-            CreatePropertyField(anim32, "Permutation POINT > OPEN", null);
-            CreatePropertyField(anim40, "Permutation PEACE > None", null);
-            CreatePropertyField(anim41, "Permutation PEACE > FIST", null);
-            CreatePropertyField(anim42, "Permutation PEACE > OPEN", null);
-            CreatePropertyField(anim43, "Permutation PEACE > POINT", null);
-            CreatePropertyField(anim50, "Permutation ROCKNROLL > None", null);
-            CreatePropertyField(anim51, "Permutation ROCKNROLL > FIST", null);
-            CreatePropertyField(anim52, "Permutation ROCKNROLL > OPEN", null);
-            CreatePropertyField(anim53, "Permutation ROCKNROLL > POINT", null);
-            CreatePropertyField(anim54, "Permutation ROCKNROLL > PEACE", null);
-            CreatePropertyField(anim60, "Permutation GUN > None", null);
-            CreatePropertyField(anim61, "Permutation GUN > FIST", null);
-            CreatePropertyField(anim62, "Permutation GUN > OPEN", null);
-            CreatePropertyField(anim63, "Permutation GUN > POINT", null);
-            CreatePropertyField(anim64, "Permutation GUN > PEACE", null);
-            CreatePropertyField(anim65, "Permutation GUN > ROCKNROLL", null);
-            CreatePropertyField(anim70, "Permutation THUMBSUP > None", null);
-            CreatePropertyField(anim71, "Permutation THUMBSUP > FIST", null);
-            CreatePropertyField(anim72, "Permutation THUMBSUP > OPEN", null);
-            CreatePropertyField(anim73, "Permutation THUMBSUP > POINT", null);
-            CreatePropertyField(anim74, "Permutation THUMBSUP > PEACE", null);
-            CreatePropertyField(anim75, "Permutation THUMBSUP > ROCKNROLL", null);
-            CreatePropertyField(anim76, "Permutation THUMBSUP > GUN", null);
+            CreatePropertyField(anim10, "Permutation Fist > None", null);
+            CreatePropertyField(anim20, "Permutation Open > None", null);
+            CreatePropertyField(anim21, "Permutation Open > Fist", null);
+            CreatePropertyField(anim30, "Permutation Point > None", null);
+            CreatePropertyField(anim31, "Permutation Point > Fist", null);
+            CreatePropertyField(anim32, "Permutation Point > Open", null);
+            CreatePropertyField(anim40, "Permutation Victory > None", null);
+            CreatePropertyField(anim41, "Permutation Victory > Fist", null);
+            CreatePropertyField(anim42, "Permutation Victory > Open", null);
+            CreatePropertyField(anim43, "Permutation Victory > Point", null);
+            CreatePropertyField(anim50, "Permutation RockNRoll > None", null);
+            CreatePropertyField(anim51, "Permutation RockNRoll > Fist", null);
+            CreatePropertyField(anim52, "Permutation RockNRoll > Open", null);
+            CreatePropertyField(anim53, "Permutation RockNRoll > Point", null);
+            CreatePropertyField(anim54, "Permutation RockNRoll > Victory", null);
+            CreatePropertyField(anim60, "Permutation Gun > None", null);
+            CreatePropertyField(anim61, "Permutation Gun > Fist", null);
+            CreatePropertyField(anim62, "Permutation Gun > Open", null);
+            CreatePropertyField(anim63, "Permutation Gun > Point", null);
+            CreatePropertyField(anim64, "Permutation Gun > Victory", null);
+            CreatePropertyField(anim65, "Permutation Gun > RockNRoll", null);
+            CreatePropertyField(anim70, "Permutation ThumbsUp > None", null);
+            CreatePropertyField(anim71, "Permutation ThumbsUp > Fist", null);
+            CreatePropertyField(anim72, "Permutation ThumbsUp > Open", null);
+            CreatePropertyField(anim73, "Permutation ThumbsUp > Point", null);
+            CreatePropertyField(anim74, "Permutation ThumbsUp > Victory", null);
+            CreatePropertyField(anim75, "Permutation ThumbsUp > RockNRoll", null);
+            CreatePropertyField(anim76, "Permutation ThumbsUp > Gun", null);
         }
 
         private static void CreatePropertyField(SerializedProperty property, string label, string filter)
