@@ -20,6 +20,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly AssetContainer _assetContainer;
         private readonly bool _useExhaustiveAnimations;
         private readonly AnimationClip _emptyClip;
+        private readonly bool _doNotFixSingleKeyframes;
 
         public AnimationNeutralizer(List<ManifestBinding> originalBindings,
             ConflictFxLayerMode compilerConflictFxLayerMode,
@@ -28,7 +29,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             List<CurveKey> blinkBlendshapes,
             AssetContainer assetContainer,
             bool useExhaustiveAnimations,
-            AnimationClip emptyClip)
+            AnimationClip emptyClip,
+            bool doNotFixSingleKeyframes)
         {
             _originalBindings = originalBindings;
             _compilerConflictFxLayerMode = compilerConflictFxLayerMode;
@@ -38,6 +40,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _assetContainer = assetContainer;
             _useExhaustiveAnimations = useExhaustiveAnimations;
             _emptyClip = emptyClip;
+            _doNotFixSingleKeyframes = doNotFixSingleKeyframes;
         }
 
         private static HashSet<CurveKey> ExtractAllCurvesOf(AnimationClip clip)
@@ -222,7 +225,12 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 var canCopyCurve = _compilerConflictFxLayerMode == ConflictFxLayerMode.KeepBoth || !ShouldRemoveCurve(curveKey);
                 if (canCopyCurve)
                 {
-                    AnimationUtility.SetEditorCurve(copyOfAnimationClip, binding, AnimationUtility.GetEditorCurve(animationClipToBePreserved, binding));
+                    var curve = AnimationUtility.GetEditorCurve(animationClipToBePreserved, binding);
+                    if (!_doNotFixSingleKeyframes && curve.keys.Length == 1)
+                    {
+                        curve = new AnimationCurve(MakeSingleKeyframeIntoTwo(curve));
+                    }
+                    AnimationUtility.SetEditorCurve(copyOfAnimationClip, binding, curve);
                 }
             }
 
@@ -235,6 +243,24 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
 
             return copyOfAnimationClip;
+        }
+
+        private static Keyframe[] MakeSingleKeyframeIntoTwo(AnimationCurve curve)
+        {
+            var originalKeyframe = curve.keys[0];
+            var originalKeyframeIsZero = originalKeyframe.time == 0;
+            var newKeyframe = new Keyframe
+            {
+                time = originalKeyframeIsZero ? 1 / 60f : 0f,
+                value = originalKeyframe.value,
+                inTangent = originalKeyframe.inTangent,
+                outTangent = originalKeyframe.outTangent,
+                tangentMode = originalKeyframe.tangentMode,
+                weightedMode = originalKeyframe.weightedMode,
+                inWeight = originalKeyframe.inWeight,
+                outWeight = originalKeyframe.outWeight,
+            };
+            return originalKeyframeIsZero ? new[] {originalKeyframe, newKeyframe} : new[] {newKeyframe, originalKeyframe};
         }
 
         private bool ShouldRemoveCurve(CurveKey curveKey)

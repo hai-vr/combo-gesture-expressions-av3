@@ -46,6 +46,7 @@ namespace Hai.ComboGesture.Scripts.Components
 
         public AnimationClip ignoreParamList;
         public AnimationClip fallbackParamList;
+        public bool doNotFixSingleKeyframes;
 
         public VRCAvatarDescriptor avatarDescriptor;
         public bool bypassMandatoryAvatarDescriptor;

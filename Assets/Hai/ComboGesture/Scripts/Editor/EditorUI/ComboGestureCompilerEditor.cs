@@ -49,6 +49,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public SerializedProperty folderToGenerateNeutralizedAssetsIn;
 
         public SerializedProperty avatarDescriptor;
+        public SerializedProperty doNotFixSingleKeyframes;
         public SerializedProperty bypassMandatoryAvatarDescriptor;
 
         public SerializedProperty assetContainer;
@@ -94,6 +95,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             comboLayers = serializedObject.FindProperty("comboLayers");
 
             avatarDescriptor = serializedObject.FindProperty("avatarDescriptor");
+            doNotFixSingleKeyframes = serializedObject.FindProperty("doNotFixSingleKeyframes");
             bypassMandatoryAvatarDescriptor = serializedObject.FindProperty("bypassMandatoryAvatarDescriptor");
 
             assetContainer = serializedObject.FindProperty("assetContainer");
@@ -396,6 +398,7 @@ You should press synchronize when any of the following happens:
                 EditorGUILayout.LabelField("Fallback generation", EditorStyles.boldLabel);
                 EditorGUILayout.PropertyField(ignoreParamList, new GUIContent("Ignored properties"));
                 EditorGUILayout.PropertyField(fallbackParamList, new GUIContent("Fallback values"));
+                EditorGUILayout.PropertyField(doNotFixSingleKeyframes, new GUIContent("Do not fix single keyframes"));
                 EditorGUILayout.PropertyField(bypassMandatoryAvatarDescriptor, new GUIContent("Bypass mandatory avatar descriptor"));
             }
             else
