@@ -29,6 +29,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
         public static GUIStyle MiddleAlignedBold;
         public static GUIStyle LargeFont;
         public static GUIStyle NormalFont;
+        private bool _isSimulationOfProSkin = false;
 
         public CgeLayoutCommon(Action repaintCallback, CgeEditorEffector editorEffector, CgePreviewEffector previewController)
         {
@@ -39,16 +40,34 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
 
         public void GuiInit()
         {
-            LeftSideBg = new Color(1f, 0.81f, 0.59f);
-            RightSideBg = new Color(0.7f, 0.9f, 1f);
-            NeutralSideBg = new Color(1f, 1f, 1f);
-            LeftSymmetricalBg = new Color(0.7f, 0.65f, 0.59f);
-            RightSymmetricalBg = new Color(0.56f, 0.64f, 0.7f);
-            InconsistentBg = new Color(1f, 0.41f, 0.54f);
-            MiddleAligned = new GUIStyle {alignment = TextAnchor.MiddleCenter, clipping = TextClipping.Overflow};
-            MiddleAlignedBold = new GUIStyle {alignment = TextAnchor.MiddleCenter, clipping = TextClipping.Overflow, fontStyle = FontStyle.Bold};
-            LargeFont = new GUIStyle {fontSize = 20};
-            NormalFont = new GUIStyle();
+            if (!EditorGUIUtility.isProSkin && !_isSimulationOfProSkin)
+            {
+                LeftSideBg = new Color(1f, 0.81f, 0.59f);
+                RightSideBg = new Color(0.7f, 0.9f, 1f);
+                NeutralSideBg = new Color(0.88f, 0.88f, 0.88f);
+                LeftSymmetricalBg = new Color(0.7f, 0.65f, 0.59f);
+                RightSymmetricalBg = new Color(0.56f, 0.64f, 0.7f);
+                InconsistentBg = new Color(1f, 0.41f, 0.54f);
+            }
+            else
+            {
+                LeftSideBg = new Color(0.62f, 0.4f, 0.12f);
+                RightSideBg = new Color(0.24f, 0.48f, 0.62f);
+                NeutralSideBg = new Color(0.07f, 0.07f, 0.07f);
+                LeftSymmetricalBg = new Color(0.34f, 0.27f, 0.23f);
+                RightSymmetricalBg = new Color(0.23f, 0.26f, 0.34f);
+                InconsistentBg = new Color(0.72f, 0.09f, 0.27f);
+            }
+            MiddleAligned = new GUIStyle("Label") {alignment = TextAnchor.MiddleCenter, clipping = TextClipping.Overflow};
+            MiddleAlignedBold = new GUIStyle("Label") {alignment = TextAnchor.MiddleCenter, clipping = TextClipping.Overflow, fontStyle = FontStyle.Bold};
+            LargeFont = new GUIStyle("Label") {fontSize = 20, richText = true};
+            NormalFont = new GUIStyle("Label");
+
+            if (_isSimulationOfProSkin)
+            {
+                MiddleAligned.normal.textColor = new Color(0.71f, 0.71f, 0.71f);
+                MiddleAlignedBold.normal.textColor = new Color(0.71f, 0.71f, 0.71f);
+            }
         }
 
         public static void DrawColoredBackground(Color color)
@@ -57,7 +76,12 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             try
             {
                 GUI.color = color;
-                GUI.Box(new Rect(0, 0, GuiSquareWidth, GuiSquareHeight), "");
+                GUI.Box(new Rect(0, 0, GuiSquareWidth, GuiSquareHeight), "", new GUIStyle("box") {
+                    normal = new GUIStyleState
+                    {
+                        background = Texture2D.whiteTexture
+                    }
+                });
             }
             finally
             {
@@ -67,7 +91,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
 
         public static Rect RectAt(int xGrid, int yGrid)
         {
-            return new Rect(xGrid * GuiSquareWidth, yGrid * GuiSquareHeight, GuiSquareWidth, GuiSquareHeight);
+            return new Rect(xGrid * GuiSquareWidth, yGrid * GuiSquareHeight, GuiSquareWidth - 3, GuiSquareHeight - 3);
         }
 
         public void DrawPreviewOrRefreshButton(Motion element, bool grayscale = false)
@@ -75,7 +99,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             if (element is AnimationClip clip) {
                 if (_previewController.HasClip(clip))
                 {
-                    GUILayout.Box(Texture(grayscale, clip), GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true));
+                    GUILayout.Box(Texture(grayscale, clip), GUIStyle.none, GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true));
                     InvisibleRankPreservingBox();
                     InvisibleRankPreservingBox();
                     InvisibleRankPreservingBox();
@@ -195,6 +219,12 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
         public void BeginLayoutUsing(Rect position, int totalHeight, int topHeight)
         {
             var totalWidth = GuiSquareWidth * 8;
+            GUILayout.Box("", GUIStyle.none, GUILayout.Width(totalWidth), GUILayout.Height(totalHeight));
+            GUILayout.BeginArea(new Rect(Math.Max((position.width - totalWidth) / 2, 0), topHeight, totalWidth, totalHeight));
+        }
+
+        public void BeginLayoutUsingWidth(Rect position, int totalHeight, int topHeight, int totalWidth)
+        {
             GUILayout.Box("", GUIStyle.none, GUILayout.Width(totalWidth), GUILayout.Height(totalHeight));
             GUILayout.BeginArea(new Rect(Math.Max((position.width - totalWidth) / 2, 0), topHeight, totalWidth, totalHeight));
         }

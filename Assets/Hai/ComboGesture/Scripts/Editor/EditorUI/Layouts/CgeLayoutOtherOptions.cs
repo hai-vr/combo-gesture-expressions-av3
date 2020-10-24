@@ -22,6 +22,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
 
         public void Layout(Action repaintCallback, Rect position)
         {
+            _common.BeginLayoutUsingWidth(position, CgeLayoutCommon.GuiSquareHeight * 2, 0, CgeLayoutCommon.GuiSquareWidth * 4);
             if (_editorEffector.IsFirstTimeSetup() || !_editorEffector.IsPreviewSetupValid())
             {
                 if (_editorEffector.HasPreviewSetupWhichIsInvalid())
@@ -109,6 +110,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                     }
                 }
             }
+            CgeLayoutCommon.EndLayout();
         }
 
         private void DoAutoSetupPreview()

@@ -250,7 +250,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
 
             GUILayout.BeginArea(RectAt(8, 8));
             DrawTransitionEdit();
-            GUILayout.Space(CgeLayoutCommon.SingleLineHeight);
+
             if (GUILayout.Button("Disable permutations", GUILayout.ExpandWidth(true), GUILayout.Height(CgeLayoutCommon.SingleLineHeight * 2)))
             {
                 _editorEffector.SpEnablePermutations().boolValue = false;
@@ -286,7 +286,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
 
         private static Rect RectAt(int xGrid, int yGrid)
         {
-            return new Rect(xGrid * CgeLayoutCommon.GuiSquareWidth, yGrid * CgeLayoutCommon.GuiSquareHeight, CgeLayoutCommon.GuiSquareWidth, CgeLayoutCommon.GuiSquareHeight);
+            return new Rect(xGrid * CgeLayoutCommon.GuiSquareWidth, yGrid * CgeLayoutCommon.GuiSquareHeight, CgeLayoutCommon.GuiSquareWidth - 3, CgeLayoutCommon.GuiSquareHeight - 3);
         }
 
         private void DrawInner(string propertyPath, string oppositePath = null, bool partial = false)
@@ -325,7 +325,13 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             var translatableProperty = usePermutations
                 ? (partial && !isLeftHand && property.objectReferenceValue != null && oppositeProperty.objectReferenceValue == null ? propertyPath : ("p_" + propertyPath))
                 : propertyPath;
-            GUILayout.Label(_driver.ShortTranslation(translatableProperty), _driver.IsSymmetrical(translatableProperty) ? CgeLayoutCommon.MiddleAlignedBold : CgeLayoutCommon.MiddleAligned);
+            var isSymmetrical = _driver.IsSymmetrical(translatableProperty);
+            if (!usePermutations)
+            {
+                CgeLayoutCommon.DrawColoredBackground(CgeLayoutCommon.NeutralSideBg);
+            }
+
+            GUILayout.Label(_driver.ShortTranslation(translatableProperty), isSymmetrical ? CgeLayoutCommon.MiddleAlignedBold : CgeLayoutCommon.MiddleAligned);
 
             var element = property.objectReferenceValue != null ? (Motion) property.objectReferenceValue : null;
             if (element != null)
@@ -352,8 +358,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             if (_driver.IsAPropertyThatCanBeCombined(propertyPath, usePermutations) && !(element is BlendTree))
             {
                 var rect = element is AnimationClip
-                    ? new Rect(CgeLayoutCommon.GuiSquareWidth - 2 * CgeLayoutCommon.SingleLineHeight, CgeLayoutCommon.PictureHeight - CgeLayoutCommon.SingleLineHeight * 0.5f, CgeLayoutCommon.SingleLineHeight * 2, CgeLayoutCommon.SingleLineHeight * 1.5f)
-                    : new Rect(CgeLayoutCommon.GuiSquareWidth - 100, CgeLayoutCommon.PictureHeight - CgeLayoutCommon.SingleLineHeight * 0.5f, 100, CgeLayoutCommon.SingleLineHeight * 1.5f);
+                    ? new Rect(-3 + CgeLayoutCommon.GuiSquareWidth - 2 * CgeLayoutCommon.SingleLineHeight, CgeLayoutCommon.PictureHeight - CgeLayoutCommon.SingleLineHeight * 0.5f, CgeLayoutCommon.SingleLineHeight * 2, CgeLayoutCommon.SingleLineHeight * 1.5f)
+                    : new Rect(-3 + CgeLayoutCommon.GuiSquareWidth - 100, CgeLayoutCommon.PictureHeight - CgeLayoutCommon.SingleLineHeight * 0.5f, 100, CgeLayoutCommon.SingleLineHeight * 1.5f);
 
                 var areSourcesCompatible = _driver.AreCombinationSourcesDefinedAndCompatible(propertyPath, usePermutations);
                 EditorGUI.BeginDisabledGroup(!areSourcesCompatible);
@@ -368,7 +374,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             }
             else if (element is BlendTree)
             {
-                var rect = new Rect(CgeLayoutCommon.GuiSquareWidth - 20, CgeLayoutCommon.PictureHeight - CgeLayoutCommon.SingleLineHeight * 0.5f, 20, CgeLayoutCommon.SingleLineHeight * 1.5f);
+                var rect = new Rect(-3 + CgeLayoutCommon.GuiSquareWidth - 20, CgeLayoutCommon.PictureHeight - CgeLayoutCommon.SingleLineHeight * 0.5f, 20, CgeLayoutCommon.SingleLineHeight * 1.5f);
 
                 EditorGUI.BeginDisabledGroup(false);
                 GUILayout.BeginArea(rect);
@@ -389,7 +395,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             if (usePermutations && propertyPath != oppositePath && property.objectReferenceValue == oppositeProperty.objectReferenceValue && property.objectReferenceValue != null)
             {
                 EditorGUI.BeginDisabledGroup(false);
-                GUILayout.BeginArea(new Rect(10, CgeLayoutCommon.PictureHeight - CgeLayoutCommon.SingleLineHeight * 1.75f, CgeLayoutCommon.GuiSquareWidth - 10, CgeLayoutCommon.SingleLineHeight * 1.5f));
+                GUILayout.BeginArea(new Rect(-3 + 10, CgeLayoutCommon.PictureHeight - CgeLayoutCommon.SingleLineHeight * 1.75f, CgeLayoutCommon.GuiSquareWidth - 10, CgeLayoutCommon.SingleLineHeight * 1.5f));
                 if (GUILayout.Button("↗↗ Simplify"))
                 {
                     Simplify(isLeftHand ? propertyPath : oppositePath);
@@ -400,7 +406,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             else if (usePermutations && (isLeftHand && property.objectReferenceValue != null && oppositeProperty.objectReferenceValue == null || !isLeftHand && property.objectReferenceValue == null && oppositeProperty.objectReferenceValue != null))
             {
                 EditorGUI.BeginDisabledGroup(false);
-                GUILayout.BeginArea(new Rect(10, CgeLayoutCommon.PictureHeight - CgeLayoutCommon.SingleLineHeight * 1.75f, CgeLayoutCommon.GuiSquareWidth - 10, CgeLayoutCommon.SingleLineHeight * 1.5f));
+                GUILayout.BeginArea(new Rect(-3 + 10, CgeLayoutCommon.PictureHeight - CgeLayoutCommon.SingleLineHeight * 1.75f, CgeLayoutCommon.GuiSquareWidth - 10, CgeLayoutCommon.SingleLineHeight * 1.5f));
                 if (GUILayout.Button("↗↙ Swap to Fix"))
                 {
                     Swap(propertyPath, oppositePath);
@@ -411,7 +417,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             else if (usePermutations && isLeftHand && property.objectReferenceValue != null)
             {
                 EditorGUI.BeginDisabledGroup(false);
-                GUILayout.BeginArea(new Rect(CgeLayoutCommon.GuiSquareWidth - 2 * CgeLayoutCommon.SingleLineHeight, CgeLayoutCommon.PictureHeight - CgeLayoutCommon.SingleLineHeight * 1.75f, 2 * CgeLayoutCommon.SingleLineHeight, CgeLayoutCommon.SingleLineHeight * 1.5f));
+                GUILayout.BeginArea(new Rect(-3 + CgeLayoutCommon.GuiSquareWidth - 2 * CgeLayoutCommon.SingleLineHeight, CgeLayoutCommon.PictureHeight - CgeLayoutCommon.SingleLineHeight * 1.75f, 2 * CgeLayoutCommon.SingleLineHeight, CgeLayoutCommon.SingleLineHeight * 1.5f));
                 if (GUILayout.Button("↗↙"))
                 {
                     Swap(propertyPath, oppositePath);
@@ -425,7 +431,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                 var animationToBeCopied = _editorEffector.SpProperty(propertyPathToCopyFrom).objectReferenceValue;
 
                 EditorGUI.BeginDisabledGroup(animationToBeCopied == null);
-                GUILayout.BeginArea(new Rect(CgeLayoutCommon.GuiSquareWidth - 100, CgeLayoutCommon.PictureHeight - CgeLayoutCommon.SingleLineHeight * 1.75f, 100, CgeLayoutCommon.SingleLineHeight * 1.5f));
+                GUILayout.BeginArea(new Rect(-3 + CgeLayoutCommon.GuiSquareWidth - 100, CgeLayoutCommon.PictureHeight - CgeLayoutCommon.SingleLineHeight * 1.75f, 100, CgeLayoutCommon.SingleLineHeight * 1.5f));
                 if (GUILayout.Button("Auto-set"))
                 {
                     AutoSet(propertyPath, propertyPathToCopyFrom);
@@ -439,7 +445,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                 var animationToBeCopied = _editorEffector.SpProperty(propertyPathToCopyFrom).objectReferenceValue;
 
                 EditorGUI.BeginDisabledGroup(animationToBeCopied == null);
-                GUILayout.BeginArea(new Rect(CgeLayoutCommon.GuiSquareWidth - 100, CgeLayoutCommon.PictureHeight - CgeLayoutCommon.SingleLineHeight * 1.75f, 100, CgeLayoutCommon.SingleLineHeight * 1.5f));
+                GUILayout.BeginArea(new Rect(-3 + CgeLayoutCommon.GuiSquareWidth - 100, CgeLayoutCommon.PictureHeight - CgeLayoutCommon.SingleLineHeight * 1.75f, 100, CgeLayoutCommon.SingleLineHeight * 1.5f));
                 if (GUILayout.Button("Auto-set"))
                 {
                     AutoSet(propertyPath, propertyPathToCopyFrom);

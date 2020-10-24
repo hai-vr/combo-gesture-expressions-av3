@@ -68,11 +68,11 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             GUILayout.Space(CgeLayoutCommon.SingleLineHeight * 2);
             GUILayout.EndVertical();
 
-            GUILayout.BeginVertical(GUILayout.MaxWidth(CgeActivityEditorCombiner.CombinerPreviewWidth), GUILayout.Width(CgeActivityEditorCombiner.CombinerPreviewWidth));
+            GUILayout.BeginVertical(GUILayout.MaxWidth(CgeActivityEditorCombiner.CombinerPreviewCenterWidth), GUILayout.Width(CgeActivityEditorCombiner.CombinerPreviewCenterWidth));
             GUILayout.Space(20);
-            GUILayout.Box(_combinerState.Combiner.CombinedTexture(), GUILayout.Width(CgeActivityEditorCombiner.CombinerPreviewWidth), GUILayout.Height(CgeActivityEditorCombiner.CombinerPreviewHeight));
-            _combinerState.CombinerCandidateFileName = GUILayout.TextField(_combinerState.CombinerCandidateFileName, GUILayout.MaxWidth(CgeActivityEditorCombiner.CombinerPreviewWidth));
-            if (GUILayout.Button("Save and assign to " + _driver.ShortTranslation((_combinerState.CombinerIsAPermutation ? "p_" : "") + _combinerState.CombinerTarget), GUILayout.MaxWidth(CgeActivityEditorCombiner.CombinerPreviewWidth)))
+            GUILayout.Box(_combinerState.Combiner.CombinedTexture(), GUILayout.Width(CgeActivityEditorCombiner.CombinerPreviewCenterWidth), GUILayout.Height(CgeActivityEditorCombiner.CombinerPreviewCenterHeight));
+            _combinerState.CombinerCandidateFileName = GUILayout.TextField(_combinerState.CombinerCandidateFileName, GUILayout.MaxWidth(CgeActivityEditorCombiner.CombinerPreviewCenterWidth));
+            if (GUILayout.Button("Save and assign to " + _driver.ShortTranslation((_combinerState.CombinerIsAPermutation ? "p_" : "") + _combinerState.CombinerTarget), GUILayout.MaxWidth(CgeActivityEditorCombiner.CombinerPreviewCenterWidth)))
             {
                 Save(repaintCallback);
             }

@@ -62,6 +62,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
     {
         public const int CombinerPreviewWidth = 240;
         public const int CombinerPreviewHeight = 160;
+        public const float CombinerPreviewCenterScale = 2f;
+        public const int CombinerPreviewCenterWidth = (int) (CombinerPreviewWidth * CombinerPreviewCenterScale);
+        public const int CombinerPreviewCenterHeight = (int) (CombinerPreviewHeight * CombinerPreviewCenterScale);
 
         private readonly AnimationPreview _leftPreview;
         private readonly AnimationPreview _rightPreview;
@@ -77,7 +80,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             _activity = activity;
             _leftPreview = new AnimationPreview(leftAnim, CgePreviewProcessor.NewPreviewTexture2D(CombinerPreviewWidth, CombinerPreviewHeight));
             _rightPreview = new AnimationPreview(rightAnim, CgePreviewProcessor.NewPreviewTexture2D(CombinerPreviewWidth, CombinerPreviewHeight));
-            _combinedPreview = new AnimationPreview(new AnimationClip(), CgePreviewProcessor.NewPreviewTexture2D(CombinerPreviewWidth, CombinerPreviewHeight));
+            _combinedPreview = new AnimationPreview(new AnimationClip(), CgePreviewProcessor.NewPreviewTexture2D(CombinerPreviewCenterWidth, CombinerPreviewCenterHeight));
             _onClipRenderedFn = onClipRenderedFn;
             _editorEffector = editorEffector;
             _previewController = previewController;
