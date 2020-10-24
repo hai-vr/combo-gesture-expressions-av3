@@ -144,9 +144,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             _foldoutHelp = EditorGUILayout.Foldout(_foldoutHelp, new GUIContent("Help", _guideIcon32));
             if (_foldoutHelp)
             {
-                if (GUILayout.Button(new GUIContent("Open guide", _guideIcon32)))
+                if (GUILayout.Button(new GUIContent("Open documentation and tutorials", _guideIcon32)))
                 {
-                    Application.OpenURL("https://github.com/hai-vr/combo-gesture-expressions-av3#combo-gesture-compiler");
+                    Application.OpenURL("https://hai-vr.github.io/combo-gesture-expressions-av3/");
                 }
             }
 
@@ -344,10 +344,6 @@ You should press synchronize when any of the following happens:
                 EditorGUILayout.Separator();
 
                 EditorGUILayout.LabelField("Internal parameters", EditorStyles.boldLabel);
-                if (GUILayout.Button(new GUIContent("Open advanced guide", _guideIcon16)))
-                {
-                    Application.OpenURL("https://github.com/hai-vr/combo-gesture-expressions-av3/blob/main/GUIDE_internal_parameters.md");
-                }
                 EditorGUILayout.PropertyField(exposeDisableExpressions, new GUIContent("Expose " + SharedLayerUtils.HaiGestureComboDisableExpressionsParamName.Substring("_Hai_GestureCombo".Length)));
                 EditorGUILayout.PropertyField(exposeDisableBlinkingOverride, new GUIContent("Expose " + SharedLayerUtils.HaiGestureComboDisableBlinkingOverrideParamName.Substring("_Hai_GestureCombo".Length)));
                 EditorGUILayout.PropertyField(exposeAreEyesClosed, new GUIContent("Expose " + SharedLayerUtils.HaiGestureComboAreEyesClosedParamName.Substring("_Hai_GestureCombo".Length)));

@@ -44,6 +44,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         private readonly CgeLayoutManipulateTrees _layoutManipulateTrees;
 
         private Vector2 _scrollPos;
+        private Texture _helpIcon16;
         public CgeWindowHandler WindowHandler { get; }
 
         public CgeEditorWindow()
@@ -66,6 +67,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         private void OnEnable()
         {
             _common.GuiInit();
+            _helpIcon16 = AssetDatabase.LoadAssetAtPath<Texture>("Assets/Hai/ComboGesture/Icons/help-16.png");
         }
 
         private void OnInspectorUpdate()
@@ -119,6 +121,13 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             {
                 _editorEffector.ClearFirstTimeSetup();
             }
+
+            GUILayout.BeginArea(new Rect(position.width - 130, CgeLayoutCommon.SingleLineHeight * 2 + 5, 100, CgeLayoutCommon.SingleLineHeight + 2));
+            if (GUILayout.Button(new GUIContent(" Tutorials", _helpIcon16), GUILayout.Width(100), GUILayout.Height(CgeLayoutCommon.SingleLineHeight + 2)))
+            {
+                Application.OpenURL("https://hai-vr.github.io/combo-gesture-expressions-av3/");
+            }
+            GUILayout.EndArea();
 
             switch (_editorEffector.GetCurrentlyEditing())
             {
@@ -205,7 +214,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 {
                     _editorEffector.SpEditorTool().intValue = GUILayout.Toolbar(_editorEffector.SpEditorTool().intValue, new[] {"Combos", "Permutations"});
                 }
-                GUILayout.Space(30);
+                GUILayout.Space(30 + 120);
                 GUILayout.EndHorizontal();
                 _editorEffector.SwitchCurrentEditorToolTo(_editorEffector.SpEditorTool().intValue);
             }
@@ -265,7 +274,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             {
                 CreateLipsyncToolbar();
             }
-
             GUILayout.EndArea();
         }
 
@@ -277,8 +285,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             {
                 "Select wide open mouth", "Edit lipsync settings"
             }, GUILayout.ExpandWidth(true)));
-
-            GUILayout.Space(30);
+            GUILayout.Space(30 + 120);
             GUILayout.EndHorizontal();
         }
 
@@ -288,10 +295,10 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             GUILayout.Space(30);
             _editorEffector.SwitchAdditionalEditorTo((AdditionalEditorsMode)GUILayout.Toolbar((int)_editorEffector.GetAdditionalEditor(), new[]
             {
-                "Create blend trees", "View blend trees", "Combine face expressions"
+                "Create blend trees", "View blend trees", "Combine expressions"
             }, GUILayout.ExpandWidth(true)));
 
-            GUILayout.Space(30);
+            GUILayout.Space(30 + 120);
             GUILayout.EndHorizontal();
         }
     }

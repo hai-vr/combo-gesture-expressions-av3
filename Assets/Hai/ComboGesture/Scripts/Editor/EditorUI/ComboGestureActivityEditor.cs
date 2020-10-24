@@ -230,9 +230,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             _foldoutHelp = EditorGUILayout.Foldout(_foldoutHelp, new GUIContent("Help", _guideIcon32));
             if (_foldoutHelp)
             {
-                if (GUILayout.Button(new GUIContent("Open guide", _guideIcon32)))
+                if (GUILayout.Button(new GUIContent("Open documentation and tutorials", _guideIcon32)))
                 {
-                    Application.OpenURL("https://github.com/hai-vr/combo-gesture-expressions-av3#combo-gesture-activity");
+                    Application.OpenURL("https://hai-vr.github.io/combo-gesture-expressions-av3/");
                 }
             }
 
