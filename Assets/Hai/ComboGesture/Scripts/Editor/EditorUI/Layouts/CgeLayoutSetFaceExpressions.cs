@@ -351,12 +351,12 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                     ? new Rect(CgeLayoutCommon.GuiSquareWidth - 2 * CgeLayoutCommon.SingleLineHeight, CgeLayoutCommon.PictureHeight - CgeLayoutCommon.SingleLineHeight * 0.5f, CgeLayoutCommon.SingleLineHeight * 2, CgeLayoutCommon.SingleLineHeight * 1.5f)
                     : new Rect(CgeLayoutCommon.GuiSquareWidth - 100, CgeLayoutCommon.PictureHeight - CgeLayoutCommon.SingleLineHeight * 0.5f, 100, CgeLayoutCommon.SingleLineHeight * 1.5f);
 
-                var areSourcesCompatible = _driver.AreCombinationSourcesDefinedAndCompatible(propertyPath);
+                var areSourcesCompatible = _driver.AreCombinationSourcesDefinedAndCompatible(propertyPath, usePermutations);
                 EditorGUI.BeginDisabledGroup(!areSourcesCompatible);
                 GUILayout.BeginArea(rect);
                 if (GUILayout.Button((element != null ? "+" : "+ Combine")))
                 {
-                    var merge = _driver.ProvideCombinationPropertySources(propertyPath);
+                    var merge = _driver.ProvideCombinationPropertySources(propertyPath, usePermutations);
                     OpenMergeWindowFor(merge.Left, merge.Right, propertyPath, usePermutations);
                 }
                 GUILayout.EndArea();
@@ -431,7 +431,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             }
             else if (element == null && _driver.AreCombinationSourcesIdentical(propertyPath))
             {
-                var propertyPathToCopyFrom = _driver.ProvideCombinationPropertySources(propertyPath).Left;
+                var propertyPathToCopyFrom = _driver.ProvideCombinationPropertySources(propertyPath, usePermutations).Left;
                 var animationToBeCopied = _editorEffector.SpProperty(propertyPathToCopyFrom).objectReferenceValue;
 
                 EditorGUI.BeginDisabledGroup(animationToBeCopied == null);

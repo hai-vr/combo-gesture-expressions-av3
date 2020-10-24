@@ -275,14 +275,14 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             return left != null && right != null && left == right;
         }
 
-        public MergePair ProvideCombinationPropertySources(string propertyPath)
+        public MergePair ProvideCombinationPropertySources(string propertyPath, bool usePermutations = false)
         {
-            if (!IsAPropertyThatCanBeCombined(propertyPath))
+            if (!IsAPropertyThatCanBeCombined(propertyPath, usePermutations))
             {
                 throw new ArgumentException();
             }
 
-            return ParameterToMerge[propertyPath];
+            return ParameterToMerge.ContainsKey(propertyPath) ? ParameterToMerge[propertyPath] : ParameterToMergePermutations[propertyPath];
         }
 
         public bool IsAutoSettable(string propertyPath)
