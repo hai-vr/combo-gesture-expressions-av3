@@ -332,7 +332,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 .Replace("cge_", "")
                 .Replace("__combined__", "+");
 
-            return clipName.Length <= 20 ? clipName : clipName.Substring(0, 20);
+            return clipName.Length <= 16 ? clipName : clipName.Substring(0, 16);
         }
     }
 }
