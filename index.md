@@ -40,8 +40,6 @@ Afterwards, you will be able to click <span class="hai-btn">Generate preview</sp
 <iframe src="https://streamable.com/e/44azm7?loop=0" width="816" height="512" frameborder="0" allowfullscreen></iframe>
 *(A [longer tutorial with audio commentary](tutorial.md#combining-hands-tutorial-with-audio-commentary) is available)*
 
-*A longer video tutorial with voice commentary is available in the Tutorials section.*
-
 Go to the <span class="hai-btn">Set face expressions >Singles</span> tab, then drag-and-drop or select face expressions for the gestures in the first row. In the second row, do the same for x2 gestures when both hands are doing that gesture. If you want the animation for both hands to be the same, click <span class="hai-btn">Auto-set</span> button.
 
 Remember to click <span class="hai-btn">Generate preview</span> to preview animations.
@@ -74,7 +72,7 @@ The animation defined in *No gesture* will be used on all empty slots.
 # Do not blink when eyes are closed
 
 <iframe src="https://streamable.com/e/egz72f?loop=0" width="816" height="512" frameborder="0" allowfullscreen></iframe>
-*(A [longer tutorial with audio commentary is available [Do not blink when eyes are closed](index.md#do-not-blink-when-eyes-are-closed))*
+*(A [longer tutorial with audio commentary](tutorial.md#do-not-blink-when-eyes-are-closed) is available)*
 
 Go to <span class="hai-btn">Prevent eyes blinking</span> tab. By selecting which animations have both eyes closed, the blinking animation will be disabled as long as that face expression is active.
 
