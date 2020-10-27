@@ -89,6 +89,8 @@ Drag and drop your avatar in the `Avatar descriptor` slot. The avatar will *not*
 
 You should now be able to press <span class="hai-btn">Synchronize Animator FX layers</span>, which will modify your animator controller.
 
+Whenever you modify any face expression animation or anything related to ComboGestureExpressions, press that button again to synchronize.
+
 *If you haven't done it already, right-click on the newly prefab and click <span class="hai-btn">Unpack prefab completely</span>.* 
 
 # Squeezing the trigger
