@@ -158,12 +158,12 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             bool ThereIsAnOverlap()
             {
-                return comboLayers.arraySize != compiler.comboLayers.Select(mapper => mapper.stageValue).Distinct().Count();
+                return compiler.comboLayers != null && comboLayers.arraySize != compiler.comboLayers.Select(mapper => mapper.stageValue).Distinct().Count();
             }
 
             bool ThereIsAPuppetWithNoBlendTree()
             {
-                return compiler.comboLayers
+                return compiler.comboLayers != null && compiler.comboLayers
                     .Where(mapper => mapper.kind == GestureComboStageKind.Puppet)
                     .Where(mapper => mapper.puppet != null)
                     .Any(mapper => !(mapper.puppet.mainTree is BlendTree));
@@ -171,7 +171,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             bool ThereIsANullActivityOrPuppet()
             {
-                return compiler.comboLayers.Any(mapper =>
+                return compiler.comboLayers != null && compiler.comboLayers.Any(mapper =>
                     mapper.kind == GestureComboStageKind.Activity && mapper.activity == null
                     || mapper.kind == GestureComboStageKind.Puppet && mapper.puppet == null
                 );
