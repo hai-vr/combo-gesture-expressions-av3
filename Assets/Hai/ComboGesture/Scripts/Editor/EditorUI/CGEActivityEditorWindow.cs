@@ -56,7 +56,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             var driver = new CgeActivityEditorDriver(_editorEffector);
             _layoutPreventEyesBlinking = new CgeLayoutPreventEyesBlinking(_common, _editorEffector);
             _layoutMakeLipsyncMovementsSubtle = new CgeLayoutMakeLipsyncMovementsSubtle(_common, driver, _editorEffector, previewController);
-            _layoutFaceExpressionCombiner = new CgeLayoutFaceExpressionCombiner(driver, _editorEffector, previewController);
+            _layoutFaceExpressionCombiner = new CgeLayoutFaceExpressionCombiner(_common, driver, _editorEffector, previewController);
             _layoutOtherOptions = new CgeLayoutOtherOptions(_common, _editorEffector, previewController);
             _layoutSetFaceExpressions = new CgeLayoutSetFaceExpressions(_common, driver, _layoutFaceExpressionCombiner /* FIXME it is not normal to inject the layout here */, _editorEffector, Repaint, blendTreeEffector);
             _layoutManipulateTrees = new CgeLayoutManipulateTrees(_common, _editorEffector, blendTreeEffector);

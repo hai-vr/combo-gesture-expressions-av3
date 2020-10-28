@@ -47,7 +47,7 @@ At the time this version has been published, generating the layer will break you
             }
             else
             {
-                GUILayout.Label("Select face expressions with a <b>wide open mouth</b>.", CgeLayoutCommon.LargeFont);
+                GUILayout.Label("Select face expressions with a <b>wide open mouth</b>.", _common.LargeFont);
                 GUILayout.BeginArea(new Rect(0, CgeLayoutCommon.SingleLineHeight * 3 + helpBoxHeightReverse, position.width, CgeLayoutCommon.GuiSquareHeight * 8));
                 var allClips = new HashSet<AnimationClip>(_editorEffector.AllDistinctAnimations()).ToList();
                 var mod = Math.Max(3, Math.Min(8, (int)Math.Sqrt(allClips.Count)));
@@ -126,7 +126,7 @@ At the time this version has been published, generating the layer will break you
 
             void DrawLipsync(int visemeNumber, bool previewable)
             {
-                GUILayout.Label(_driver.ShortTranslation("viseme" + visemeNumber), CgeLayoutCommon.MiddleAligned);
+                GUILayout.Label(_driver.ShortTranslation("viseme" + visemeNumber), _common.MiddleAligned);
 
                 GUILayout.BeginArea(new Rect(CgeLayoutCommon.GuiSquareWidth - CgeLayoutCommon.PictureWidth, CgeLayoutCommon.SingleLineHeight, CgeLayoutCommon.PictureWidth * 2, CgeLayoutCommon.PictureHeight * 2 + CgeLayoutCommon.SingleLineHeight * 4));
                 GUILayout.Box(_lipsyncState.Lipsync.TextureForViseme(visemeNumber), GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true));

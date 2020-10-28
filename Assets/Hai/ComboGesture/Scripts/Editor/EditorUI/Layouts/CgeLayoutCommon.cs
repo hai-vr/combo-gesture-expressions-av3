@@ -25,10 +25,10 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
         public static Color LeftSymmetricalBg;
         public static Color RightSymmetricalBg;
         public static Color InconsistentBg;
-        public static GUIStyle MiddleAligned;
-        public static GUIStyle MiddleAlignedBold;
-        public static GUIStyle LargeFont;
-        public static GUIStyle NormalFont;
+        public GUIStyle MiddleAligned;
+        public GUIStyle MiddleAlignedBold;
+        public GUIStyle LargeFont;
+        public GUIStyle NormalFont;
         public static Texture GuideIcon32;
         private bool _isSimulationOfProSkin = false;
 

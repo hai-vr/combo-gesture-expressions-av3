@@ -34,13 +34,15 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
 
     public class CgeLayoutFaceExpressionCombiner
     {
+        private readonly CgeLayoutCommon _common;
         private readonly CgeActivityEditorDriver _driver;
         private readonly CombinerState _combinerState = new CombinerState();
         private readonly CgeEditorEffector _editorEffector;
         private readonly CgePreviewEffector _previewController;
 
-        public CgeLayoutFaceExpressionCombiner(CgeActivityEditorDriver driver, CgeEditorEffector editorEffector, CgePreviewEffector previewController)
+        public CgeLayoutFaceExpressionCombiner(CgeLayoutCommon common, CgeActivityEditorDriver driver, CgeEditorEffector editorEffector, CgePreviewEffector previewController)
         {
+            _common = common;
             _driver = driver;
             _editorEffector = editorEffector;
             _previewController = previewController;
@@ -119,7 +121,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
 
                 if (side == Side.Left) {
                     EditorGUI.BeginDisabledGroup(!value);
-                    GUILayout.Label(ToFormattedName(sideDecider.Key, value, _combinerState.ShowFullNames), CgeLayoutCommon.NormalFont);
+                    GUILayout.Label(ToFormattedName(sideDecider.Key, value, _combinerState.ShowFullNames), _common.NormalFont);
                     EditorGUI.EndDisabledGroup();
                 }
 
@@ -130,7 +132,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
 
                 if (side == Side.Right) {
                     EditorGUI.BeginDisabledGroup(!value);
-                    GUILayout.Label(ToFormattedName(sideDecider.Key, value, _combinerState.ShowFullNames), CgeLayoutCommon.NormalFont);
+                    GUILayout.Label(ToFormattedName(sideDecider.Key, value, _combinerState.ShowFullNames), _common.NormalFont);
                     EditorGUI.EndDisabledGroup();
                 }
 
@@ -159,7 +161,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                     if (side == Side.Left)
                     {
                         EditorGUI.BeginDisabledGroup(!valueAsBool);
-                        GUILayout.Label(formattedName, CgeLayoutCommon.NormalFont);
+                        GUILayout.Label(formattedName, _common.NormalFont);
                         EditorGUI.EndDisabledGroup();
                     }
                     var sampleValue = side == Side.Left ? intersectionDecider.SampleLeftValue : intersectionDecider.SampleRightValue;
@@ -219,7 +221,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                     }
                     if (side == Side.Right) {
                         EditorGUI.BeginDisabledGroup(!valueAsBool);
-                        GUILayout.Label(formattedName, CgeLayoutCommon.NormalFont);
+                        GUILayout.Label(formattedName, _common.NormalFont);
                         EditorGUI.EndDisabledGroup();
                     }
                     GUILayout.EndHorizontal();

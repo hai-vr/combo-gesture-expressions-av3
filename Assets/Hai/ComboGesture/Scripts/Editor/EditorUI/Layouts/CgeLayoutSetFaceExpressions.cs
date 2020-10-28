@@ -72,7 +72,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             GUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
             GUILayout.BeginVertical(GUILayout.Width(800));
-            GUILayout.Label("<b>Permutations</b>", CgeLayoutCommon.LargeFont);
+            GUILayout.Label("<b>Permutations</b>", _common.LargeFont);
             EditorGUILayout.LabelField("Permutations is an experimental feature. It allows animations to depend on which hand side is doing the gesture.");
             EditorGUILayout.LabelField("It is significantly harder to create and use an Activity with permutations.");
             EditorGUILayout.LabelField("Consider using multiple Activities instead before deciding to use permutations.");
@@ -87,7 +87,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             EditorGUILayout.LabelField("Compiling an Activity with permutations disabled will not take any saved permutation into account.");
 
             GUILayout.Space(15);
-            GUILayout.Label("Do you really want to use permutations?", CgeLayoutCommon.LargeFont);
+            GUILayout.Label("Do you really want to use permutations?", _common.LargeFont);
             var prev = _editorEffector.SpEnablePermutations().boolValue;
             var current = GUILayout.Toggle(prev, "Enable permutations for this Activity", GUILayout.Width(300));
             if (current != prev)
@@ -357,7 +357,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                 CgeLayoutCommon.DrawColoredBackground(CgeLayoutCommon.NeutralSideBg);
             }
 
-            GUILayout.Label(_driver.ShortTranslation(translatableProperty), isSymmetrical ? CgeLayoutCommon.MiddleAlignedBold : CgeLayoutCommon.MiddleAligned);
+            GUILayout.Label(_driver.ShortTranslation(translatableProperty), isSymmetrical ? _common.MiddleAlignedBold : _common.MiddleAligned);
 
             var element = property.objectReferenceValue != null ? (Motion) property.objectReferenceValue : null;
             if (element != null)

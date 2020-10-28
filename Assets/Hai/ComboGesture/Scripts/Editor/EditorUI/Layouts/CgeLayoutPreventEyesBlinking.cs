@@ -24,7 +24,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             var width = CgeLayoutCommon.GuiSquareHeight + CgeLayoutCommon.GuiSquareHeight * mod + CgeLayoutCommon.SingleLineHeight * 2;
             var height = CgeLayoutCommon.GuiSquareHeight + CgeLayoutCommon.GuiSquareHeight * (allClips.Count / mod) + CgeLayoutCommon.SingleLineHeight * 2;
             _common.BeginLayoutUsingWidth(position, (int) height, 0, (int) width);
-            GUILayout.Label("Select face expressions with <b>both eyes closed</b>.", CgeLayoutCommon.LargeFont);
+            GUILayout.Label("Select face expressions with <b>both eyes closed</b>.", _common.LargeFont);
             GUILayout.BeginArea(new Rect(0, CgeLayoutCommon.SingleLineHeight * 3, position.width, CgeLayoutCommon.GuiSquareHeight * 8));
             for (var element = 0; element < allClips.Count; element++)
             {
