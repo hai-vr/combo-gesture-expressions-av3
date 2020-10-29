@@ -71,6 +71,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
             var defaultState = machine.AddState("Default", SharedLayerUtils.GridPosition(-1, -1));
             defaultState.motion = _emptyClip;
+            defaultState.writeDefaultValues = _conflictPrevention.ShouldWriteDefaults;
             if (Feature(FeatureToggles.ExposeDisableExpressions))
             {
                 CreateTransitionWhenExpressionsAreDisabled(machine, defaultState);
