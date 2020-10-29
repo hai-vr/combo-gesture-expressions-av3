@@ -44,7 +44,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             List<GestureComboStageMapper> comboLayers,
             bool useGestureWeightCorrection,
             List<ManifestBinding> manifestBindings,
-            String animInfix)
+            string animInfix)
         {
             _featuresToggles = featuresToggles;
             _animatorGenerator = animatorGenerator;
