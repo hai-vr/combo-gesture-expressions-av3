@@ -257,10 +257,10 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private void CreateOrReplaceController(AnimationClip emptyClip)
         {
             SharedLayerUtils.CreateParamIfNotExists(_animatorController, SharedLayerUtils.HaiGestureComboParamName, AnimatorControllerParameterType.Int);
-            new LayerForController(_animatorGenerator, _logicalAvatarMask, emptyClip).Create();
+            new LayerForController(_animatorGenerator, _logicalAvatarMask, emptyClip, _conflictPrevention.ShouldWriteDefaults).Create();
         }
 
-        private static void CreateOrReplaceWeightCorrection(AvatarMask weightCorrectionAvatarMask, AnimatorGenerator animatorGenerator, AnimatorController animatorController, AnimationClip emptyClip)
+        private void CreateOrReplaceWeightCorrection(AvatarMask weightCorrectionAvatarMask, AnimatorGenerator animatorGenerator, AnimatorController animatorController, AnimationClip emptyClip)
         {
             SharedLayerUtils.CreateParamIfNotExists(animatorController, "GestureLeft", AnimatorControllerParameterType.Int);
             SharedLayerUtils.CreateParamIfNotExists(animatorController, "GestureRight", AnimatorControllerParameterType.Int);
@@ -268,7 +268,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             SharedLayerUtils.CreateParamIfNotExists(animatorController, "GestureRightWeight", AnimatorControllerParameterType.Float);
             SharedLayerUtils.CreateParamIfNotExists(animatorController, SharedLayerUtils.HaiGestureComboLeftWeightProxy, AnimatorControllerParameterType.Float);
             SharedLayerUtils.CreateParamIfNotExists(animatorController, SharedLayerUtils.HaiGestureComboRightWeightProxy, AnimatorControllerParameterType.Float);
-            new LayerForWeightCorrection(animatorGenerator, weightCorrectionAvatarMask).Create();
+            new LayerForWeightCorrection(animatorGenerator, weightCorrectionAvatarMask, _conflictPrevention.ShouldWriteDefaults).Create();
         }
 
         private void CreateOrReplaceExpressionsView(AnimationClip emptyClip, List<ManifestBinding> manifestBindings)
@@ -366,8 +366,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 _logicalAvatarMask,
                 _animatorGenerator,
                 emptyClip,
-                manifestBindings
-            ).Create();
+                manifestBindings,
+                _conflictPrevention.ShouldWriteDefaults).Create();
         }
 
         private void CreateOrReplaceLipsyncOverrideView(AnimationClip emptyClip, List<ManifestBinding> manifestBindings)
@@ -397,8 +397,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 _limitedLipsync,
                 _assetContainer,
                 emptyClip,
-                manifestBindings
-            ).Create();
+                manifestBindings,
+                _conflictPrevention.ShouldWriteDefaults).Create();
         }
 
         private void DeleteLipsyncOverrideView()

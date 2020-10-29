@@ -13,8 +13,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
     internal class LayerForLipsyncOverrideView
     {
-        private const bool WriteDefaultsForLogicalStates = true;
-        private const bool WriteDefaultsForMotionStates = true;
         private const string LipsyncLayerName = "Hai_GestureLipsync";
 
         private readonly string _activityStageName;
@@ -28,6 +26,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly AssetContainer _assetContainer;
         private readonly AnimationClip _emptyClip;
         private readonly List<ManifestBinding> _manifestBindings;
+        private readonly bool _writeDefaultsForLogicalStates;
+        private readonly bool _writeDefaultsForLipsyncBlendshapes;
 
         public LayerForLipsyncOverrideView(string activityStageName,
             List<GestureComboStageMapper> comboLayers,
@@ -39,7 +39,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             ComboGestureLimitedLipsync limitedLipsync,
             AssetContainer assetContainer,
             AnimationClip emptyClip,
-            List<ManifestBinding> manifestBindings)
+            List<ManifestBinding> manifestBindings,
+            bool writeDefaults)
         {
             _activityStageName = activityStageName;
             _comboLayers = comboLayers;
@@ -52,6 +53,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _assetContainer = assetContainer;
             _emptyClip = emptyClip;
             _manifestBindings = manifestBindings;
+            _writeDefaultsForLogicalStates = writeDefaults;
+            _writeDefaultsForLipsyncBlendshapes = writeDefaults;
         }
 
         public void Create()
@@ -132,7 +135,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             {
                 var state = machine.AddState("A0 - Viseme " + visemeNumber, SharedLayerUtils.GridPosition(4, 2 + visemeNumber));
                 state.motion = visemeClips[visemeNumber];
-                state.writeDefaultValues = WriteDefaultsForMotionStates;
+                state.writeDefaultValues = _writeDefaultsForLipsyncBlendshapes;
 
                 var tracking = state.AddStateMachineBehaviour<VRCAnimatorTrackingControl>();
                 tracking.trackingMouth = VRC_AnimatorTrackingControl.TrackingType.Animation;
@@ -217,20 +220,20 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             transition.AddCondition(AnimatorConditionMode.NotEqual, 0, SharedLayerUtils.HaiGestureComboDisableLipsyncOverrideParamName);
         }
 
-        private static AnimatorState CreateSuspendState(AnimatorStateMachine machine, AnimationClip emptyClip)
+        private AnimatorState CreateSuspendState(AnimatorStateMachine machine, AnimationClip emptyClip)
         {
             var enableBlinking = machine.AddState("SuspendLipsync", SharedLayerUtils.GridPosition(1, 1));
             enableBlinking.motion = emptyClip;
-            enableBlinking.writeDefaultValues = WriteDefaultsForLogicalStates;
+            enableBlinking.writeDefaultValues = _writeDefaultsForLogicalStates;
             return enableBlinking;
         }
 
-        private static AnimatorState CreateBlinkingState(AnimatorStateMachine machine, VRC_AnimatorTrackingControl.TrackingType type,
+        private AnimatorState CreateBlinkingState(AnimatorStateMachine machine, VRC_AnimatorTrackingControl.TrackingType type,
             AnimationClip emptyClip)
         {
             var enableBlinking = machine.AddState(type == VRC_AnimatorTrackingControl.TrackingType.Tracking ? "EnableLipsync" : "DisableLipsync", SharedLayerUtils.GridPosition(type == VRC_AnimatorTrackingControl.TrackingType.Tracking ? 0 : 2, 3));
             enableBlinking.motion = emptyClip;
-            enableBlinking.writeDefaultValues = WriteDefaultsForLogicalStates;
+            enableBlinking.writeDefaultValues = _writeDefaultsForLogicalStates;
             var tracking = enableBlinking.AddStateMachineBehaviour<VRCAnimatorTrackingControl>();
             tracking.trackingMouth = type;
             return enableBlinking;

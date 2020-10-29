@@ -19,16 +19,16 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly AnimatorStateMachine _machine;
         private readonly Dictionary<IAnimatedBehavior, List<TransitionCondition>> _intermediateToCombo;
         private readonly string _activityStageName;
-        private readonly bool _shouldWriteDefaults;
+        private readonly bool _writeDefaultsForFaceExpressions;
         private readonly bool _useGestureWeightCorrection;
 
         public GestureCExpressionCombiner(AnimatorController animatorController, AnimatorStateMachine machine,
-            Dictionary<IAnimatedBehavior, List<TransitionCondition>> intermediateToCombo, string activityStageName, bool shouldWriteDefaults, bool useGestureWeightCorrection)
+            Dictionary<IAnimatedBehavior, List<TransitionCondition>> intermediateToCombo, string activityStageName, bool writeDefaultsForFaceExpressions, bool useGestureWeightCorrection)
         {
             _animatorController = animatorController;
             _machine = machine;
             _activityStageName = activityStageName;
-            _shouldWriteDefaults = shouldWriteDefaults;
+            _writeDefaultsForFaceExpressions = writeDefaultsForFaceExpressions;
             _useGestureWeightCorrection = useGestureWeightCorrection;
             _intermediateToCombo = intermediateToCombo;
         }
@@ -151,7 +151,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         {
             var newState = _machine.AddState(SanitizeName(UnshimName(clip.name)), gridPosition);
             newState.motion = clip;
-            newState.writeDefaultValues = _shouldWriteDefaults;
+            newState.writeDefaultValues = _writeDefaultsForFaceExpressions;
             return newState;
         }
 
@@ -190,7 +190,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                     : _useGestureWeightCorrection ? SharedLayerUtils.HaiGestureComboRightWeightProxy : "GestureRightWeight",
                 clipName,
                 _animatorController);
-            newState.writeDefaultValues = _shouldWriteDefaults;
+            newState.writeDefaultValues = _writeDefaultsForFaceExpressions;
             return newState;
         }
 
@@ -199,7 +199,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             var clipName = UnshimName(clip.name) + " Dual " + UnshimName(resting.name);
             var newState = _machine.AddState(SanitizeName(clipName), position);
             newState.motion = CreateDualBlendTree(resting, clip, posingLeft, posingRight, clipName, _animatorController, _useGestureWeightCorrection);
-            newState.writeDefaultValues = _shouldWriteDefaults;
+            newState.writeDefaultValues = _writeDefaultsForFaceExpressions;
             return newState;
         }
 
@@ -208,7 +208,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             var clipName = UnshimName(tree.name) + " Puppet";
             var newState = _machine.AddState(SanitizeName(clipName), position);
             newState.motion = tree;
-            newState.writeDefaultValues = _shouldWriteDefaults;
+            newState.writeDefaultValues = _writeDefaultsForFaceExpressions;
             return newState;
         }
 

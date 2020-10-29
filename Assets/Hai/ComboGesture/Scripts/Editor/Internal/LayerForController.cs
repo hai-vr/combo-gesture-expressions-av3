@@ -11,17 +11,18 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
     internal class LayerForController
     {
         private const string ControllerLayerName = "Hai_GestureCtrl";
-        private const bool WriteDefaultsForLogicalStates = true;
 
         private readonly AnimatorGenerator _animatorGenerator;
         private readonly AvatarMask _logicalAvatarMask;
         private readonly AnimationClip _emptyClip;
+        private readonly bool _writeDefaultsForLogicalStates;
 
-        public LayerForController(AnimatorGenerator animatorGenerator, AvatarMask logicalAvatarMask, AnimationClip emptyClip)
+        public LayerForController(AnimatorGenerator animatorGenerator, AvatarMask logicalAvatarMask, AnimationClip emptyClip, bool writeDefaults)
         {
             _animatorGenerator = animatorGenerator;
             _logicalAvatarMask = logicalAvatarMask;
             _emptyClip = emptyClip;
+            _writeDefaultsForLogicalStates = writeDefaults;
         }
 
         internal void Create()
@@ -36,7 +37,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 for (var right = left; right < 8; right++)
                 {
                     var state = machine.AddState(left + "" + right, SharedLayerUtils.GridPosition(right, left));
-                    state.writeDefaultValues = WriteDefaultsForLogicalStates;
+                    state.writeDefaultValues = _writeDefaultsForLogicalStates;
                     state.motion = _emptyClip;
 
                     var driver = state.AddStateMachineBehaviour<VRCAvatarParameterDriver>();
