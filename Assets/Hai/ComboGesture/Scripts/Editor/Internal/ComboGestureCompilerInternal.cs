@@ -325,6 +325,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             SharedLayerUtils.CreateParamIfNotExists(_animatorController, "_Hai_GestureAnimBlink", AnimatorControllerParameterType.Float);
             SharedLayerUtils.CreateParamIfNotExists(_animatorController, "_Hai_GestureAnimLSWide", AnimatorControllerParameterType.Float);
 
+            var avatarFallbacks = new CgeAvatarSnapshot(_avatarDescriptor, _compilerFallbackParamList).CaptureFallbacks();
             new LayerForExpressionsView(
                 _featuresToggles,
                 _animatorGenerator,
@@ -335,7 +336,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 _assetContainer,
                 _compilerConflictFxLayerMode,
                 _compilerIgnoreParamList,
-                _compilerFallbackParamList,
+                avatarFallbacks,
                 _doNotIncludeBlinkBlendshapes
                     ? new List<CurveKey>()
                     : new BlendshapesFinder(_avatarDescriptor).FindBlink().Select(key => key.AsCurveKey()).ToList(),
@@ -354,17 +355,19 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 : AssetDatabase.LoadAssetAtPath<AvatarMask>(GesturePlayableLayerAvatarMaskPath);
 
             CreateExpressionsViewParameters(_gesturePlayableLayerController, Feature(FeatureToggles.ExposeDisableExpressions), _activityStageName);
+
+            var avatarFallbacks = new CgeAvatarSnapshot(_avatarDescriptor, _compilerFallbackParamList).CaptureFallbacks();
             new LayerForExpressionsView(
                 _featuresToggles,
                 _animatorGenerator,
                 gesturePlayableLayerExpressionsAvatarMask,
                 emptyClip,
                 _activityStageName,
-                ConflictPrevention.Of(ConflictPreventionMode.OnlyWriteDefaults),
+                _conflictPrevention,
                 _assetContainer,
                 ConflictFxLayerMode.KeepOnlyTransforms,
                 _compilerIgnoreParamList,
-                _compilerFallbackParamList,
+                avatarFallbacks,
                 new List<CurveKey>(),
                 _gesturePlayableLayerController,
                 _comboLayers,
