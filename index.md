@@ -35,6 +35,8 @@ The camera position can be adjusted if needed.
 
 Afterwards, you will be able to click <span class="hai-btn">Generate preview</span> to preview animations.
 
+*(All illustrations in this documentation use [Saneko avatar (さねこ) by ひゅうがなつ](https://booth.pm/en/items/2322146))*
+
 # Combining hands
 
 <iframe src="https://streamable.com/e/44azm7?loop=0" width="816" height="512" frameborder="0" allowfullscreen></iframe>
@@ -206,3 +208,7 @@ When placing a blend tree in the Fist x2 slot, the parameters `GestureLeftWeight
 - [Corrections](corrections.md) - Learn about the various techniques used to fix animations.
 - [Tutorials](tutorial.md) - Video tutorials with audio commentary.
 - [Unavailable feature: Limited Lipsync](limited-lipsync.md) - An explanation of what *Make lipsync movement subtle* is.
+- [Download on github.com](https://github.com/hai-vr/combo-gesture-expressions-av3/releases) - Main download location.
+- [Download on booth.pm](https://hai-vr.booth.pm/items/2219616) - Alternate download location.
+
+*All illustrations in this documentation use [Saneko avatar (さねこ) by ひゅうがなつ](https://booth.pm/en/items/2322146)*
