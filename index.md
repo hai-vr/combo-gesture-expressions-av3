@@ -35,6 +35,12 @@ The camera position can be adjusted if needed.
 
 Afterwards, you will be able to click <span class="hai-btn">Generate preview</span> to preview animations.
 
+<div class="hai-interlude">
+<p>This documentation assumes that you already know how to create face expressions by creating animation clips. In that regard, you may know that face expression animations must normally have last 2 keyframes; this is usually done by duplicating the first keyframe.</p>
+<p>In ComboGestureExpressions, this is not the case: you are allowed to create face expressions with only 1 keyframe, and it will work as if there were 2 keyframes.</p>
+<p><em>This advice <strong>only</strong> applies to animations used within ComboGestureExpressions, not Avatars 3.0 in general)</em></p>
+</div>
+
 *(All illustrations in this documentation use [Saneko avatar (さねこ) by ひゅうがなつ](https://booth.pm/en/items/2322146))*
 
 # Combining hands

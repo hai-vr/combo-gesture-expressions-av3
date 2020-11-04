@@ -23,6 +23,14 @@ The applied fix is to copy the GestureWeight value only as long as the hand is d
 
 Blinking is detected by attaching an *Animated Animator Parameter* to the animation. This parameter is set to 1.0 on all animations that are tagged as blinking, which is then read by a dedicated layer to disable eye tracking.
 
+#### Single-keyframe animations correction
+
+Some face expressions are animated over several frames, but some aren't when it's just a static face. For the latter, it is common practice to create animations with a one frame long, which consists on making sure the animation has two keyframes. This is done manually by duplicating the first keyframe.
+
+If the animation only has one keyframe, then most of the times it makes the animation last 1 second, which creates an anomaly where face expression transitions last too long.
+
+ComboGestureExpressions automatically creates a modified copy of those animations to make sure all animations curves have at least two keyframes. You can safely create animations with only one keyframe.
+
 ---
 
 - [Back to main page](index.md)
