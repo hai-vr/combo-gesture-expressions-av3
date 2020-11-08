@@ -112,7 +112,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 transition.interruptionSource = TransitionInterruptionSource.None;
                 transition.orderedInterruption = enableBlinkingTransition.orderedInterruption;
                 transition.duration = enableBlinkingTransition.duration;
-                transition.canTransitionToSelf = true;
+                transition.canTransitionToSelf = false;
             }
             machine.RemoveState(disableBlinking);
 
@@ -216,7 +216,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         {
             var transition = machine.AddAnyStateTransition(to);
             SharedLayerUtils.SetupDefaultBlinkingTransition(transition);
-            transition.canTransitionToSelf = true;
+            transition.canTransitionToSelf = false;
             transition.AddCondition(AnimatorConditionMode.NotEqual, 0, SharedLayerUtils.HaiGestureComboDisableLipsyncOverrideParamName);
         }
 
@@ -243,7 +243,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         {
             var transition = machine.AddAnyStateTransition(to);
             SharedLayerUtils.SetupDefaultTransition(transition);
-            transition.canTransitionToSelf = true;
+            transition.canTransitionToSelf = false;
 
             foreach (var layer in _comboLayers)
             {
@@ -280,7 +280,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             transition.exitTime = 0;
             transition.hasFixedDuration = true;
             transition.offset = 0;
-            transition.interruptionSource = TransitionInterruptionSource.Source;
+            transition.interruptionSource = TransitionInterruptionSource.None;
             transition.canTransitionToSelf = false;
             transition.orderedInterruption = true;
         }

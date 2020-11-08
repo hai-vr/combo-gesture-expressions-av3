@@ -25,7 +25,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
             transition.duration = 0.1f; // There seems to be a quirk if the duration is 0 when using DisableExpressions, so use 0.1f instead
             transition.orderedInterruption = true;
-            transition.canTransitionToSelf = true; // This is relevant as normal transitions may not check activity nor disabled expressions
+            transition.canTransitionToSelf = false;
         }
 
         internal static void SetupDefaultBlinkingTransition(AnimatorStateTransition transition)
