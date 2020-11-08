@@ -313,13 +313,15 @@ MonoBehaviour:
   weightCorrectionAvatarMask: {fileID: 0}
   gesturePlayableLayerExpressionsAvatarMask: {fileID: 0}
   gesturePlayableLayerTechnicalAvatarMask: {fileID: 0}
-  conflictPreventionMode: 2
+  conflictPreventionMode: 0
+  conflictPreventionTempGestureLayerMode: 0
   conflictFxLayerMode: 0
   weightCorrectionMode: 0
   blinkCorrectionMode: 0
   editorAdvancedFoldout: 0
   ignoreParamList: {fileID: 0}
   fallbackParamList: {fileID: 0}
+  doNotFixSingleKeyframes: 0
   avatarDescriptor: {fileID: 0}
   bypassMandatoryAvatarDescriptor: 0
 --- !u!1 &8786870071787821454

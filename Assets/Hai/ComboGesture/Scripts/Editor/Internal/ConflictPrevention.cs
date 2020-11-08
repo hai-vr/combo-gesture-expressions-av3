@@ -20,7 +20,20 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             ShouldWriteDefaults = shouldWriteDefaults;
         }
 
-        public static ConflictPrevention Of(ConflictPreventionMode mode)
+        public static ConflictPrevention OfFxLayer(WriteDefaultsRecommendationMode mode)
+        {
+            switch (mode)
+            {
+                case WriteDefaultsRecommendationMode.FollowVrChatRecommendationWriteDefaultsOff:
+                    return GenerateExhaustiveAnimationsWithoutWriteDefaults;
+                case WriteDefaultsRecommendationMode.UseUnsupportedWriteDefaultsOn:
+                    return GenerateExhaustiveAnimationsWithWriteDefaults;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(mode), mode, null);
+            }
+        }
+
+        public static ConflictPrevention OfTempGestureLayer(ConflictPreventionMode mode)
         {
             switch (mode)
             {

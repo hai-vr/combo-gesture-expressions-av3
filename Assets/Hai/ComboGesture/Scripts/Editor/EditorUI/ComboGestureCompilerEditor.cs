@@ -1,11 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.Internal;
+using HarmonyLib;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
+using AnimatorController = UnityEditor.Animations.AnimatorController;
 using BlendTree = UnityEditor.Animations.BlendTree;
 
 namespace Hai.ComboGesture.Scripts.Editor.EditorUI
@@ -40,7 +43,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public SerializedProperty doNotGenerateLipsyncOverrideLayer;
         public SerializedProperty doNotGenerateWeightCorrectionLayer;
 
-        public SerializedProperty conflictPreventionMode;
+        public SerializedProperty writeDefaultsRecommendationMode;
+        public SerializedProperty conflictPreventionTempGestureLayerMode;
         public SerializedProperty conflictFxLayerMode;
         public SerializedProperty weightCorrectionMode;
         public SerializedProperty blinkCorrectionMode;
@@ -84,7 +88,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             doNotGenerateLipsyncOverrideLayer = serializedObject.FindProperty("doNotGenerateLipsyncOverrideLayer");
             doNotGenerateWeightCorrectionLayer = serializedObject.FindProperty("doNotGenerateWeightCorrectionLayer");
 
-            conflictPreventionMode = serializedObject.FindProperty("conflictPreventionMode");
+            writeDefaultsRecommendationMode = serializedObject.FindProperty("writeDefaultsRecommendationMode");
+            conflictPreventionTempGestureLayerMode = serializedObject.FindProperty("conflictPreventionTempGestureLayerMode");
             conflictFxLayerMode = serializedObject.FindProperty("conflictFxLayerMode");
             weightCorrectionMode = serializedObject.FindProperty("weightCorrectionMode");
             blinkCorrectionMode = serializedObject.FindProperty("blinkCorrectionMode");
@@ -320,7 +325,8 @@ You should press synchronize when any of the following happens:
 - an Activity, a Puppet, or a LimitedLipsync is modified,
 - an animation or a blend tree or avatar mask is modified,
 - the order of layers in any animator controller changes,
-- the avatar descriptor Eyelids or Lipsync is modified.", MessageType.Info);
+- the avatar descriptor Eyelids or Lipsync is modified,
+- the avatar transforms are modified.", MessageType.Info);
 
             if (compiler.assetContainer != null) {
                 EditorGUILayout.LabelField("Asset generation", EditorStyles.boldLabel);
@@ -329,12 +335,46 @@ You should press synchronize when any of the following happens:
 
             EditorGUILayout.Space();
 
+            EditorGUILayout.LabelField("Write Defaults OFF", EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(writeDefaultsRecommendationMode, new GUIContent("FX Playable Mode"));
+            if (writeDefaultsRecommendationMode.intValue == (int) WriteDefaultsRecommendationMode.UseUnsupportedWriteDefaultsOn)
+            {
+                EditorGUILayout.HelpBox("You have chosen to use Write Defaults ON. This goes against VRChat recommendation.", MessageType.Error);
+            }
+            else
+            {
+                var fxWdOn = ListAllWriteDefaults(compiler, 21);
+                if (fxWdOn.Count > 0)
+                {
+                    string message;
+                    if (fxWdOn.Count == 21)
+                    {
+                        message = fxWdOn.Take(15).Join(s => s, "\n") + "\n... and more (only first 15 results shown).";
+                    }
+                    else
+                    {
+                        message = fxWdOn.Join(s => s, "\n");
+                    }
+
+                    EditorGUILayout.HelpBox("Some states of your FX layer have Write Defaults ON:\n\n" + message, MessageType.Warning);
+                }
+            }
+
+            if (useGesturePlayableLayer.boolValue)
+            {
+                EditorGUILayout.PropertyField(conflictPreventionTempGestureLayerMode, new GUIContent("Gesture Playable Mode (Temporary)"));
+            }
+
+            EditorGUILayout.Space();
+
+            EditorGUILayout.LabelField("Other tweaks", EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(analogBlinkingUpperThreshold, new GUIContent("Analog fist blinking threshold", "(0: Eyes are open, 1: Eyes are closed)"));
+
             editorAdvancedFoldout.boolValue = EditorGUILayout.Foldout(editorAdvancedFoldout.boolValue, "Advanced");
             if (editorAdvancedFoldout.boolValue)
             {
                 EditorGUILayout.LabelField("Fine tuning", EditorStyles.boldLabel);
                 EditorGUILayout.PropertyField(customEmptyClip, new GUIContent("Custom 2-frame empty animation clip (optional)"));
-                EditorGUILayout.PropertyField(analogBlinkingUpperThreshold, new GUIContent("Analog fist blinking threshold", "(0: Eyes are open, 1: Eyes are closed)"));
 
                 EditorGUILayout.Separator();
 
@@ -362,9 +402,10 @@ You should press synchronize when any of the following happens:
                 GenWeightCorrection(true);
 
                 EditorGUILayout.LabelField("Animation Conflict Prevention", EditorStyles.boldLabel);
-                EditorGUILayout.PropertyField(conflictPreventionMode, new GUIContent("Mode"));
+                EditorGUILayout.PropertyField(writeDefaultsRecommendationMode, new GUIContent("FX Playable Mode"));
+                EditorGUILayout.PropertyField(conflictPreventionTempGestureLayerMode, new GUIContent("Gesture Playable Mode"));
 
-                CpmValueWarning(true);
+                CpmFxValueWarning(true);
 
                 EditorGUILayout.LabelField("Animation generation", EditorStyles.boldLabel);
                 EditorGUILayout.PropertyField(assetContainer, new GUIContent("Asset container"));
@@ -396,11 +437,23 @@ You should press synchronize when any of the following happens:
             {
                 GenBlinkingWarning(false);
                 GenWeightCorrection(false);
-                CpmValueWarning(false);
+                CpmFxValueWarning(false);
                 CpmRemovalWarning(false);
             }
 
             serializedObject.ApplyModifiedProperties();
+        }
+
+        private static List<string> ListAllWriteDefaults(ComboGestureCompiler compiler, int limit)
+        {
+            if (!(compiler.animatorController is AnimatorController)) return new List<string>();
+
+            var ac = (AnimatorController)compiler.animatorController;
+            return ac.layers
+                .Where(layer => !layer.name.StartsWith("Hai_Gesture"))
+                .SelectMany(layer => layer.stateMachine.states.Where(state => state.state.writeDefaultValues).Select(state => layer.name + " ▶ " + state.state.name))
+                .Take(limit)
+                .ToList();
         }
 
         private static string FakeBooleanIcon(bool value)
@@ -428,13 +481,14 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
             }
         }
 
-        private void CpmValueWarning(bool advancedFoldoutIsOpen)
+        private void CpmFxValueWarning(bool advancedFoldoutIsOpen)
         {
-            var conflictPrevention = ConflictPrevention.Of((ConflictPreventionMode) conflictPreventionMode.intValue);
+            var conflictPrevention = ConflictPrevention.OfFxLayer((WriteDefaultsRecommendationMode) writeDefaultsRecommendationMode.intValue);
             if (!conflictPrevention.ShouldGenerateExhaustiveAnimations)
             {
-                    EditorGUILayout.HelpBox(@"Using ""Only Write Defaults"" Mode will cause face expressions to conflict if your FX layer does not use ""Write Defaults"" on all layers. 
-If in doubt, ""Use Recommended Configuration"" Mode instead." + (!advancedFoldoutIsOpen ? "\n\n(Advanced settings)" : ""), MessageType.Error);
+                    EditorGUILayout.HelpBox(@"Exhaustive animations will not be generated. Your face expressions will be non-deterministic if you don't make sure to reset the blendshapes to defaults yourself.
+
+If in doubt, use Follow VRChat Recommendation instead." + (!advancedFoldoutIsOpen ? "\n\n(Advanced settings)" : ""), MessageType.Error);
             }
             else
             {
@@ -442,13 +496,11 @@ If in doubt, ""Use Recommended Configuration"" Mode instead." + (!advancedFoldou
                     EditorGUILayout.HelpBox(@"Animations will be generated in a way that will prevent conflicts between face expressions.
 Whenever an animation is modified, you will need to click Synchronize again.", MessageType.Info);
                 }
-                if (!conflictPrevention.ShouldWriteDefaults) {
-                    EditorGUILayout.HelpBox(@"Animations will be generated in a way that will prevent conflicts between face expressions.
+                if (conflictPrevention.ShouldWriteDefaults) {
+                    EditorGUILayout.HelpBox(@"The generated states will have ""Write Defaults"" to ON.
+This goes against VRChat guideline to use ""Write Defaults"" to OFF on all animator states.
 
-However, the states will have ""Write Defaults"" to OFF.
-Using ""Generate Animations With Write Defaults"" is generally more compatible.
-
-If you never use ""Write Defaults"" in your FX animator, this should not matter." + (!advancedFoldoutIsOpen ? "\n\n(Advanced settings)" : ""), MessageType.Warning);
+If in doubt, use Follow VRChat Recommendation instead." + (!advancedFoldoutIsOpen ? "\n\n(Advanced settings)" : ""), MessageType.Error);
                 }
             }
         }
