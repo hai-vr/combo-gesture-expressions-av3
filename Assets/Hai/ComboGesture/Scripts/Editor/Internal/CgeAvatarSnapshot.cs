@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using System;
+using UnityEditor;
 using UnityEngine;
 using VRC.SDK3.Avatars.Components;
 
@@ -34,10 +35,48 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             return snapshot;
         }
 
+        public AvatarMask MaybeCaptureMask()
+        {
+            if (_vrcAvatarDescriptor == null)
+            {
+                return null;
+            }
+
+            var root = _vrcAvatarDescriptor.transform;
+
+            var mask = CreateMaskDisablingAllHierarchyOf(root);
+
+            AssetDatabase.CreateAsset(mask, "Assets/TempMask_more2.asset");
+
+            return mask;
+        }
+
+        private static AvatarMask CreateMaskDisablingAllHierarchyOf(Transform root)
+        {
+            var mask = new AvatarMask();
+
+            foreach (AvatarMaskBodyPart part in Enum.GetValues(typeof(AvatarMaskBodyPart)))
+            {
+                mask.SetHumanoidBodyPartActive(part, false);
+            }
+
+
+            mask.AddTransformPath(root, true);
+            for (var index = 0; index < mask.transformCount; index++)
+            {
+                mask.SetTransformActive(index, false);
+            }
+
+            return mask;
+        }
+
+        private static string ChildPath(string activePath, Transform child)
+        {
+            return (activePath == "" ? "" : activePath + "/") + child.name;
+        }
+
         private static void MutateAnimationToSnapshotAllChildrenOf(AnimationClip mutatedClip, Transform thatObject, string hierarchyPath)
         {
-            var isRootNode = hierarchyPath == "";
-
             var position = thatObject.localPosition;
             var euler = TransformUtils.GetInspectorRotation(thatObject);
             var scale = thatObject.localScale;
@@ -51,6 +90,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             mutatedClip.SetCurve(hierarchyPath, typeof(Transform), "m_LocalScale.y", new AnimationCurve(new Keyframe(0, scale.y)));
             mutatedClip.SetCurve(hierarchyPath, typeof(Transform), "m_LocalScale.z", new AnimationCurve(new Keyframe(0, scale.z)));
 
+            var isRootNode = hierarchyPath == "";
             if (!isRootNode)
             {
                 mutatedClip.SetCurve(hierarchyPath, typeof(GameObject), "m_IsActive", new AnimationCurve(new Keyframe(0, thatObject.gameObject.activeSelf ? 1 : 0)));
@@ -58,7 +98,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
             foreach (Transform child in thatObject)
             {
-                MutateAnimationToSnapshotAllChildrenOf(mutatedClip, child, (isRootNode ? "" : hierarchyPath + "/") + child.name);
+                MutateAnimationToSnapshotAllChildrenOf(mutatedClip, child, ChildPath(hierarchyPath, child));
             }
         }
 

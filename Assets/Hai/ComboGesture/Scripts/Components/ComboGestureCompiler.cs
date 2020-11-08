@@ -37,7 +37,9 @@ namespace Hai.ComboGesture.Scripts.Components
         public AvatarMask gesturePlayableLayerExpressionsAvatarMask;
         public AvatarMask gesturePlayableLayerTechnicalAvatarMask;
 
-        public ConflictPreventionMode conflictPreventionMode = ConflictPreventionMode.GenerateAnimationsWithWriteDefaults;
+        public ConflictPreventionMode conflictPreventionMode; // Deprecated
+        public WriteDefaultsRecommendationMode writeDefaultsRecommendationMode = WriteDefaultsRecommendationMode.FollowVrChatRecommendationWriteDefaultsOff;
+        public ConflictPreventionMode conflictPreventionTempGestureLayerMode = ConflictPreventionMode.UseRecommendedConfiguration;
         public ConflictFxLayerMode conflictFxLayerMode = ConflictFxLayerMode.RemoveTransformsAndMuscles;
         public WeightCorrectionMode weightCorrectionMode = WeightCorrectionMode.UseRecommendedConfiguration;
         public BlinkCorrectionMode blinkCorrectionMode = BlinkCorrectionMode.UseRecommendedConfiguration;
@@ -85,6 +87,12 @@ namespace Hai.ComboGesture.Scripts.Components
     public enum ConflictPreventionMode
     {
         UseRecommendedConfiguration, OnlyWriteDefaults, GenerateAnimationsWithWriteDefaults, GenerateAnimationsWithoutWriteDefaults
+    }
+
+    [System.Serializable]
+    public enum WriteDefaultsRecommendationMode
+    {
+        FollowVrChatRecommendationWriteDefaultsOff, UseUnsupportedWriteDefaultsOn
     }
 
     [System.Serializable]
