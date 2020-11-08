@@ -175,7 +175,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             transition.exitTime = 0;
             transition.hasFixedDuration = true;
             transition.offset = 0;
-            transition.interruptionSource = TransitionInterruptionSource.Source;
+            transition.interruptionSource = TransitionInterruptionSource.None;
             transition.canTransitionToSelf = false;
             transition.orderedInterruption = true;
         }
