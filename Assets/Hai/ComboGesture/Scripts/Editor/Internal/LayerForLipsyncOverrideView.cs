@@ -7,7 +7,6 @@ using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
 using VRC.SDK3.Avatars.Components;
-using VRC.SDKBase;
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
@@ -15,10 +14,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
     {
         private const string LipsyncLayerName = "Hai_GestureLipsync";
 
-        private readonly string _activityStageName;
-        private readonly List<GestureComboStageMapper> _comboLayers;
         private readonly float _analogBlinkingUpperThreshold;
-        private readonly FeatureToggles _featuresToggles;
         private readonly AvatarMask _logicalAvatarMask;
         private readonly AnimatorGenerator _animatorGenerator;
         private readonly VRCAvatarDescriptor _avatarDescriptor;
@@ -26,13 +22,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly AssetContainer _assetContainer;
         private readonly AnimationClip _emptyClip;
         private readonly List<ManifestBinding> _manifestBindings;
-        private readonly bool _writeDefaultsForLogicalStates;
         private readonly bool _writeDefaultsForLipsyncBlendshapes;
 
-        public LayerForLipsyncOverrideView(string activityStageName,
-            List<GestureComboStageMapper> comboLayers,
-            float analogBlinkingUpperThreshold,
-            FeatureToggles featuresToggles,
+        public LayerForLipsyncOverrideView(float analogBlinkingUpperThreshold,
             AvatarMask logicalAvatarMask,
             AnimatorGenerator animatorGenerator,
             VRCAvatarDescriptor avatarDescriptor,
@@ -42,10 +34,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             List<ManifestBinding> manifestBindings,
             bool writeDefaults)
         {
-            _activityStageName = activityStageName;
-            _comboLayers = comboLayers;
             _analogBlinkingUpperThreshold = analogBlinkingUpperThreshold;
-            _featuresToggles = featuresToggles;
             _logicalAvatarMask = logicalAvatarMask;
             _animatorGenerator = animatorGenerator;
             _avatarDescriptor = avatarDescriptor;
@@ -53,7 +42,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _assetContainer = assetContainer;
             _emptyClip = emptyClip;
             _manifestBindings = manifestBindings;
-            _writeDefaultsForLogicalStates = writeDefaults;
             _writeDefaultsForLipsyncBlendshapes = writeDefaults;
         }
 
@@ -67,56 +55,58 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 return;
             }
 
-            var enableBlinking = CreateBlinkingState(machine, VRC_AnimatorTrackingControl.TrackingType.Tracking, _emptyClip);
-            var disableBlinking = CreateBlinkingState(machine, VRC_AnimatorTrackingControl.TrackingType.Animation, _emptyClip);
+            var none = machine.AddState("None", SharedLayerUtils.GridPosition(0, 0));
+            none.motion = _emptyClip;
+            none.writeDefaultValues = false;
 
-            if (Feature(FeatureToggles.ExposeIsLipsyncLimited))
-            {
-                CreateInternalParameterDriverWhenEyesAreOpen(enableBlinking);
-                CreateInternalParameterDriverWhenEyesAreClosed(disableBlinking);
-            }
-
-            var requireSuspension = _activityStageName != null || Feature(FeatureToggles.ExposeDisableLipsyncOverride);
-            if (requireSuspension)
-            {
-                var suspend = CreateSuspendState(machine, _emptyClip);
-
-                if (_activityStageName != null)
-                {
-                    CreateTransitionWhenActivityIsOutOfBounds(machine, suspend);
-                }
-
-                if (Feature(FeatureToggles.ExposeDisableLipsyncOverride))
-                {
-                    CreateTransitionWhenBlinkingIsDisabled(machine, suspend);
-                }
-            }
-
-            var toDisable = enableBlinking.AddTransition(disableBlinking);
-            SetupBlinkingTransition(toDisable);
-            toDisable.AddCondition(AnimatorConditionMode.Greater, _analogBlinkingUpperThreshold, "_Hai_GestureAnimLSWide");
-
-            var toEnable = disableBlinking.AddTransition(enableBlinking);
-            SetupBlinkingTransition(toEnable);
-            toEnable.AddCondition(AnimatorConditionMode.Less, _analogBlinkingUpperThreshold, "_Hai_GestureAnimLSWide");
-
-            // Huge hack to avoid duplicating generation logic...
-            foreach (var enableBlinkingTransition in disableBlinking.transitions.Where(transition => transition.destinationState == enableBlinking).ToList())
-            {
-                var transition = machine.AddAnyStateTransition(enableBlinking);
-                transition.conditions = enableBlinkingTransition.conditions.ToArray();
-                transition.hasExitTime = enableBlinkingTransition.hasExitTime;
-                transition.exitTime = enableBlinkingTransition.exitTime;
-                transition.hasFixedDuration = enableBlinkingTransition.hasFixedDuration;
-                transition.offset = enableBlinkingTransition.offset;
-                transition.interruptionSource = TransitionInterruptionSource.None;
-                transition.orderedInterruption = enableBlinkingTransition.orderedInterruption;
-                transition.duration = enableBlinkingTransition.duration;
-                transition.canTransitionToSelf = false;
-            }
-            machine.RemoveState(disableBlinking);
+            var noneTransition = machine.AddAnyStateTransition(none);
+            SetupLipsyncTransition(noneTransition);
+            noneTransition.canTransitionToSelf = false;
+            noneTransition.duration = _limitedLipsync.transitionDuration;
+            noneTransition.AddCondition(AnimatorConditionMode.Less, _analogBlinkingUpperThreshold, "_Hai_GestureAnimLSWide");
 
             _assetContainer.RemoveAssetsStartingWith("zAutogeneratedLipsync_", typeof(AnimationClip));
+            var regularVisemeClips = CreateRegularClips();
+            var wideVisemeClips = CreateWideClips();
+
+            AssetContainer.GlobalSave();
+            for (var visemeNumber = 0; visemeNumber < wideVisemeClips.Count; visemeNumber++)
+            {
+                var state = machine.AddState("Wide " + visemeNumber, SharedLayerUtils.GridPosition(4, 2 + visemeNumber));
+                state.motion = wideVisemeClips[visemeNumber];
+                state.writeDefaultValues = _writeDefaultsForLipsyncBlendshapes;
+
+                var transition = machine.AddAnyStateTransition(state);
+                SetupLipsyncTransition(transition);
+                transition.canTransitionToSelf = false;
+                transition.duration = _limitedLipsync.transitionDuration * FindVisemeTransitionTweak(visemeNumber);
+                transition.AddCondition(AnimatorConditionMode.Equals, visemeNumber, "Viseme");
+                transition.AddCondition(AnimatorConditionMode.Greater, _analogBlinkingUpperThreshold, "_Hai_GestureAnimLSWide");
+            }
+            for (var visemeNumber = 0; visemeNumber < regularVisemeClips.Count; visemeNumber++)
+            {
+                var state = machine.AddState("Regular " + visemeNumber, SharedLayerUtils.GridPosition(-4, 2 + visemeNumber));
+                state.motion = regularVisemeClips[visemeNumber];
+                state.writeDefaultValues = _writeDefaultsForLipsyncBlendshapes;
+
+                var transition = machine.AddAnyStateTransition(state);
+                SetupLipsyncTransition(transition);
+                transition.canTransitionToSelf = false;
+                transition.duration = _limitedLipsync.transitionDuration * FindVisemeTransitionTweak(visemeNumber);
+                transition.AddCondition(AnimatorConditionMode.Equals, visemeNumber, "Viseme");
+                transition.AddCondition(AnimatorConditionMode.Less, _analogBlinkingUpperThreshold, "_Hai_GestureAnimLSWide");
+            }
+        }
+
+        private void SetupLipsyncTransition(AnimatorStateTransition transition)
+        {
+            SharedLayerUtils.SetupDefaultTransition(transition);
+            transition.exitTime = 0f;
+            transition.hasExitTime = true;
+        }
+
+        private List<AnimationClip> CreateWideClips()
+        {
             var visemeClips = Enumerable.Range(0, 15)
                 .Select(visemeNumber =>
                 {
@@ -130,22 +120,26 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             {
                 _assetContainer.AddAnimation(visemeClip);
             }
-            AssetContainer.GlobalSave();
-            for (var visemeNumber = 0; visemeNumber < visemeClips.Count; visemeNumber++)
+
+            return visemeClips;
+        }
+
+        private List<AnimationClip> CreateRegularClips()
+        {
+            var visemeClips = Enumerable.Range(0, 15)
+                .Select(visemeNumber =>
+                {
+                    var clip = new AnimationClip {name = "zAutogeneratedLipsync_ " + visemeNumber};
+                    new VisemeAnimationMaker(_avatarDescriptor).OverrideAnimation(clip, visemeNumber, 1f);
+                    return clip;
+                })
+                .ToList();
+            foreach (var visemeClip in visemeClips)
             {
-                var state = machine.AddState("A0 - Viseme " + visemeNumber, SharedLayerUtils.GridPosition(4, 2 + visemeNumber));
-                state.motion = visemeClips[visemeNumber];
-                state.writeDefaultValues = _writeDefaultsForLipsyncBlendshapes;
-
-                var tracking = state.AddStateMachineBehaviour<VRCAnimatorTrackingControl>();
-                tracking.trackingMouth = VRC_AnimatorTrackingControl.TrackingType.Animation;
-
-                var transition = machine.AddAnyStateTransition(state);
-                SharedLayerUtils.SetupDefaultTransition(transition);
-                transition.canTransitionToSelf = false;
-                transition.duration = _limitedLipsync.transitionDuration * FindVisemeTransitionTweak(visemeNumber);
-                transition.AddCondition(AnimatorConditionMode.Equals, visemeNumber, "Viseme");
+                _assetContainer.AddAnimation(visemeClip);
             }
+
+            return visemeClips;
         }
 
         private float FindVisemeAmplitudeTweak(int visemeNumber)
@@ -194,95 +188,14 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
         }
 
-        private static void CreateInternalParameterDriverWhenEyesAreOpen(AnimatorState enableBlinking)
-        {
-            var driver = enableBlinking.AddStateMachineBehaviour<VRCAvatarParameterDriver>();
-            driver.parameters = new List<VRC_AvatarParameterDriver.Parameter>
-            {
-                new VRC_AvatarParameterDriver.Parameter {name = SharedLayerUtils.HaiGestureComboIsLipsyncLimitedParamName, value = 0}
-            };
-        }
-
-        private static void CreateInternalParameterDriverWhenEyesAreClosed(AnimatorState disableBlinking)
-        {
-            var driver = disableBlinking.AddStateMachineBehaviour<VRCAvatarParameterDriver>();
-            driver.parameters = new List<VRC_AvatarParameterDriver.Parameter>
-            {
-                new VRC_AvatarParameterDriver.Parameter {name = SharedLayerUtils.HaiGestureComboIsLipsyncLimitedParamName, value = 1}
-            };
-        }
-
-        private static void CreateTransitionWhenBlinkingIsDisabled(AnimatorStateMachine machine, AnimatorState to)
-        {
-            var transition = machine.AddAnyStateTransition(to);
-            SharedLayerUtils.SetupDefaultBlinkingTransition(transition);
-            transition.canTransitionToSelf = false;
-            transition.AddCondition(AnimatorConditionMode.NotEqual, 0, SharedLayerUtils.HaiGestureComboDisableLipsyncOverrideParamName);
-        }
-
-        private AnimatorState CreateSuspendState(AnimatorStateMachine machine, AnimationClip emptyClip)
-        {
-            var enableBlinking = machine.AddState("SuspendLipsync", SharedLayerUtils.GridPosition(1, 1));
-            enableBlinking.motion = emptyClip;
-            enableBlinking.writeDefaultValues = _writeDefaultsForLogicalStates;
-            return enableBlinking;
-        }
-
-        private AnimatorState CreateBlinkingState(AnimatorStateMachine machine, VRC_AnimatorTrackingControl.TrackingType type,
-            AnimationClip emptyClip)
-        {
-            var enableBlinking = machine.AddState(type == VRC_AnimatorTrackingControl.TrackingType.Tracking ? "EnableLipsync" : "DisableLipsync", SharedLayerUtils.GridPosition(type == VRC_AnimatorTrackingControl.TrackingType.Tracking ? 0 : 2, 3));
-            enableBlinking.motion = emptyClip;
-            enableBlinking.writeDefaultValues = _writeDefaultsForLogicalStates;
-            var tracking = enableBlinking.AddStateMachineBehaviour<VRCAnimatorTrackingControl>();
-            tracking.trackingMouth = type;
-            return enableBlinking;
-        }
-
-        private void CreateTransitionWhenActivityIsOutOfBounds(AnimatorStateMachine machine, AnimatorState to)
-        {
-            var transition = machine.AddAnyStateTransition(to);
-            SharedLayerUtils.SetupDefaultTransition(transition);
-            transition.canTransitionToSelf = false;
-
-            foreach (var layer in _comboLayers)
-            {
-                transition.AddCondition(AnimatorConditionMode.NotEqual, layer.stageValue, _activityStageName);
-            }
-        }
-
-
         private AnimatorStateMachine ReinitializeLayer()
         {
             return _animatorGenerator.CreateOrRemakeLayerAtSameIndex(LipsyncLayerName, 1f, _logicalAvatarMask).ExposeMachine();
         }
 
-        private bool Feature(FeatureToggles feature)
-        {
-            return (_featuresToggles & feature) == feature;
-        }
-
         public static void Delete(AnimatorGenerator animatorGenerator)
         {
             animatorGenerator.RemoveLayerIfExists(LipsyncLayerName);
-        }
-
-        private static void SetupBlinkingTransition(AnimatorStateTransition transition)
-        {
-            SetupSourceTransition(transition);
-
-            transition.duration = 0;
-        }
-
-        private static void SetupSourceTransition(AnimatorStateTransition transition)
-        {
-            transition.hasExitTime = false;
-            transition.exitTime = 0;
-            transition.hasFixedDuration = true;
-            transition.offset = 0;
-            transition.interruptionSource = TransitionInterruptionSource.None;
-            transition.canTransitionToSelf = false;
-            transition.orderedInterruption = true;
         }
     }
 }

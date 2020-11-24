@@ -439,11 +439,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
             SharedLayerUtils.CreateParamIfNotExists(_animatorController, "Viseme", AnimatorControllerParameterType.Int);
             SharedLayerUtils.CreateParamIfNotExists(_animatorController, "_Hai_GestureAnimLSWide", AnimatorControllerParameterType.Float);
-            new LayerForLipsyncOverrideView(
-                _activityStageName,
-                _comboLayers,
-                _analogBlinkingUpperThreshold,
-                _featuresToggles,
+            new LayerForLipsyncOverrideView(_analogBlinkingUpperThreshold,
                 _logicalAvatarMask,
                 _animatorGenerator,
                 _avatarDescriptor,
