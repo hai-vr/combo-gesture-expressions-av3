@@ -210,7 +210,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             var blinking = qualifiedAnimation.Qualification.IsBlinking ? 1 : 0;
             var wide = qualifiedAnimation.Qualification.Limitation == QualifiedLimitation.Wide ? 1 : 0;
             neutralizedAnimation.SetCurve("", typeof(Animator), "_Hai_GestureAnimBlink", AnimationCurve.Linear(0, blinking, 1 / 60f, blinking));
-            neutralizedAnimation.SetCurve("", typeof(Animator), "_Hai_GestureAnimWide", AnimationCurve.Linear(0, wide, 1 / 60f, wide));
+            neutralizedAnimation.SetCurve("", typeof(Animator), "_Hai_GestureAnimLSWide", AnimationCurve.Linear(0, wide, 1 / 60f, wide));
         }
 
         private AnimationClip CopyAndNeutralize(AnimationClip animationClipToBePreserved, HashSet<CurveKey> allApplicableCurveKeys, bool useExhaustiveAnimations)

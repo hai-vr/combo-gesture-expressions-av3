@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.Internal;
-using HarmonyLib;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
@@ -349,11 +348,11 @@ You should press synchronize when any of the following happens:
                     string message;
                     if (fxWdOn.Count == 21)
                     {
-                        message = fxWdOn.Take(15).Join(s => s, "\n") + "\n... and more (only first 15 results shown).";
+                        message = string.Join("\n", fxWdOn.Take(15)) + "\n... and more (only first 15 results shown).";
                     }
                     else
                     {
-                        message = fxWdOn.Join(s => s, "\n");
+                        message = string.Join("\n", fxWdOn);
                     }
 
                     EditorGUILayout.HelpBox("Some states of your FX layer have Write Defaults ON:\n\n" + message, MessageType.Warning);
