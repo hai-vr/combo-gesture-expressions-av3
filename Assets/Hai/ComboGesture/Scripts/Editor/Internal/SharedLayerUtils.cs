@@ -49,7 +49,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         internal const string HaiGestureComboDisableLipsyncOverrideParamName = "_Hai_GestureComboDisableLipsyncOverride";
         internal const string HaiGestureComboLeftWeightProxy = "_Hai_GestureLWProxy";
         internal const string HaiGestureComboRightWeightProxy = "_Hai_GestureRWProxy";
+        internal const string HaiGestureComboLeftWeightDelta = "_Hai_DeltaLW";
+        internal const string HaiGestureComboRightWeightDelta = "_Hai_DeltaRW";
         internal const string HaiVirtualActivity = "_Hai_GestureVirtualActivity";
+        internal const string HaiGestureComboLeftWeightEmulatedInterpolation = "_Hai_GestureLWEmulated";
+        internal const string HaiGestureComboRightWeightEmulatedInterpolation = "_Hai_GestureRWEmulated";
 
         public static IManifest FromMapper(GestureComboStageMapper mapper, AnimationClip fallbackWhenAnyClipIsNull)
         {

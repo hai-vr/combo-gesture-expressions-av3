@@ -41,6 +41,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly AvatarMask _gesturePlayableLayerExpressionsAvatarMask;
         private readonly AvatarMask _gesturePlayableLayerTechnicalAvatarMask;
         private readonly ParameterGeneration _parameterGeneration;
+        private readonly bool _useEmulatedInterpolation;
 
         public ComboGestureCompilerInternal(
             ComboGestureCompiler compiler,
@@ -86,6 +87,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _limitedLipsync = compiler.lipsyncForWideOpenMouth;
             _assetContainer = assetContainer;
             _useGestureWeightCorrection = compiler.WillUseGestureWeightCorrection();
+            _useEmulatedInterpolation = _useGestureWeightCorrection; // TODO
         }
 
         enum ParameterGeneration
@@ -129,10 +131,19 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 if (_useGestureWeightCorrection)
                 {
                     CreateOrReplaceWeightCorrection(_weightCorrectionAvatarMask, _animatorGenerator, _animatorController, _conflictPrevention);
+                    if (_useEmulatedInterpolation)
+                    {
+                        CreateOrReplaceEmulatedInterpolation(_weightCorrectionAvatarMask, _animatorGenerator, _animatorController, _conflictPrevention);
+                    }
+                    else
+                    {
+                        DeleteEmulatedInterpolation();
+                    }
                 }
                 else
                 {
                     DeleteWeightCorrection();
+                    DeleteEmulatedInterpolation();
                 }
             }
 
@@ -161,6 +172,16 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
             AssetDatabase.Refresh();
             EditorUtility.ClearProgressBar();
+        }
+
+        private static void CreateOrReplaceEmulatedInterpolation(AvatarMask weightCorrectionAvatarMask, AnimatorGenerator animatorGenerator, AnimatorController animatorController, ConflictPrevention conflictPrevention)
+        {
+            SharedLayerUtils.CreateParamIfNotExists(animatorController, SharedLayerUtils.HaiGestureComboLeftWeightDelta, AnimatorControllerParameterType.Float);
+            SharedLayerUtils.CreateParamIfNotExists(animatorController, SharedLayerUtils.HaiGestureComboRightWeightDelta, AnimatorControllerParameterType.Float);
+            SharedLayerUtils.CreateParamIfNotExists(animatorController, SharedLayerUtils.HaiGestureComboLeftWeightEmulatedInterpolation, AnimatorControllerParameterType.Float);
+            SharedLayerUtils.CreateParamIfNotExists(animatorController, SharedLayerUtils.HaiGestureComboRightWeightEmulatedInterpolation, AnimatorControllerParameterType.Float);
+            SharedLayerUtils.CreateParamIfNotExists(animatorController, "IsLocal", AnimatorControllerParameterType.Bool);
+            new LayerForEmulatedInterpolation(animatorGenerator, weightCorrectionAvatarMask, conflictPrevention.ShouldWriteDefaults).Create();
         }
 
         public void DoOverwriteAnimatorGesturePlayableLayer()
@@ -338,6 +359,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 _animatorController,
                 _comboLayers,
                 _useGestureWeightCorrection,
+                _useEmulatedInterpolation,
                 manifestBindings,
                 ""
             ).Create();
@@ -367,6 +389,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 _gesturePlayableLayerController,
                 _comboLayers,
                 _useGestureWeightCorrection,
+                _useEmulatedInterpolation,
                 manifestBindings,
                 "GPL"
             ).Create();
@@ -443,6 +466,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private void DeleteWeightCorrection()
         {
             LayerForWeightCorrection.Delete(_animatorGenerator);
+        }
+
+        private void DeleteEmulatedInterpolation()
+        {
+            LayerForEmulatedInterpolation.Delete(_animatorGenerator);
         }
 
         private bool Feature(FeatureToggles feature)
