@@ -21,6 +21,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public SerializedProperty activityStageName;
         public SerializedProperty customEmptyClip;
         public SerializedProperty analogBlinkingUpperThreshold;
+        public SerializedProperty parameterMode;
 
         public SerializedProperty integrateLimitedLipsync;
         public SerializedProperty lipsyncForWideOpenMouth;
@@ -65,6 +66,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             activityStageName = serializedObject.FindProperty("activityStageName");
             customEmptyClip = serializedObject.FindProperty("customEmptyClip");
             analogBlinkingUpperThreshold = serializedObject.FindProperty("analogBlinkingUpperThreshold");
+            parameterMode = serializedObject.FindProperty("parameterMode");
 
             integrateLimitedLipsync = serializedObject.FindProperty("integrateLimitedLipsync");
             lipsyncForWideOpenMouth = serializedObject.FindProperty("lipsyncForWideOpenMouth");
@@ -148,17 +150,32 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             EditorGUILayout.LabelField("Activities", EditorStyles.boldLabel);
             EditorGUILayout.LabelField("Make backups! The FX Animator Controller will be modified directly.", italic);
             EditorGUILayout.PropertyField(animatorController, new GUIContent("FX Animator Controller"));
-            EditorGUILayout.PropertyField(activityStageName, new GUIContent("Parameter Name"));
+            EditorGUILayout.PropertyField(parameterMode, new GUIContent("Parameter Mode"));
+            var compiler = AsCompiler();
+            if (compiler.parameterMode == ParameterMode.SingleInt)
+            {
+                EditorGUILayout.PropertyField(activityStageName, new GUIContent("Parameter Name"));
+            }
 
             comboLayersReorderableList.DoLayoutList();
 
             EditorGUILayout.Separator();
 
-            var compiler = AsCompiler();
-
             bool ThereIsAnOverlap()
             {
-                return compiler.comboLayers != null && comboLayers.arraySize != compiler.comboLayers.Select(mapper => mapper.stageValue).Distinct().Count();
+                if (compiler.parameterMode == ParameterMode.SingleInt)
+                {
+                    return compiler.comboLayers != null && comboLayers.arraySize != compiler.comboLayers.Select(mapper => mapper.stageValue).Distinct().Count();
+                }
+                else
+                {
+                    return compiler.comboLayers != null && comboLayers.arraySize != compiler.comboLayers.Select(mapper => mapper.booleanParameterName).Distinct().Count();
+                }
+            }
+
+            bool MultipleBooleanNoDefault()
+            {
+                return compiler.parameterMode == ParameterMode.MultipleBooleans && compiler.comboLayers != null && compiler.comboLayers.TrueForAll(mapper => !string.IsNullOrEmpty(mapper.booleanParameterName));
             }
 
             bool ThereIsAPuppetWithNoBlendTree()
@@ -179,7 +196,15 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             if (ThereIsAnOverlap())
             {
-                EditorGUILayout.HelpBox("Some Parameters Values are overlapping.", MessageType.Error);
+                if (compiler.parameterMode == ParameterMode.SingleInt)
+                {
+                    EditorGUILayout.HelpBox("Some Parameters Values are overlapping.", MessageType.Error);
+                }
+                else
+                {
+                    EditorGUILayout.HelpBox("Some Parameter Names are overlapping.", MessageType.Error);
+                }
+
             }
             else if (ThereIsAPuppetWithNoBlendTree())
             {
@@ -189,8 +214,32 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             {
                 EditorGUILayout.HelpBox("One of the activities is missing.", MessageType.Warning);
             }
+            else
+            {
+                // Good cases
+                if (compiler.comboLayers != null && compiler.comboLayers.Count > 1)
+                {
+                    if (MultipleBooleanNoDefault())
+                    {
+                        EditorGUILayout.HelpBox($@"All of your mood sets have a Parameter Name.
+The first in the list ""{compiler.comboLayers.First().activity.name}"" having Parameter name ""{compiler.comboLayers.First().booleanParameterName}"" will be active by default whenever none of the others are active.
 
-            EditorGUILayout.LabelField("Corrections", EditorStyles.boldLabel);
+You may choose to leave one of the mood set Parameter Name blank and it will become the default instead.", MessageType.Info);
+                    }
+
+                    var defaultMapper = compiler.comboLayers.FirstOrDefault(mapper => mapper.booleanParameterName == "");
+                    if (compiler.parameterMode == ParameterMode.MultipleBooleans && defaultMapper.kind == GestureComboStageKind.Activity && defaultMapper.activity != null)
+                    {
+                        EditorGUILayout.HelpBox($"The mood set \"{defaultMapper.activity.name}\" is the default mood because it has a blank Parameter Name.", MessageType.Info);
+                    }
+                    if (compiler.parameterMode == ParameterMode.MultipleBooleans && defaultMapper.kind == GestureComboStageKind.Puppet && defaultMapper.puppet != null)
+                    {
+                        EditorGUILayout.HelpBox($"The mood set \"{defaultMapper.puppet.name}\" is the default mood because it has a blank Parameter Name.", MessageType.Info);
+                    }
+                }
+            }
+
+                EditorGUILayout.LabelField("Corrections", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(avatarDescriptor, new GUIContent("Avatar descriptor"));
             if (compiler.avatarDescriptor != null) {
                 EditorGUILayout.PropertyField(weightCorrectionMode, new GUIContent(FakeBooleanIcon(compiler.WillUseGestureWeightCorrection()) + "GestureWeight correction"));
@@ -285,7 +334,7 @@ At the time this version has been published, generating the layer will break you
 
             bool ThereIsNoActivityNameForMultipleActivities()
             {
-                return comboLayers.arraySize >= 2 && (activityStageName.stringValue == null || activityStageName.stringValue.Trim() == "");
+                return compiler.parameterMode == ParameterMode.SingleInt && comboLayers.arraySize >= 2 && (activityStageName.stringValue == null || activityStageName.stringValue.Trim() == "");
             }
 
             bool ThereIsNoAvatarDescriptor()
@@ -496,6 +545,26 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
                 compiler.assetContainer = actualContainer.ExposeContainerAsset();
             }
 
+            if (compiler.comboLayers.Count > 1 && compiler.parameterMode == ParameterMode.MultipleBooleans)
+            {
+                var virtualInt = compiler.comboLayers.Exists(mapper => string.IsNullOrEmpty(mapper.booleanParameterName)) ? 1 : 0;
+                for (var index = 0; index < compiler.comboLayers.Count; index++)
+                {
+                    var mapper = compiler.comboLayers[index];
+                    if (string.IsNullOrEmpty(mapper.booleanParameterName))
+                    {
+                        mapper.internalVirtualStageValue = 0;
+                    }
+                    else
+                    {
+                        mapper.internalVirtualStageValue = virtualInt;
+                        virtualInt++;
+                    }
+
+                    compiler.comboLayers[index] = mapper;
+                }
+            }
+
             new ComboGestureCompilerInternal(compiler, actualContainer).DoOverwriteAnimatorFxLayer();
             if (compiler.useGesturePlayableLayer)
             {
@@ -532,9 +601,11 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
                 GUIContent.none
             );
 
+            var singleInt = AsCompiler().parameterMode == ParameterMode.SingleInt;
             var kind = (GestureComboStageKind) element.FindPropertyRelative("kind").intValue;
+            var trailingWidth = singleInt ? 50 : 140;
             EditorGUI.PropertyField(
-                new Rect(rect.x + 70, rect.y, rect.width - 70 - 70, EditorGUIUtility.singleLineHeight),
+                new Rect(rect.x + 70, rect.y, rect.width - 70 - 20 - trailingWidth, EditorGUIUtility.singleLineHeight),
                 kind != GestureComboStageKind.Puppet
                     ? element.FindPropertyRelative("activity")
                     : element.FindPropertyRelative("puppet"),
@@ -542,16 +613,16 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
             );
 
             EditorGUI.PropertyField(
-                new Rect(rect.x + rect.width - 70, rect.y, 50, EditorGUIUtility.singleLineHeight),
-                element.FindPropertyRelative("stageValue"),
+                new Rect(rect.x + rect.width - 20 - trailingWidth, rect.y, trailingWidth, EditorGUIUtility.singleLineHeight),
+                singleInt ? element.FindPropertyRelative("stageValue") : element.FindPropertyRelative("booleanParameterName"),
                 GUIContent.none
             );
         }
 
-        private static void ComboLayersListHeader(Rect rect)
+        private void ComboLayersListHeader(Rect rect)
         {
             EditorGUI.LabelField(new Rect(rect.x, rect.y, rect.width - 70 - 51, EditorGUIUtility.singleLineHeight), "Mood sets");
-            EditorGUI.LabelField(new Rect(rect.x + rect.width - 70 - 51, rect.y, 50 + 51, EditorGUIUtility.singleLineHeight), "Parameter Value");
+            EditorGUI.LabelField(new Rect(rect.x + rect.width - 70 - 51, rect.y, 50 + 51, EditorGUIUtility.singleLineHeight), AsCompiler().parameterMode == ParameterMode.SingleInt ? "Parameter Value" : "Parameter Name");
         }
     }
 }

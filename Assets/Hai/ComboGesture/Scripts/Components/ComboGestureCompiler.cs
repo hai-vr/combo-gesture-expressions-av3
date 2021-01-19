@@ -51,6 +51,8 @@ namespace Hai.ComboGesture.Scripts.Components
         public VRCAvatarDescriptor avatarDescriptor;
         public bool bypassMandatoryAvatarDescriptor;
 
+        public ParameterMode parameterMode;
+
         public bool WillUseBlinkBlendshapeCorrection()
         {
             return blinkCorrectionMode == BlinkCorrectionMode.UseBlinkCorrection;
@@ -69,6 +71,8 @@ namespace Hai.ComboGesture.Scripts.Components
         public ComboGestureActivity activity; // This can be null even when the kind is an Activity
         public ComboGesturePuppet puppet; // This can be null
         public int stageValue;
+        public string booleanParameterName;
+        public int internalVirtualStageValue; // This is overwritten by the compiler process
     }
 
     [System.Serializable]
@@ -99,5 +103,11 @@ namespace Hai.ComboGesture.Scripts.Components
     public enum BlinkCorrectionMode
     {
         UseRecommendedConfiguration, UseBlinkCorrection, DoNotUseBlinkCorrection
+    }
+
+    [System.Serializable]
+    public enum ParameterMode
+    {
+        SingleInt, MultipleBooleans
     }
 }

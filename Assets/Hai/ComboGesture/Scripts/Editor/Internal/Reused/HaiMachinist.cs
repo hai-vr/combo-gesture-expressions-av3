@@ -123,6 +123,16 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Reused
             return this;
         }
 
+        internal Statist Drives(BoolParameterist parameterist, bool value)
+        {
+            CreateDriverBehaviorIfNotExists();
+            _driver.parameters.Add(new VRC_AvatarParameterDriver.Parameter
+            {
+                name = parameterist.Name, value = value ? 1 : 0
+            });
+            return this;
+        }
+
         private void CreateDriverBehaviorIfNotExists()
         {
             if (_driver != null) return;
@@ -366,6 +376,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Reused
             {
                 _transition.AddCondition(AnimatorConditionMode.IfNot, 0, _parameterist.Name);
                 return _transitionist;
+            }
+
+            internal TransitionContinuationist Is(bool value)
+            {
+                return value ? IsTrue() : IsFalse();
             }
         }
 

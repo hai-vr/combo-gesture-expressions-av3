@@ -40,13 +40,28 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly AnimatorController _gesturePlayableLayerController;
         private readonly AvatarMask _gesturePlayableLayerExpressionsAvatarMask;
         private readonly AvatarMask _gesturePlayableLayerTechnicalAvatarMask;
+        private readonly ParameterGeneration _parameterGeneration;
 
         public ComboGestureCompilerInternal(
             ComboGestureCompiler compiler,
             AssetContainer assetContainer)
         {
-            _activityStageName = compiler.activityStageName == "" ? null : compiler.activityStageName;
             _comboLayers = compiler.comboLayers;
+            _parameterGeneration = _comboLayers.Count <= 1 ? ParameterGeneration.Unique : (compiler.parameterMode == ParameterMode.SingleInt ? ParameterGeneration.UserDefinedActivity : ParameterGeneration.VirtualActivity);
+            switch (_parameterGeneration)
+            {
+                case ParameterGeneration.Unique:
+                    _activityStageName = null;
+                    break;
+                case ParameterGeneration.UserDefinedActivity:
+                    _activityStageName = compiler.activityStageName;
+                    break;
+                case ParameterGeneration.VirtualActivity:
+                    _activityStageName = SharedLayerUtils.HaiVirtualActivity;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
             _animatorController = (AnimatorController)compiler.animatorController;
             _gesturePlayableLayerController = compiler.gesturePlayableLayerController as AnimatorController;
             _customEmptyClip = compiler.customEmptyClip;
@@ -76,6 +91,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _useGestureWeightCorrection = compiler.WillUseGestureWeightCorrection();
         }
 
+        enum ParameterGeneration
+        {
+            Unique, UserDefinedActivity, VirtualActivity
+        }
+
         public void DoOverwriteAnimatorFxLayer()
         {
             _animatorGenerator = new AnimatorGenerator(_animatorController, new StatefulEmptyClipProvider(new ClipGenerator(_customEmptyClip, EmptyClipPath, "ComboGesture")));
@@ -96,6 +116,15 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 {
                     DeleteController();
                 }
+            }
+
+            if (_parameterGeneration == ParameterGeneration.VirtualActivity)
+            {
+                CreateOrReplaceBooleansToVirtualActivityMenu(emptyClip);
+            }
+            else
+            {
+                DeleteBooleansToVirtualActivityMenu();
             }
 
             if (!Feature(FeatureToggles.DoNotGenerateWeightCorrectionLayer))
@@ -176,7 +205,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         {
             return _comboLayers
                 .Select((mapper, layerOrdinal) => new ManifestBinding(
-                    mapper.stageValue,
+                    _parameterGeneration == ParameterGeneration.VirtualActivity ? mapper.internalVirtualStageValue : mapper.stageValue,
                     SharedLayerUtils.FromMapper(mapper, emptyClip),
                     layerOrdinal
                 ))
@@ -252,6 +281,25 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
             AssetDatabase.CreateAsset(emptyClip, EmptyClipPath);
             return emptyClip;
+        }
+
+
+        private void CreateOrReplaceBooleansToVirtualActivityMenu(AnimationClip emptyClip)
+        {
+            foreach (var mapper in _comboLayers)
+            {
+                if (!string.IsNullOrEmpty(mapper.booleanParameterName))
+                {
+                    SharedLayerUtils.CreateParamIfNotExists(_animatorController, mapper.booleanParameterName, AnimatorControllerParameterType.Bool);
+                }
+            }
+
+            new LayerForBooleansToVirtualActivity(_animatorGenerator, _logicalAvatarMask, _conflictPrevention.ShouldWriteDefaults, _comboLayers).Create();
+        }
+
+        private void DeleteBooleansToVirtualActivityMenu()
+        {
+            LayerForBooleansToVirtualActivity.Delete(_animatorGenerator);
         }
 
         private void CreateOrReplaceController(AnimationClip emptyClip)

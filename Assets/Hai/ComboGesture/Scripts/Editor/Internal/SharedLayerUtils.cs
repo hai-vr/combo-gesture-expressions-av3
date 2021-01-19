@@ -61,6 +61,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         internal const string HaiGestureComboDisableLipsyncOverrideParamName = "_Hai_GestureComboDisableLipsyncOverride";
         internal const string HaiGestureComboLeftWeightProxy = "_Hai_GestureLWProxy";
         internal const string HaiGestureComboRightWeightProxy = "_Hai_GestureRWProxy";
+        internal const string HaiVirtualActivity = "_Hai_GestureVirtualActivity";
 
         public static IManifest FromMapper(GestureComboStageMapper mapper, AnimationClip fallbackWhenAnyClipIsNull)
         {
