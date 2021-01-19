@@ -108,6 +108,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Reused
             CreateDriverBehaviorIfNotExists();
             _driver.parameters.Add(new VRC_AvatarParameterDriver.Parameter
             {
+                type = VRC_AvatarParameterDriver.ChangeType.Set,
                 name = parameterist.Name, value = value
             });
             return this;
@@ -118,7 +119,30 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Reused
             CreateDriverBehaviorIfNotExists();
             _driver.parameters.Add(new VRC_AvatarParameterDriver.Parameter
             {
+                type = VRC_AvatarParameterDriver.ChangeType.Set,
                 name = parameterist.Name, value = value
+            });
+            return this;
+        }
+
+        internal Statist DrivingIncreases(FloatParameterist parameterist, float additiveValue)
+        {
+            CreateDriverBehaviorIfNotExists();
+            _driver.parameters.Add(new VRC_AvatarParameterDriver.Parameter
+            {
+                type = VRC_AvatarParameterDriver.ChangeType.Add,
+                name = parameterist.Name, value = additiveValue
+            });
+            return this;
+        }
+
+        internal Statist DrivingDecreases(FloatParameterist parameterist, float positiveValueToDecreaseBy)
+        {
+            CreateDriverBehaviorIfNotExists();
+            _driver.parameters.Add(new VRC_AvatarParameterDriver.Parameter
+            {
+                type = VRC_AvatarParameterDriver.ChangeType.Add,
+                name = parameterist.Name, value = -positiveValueToDecreaseBy
             });
             return this;
         }
@@ -222,7 +246,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Reused
         }
     }
 
-    internal class Transitionist
+    public class Transitionist
     {
         private readonly AnimatorStateTransition _transition;
 
@@ -258,7 +282,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Reused
             return new TransitionContinuationist(_transition);
         }
 
-        internal class TransitionContinuationist
+        public class TransitionContinuationist
         {
             private readonly AnimatorStateTransition _transition;
 

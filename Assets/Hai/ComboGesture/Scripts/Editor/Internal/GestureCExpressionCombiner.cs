@@ -21,15 +21,17 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly string _activityStageName;
         private readonly bool _writeDefaultsForFaceExpressions;
         private readonly bool _useGestureWeightCorrection;
+        private readonly bool _useSmoothing;
 
         public GestureCExpressionCombiner(AnimatorController animatorController, AnimatorStateMachine machine,
-            Dictionary<IAnimatedBehavior, List<TransitionCondition>> intermediateToCombo, string activityStageName, bool writeDefaultsForFaceExpressions, bool useGestureWeightCorrection)
+            Dictionary<IAnimatedBehavior, List<TransitionCondition>> intermediateToCombo, string activityStageName, bool writeDefaultsForFaceExpressions, bool useGestureWeightCorrection, bool useSmoothing)
         {
             _animatorController = animatorController;
             _machine = machine;
             _activityStageName = activityStageName;
             _writeDefaultsForFaceExpressions = writeDefaultsForFaceExpressions;
             _useGestureWeightCorrection = useGestureWeightCorrection;
+            _useSmoothing = useSmoothing;
             _intermediateToCombo = intermediateToCombo;
         }
 
@@ -186,19 +188,41 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 resting,
                 squeezing,
                 isLeftSide
-                    ? _useGestureWeightCorrection ? SharedLayerUtils.HaiGestureComboLeftWeightProxy : "GestureLeftWeight"
-                    : _useGestureWeightCorrection ? SharedLayerUtils.HaiGestureComboRightWeightProxy : "GestureRightWeight",
+                    ? LeftParam(_useGestureWeightCorrection, _useSmoothing)
+                    : RightParam(_useGestureWeightCorrection, _useSmoothing),
                 clipName,
                 _animatorController);
             newState.writeDefaultValues = _writeDefaultsForFaceExpressions;
             return newState;
         }
 
+        private static string LeftParam(bool useGestureWeightCorrection, bool useSmoothing)
+        {
+            if (useSmoothing)
+                return SharedLayerUtils.HaiGestureComboLeftWeightSmoothing;
+
+            if (useGestureWeightCorrection)
+                return SharedLayerUtils.HaiGestureComboLeftWeightProxy;
+
+            return "GestureLeftWeight";
+        }
+
+        private static string RightParam(bool useGestureWeightCorrection, bool useSmoothing)
+        {
+            if (useSmoothing)
+                return SharedLayerUtils.HaiGestureComboRightWeightSmoothing;
+
+            if (useGestureWeightCorrection)
+                return SharedLayerUtils.HaiGestureComboRightWeightProxy;
+
+            return "GestureRightWeight";
+        }
+
         private AnimatorState CreateDualBlendState(Motion clip, Motion resting, Vector3 position, Motion posingLeft, Motion posingRight)
         {
             var clipName = UnshimName(clip.name) + " Dual " + UnshimName(resting.name);
             var newState = _machine.AddState(SanitizeName(clipName), position);
-            newState.motion = CreateDualBlendTree(resting, clip, posingLeft, posingRight, clipName, _animatorController, _useGestureWeightCorrection);
+            newState.motion = CreateDualBlendTree(resting, clip, posingLeft, posingRight, clipName, _animatorController, _useGestureWeightCorrection, _useSmoothing);
             newState.writeDefaultValues = _writeDefaultsForFaceExpressions;
             return newState;
         }
@@ -234,7 +258,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         }
 
         private static Motion CreateDualBlendTree(Motion atZero, Motion atOne, Motion atLeft, Motion atRight, string clipName,
-            AnimatorController animatorController, bool useGestureWeightCorrection)
+            AnimatorController animatorController, bool useGestureWeightCorrection, bool useSmoothing)
         {
             ChildMotion[] motions;
             if (atOne == atLeft && atOne == atRight)
@@ -261,8 +285,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             var blendTree = new BlendTree
             {
                 name = "autoBT_" + clipName,
-                blendParameter = useGestureWeightCorrection ? SharedLayerUtils.HaiGestureComboLeftWeightProxy : "GestureLeftWeight",
-                blendParameterY = useGestureWeightCorrection ? SharedLayerUtils.HaiGestureComboRightWeightProxy : "GestureRightWeight",
+                blendParameter = LeftParam(useGestureWeightCorrection, useSmoothing),
+                blendParameterY = RightParam(useGestureWeightCorrection, useSmoothing),
                 blendType = BlendTreeType.FreeformDirectional2D,
                 children = motions,
                 hideFlags = HideFlags.HideInHierarchy

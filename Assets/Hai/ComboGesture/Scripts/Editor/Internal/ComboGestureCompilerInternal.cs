@@ -41,6 +41,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly AvatarMask _gesturePlayableLayerExpressionsAvatarMask;
         private readonly AvatarMask _gesturePlayableLayerTechnicalAvatarMask;
         private readonly ParameterGeneration _parameterGeneration;
+        private readonly bool _useSmoothing;
 
         public ComboGestureCompilerInternal(
             ComboGestureCompiler compiler,
@@ -86,6 +87,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _limitedLipsync = compiler.lipsyncForWideOpenMouth;
             _assetContainer = assetContainer;
             _useGestureWeightCorrection = compiler.WillUseGestureWeightCorrection();
+            _useSmoothing = _useGestureWeightCorrection;
         }
 
         enum ParameterGeneration
@@ -129,10 +131,19 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 if (_useGestureWeightCorrection)
                 {
                     CreateOrReplaceWeightCorrection(_weightCorrectionAvatarMask, _animatorGenerator, _animatorController, _conflictPrevention);
+                    if (_useSmoothing)
+                    {
+                        CreateOrReplaceSmoothing(_weightCorrectionAvatarMask, _animatorGenerator, _animatorController, _conflictPrevention);
+                    }
+                    else
+                    {
+                        DeleteSmoothing();
+                    }
                 }
                 else
                 {
                     DeleteWeightCorrection();
+                    DeleteSmoothing();
                 }
             }
 
@@ -161,6 +172,14 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
             AssetDatabase.Refresh();
             EditorUtility.ClearProgressBar();
+        }
+
+        private static void CreateOrReplaceSmoothing(AvatarMask weightCorrectionAvatarMask, AnimatorGenerator animatorGenerator, AnimatorController animatorController, ConflictPrevention conflictPrevention)
+        {
+            SharedLayerUtils.CreateParamIfNotExists(animatorController, SharedLayerUtils.HaiGestureComboLeftWeightSmoothing, AnimatorControllerParameterType.Float);
+            SharedLayerUtils.CreateParamIfNotExists(animatorController, SharedLayerUtils.HaiGestureComboRightWeightSmoothing, AnimatorControllerParameterType.Float);
+            SharedLayerUtils.CreateParamIfNotExists(animatorController, SharedLayerUtils.HaiGestureComboSmoothingFactor, AnimatorControllerParameterType.Float);
+            new LayerForAnalogFistSmoothing(animatorGenerator, weightCorrectionAvatarMask, conflictPrevention.ShouldWriteDefaults, animatorController).Create();
         }
 
         public void DoOverwriteAnimatorGesturePlayableLayer()
@@ -221,8 +240,25 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             var reachableMotions = ConcatStateMachines()
                 .SelectMany(machine => machine.states)
                 .Select(state => state.state.motion)
+                .Where(motion => motion != null)
+                .SelectMany(Unwrap)
                 .ToList<Object>();
             Reap(allSubAssets, typeof(BlendTree), reachableMotions, o => o.name.StartsWith("autoBT_"));
+        }
+
+        private IEnumerable<Motion> Unwrap(Motion motion)
+        {
+            var itself = new[] {motion};
+            return motion is BlendTree bt ? itself.Concat(AllChildrenOf(bt)) : itself;
+        }
+
+        private IEnumerable<Motion> AllChildrenOf(BlendTree blendTree)
+        {
+            return blendTree.children
+                .Select(motion => motion.motion)
+                .Where(motion => motion != null)
+                .SelectMany(Unwrap)
+                .ToList();
         }
 
         private IEnumerable<AnimatorStateMachine> ConcatStateMachines()
@@ -338,6 +374,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 _animatorController,
                 _comboLayers,
                 _useGestureWeightCorrection,
+                _useSmoothing,
                 manifestBindings,
                 ""
             ).Create();
@@ -367,6 +404,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 _gesturePlayableLayerController,
                 _comboLayers,
                 _useGestureWeightCorrection,
+                _useSmoothing,
                 manifestBindings,
                 "GPL"
             ).Create();
@@ -443,6 +481,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private void DeleteWeightCorrection()
         {
             LayerForWeightCorrection.Delete(_animatorGenerator);
+        }
+
+        private void DeleteSmoothing()
+        {
+            LayerForAnalogFistSmoothing.Delete(_animatorGenerator);
         }
 
         private bool Feature(FeatureToggles feature)

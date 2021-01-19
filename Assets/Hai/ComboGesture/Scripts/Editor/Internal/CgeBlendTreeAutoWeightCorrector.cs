@@ -11,12 +11,14 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         public const string AutoGestureWeightParam = "_AutoGestureWeight";
         private readonly List<ManifestBinding> _activityManifests;
         private readonly bool _useGestureWeightCorrection;
+        private readonly bool _useSmoothing;
         private readonly AssetContainer _assetContainer;
 
-        public CgeBlendTreeAutoWeightCorrector(List<ManifestBinding> activityManifests, bool useGestureWeightCorrection, AssetContainer assetContainer)
+        public CgeBlendTreeAutoWeightCorrector(List<ManifestBinding> activityManifests, bool useGestureWeightCorrection, bool useSmoothing, AssetContainer assetContainer)
         {
             _activityManifests = activityManifests;
             _useGestureWeightCorrection = useGestureWeightCorrection;
+            _useSmoothing = useSmoothing;
             _assetContainer = assetContainer;
         }
 
@@ -131,9 +133,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             switch (originalTreeBlendParameter)
             {
                 case "GestureLeftWeight":
-                    return SharedLayerUtils.HaiGestureComboLeftWeightProxy;
+                    return _useSmoothing ? SharedLayerUtils.HaiGestureComboLeftWeightSmoothing : SharedLayerUtils.HaiGestureComboLeftWeightProxy;
                 case "GestureRightWeight":
-                    return SharedLayerUtils.HaiGestureComboRightWeightProxy;
+                    return _useSmoothing ? SharedLayerUtils.HaiGestureComboRightWeightSmoothing : SharedLayerUtils.HaiGestureComboRightWeightProxy;
                 default:
                     return originalTreeBlendParameter;
             }
