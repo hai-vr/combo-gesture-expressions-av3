@@ -40,7 +40,7 @@ This is a tutorial with audio commentary for the *[Squeezing the trigger](index.
 
 A quicker video overview without audio commentary is available in the main documentation.
 
-<iframe src="https://streamable.com/e/pe7b9m?loop=0" width="816" height="512" frameborder="0" allowfullscreen></iframe>
+<iframe src="https://streamable.com/e/6a77yb?loop=0" width="816" height="512" frameborder="0" allowfullscreen></iframe>
 
 ### Animate cat ears, wings and more (Tutorial with audio commentary)
 
@@ -72,7 +72,7 @@ This is a tutorial with audio commentary for the *[Permutations](index.md#permut
 
 A quicker video overview without audio commentary is available in the main documentation.
 
-<iframe src="https://streamable.com/e/jtow8g?loop=0" width="816" height="512" frameborder="0" allowfullscreen></iframe>
+<iframe src="https://streamable.com/e/tlkqxi?loop=0" width="816" height="512" frameborder="0" allowfullscreen></iframe>
 
 ### Mix puppets and gestures (Tutorial with audio commentary)
 
