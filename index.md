@@ -2,6 +2,9 @@
 
 # [> Download latest version...](https://github.com/hai-vr/combo-gesture-expressions-av3/releases)
 
+- *([Download on github.com](https://github.com/hai-vr/combo-gesture-expressions-av3/releases))*
+- *([Download on booth.pm](https://hai-vr.booth.pm/items/2219616))*
+
 <iframe src="https://streamable.com/e/t19nkm?loop=0" width="408" height="256" frameborder="0" allowfullscreen></iframe>
 
 (**Full introduction video to be done**)
