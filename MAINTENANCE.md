@@ -22,3 +22,16 @@ To copy a blend tree:
 - Find all blend trees assets of the manifest.
 - Create a dictionary between that asset and a new blend tree instance.
 - Copy the original blend tree into that new blend tree instance, but whenever a blend tree has a reference to another blend tree, use the dictionary above to reference the new blend tree instead.
+
+
+### The issue with Animation Qualification
+
+An qualification is metadata attached to an animation asset.
+This metadata is usually whether the animation describes a eyes blinking animation, but it may also contain lipsync animation and more.
+
+The problem is that qualification is attached to a mood set (internally called a manifest). However, multiple manifests may contain a reference to the same animation asset with different metadata.
+This causes a few hurdles:
+- When deduplicating states, we must deduplicate by animation asset + metadata.
+- Blend trees may be used multiple times in different manifest, so deduplicating them causes a challenge; also consider the fact that blend trees may be nested, which complicates things further.
+
+There is no straightforward way to fix this. One idea would be that manifests must contain a reference to an unique metadata reference, which would be required to be the same for all manifests of a compiler.
