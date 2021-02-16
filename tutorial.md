@@ -80,7 +80,7 @@ This is a tutorial with audio commentary for the *[Mix puppets and gestures](ind
 
 A quicker video overview without audio commentary is available in the main documentation.
 
-<iframe src="https://streamable.com/e/rlabmq?loop=0" width="816" height="512" frameborder="0" allowfullscreen></iframe>
+<iframe src="https://streamable.com/e/25bnhs?loop=0" width="816" height="512" frameborder="0" allowfullscreen></iframe>
 
 ---
 
