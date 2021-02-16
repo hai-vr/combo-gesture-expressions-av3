@@ -26,7 +26,7 @@ To copy a blend tree:
 
 ### The issue with Animation Qualification
 
-An qualification is metadata attached to an animation asset.
+A qualification is metadata attached to an animation asset.
 This metadata is usually whether the animation describes a eyes blinking animation, but it may also contain lipsync animation and more.
 
 The problem is that qualification is attached to a mood set (internally called a manifest). However, multiple manifests may contain a reference to the same animation asset with different metadata.
