@@ -89,6 +89,11 @@ Go to <span class="hai-btn">Prevent eyes blinking</span> tab. By selecting which
 
 It is not recommended selecting animations with only one eye closed such as winking, as this will also cause the avatar to stop eye contact.
 
+<div class="hai-interlude">
+<p>In your animations, you should <strong>not</strong> animate the Blink blendshape which is used by the Avatars 3.0 descriptor. If you do, your eyelids will not smoothly animate, and they will not animate on analog Fist gestures.</p>
+<p>On many avatar bases, the left eyelid and right eyelid can be animated independeltly. I would suggest you to animate those two blendshapes instead.</p>
+</div>
+
 # Apply to the avatar
 
 <iframe src="https://streamable.com/e/igwote?loop=0" width="816" height="512" frameborder="0" allowfullscreen></iframe>
@@ -119,6 +124,11 @@ When both hands are doing a Fist gesture, you are able to define an animation fo
 <iframe src="https://streamable.com/e/hp17ra?loop=0" width="408" height="256" frameborder="0" allowfullscreen></iframe>
 
 <p>Illustration of animation blending in an Analog Fist gesture.</p>
+</div>
+
+<div class="hai-interlude">
+<p>In your animations, you should <strong>not</strong> animate the Blink blendshape which is used by the Avatars 3.0 descriptor. They will not animate on analog Fist gestures.</p>
+<p>On many avatar bases, the left eyelid and right eyelid can be animated independeltly. I would suggest you to animate those two blendshapes instead.</p>
 </div>
 
 # Animate cat ears, wings and more
