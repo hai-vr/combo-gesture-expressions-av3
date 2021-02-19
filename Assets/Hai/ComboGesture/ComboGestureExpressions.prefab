@@ -286,10 +286,14 @@ MonoBehaviour:
     activity: {fileID: 258466012350164061}
     puppet: {fileID: 0}
     stageValue: 0
+    booleanParameterName: 
+    internalVirtualStageValue: 0
   - kind: 0
     activity: {fileID: 4210607655909169378}
     puppet: {fileID: 0}
     stageValue: 1
+    booleanParameterName: CGESmiling
+    internalVirtualStageValue: 0
   animatorController: {fileID: 0}
   useGesturePlayableLayer: 0
   gesturePlayableLayerController: {fileID: 0}
@@ -314,6 +318,7 @@ MonoBehaviour:
   gesturePlayableLayerExpressionsAvatarMask: {fileID: 0}
   gesturePlayableLayerTechnicalAvatarMask: {fileID: 0}
   conflictPreventionMode: 0
+  writeDefaultsRecommendationMode: 0
   conflictPreventionTempGestureLayerMode: 0
   conflictFxLayerMode: 0
   weightCorrectionMode: 0
@@ -324,6 +329,7 @@ MonoBehaviour:
   doNotFixSingleKeyframes: 0
   avatarDescriptor: {fileID: 0}
   bypassMandatoryAvatarDescriptor: 0
+  parameterMode: 0
 --- !u!1 &8786870071787821454
 GameObject:
   m_ObjectHideFlags: 0

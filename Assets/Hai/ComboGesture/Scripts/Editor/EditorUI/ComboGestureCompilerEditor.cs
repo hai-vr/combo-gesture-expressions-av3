@@ -161,6 +161,15 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 EditorGUILayout.PropertyField(activityStageName, new GUIContent("Parameter Name"));
             }
 
+            if (compiler.parameterMode == ParameterMode.SingleInt && comboLayers.arraySize < 8)
+            {
+                EditorGUILayout.HelpBox(
+                    $@"Parameter mode is set to Single Int. This will cost 8 bits of memory in your Expression Parameters even though you're not using a large amount of mood sets.
+
+Usually, you should switch to Multiple Booleans instead especially if you're short on Expression Parameters.",
+                    MessageType.Info);
+            }
+
             comboLayersReorderableList.DoLayoutList();
 
             EditorGUILayout.Separator();
@@ -228,7 +237,10 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                         EditorGUILayout.HelpBox($@"All of your mood sets have a Parameter Name.
 The first in the list ""{compiler.comboLayers.First().activity.name}"" having Parameter name ""{compiler.comboLayers.First().booleanParameterName}"" will be active by default whenever none of the others are active.
 
-You may choose to leave one of the mood set Parameter Name blank and it will become the default instead.", MessageType.Info);
+It is not necessary to assign a Parameter Name to all mood sets:
+You may choose to leave one of the mood set Parameter Name blank and it will become the default instead, which will save you 1 boolean in your Expression Parameters.
+
+Assigning a Parameter Name to all moods sets will allow you to setup a toggle in the Expression Menu to represent the Default expression, but it is completely optional.", MessageType.Info);
                     }
 
                     var defaultMapper = compiler.comboLayers.FirstOrDefault(mapper => mapper.booleanParameterName == "");
