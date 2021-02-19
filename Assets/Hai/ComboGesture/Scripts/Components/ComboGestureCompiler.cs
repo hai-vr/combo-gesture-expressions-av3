@@ -42,7 +42,7 @@ namespace Hai.ComboGesture.Scripts.Components
         public ConflictPreventionMode conflictPreventionTempGestureLayerMode = ConflictPreventionMode.UseRecommendedConfiguration;
         public ConflictFxLayerMode conflictFxLayerMode = ConflictFxLayerMode.RemoveTransformsAndMuscles;
         public WeightCorrectionMode weightCorrectionMode = WeightCorrectionMode.UseRecommendedConfiguration;
-        public BlinkCorrectionMode blinkCorrectionMode = BlinkCorrectionMode.UseRecommendedConfiguration;
+        public BlinkCorrectionMode blinkCorrectionMode = BlinkCorrectionMode.UseRecommendedConfiguration; // Deprecated
 
         public bool editorAdvancedFoldout;
 
@@ -54,11 +54,6 @@ namespace Hai.ComboGesture.Scripts.Components
         public bool bypassMandatoryAvatarDescriptor;
 
         public ParameterMode parameterMode;
-
-        public bool WillUseBlinkBlendshapeCorrection()
-        {
-            return blinkCorrectionMode == BlinkCorrectionMode.UseBlinkCorrection;
-        }
 
         public bool WillUseGestureWeightCorrection()
         {

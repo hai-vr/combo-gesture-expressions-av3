@@ -34,7 +34,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly AvatarMask _weightCorrectionAvatarMask;
         private readonly bool _integrateLimitedLipsync;
         private readonly ComboGestureLimitedLipsync _limitedLipsync;
-        private readonly bool _doNotIncludeBlinkBlendshapes;
         private AnimatorGenerator _animatorGenerator;
         private readonly AssetContainer _assetContainer;
         private readonly bool _useGestureWeightCorrection;
@@ -88,7 +87,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _gesturePlayableLayerTechnicalAvatarMask = compiler.gesturePlayableLayerTechnicalAvatarMask;
             _integrateLimitedLipsync = compiler.integrateLimitedLipsync;
             _limitedLipsync = compiler.lipsyncForWideOpenMouth;
-            _doNotIncludeBlinkBlendshapes = !compiler.WillUseBlinkBlendshapeCorrection();
             _assetContainer = assetContainer;
             _useGestureWeightCorrection = compiler.WillUseGestureWeightCorrection();
         }
@@ -122,7 +120,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
             if (_parameterGeneration == ParameterGeneration.VirtualActivity)
             {
-                CreateOrReplaceBooleansToVirtualActivityMenu(emptyClip);
+                CreateOrReplaceBooleansToVirtualActivityMenu();
             }
             else
             {
@@ -133,7 +131,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             {
                 if (_useGestureWeightCorrection)
                 {
-                    CreateOrReplaceWeightCorrection(_weightCorrectionAvatarMask, _animatorGenerator, _animatorController, emptyClip, _conflictPrevention);
+                    CreateOrReplaceWeightCorrection(_weightCorrectionAvatarMask, _animatorGenerator, _animatorController, _conflictPrevention);
                 }
                 else
                 {
@@ -185,7 +183,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                     var technicalAvatarMask = _gesturePlayableLayerTechnicalAvatarMask
                         ? _gesturePlayableLayerTechnicalAvatarMask
                         : AssetDatabase.LoadAssetAtPath<AvatarMask>(GesturePlayableLayerAvatarMaskPath);
-                    CreateOrReplaceWeightCorrection(technicalAvatarMask, _animatorGenerator, _gesturePlayableLayerController, emptyClip, _conflictPreventionTempGestureLayer);
+                    CreateOrReplaceWeightCorrection(technicalAvatarMask, _animatorGenerator, _gesturePlayableLayerController, _conflictPreventionTempGestureLayer);
                 }
                 else
                 {
@@ -286,7 +284,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         }
 
 
-        private void CreateOrReplaceBooleansToVirtualActivityMenu(AnimationClip emptyClip)
+        private void CreateOrReplaceBooleansToVirtualActivityMenu()
         {
             foreach (var mapper in _comboLayers)
             {
@@ -310,7 +308,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             new LayerForController(_animatorGenerator, _logicalAvatarMask, emptyClip, _conflictPrevention.ShouldWriteDefaults).Create();
         }
 
-        private static void CreateOrReplaceWeightCorrection(AvatarMask weightCorrectionAvatarMask, AnimatorGenerator animatorGenerator, AnimatorController animatorController, AnimationClip emptyClip, ConflictPrevention conflictPrevention)
+        private static void CreateOrReplaceWeightCorrection(AvatarMask weightCorrectionAvatarMask, AnimatorGenerator animatorGenerator, AnimatorController animatorController, ConflictPrevention conflictPrevention)
         {
             SharedLayerUtils.CreateParamIfNotExists(animatorController, "GestureLeft", AnimatorControllerParameterType.Int);
             SharedLayerUtils.CreateParamIfNotExists(animatorController, "GestureRight", AnimatorControllerParameterType.Int);
@@ -339,9 +337,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 _compilerConflictFxLayerMode,
                 _compilerIgnoreParamList,
                 avatarFallbacks,
-                _doNotIncludeBlinkBlendshapes
-                    ? new List<CurveKey>()
-                    : new BlendshapesFinder(_avatarDescriptor).FindBlink().Select(key => key.AsCurveKey()).ToList(),
+                new List<CurveKey>(),
                 _animatorController,
                 _comboLayers,
                 _useGestureWeightCorrection,

@@ -259,23 +259,6 @@ Assigning a Parameter Name to all moods sets will allow you to setup a toggle in
             EditorGUILayout.PropertyField(avatarDescriptor, new GUIContent("Avatar descriptor"));
             if (compiler.avatarDescriptor != null) {
                 EditorGUILayout.PropertyField(weightCorrectionMode, new GUIContent(FakeBooleanIcon(compiler.WillUseGestureWeightCorrection()) + "GestureWeight correction"));
-                EditorGUILayout.PropertyField(blinkCorrectionMode, new GUIContent(FakeBooleanIcon(compiler.WillUseBlinkBlendshapeCorrection()) + "Blink blendshapes correction"));
-                if (compiler.WillUseBlinkBlendshapeCorrection())
-                {
-                    var blinkBlendshapes = new BlendshapesFinder(compiler.avatarDescriptor).FindBlink();
-                    if (blinkBlendshapes.Any())
-                    {
-                        EditorGUILayout.LabelField("Found blink blendshapes:");
-                        foreach (var blendShape in blinkBlendshapes)
-                        {
-                            EditorGUILayout.LabelField("- " + blendShape.Path + "::" + blendShape.BlendShapeName);
-                        }
-                    }
-                    else
-                    {
-                        EditorGUILayout.LabelField("No blink blendshapes found");
-                    }
-                }
 
                 EditorGUI.BeginDisabledGroup(compiler.doNotGenerateLipsyncOverrideLayer);
                 EditorGUILayout.PropertyField(integrateLimitedLipsync, new GUIContent("Integrate limited lipsync"));
