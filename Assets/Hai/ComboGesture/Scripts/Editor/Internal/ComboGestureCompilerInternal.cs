@@ -85,7 +85,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _weightCorrectionAvatarMask = compiler.weightCorrectionAvatarMask;
             _gesturePlayableLayerExpressionsAvatarMask = compiler.gesturePlayableLayerExpressionsAvatarMask;
             _gesturePlayableLayerTechnicalAvatarMask = compiler.gesturePlayableLayerTechnicalAvatarMask;
-            _integrateLimitedLipsync = compiler.integrateLimitedLipsync;
+            _integrateLimitedLipsync = false; // For now, Limited Lipsync is disabled regardless of the compiler value
             _limitedLipsync = compiler.lipsyncForWideOpenMouth;
             _assetContainer = assetContainer;
             _useGestureWeightCorrection = compiler.WillUseGestureWeightCorrection();

@@ -261,13 +261,6 @@ Assigning a Parameter Name to all moods sets will allow you to setup a toggle in
                 EditorGUILayout.PropertyField(weightCorrectionMode, new GUIContent(FakeBooleanIcon(compiler.WillUseGestureWeightCorrection()) + "GestureWeight correction"));
 
                 EditorGUI.BeginDisabledGroup(compiler.doNotGenerateLipsyncOverrideLayer);
-                EditorGUILayout.PropertyField(integrateLimitedLipsync, new GUIContent("Integrate limited lipsync"));
-                if (compiler.integrateLimitedLipsync)
-                {
-                    EditorGUILayout.HelpBox(@"Limited Lipsync is a feature that will not work with the version of VRChat at the time this version of ComboGestureExpressions has been published.
-
-At the time this version has been published, generating the layer will break your Lipsync blendshapes.", MessageType.Error);
-                }
                 if (compiler.integrateLimitedLipsync && !compiler.doNotGenerateLipsyncOverrideLayer)
                 {
                     EditorGUILayout.PropertyField(lipsyncForWideOpenMouth, new GUIContent("Lipsync correction"));
