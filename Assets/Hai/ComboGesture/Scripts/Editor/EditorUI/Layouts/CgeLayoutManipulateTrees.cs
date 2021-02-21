@@ -136,8 +136,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
         {
             if (_editorEffector.GetCurrentlyEditing() != CurrentlyEditing.Puppet) return;
 
-            EditorGUILayout.PropertyField(_editorEffector.SpProperty("mainTree"), new GUIContent("Blend tree asset"));
-            EditorGUILayout.PropertyField(_editorEffector.SpTransitionDuration(), new GUIContent("Transition duration (s)"));
+            EditorGUILayout.PropertyField(_editorEffector.SpProperty("mainTree"), new GUIContent(CgeLocale.CGEE_Blend_tree_asset));
+            EditorGUILayout.PropertyField(_editorEffector.SpTransitionDuration(), new GUIContent(CgeLocale.CGEE_Transition_duration));
         }
 
         private void LayoutBlendTreeAssetCreator()
@@ -145,30 +145,30 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             if (_editorEffector.GetCurrentlyEditing() == CurrentlyEditing.Puppet && _editorEffector.GetPuppet().mainTree != null) return;
 
             EditorGUILayout.Separator();
-            EditorGUILayout.LabelField("Create a new blend tree", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField(CgeLocale.CGEE_Create_a_new_blend_tree, EditorStyles.boldLabel);
             _blendTreeEffector.CurrentTemplate = (PuppetTemplate) EditorGUILayout.EnumPopup("Template", _blendTreeEffector.CurrentTemplate);
             switch (_blendTreeEffector.CurrentTemplate)
             {
                 case PuppetTemplate.FourDirections:
-                    EditorGUILayout.HelpBox("Joystick with 4 directions: Up, down, left, right.", MessageType.Info);
+                    EditorGUILayout.HelpBox(CgeLocale.CGEE_ExplainFourDirections, MessageType.Info);
                     break;
                 case PuppetTemplate.EightDirections:
-                    EditorGUILayout.HelpBox("Joystick with 8 directions: Up, down, left, right, and all of the diagonals in a circle shape.", MessageType.Info);
+                    EditorGUILayout.HelpBox(CgeLocale.CGEE_ExplainEightDirections, MessageType.Info);
                     break;
                 case PuppetTemplate.SixDirectionsPointingForward:
-                    EditorGUILayout.HelpBox("Joystick with 6 directions in a hexagon shape. The up and down directions are lined up.", MessageType.Info);
+                    EditorGUILayout.HelpBox(CgeLocale.CGEE_ExplainSixDirectionsPointingForward, MessageType.Info);
                     break;
                 case PuppetTemplate.SixDirectionsPointingSideways:
-                    EditorGUILayout.HelpBox("Joystick with 6 directions in a hexagon shape. The left and right directions are lined up.", MessageType.Info);
+                    EditorGUILayout.HelpBox(CgeLocale.CGEE_ExplainSixDirectionsPointingSideways, MessageType.Info);
                     break;
                 case PuppetTemplate.SingleAnalogFistWithHairTrigger:
-                    EditorGUILayout.HelpBox("One-handed analog Fist.\nThe parameter _AutoGestureWeight will be automatically replaced with the appropriate hand weight parameter.", MessageType.Info);
+                    EditorGUILayout.HelpBox(CgeLocale.CGEE_ExplainSingleAnalogFistWithHairTrigger, MessageType.Info);
                     break;
                 case PuppetTemplate.SingleAnalogFistAndTwoDirections:
-                    EditorGUILayout.HelpBox("One-handed analog Fist with an option to combine it with one Joystick direction.\nThe parameter _AutoGestureWeight will be automatically replaced with the appropriate hand weight parameter.", MessageType.Info);
+                    EditorGUILayout.HelpBox(CgeLocale.CGEE_ExplainSingleAnalogFistAndTwoDirections, MessageType.Info);
                     break;
                 case PuppetTemplate.DualAnalogFist:
-                    EditorGUILayout.HelpBox("Two-handed analog Fist.\nThe parameter GestureRightWeight is on the X axis to better visualize the blend tree directions.", MessageType.Info);
+                    EditorGUILayout.HelpBox(CgeLocale.CGEE_ExplainDualAnalogFist, MessageType.Info);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -186,7 +186,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
 
             if (GUILayout.Button("Create a new blend tree asset"))
             {
-                var createdTree = CreateNewBlendTreeAsset();
+                var createdTree = MaybeCreateNewBlendTreeAsset();
                 if (createdTree != null)
                 {
                     if (_editorEffector.GetCurrentlyEditing() == CurrentlyEditing.Puppet)
@@ -202,7 +202,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             }
         }
 
-        private BlendTree CreateNewBlendTreeAsset()
+        private BlendTree MaybeCreateNewBlendTreeAsset()
         {
             var savePath = EditorUtility.SaveFilePanel("Create...", Application.dataPath, "", "asset");
             if (savePath == null || savePath.Trim() == "") return null;

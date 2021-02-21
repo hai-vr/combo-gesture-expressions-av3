@@ -27,14 +27,14 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             {
                 if (_editorEffector.HasPreviewSetupWhichIsInvalid())
                 {
-                    EditorGUILayout.LabelField("A preview setup was found but it is incomplete or invalid.");
+                    EditorGUILayout.LabelField(CgeLocale.CGEE_IncompletePreviewSetup);
                 }
 
-                EditorGUILayout.PropertyField(_editorEffector.SpPreviewSetup(), new GUIContent("Preview setup"));
+                EditorGUILayout.PropertyField(_editorEffector.SpPreviewSetup(), new GUIContent(CgeLocale.CGEE_Preview_setup));
                 GUILayout.Space(15);
                 GUILayout.BeginHorizontal();
                 GUILayout.FlexibleSpace();
-                if (GUILayout.Button("Automatically setup preview!", GUILayout.Height(50), GUILayout.Width(300)))
+                if (GUILayout.Button(CgeLocale.CGEE_Automatically_setup_preview, GUILayout.Height(50), GUILayout.Width(300)))
                 {
                     DoAutoSetupPreview();
                     if (_editorEffector.GetSetupResult() != AutoSetupPreview.SetupResult.NoAvatarFound)
@@ -47,21 +47,21 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             }
             else
             {
-                EditorGUILayout.PropertyField(_editorEffector.SpTransitionDuration(), new GUIContent("Transition duration (s)"));
-                EditorGUILayout.PropertyField(_editorEffector.SpPreviewSetup(), new GUIContent("Preview setup"));
+                EditorGUILayout.PropertyField(_editorEffector.SpTransitionDuration(), new GUIContent(CgeLocale.CGEE_Transition_duration));
+                EditorGUILayout.PropertyField(_editorEffector.SpPreviewSetup(), new GUIContent(CgeLocale.CGEE_Preview_setup));
                 if (_editorEffector.GetSetupResult() != null)
                 {
                     var setupResult = (AutoSetupPreview.SetupResult) _editorEffector.GetSetupResult();
                     switch (setupResult)
                     {
                         case AutoSetupPreview.SetupResult.ReusedExistsAndValidInScene:
-                            EditorGUILayout.HelpBox("The scene already contains a preview setup. It has been reused here.", MessageType.Info);
+                            EditorGUILayout.HelpBox(CgeLocale.CGEE_AutoSetupReused, MessageType.Info);
                             break;
                         case AutoSetupPreview.SetupResult.NoAvatarFound:
-                            EditorGUILayout.HelpBox("No active avatar descriptor was found in the root objects of the scene.", MessageType.Error);
+                            EditorGUILayout.HelpBox(CgeLocale.CGEE_AutoSetupNoActiveAvatarDescriptor, MessageType.Error);
                             break;
                         case AutoSetupPreview.SetupResult.CreatedNew:
-                            EditorGUILayout.HelpBox("A new preview setup was created.", MessageType.Info);
+                            EditorGUILayout.HelpBox(CgeLocale.CGEE_AutoSetupCreated, MessageType.Info);
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();
@@ -69,23 +69,23 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                 }
 
                 EditorGUI.BeginDisabledGroup(AnimationMode.InAnimationMode());
-                if (GUILayout.Button("Generate missing previews"))
+                if (GUILayout.Button(CgeLocale.CGEE_Generate_missing_previews))
                 {
                     _previewController.GenerateMissingPreviews(repaintCallback);
                 }
 
-                if (GUILayout.Button("Regenerate all previews"))
+                if (GUILayout.Button(CgeLocale.CGEE_Regenerate_all_previews))
                 {
                     _previewController.GenerateAll(repaintCallback);
                 }
                 if (_editorEffector.GetCurrentlyEditing() == CurrentlyEditing.Activity)
                 {
-                    EditorGUILayout.PropertyField(_editorEffector.SpEditorArbitraryAnimations(), new GUIContent("List of arbitrary animations to &s (Drag and drop assets directly on this title)"), true);
+                    EditorGUILayout.PropertyField(_editorEffector.SpEditorArbitraryAnimations(), new GUIContent(CgeLocale.CGEE_List_of_arbitrary_animations), true);
                 }
                 EditorGUI.EndDisabledGroup();
 
                 EditorGUI.BeginDisabledGroup(!AnimationMode.InAnimationMode());
-                if (GUILayout.Button("Stop generating previews"))
+                if (GUILayout.Button(CgeLocale.CGEE_Stop_generating_previews))
                 {
                     CgePreviewProcessor.Stop_Temp();
                 }

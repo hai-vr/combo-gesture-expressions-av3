@@ -123,9 +123,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             }
 
             GUILayout.BeginArea(new Rect(position.width - 130, CgeLayoutCommon.SingleLineHeight * 2 + 5, 100, CgeLayoutCommon.SingleLineHeight + 2));
-            if (GUILayout.Button(new GUIContent(" Tutorials", _helpIcon16), GUILayout.Width(100), GUILayout.Height(CgeLayoutCommon.SingleLineHeight + 2)))
+            if (GUILayout.Button(new GUIContent(" " + CgeLocale.CGEE_Tutorials, _helpIcon16), GUILayout.Width(100), GUILayout.Height(CgeLayoutCommon.SingleLineHeight + 2)))
             {
-                Application.OpenURL("https://hai-vr.github.io/combo-gesture-expressions-av3/");
+                Application.OpenURL(CgeLocale.DocumentationUrl());
             }
             GUILayout.EndArea();
 
@@ -197,7 +197,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             GUILayout.BeginArea(new Rect(0, singleLineHeight, position.width, singleLineHeight * 3));
             _editorEffector.SwitchTo((ActivityEditorMode) GUILayout.Toolbar((int) _editorEffector.CurrentActivityMode(), new[]
             {
-                "Set face expressions", "Prevent eyes blinking", "Make lipsync movements subtle", "Additional editors", "Other options"
+                CgeLocale.CGEE_Set_face_expressions, CgeLocale.CGEE_Prevent_eyes_blinking, CgeLocale.CGEE_Make_lipsync_movements_subtle, CgeLocale.CGEE_Additional_editors, CgeLocale.CGEE_Other_options
             }));
             if (_editorEffector.CurrentActivityMode() == ActivityEditorMode.SetFaceExpressions)
             {
@@ -207,12 +207,12 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 {
                     _editorEffector.SpEditorTool().intValue = GUILayout.Toolbar(_editorEffector.SpEditorTool().intValue, new[]
                     {
-                        "All combos", "Singles", "Analog Fist", "Combos", "Permutations"
+                        CgeLocale.CGEE_All_combos, CgeLocale.CGEE_Singles, CgeLocale.CGEE_Analog_Fist, CgeLocale.CGEE_Combos, CgeLocale.CGEE_Permutations
                     }, GUILayout.ExpandWidth(true));
                 }
                 else
                 {
-                    _editorEffector.SpEditorTool().intValue = GUILayout.Toolbar(_editorEffector.SpEditorTool().intValue, new[] {"Simplified view", "Complete view", "Permutations"});
+                    _editorEffector.SpEditorTool().intValue = GUILayout.Toolbar(_editorEffector.SpEditorTool().intValue, new[] {CgeLocale.CGEE_Simplified_view, CgeLocale.CGEE_Complete_view, CgeLocale.CGEE_Permutations});
                 }
                 GUILayout.Space(30 + 120);
                 GUILayout.EndHorizontal();
@@ -268,7 +268,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             GUILayout.BeginArea(new Rect(0, singleLineHeight, position.width, singleLineHeight * 3));
             _editorEffector.SwitchTo((PuppetEditorMode) GUILayout.Toolbar((int) _editorEffector.CurrentPuppetMode(), new[]
             {
-                "Manipulate trees", "Prevent eyes blinking", "Make lipsync movements subtle", "Other options"
+                CgeLocale.CGEE_Manipulate_trees, CgeLocale.CGEE_Prevent_eyes_blinking, CgeLocale.CGEE_Make_lipsync_movements_subtle, CgeLocale.CGEE_Other_options
             }));
             if (_editorEffector.CurrentPuppetMode() == PuppetEditorMode.MakeLipsyncMovementsSubtle)
             {
@@ -283,7 +283,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             GUILayout.Space(30);
             _layoutMakeLipsyncMovementsSubtle.SetEditorLipsync(GUILayout.Toolbar(_layoutMakeLipsyncMovementsSubtle.GetEditorLipsync(), new[]
             {
-                "Select wide open mouth", "Edit lipsync settings"
+                CgeLocale.CGEE_Select_wide_open_mouth, CgeLocale.CGEE_Edit_lipsync_settings
             }, GUILayout.ExpandWidth(true)));
             GUILayout.Space(30 + 120);
             GUILayout.EndHorizontal();
@@ -295,7 +295,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             GUILayout.Space(30);
             _editorEffector.SwitchAdditionalEditorTo((AdditionalEditorsMode)GUILayout.Toolbar((int)_editorEffector.GetAdditionalEditor(), new[]
             {
-                "Create blend trees", "View blend trees", "Combine expressions"
+                CgeLocale.CGEE_Create_blend_trees, CgeLocale.CGEE_View_blend_trees, CgeLocale.CGEE_Combine_expressions
             }, GUILayout.ExpandWidth(true)));
 
             GUILayout.Space(30 + 120);

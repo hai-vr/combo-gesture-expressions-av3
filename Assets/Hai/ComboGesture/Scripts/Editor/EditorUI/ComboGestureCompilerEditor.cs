@@ -146,27 +146,25 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             serializedObject.Update();
             var italic = new GUIStyle(GUI.skin.label) {fontStyle = FontStyle.Italic};
 
-            if (GUILayout.Button(new GUIContent("Documentation and tutorials", _guideIcon32)))
+            if (GUILayout.Button(new GUIContent(CgeLocale.CGEC_Documentation_and_tutorials, _guideIcon32)))
             {
-                Application.OpenURL("https://hai-vr.github.io/combo-gesture-expressions-av3/");
+                Application.OpenURL(CgeLocale.DocumentationUrl());
             }
 
-            EditorGUILayout.LabelField("Activities", EditorStyles.boldLabel);
-            EditorGUILayout.LabelField("Make backups! The FX Animator Controller will be modified directly.", italic);
-            EditorGUILayout.PropertyField(animatorController, new GUIContent("FX Animator Controller"));
-            EditorGUILayout.PropertyField(parameterMode, new GUIContent("Parameter Mode"));
+            EditorGUILayout.LabelField(CgeLocale.CGEC_Activities, EditorStyles.boldLabel);
+            EditorGUILayout.LabelField(CgeLocale.CGEC_BackupFX, italic);
+            EditorGUILayout.PropertyField(animatorController, new GUIContent(CgeLocale.CGEC_FX_Animator_Controller));
+            EditorGUILayout.PropertyField(parameterMode, new GUIContent(CgeLocale.CGEC_Parameter_Mode));
             var compiler = AsCompiler();
             if (compiler.parameterMode == ParameterMode.SingleInt)
             {
-                EditorGUILayout.PropertyField(activityStageName, new GUIContent("Parameter Name"));
+                EditorGUILayout.PropertyField(activityStageName, new GUIContent(CgeLocale.CGEC_Parameter_Name));
             }
 
             if (compiler.parameterMode == ParameterMode.SingleInt && comboLayers.arraySize < 8)
             {
                 EditorGUILayout.HelpBox(
-                    $@"Parameter mode is set to Single Int. This will cost 8 bits of memory in your Expression Parameters even though you're not using a large amount of mood sets.
-
-Usually, you should switch to Multiple Booleans instead especially if you're short on Expression Parameters.",
+                    CgeLocale.CGEC_HelpExpressionParameterOptimize,
                     MessageType.Info);
             }
 
@@ -211,21 +209,21 @@ Usually, you should switch to Multiple Booleans instead especially if you're sho
             {
                 if (compiler.parameterMode == ParameterMode.SingleInt)
                 {
-                    EditorGUILayout.HelpBox("Some Parameters Values are overlapping.", MessageType.Error);
+                    EditorGUILayout.HelpBox(CgeLocale.CGEC_WarnValuesOverlap, MessageType.Error);
                 }
                 else
                 {
-                    EditorGUILayout.HelpBox("Some Parameter Names are overlapping.", MessageType.Error);
+                    EditorGUILayout.HelpBox(CgeLocale.CGEC_WarnNamesOverlap, MessageType.Error);
                 }
 
             }
             else if (ThereIsAPuppetWithNoBlendTree())
             {
-                EditorGUILayout.HelpBox("One of the puppets has no blend tree defined inside it.", MessageType.Error);
+                EditorGUILayout.HelpBox(CgeLocale.CGEC_WarnNoBlendTree, MessageType.Error);
             }
             else if (ThereIsANullActivityOrPuppet())
             {
-                EditorGUILayout.HelpBox("One of the activities is missing.", MessageType.Warning);
+                EditorGUILayout.HelpBox(CgeLocale.CGEC_WarnNoActivity, MessageType.Warning);
             }
             else
             {
@@ -234,48 +232,42 @@ Usually, you should switch to Multiple Booleans instead especially if you're sho
                 {
                     if (MultipleBooleanNoDefault())
                     {
-                        EditorGUILayout.HelpBox($@"All of your mood sets have a Parameter Name.
-The first in the list ""{compiler.comboLayers.First().activity.name}"" having Parameter name ""{compiler.comboLayers.First().booleanParameterName}"" will be active by default whenever none of the others are active.
-
-It is not necessary to assign a Parameter Name to all mood sets:
-You may choose to leave one of the mood set Parameter Name blank and it will become the default instead, which will save you 1 boolean in your Expression Parameters.
-
-Assigning a Parameter Name to all moods sets will allow you to setup a toggle in the Expression Menu to represent the Default expression, but it is completely optional.", MessageType.Info);
+                        EditorGUILayout.HelpBox(string.Format(CgeLocale.CGEC_HelpWhenAllParameterNamesDefined, compiler.comboLayers.First().activity.name, compiler.comboLayers.First().booleanParameterName), MessageType.Info);
                     }
 
                     var defaultMapper = compiler.comboLayers.FirstOrDefault(mapper => mapper.booleanParameterName == "");
                     if (compiler.parameterMode == ParameterMode.MultipleBooleans && defaultMapper.kind == GestureComboStageKind.Activity && defaultMapper.activity != null)
                     {
-                        EditorGUILayout.HelpBox($"The mood set \"{defaultMapper.activity.name}\" is the default mood because it has a blank Parameter Name.", MessageType.Info);
+                        EditorGUILayout.HelpBox(string.Format(CgeLocale.CGEC_HintDefaultMood, defaultMapper.activity.name), MessageType.Info);
                     }
                     if (compiler.parameterMode == ParameterMode.MultipleBooleans && defaultMapper.kind == GestureComboStageKind.Puppet && defaultMapper.puppet != null)
                     {
-                        EditorGUILayout.HelpBox($"The mood set \"{defaultMapper.puppet.name}\" is the default mood because it has a blank Parameter Name.", MessageType.Info);
+                        EditorGUILayout.HelpBox(string.Format(CgeLocale.CGEC_HintDefaultMood, defaultMapper.puppet.name), MessageType.Info);
                     }
                 }
             }
 
-                EditorGUILayout.LabelField("Corrections", EditorStyles.boldLabel);
-            EditorGUILayout.PropertyField(avatarDescriptor, new GUIContent("Avatar descriptor"));
+            EditorGUILayout.LabelField("Corrections", EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(avatarDescriptor, new GUIContent(CgeLocale.CGEC_Avatar_descriptor));
             if (compiler.avatarDescriptor != null) {
-                EditorGUILayout.PropertyField(weightCorrectionMode, new GUIContent(FakeBooleanIcon(compiler.WillUseGestureWeightCorrection()) + "GestureWeight correction"));
+                EditorGUILayout.PropertyField(weightCorrectionMode, new GUIContent(FakeBooleanIcon(compiler.WillUseGestureWeightCorrection()) + CgeLocale.CGEC_GestureWeight_correction));
 
                 EditorGUI.BeginDisabledGroup(compiler.doNotGenerateLipsyncOverrideLayer);
                 if (compiler.integrateLimitedLipsync && !compiler.doNotGenerateLipsyncOverrideLayer)
                 {
-                    EditorGUILayout.PropertyField(lipsyncForWideOpenMouth, new GUIContent("Lipsync correction"));
+                    EditorGUILayout.PropertyField(lipsyncForWideOpenMouth, new GUIContent(CgeLocale.CGEC_Lipsync_correction));
                     var lipsyncBlendshapes = new BlendshapesFinder(compiler.avatarDescriptor).FindLipsync();
                     if (lipsyncBlendshapes.Any())
                     {
                         var firstLipsyncBlendshape = lipsyncBlendshapes.FirstOrDefault();
                         if (lipsyncBlendshapes.Any())
                         {
-                            EditorGUILayout.LabelField("Found lipsync blendshapes:");
+                            EditorGUILayout.LabelField(CgeLocale.CGEC_Found_lipsync_blendshapes);
                             EditorGUILayout.LabelField("- " + firstLipsyncBlendshape.Path + "::" + firstLipsyncBlendshape.BlendShapeName + " (+ " + (lipsyncBlendshapes.Count - 1) + " more...)");
                         }
                         else
                         {
-                            EditorGUILayout.LabelField("No lipsync blendshapes found");
+                            EditorGUILayout.LabelField(CgeLocale.CGEC_No_lipsync_blendshapes_found);
                         }
                     }
                 }
@@ -284,18 +276,18 @@ Assigning a Parameter Name to all moods sets will allow you to setup a toggle in
 
             EditorGUILayout.Space();
 
-            EditorGUILayout.LabelField("Support for ears/wings/tail/other transforms", EditorStyles.boldLabel);
-            EditorGUILayout.PropertyField(useGesturePlayableLayer, new GUIContent("Gesture playable layer support"));
+            EditorGUILayout.LabelField(CgeLocale.CGEC_Support_for_other_transforms, EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(useGesturePlayableLayer, new GUIContent(CgeLocale.CGEC_Gesture_playable_layer_support));
             if (useGesturePlayableLayer.boolValue)
             {
-                EditorGUILayout.LabelField("Make backups! The Gesture Animator Controller will be modified directly.", italic);
-                EditorGUILayout.PropertyField(gesturePlayableLayerController, new GUIContent("Gesture Animator Controller"));
-                EditorGUILayout.HelpBox("Finger positions or other muscles are not supported.", MessageType.Info);
+                EditorGUILayout.LabelField(CgeLocale.CGEC_BackupGesture, italic);
+                EditorGUILayout.PropertyField(gesturePlayableLayerController, new GUIContent(CgeLocale.CGEC_Gesture_Animator_Controller));
+                EditorGUILayout.HelpBox(CgeLocale.CGEC_MusclesUnsupported, MessageType.Info);
             }
 
             EditorGUILayout.Space();
 
-            EditorGUILayout.LabelField("Synchronization", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField(CgeLocale.CGEC_Synchronization, EditorStyles.boldLabel);
 
             EditorGUI.BeginDisabledGroup(
                 ThereIsNoAnimatorController() ||
@@ -344,38 +336,28 @@ Assigning a Parameter Name to all moods sets will allow you to setup a toggle in
             }
 
             if (GUILayout.Button(compiler.useGesturePlayableLayer ?
-                "Synchronize Animator FX and Gesture layers" :
-                "Synchronize Animator FX layers"))
+                CgeLocale.CGEC_Synchronize_Animator_FX_and_Gesture_layers :
+                CgeLocale.CGEC_Synchronize_Animator_FX_layers))
             {
                 DoGenerate();
             }
             EditorGUI.EndDisabledGroup();
 
             EditorGUILayout.HelpBox(
-                @"Synchronization will regenerate CGE's animator layers and generate animations.
-- Only layers starting with 'Hai_Gesture' will be affected.
-- The avatar descriptor will not be modified.
-
-You should press synchronize when any of the following happens:
-- this Compiler is modified,
-- an Activity, a Puppet, or a LimitedLipsync is modified,
-- an animation or a blend tree or avatar mask is modified,
-- the order of layers in any animator controller changes,
-- the avatar descriptor Eyelids or Lipsync is modified,
-- the avatar transforms are modified.", MessageType.Info);
+                CgeLocale.CGEC_SynchronizationConditionsV1, MessageType.Info);
 
             if (compiler.assetContainer != null) {
-                EditorGUILayout.LabelField("Asset generation", EditorStyles.boldLabel);
-                EditorGUILayout.PropertyField(assetContainer, new GUIContent("Asset container"));
+                EditorGUILayout.LabelField(CgeLocale.CGEC_Asset_generation, EditorStyles.boldLabel);
+                EditorGUILayout.PropertyField(assetContainer, new GUIContent(CgeLocale.CGEC_Asset_container));
             }
 
             EditorGUILayout.Space();
 
-            EditorGUILayout.LabelField("Write Defaults OFF", EditorStyles.boldLabel);
-            EditorGUILayout.PropertyField(writeDefaultsRecommendationMode, new GUIContent("FX Playable Mode"));
+            EditorGUILayout.LabelField(CgeLocale.CGEC_Write_Defaults_OFF, EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(writeDefaultsRecommendationMode, new GUIContent(CgeLocale.CGEC_FX_Playable_Mode));
             if (writeDefaultsRecommendationMode.intValue == (int) WriteDefaultsRecommendationMode.UseUnsupportedWriteDefaultsOn)
             {
-                EditorGUILayout.HelpBox("You have chosen to use Write Defaults ON. This goes against VRChat recommendation.", MessageType.Error);
+                EditorGUILayout.HelpBox(CgeLocale.CGEC_WarnWriteDefaultsChosenOff, MessageType.Error);
             }
             else
             {
@@ -385,28 +367,28 @@ You should press synchronize when any of the following happens:
                     string message;
                     if (fxWdOn.Count == 21)
                     {
-                        message = string.Join("\n", fxWdOn.Take(15)) + "\n... and more (only first 15 results shown).";
+                        message = string.Join("\n", fxWdOn.Take(15)) + CgeLocale.CGEC_AndMoreOnly15FirstResults;
                     }
                     else
                     {
                         message = string.Join("\n", fxWdOn);
                     }
 
-                    EditorGUILayout.HelpBox("Some states of your FX layer have Write Defaults ON:\n\n" + message, MessageType.Warning);
+                    EditorGUILayout.HelpBox(CgeLocale.CGEC_WarnWriteDefaultsOnStatesFound + message, MessageType.Warning);
                 }
             }
 
             if (useGesturePlayableLayer.boolValue)
             {
-                EditorGUILayout.PropertyField(conflictPreventionTempGestureLayerMode, new GUIContent("Gesture Playable Mode (Temporary)"));
+                EditorGUILayout.PropertyField(conflictPreventionTempGestureLayerMode, new GUIContent(CgeLocale.CGEC_Gesture_Playable_Mode__Temporary));
             }
 
             EditorGUILayout.Space();
 
-            EditorGUILayout.LabelField("Other tweaks", EditorStyles.boldLabel);
-            EditorGUILayout.PropertyField(analogBlinkingUpperThreshold, new GUIContent("Analog fist blinking threshold", "(0: Eyes are open, 1: Eyes are closed)"));
+            EditorGUILayout.LabelField(CgeLocale.CGEC_Other_tweaks, EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(analogBlinkingUpperThreshold, new GUIContent(CgeLocale.CGEC_Analog_fist_blinking_threshold, CgeLocale.CGEC_AnalogFist_Popup));
 
-            editorAdvancedFoldout.boolValue = EditorGUILayout.Foldout(editorAdvancedFoldout.boolValue, "Advanced");
+            editorAdvancedFoldout.boolValue = EditorGUILayout.Foldout(editorAdvancedFoldout.boolValue, CgeLocale.CGEC_Advanced);
             if (editorAdvancedFoldout.boolValue)
             {
                 EditorGUILayout.LabelField("Fine tuning", EditorStyles.boldLabel);
@@ -438,13 +420,13 @@ You should press synchronize when any of the following happens:
                 GenWeightCorrection(true);
 
                 EditorGUILayout.LabelField("Animation Conflict Prevention", EditorStyles.boldLabel);
-                EditorGUILayout.PropertyField(writeDefaultsRecommendationMode, new GUIContent("FX Playable Mode"));
+                EditorGUILayout.PropertyField(writeDefaultsRecommendationMode, new GUIContent(CgeLocale.CGEC_FX_Playable_Mode));
                 EditorGUILayout.PropertyField(conflictPreventionTempGestureLayerMode, new GUIContent("Gesture Playable Mode"));
 
                 CpmFxValueWarning(true);
 
                 EditorGUILayout.LabelField("Animation generation", EditorStyles.boldLabel);
-                EditorGUILayout.PropertyField(assetContainer, new GUIContent("Asset container"));
+                EditorGUILayout.PropertyField(assetContainer, new GUIContent(CgeLocale.CGEC_Asset_container));
 
                 EditorGUI.BeginDisabledGroup(assetContainer.objectReferenceValue != null);
                 EditorGUILayout.PropertyField(generateNewContainerEveryTime, new GUIContent("Don't keep track of newly generated containers"));
@@ -468,6 +450,11 @@ You should press synchronize when any of the following happens:
                 EditorGUILayout.PropertyField(fallbackParamList, new GUIContent("Fallback values"));
                 EditorGUILayout.PropertyField(doNotFixSingleKeyframes, new GUIContent("Do not fix single keyframes"));
                 EditorGUILayout.PropertyField(bypassMandatoryAvatarDescriptor, new GUIContent("Bypass mandatory avatar descriptor"));
+
+                if (GUILayout.Button("(Debug) Print default translation file to console"))
+                {
+                    Debug.Log(CgeLocale.CompileDefaultLocaleJson());
+                }
             }
             else
             {
@@ -660,8 +647,8 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
 
         private void ComboLayersListHeader(Rect rect)
         {
-            EditorGUI.LabelField(new Rect(rect.x, rect.y, rect.width - 70 - 51, EditorGUIUtility.singleLineHeight), "Mood sets");
-            EditorGUI.LabelField(new Rect(rect.x + rect.width - 70 - 51, rect.y, 50 + 51, EditorGUIUtility.singleLineHeight), AsCompiler().parameterMode == ParameterMode.SingleInt ? "Parameter Value" : "Parameter Name");
+            EditorGUI.LabelField(new Rect(rect.x, rect.y, rect.width - 70 - 51, EditorGUIUtility.singleLineHeight), CgeLocale.CGEC_Mood_sets);
+            EditorGUI.LabelField(new Rect(rect.x + rect.width - 70 - 51, rect.y, 50 + 51, EditorGUIUtility.singleLineHeight), AsCompiler().parameterMode == ParameterMode.SingleInt ? CgeLocale.CGEC_Parameter_Value : CgeLocale.CGEC_Parameter_Name);
         }
     }
 }

@@ -116,7 +116,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                     InvisibleRankPreservingBox();
                     EditorGUI.BeginDisabledGroup(AnimationMode.InAnimationMode());
                     var isPreviewSetupValid = _editorEffector.IsPreviewSetupValid();
-                    if (GUILayout.Button(isPreviewSetupValid ? "Generate\npreview" : "Setup\npreview", GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true)))
+                    if (GUILayout.Button(isPreviewSetupValid ? CgeLocale.CGEE_GeneratePreview : CgeLocale.CGEE_SetupPreview, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true)))
                     {
                         if (isPreviewSetupValid)
                         {
@@ -168,7 +168,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                     InvisibleRankPreservingBox();
                     EditorGUI.BeginDisabledGroup(AnimationMode.InAnimationMode());
                     var isPreviewSetupValid = _editorEffector.IsPreviewSetupValid();
-                    if (GUILayout.Button(isPreviewSetupValid ? "Generate\npreview" : "Setup\npreview", GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true)))
+                    if (GUILayout.Button(isPreviewSetupValid ? CgeLocale.CGEE_GeneratePreview : CgeLocale.CGEE_SetupPreview, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true)))
                     {
                         if (isPreviewSetupValid)
                         {

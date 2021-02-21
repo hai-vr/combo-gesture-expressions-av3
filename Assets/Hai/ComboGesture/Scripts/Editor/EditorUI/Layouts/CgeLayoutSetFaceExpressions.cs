@@ -72,24 +72,18 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             GUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
             GUILayout.BeginVertical(GUILayout.Width(800));
-            GUILayout.Label("<b>Permutations</b>", _common.LargeFont);
-            EditorGUILayout.LabelField("Permutations is an experimental feature. It allows animations to depend on which hand side is doing the gesture.");
-            EditorGUILayout.LabelField("It is significantly harder to create and use an Activity with permutations.");
-            EditorGUILayout.LabelField("Consider using multiple Activities instead before deciding to use permutations.");
-            EditorGUILayout.LabelField("When a permutation is not defined, the other side will be used.");
+            GUILayout.Label("<b>" + CgeLocale.CGEE_Permutations + "</b>", _common.LargeFont);
+            GUILayout.Label(CgeLocale.CGEE_PermutationsIntro);
 
-            if (GUILayout.Button(new GUIContent("Open documentation and tutorials", CgeLayoutCommon.GuideIcon32)))
+            if (GUILayout.Button(new GUIContent(CgeLocale.CGEE_Open_Documentation_and_tutorials, CgeLayoutCommon.GuideIcon32)))
             {
-                Application.OpenURL("https://hai-vr.github.io/combo-gesture-expressions-av3/#permutations");
+                Application.OpenURL(CgeLocale.PermutationsDocumentationUrl());
             }
 
-            EditorGUILayout.LabelField("Permutations can be disabled later. Permutations are saved even after disabling permutations.");
-            EditorGUILayout.LabelField("Compiling an Activity with permutations disabled will not take any saved permutation into account.");
-
             GUILayout.Space(15);
-            GUILayout.Label("Do you really want to use permutations?", _common.LargeFont);
+            GUILayout.Label(CgeLocale.CGEE_ConfirmUsePermutations, _common.LargeFont);
             var prev = _editorEffector.SpEnablePermutations().boolValue;
-            var current = GUILayout.Toggle(prev, "Enable permutations for this Activity", GUILayout.Width(300));
+            var current = GUILayout.Toggle(prev, CgeLocale.CGEE_Enable_permutations_for_this_Activity, GUILayout.Width(300));
             if (current != prev)
             {
                 if (current)
@@ -103,6 +97,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                     _editorEffector.SpEditorTool().intValue = 4;
                 }
             }
+
+            GUILayout.Label(CgeLocale.CGEE_PermutationsFootnote);
 
             GUILayout.EndVertical();
             GUILayout.FlexibleSpace();
@@ -504,8 +500,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
         private void DrawTransitionEdit()
         {
             GUILayout.BeginArea(new Rect((CgeLayoutCommon.GuiSquareWidth - CgeLayoutCommon.PictureWidth) / 2, CgeLayoutCommon.SingleLineHeight, CgeLayoutCommon.PictureWidth, CgeLayoutCommon.PictureHeight));
-            GUILayout.Label("Transition duration");
-            GUILayout.Label("(in seconds)");
+            GUILayout.Label(CgeLocale.CGEE_Transition_duration_in_seconds);
             EditorGUILayout.Slider(_editorEffector.SpTransitionDuration(), 0f, 1f, GUIContent.none);
             GUILayout.EndArea();
             GUILayout.Space(CgeLayoutCommon.PictureHeight);
