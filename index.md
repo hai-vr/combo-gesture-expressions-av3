@@ -91,7 +91,7 @@ It is not recommended selecting animations with only one eye closed such as wink
 
 <div class="hai-interlude">
 <p>In your animations, you should <strong>not</strong> animate the Blink blendshape which is used by the Avatars 3.0 descriptor. If you do, your eyelids will not smoothly animate, and they will not animate on analog Fist gestures.</p>
-<p>On many avatar bases, the left eyelid and right eyelid can be animated independeltly. I would suggest you to animate those two blendshapes instead.</p>
+<p>On many avatar bases, the left eyelid and right eyelid can be animated independently. I would suggest you to animate those two blendshapes instead.</p>
 </div>
 
 # Apply to the avatar
@@ -128,7 +128,7 @@ When both hands are doing a Fist gesture, you are able to define an animation fo
 
 <div class="hai-interlude">
 <p>In your animations, you should <strong>not</strong> animate the Blink blendshape which is used by the Avatars 3.0 descriptor. They will not animate on analog Fist gestures.</p>
-<p>On many avatar bases, the left eyelid and right eyelid can be animated independeltly. I would suggest you to animate those two blendshapes instead.</p>
+<p>On many avatar bases, the left eyelid and right eyelid can be animated independently. I would suggest you to animate those two blendshapes instead.</p>
 </div>
 
 # Animate cat ears, wings and more
