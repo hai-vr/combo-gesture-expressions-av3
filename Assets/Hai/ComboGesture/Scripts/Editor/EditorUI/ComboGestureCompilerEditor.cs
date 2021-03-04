@@ -448,6 +448,10 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 {
                     Debug.Log(CgeLocale.CompileDefaultLocaleJson());
                 }
+                if (GUILayout.Button("(Debug) Reload localization files"))
+                {
+                    CgeLocalization.ReloadLocalizations();
+                }
             }
             else
             {
