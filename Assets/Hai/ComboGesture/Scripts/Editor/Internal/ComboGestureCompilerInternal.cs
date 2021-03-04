@@ -67,9 +67,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _gesturePlayableLayerController = compiler.gesturePlayableLayerController as AnimatorController;
             _customEmptyClip = compiler.customEmptyClip;
             _analogBlinkingUpperThreshold = compiler.analogBlinkingUpperThreshold;
-            _featuresToggles = (compiler.doNotGenerateControllerLayer ? FeatureToggles.DoNotGenerateControllerLayer : 0)
-                               | (compiler.forceGenerationOfControllerLayer ? FeatureToggles.ForceGenerationOfControllerLayer : 0)
-                               | (compiler.doNotGenerateBlinkingOverrideLayer ? FeatureToggles.DoNotGenerateBlinkingOverrideLayer : 0)
+            _featuresToggles = (compiler.doNotGenerateBlinkingOverrideLayer ? FeatureToggles.DoNotGenerateBlinkingOverrideLayer : 0)
                                | (compiler.doNotGenerateLipsyncOverrideLayer ? FeatureToggles.DoNotGenerateLipsyncOverrideLayer : 0)
                                | (compiler.doNotGenerateWeightCorrectionLayer ? FeatureToggles.DoNotGenerateWeightCorrectionLayer : 0);
             _conflictPrevention = ConflictPrevention.OfFxLayer(compiler.writeDefaultsRecommendationMode);
@@ -105,17 +103,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 SharedLayerUtils.CreateParamIfNotExists(_animatorController, _activityStageName, AnimatorControllerParameterType.Int);
             }
 
-            if (!Feature(FeatureToggles.DoNotGenerateControllerLayer))
-            {
-                if (Feature(FeatureToggles.ForceGenerationOfControllerLayer))
-                {
-                    CreateOrReplaceController(emptyClip);
-                }
-                else
-                {
-                    DeleteController();
-                }
-            }
+            DeleteDeprecatedControllerLayer();
 
             if (_parameterGeneration == ParameterGeneration.VirtualActivity)
             {
@@ -335,12 +323,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             LayerForBooleansToVirtualActivity.Delete(_animatorGenerator);
         }
 
-        private void CreateOrReplaceController(AnimationClip emptyClip)
-        {
-            SharedLayerUtils.CreateParamIfNotExists(_animatorController, SharedLayerUtils.HaiGestureComboParamName, AnimatorControllerParameterType.Int);
-            new LayerForController(_animatorGenerator, _logicalAvatarMask, emptyClip, _conflictPrevention.ShouldWriteDefaults).Create();
-        }
-
         private static void CreateOrReplaceWeightCorrection(AvatarMask weightCorrectionAvatarMask, AnimatorGenerator animatorGenerator, AnimatorController animatorController, ConflictPrevention conflictPrevention)
         {
             SharedLayerUtils.CreateParamIfNotExists(animatorController, "GestureLeft", AnimatorControllerParameterType.Int);
@@ -473,7 +455,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             LayerForLipsyncOverrideView.Delete(_animatorGenerator);
         }
 
-        private void DeleteController()
+        private void DeleteDeprecatedControllerLayer()
         {
             LayerForController.Delete(_animatorGenerator);
         }

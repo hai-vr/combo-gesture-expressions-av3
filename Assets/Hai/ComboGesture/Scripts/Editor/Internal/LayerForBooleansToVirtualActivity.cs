@@ -8,7 +8,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
     internal class LayerForBooleansToVirtualActivity
     {
-        private const string ControllerLayerName = "Hai_GestureVirtualActivity";
+        private const string VirtualActivityLayerName = "Hai_GestureVirtualActivity";
 
         private readonly AnimatorGenerator _animatorGenerator;
         private readonly AvatarMask _logicalAvatarMask;
@@ -84,12 +84,12 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         private Machinist ReinitializeLayerAsMachinist()
         {
-            return _animatorGenerator.CreateOrRemakeLayerAtSameIndex(ControllerLayerName, 0f, _logicalAvatarMask);
+            return _animatorGenerator.CreateOrRemakeLayerAtSameIndex(VirtualActivityLayerName, 0f, _logicalAvatarMask);
         }
 
         public static void Delete(AnimatorGenerator animatorGenerator)
         {
-            animatorGenerator.RemoveLayerIfExists(ControllerLayerName);
+            animatorGenerator.RemoveLayerIfExists(VirtualActivityLayerName);
         }
     }
 }

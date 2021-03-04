@@ -37,8 +37,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public SerializedProperty weightCorrectionAvatarMask;
         public SerializedProperty gesturePlayableLayerExpressionsAvatarMask;
         public SerializedProperty gesturePlayableLayerTechnicalAvatarMask;
-        public SerializedProperty doNotGenerateControllerLayer;
-        public SerializedProperty forceGenerationOfControllerLayer;
         public SerializedProperty doNotGenerateBlinkingOverrideLayer;
         public SerializedProperty doNotGenerateLipsyncOverrideLayer;
         public SerializedProperty doNotGenerateWeightCorrectionLayer;
@@ -83,8 +81,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             weightCorrectionAvatarMask = serializedObject.FindProperty("weightCorrectionAvatarMask");
             gesturePlayableLayerExpressionsAvatarMask = serializedObject.FindProperty("gesturePlayableLayerExpressionsAvatarMask");
             gesturePlayableLayerTechnicalAvatarMask = serializedObject.FindProperty("gesturePlayableLayerTechnicalAvatarMask");
-            doNotGenerateControllerLayer = serializedObject.FindProperty("doNotGenerateControllerLayer");
-            forceGenerationOfControllerLayer = serializedObject.FindProperty("forceGenerationOfControllerLayer");
             doNotGenerateBlinkingOverrideLayer = serializedObject.FindProperty("doNotGenerateBlinkingOverrideLayer");
             doNotGenerateLipsyncOverrideLayer = serializedObject.FindProperty("doNotGenerateLipsyncOverrideLayer");
             doNotGenerateWeightCorrectionLayer = serializedObject.FindProperty("doNotGenerateWeightCorrectionLayer");
@@ -402,10 +398,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 EditorGUILayout.PropertyField(weightCorrectionAvatarMask, new GUIContent("Add Avatar Mask to Weight Correction layer"));
                 EditorGUILayout.PropertyField(gesturePlayableLayerExpressionsAvatarMask, new GUIContent("Use specific Avatar Mask on Gesture playable expressions layer"));
                 EditorGUILayout.PropertyField(gesturePlayableLayerTechnicalAvatarMask, new GUIContent("Use specific Avatar Mask on Gesture playable technical layers"));
-                EditorGUILayout.PropertyField(doNotGenerateControllerLayer, new GUIContent("Don't update Controller layer"));
-                EditorGUI.BeginDisabledGroup(compiler.doNotGenerateControllerLayer);
-                EditorGUILayout.PropertyField(forceGenerationOfControllerLayer, new GUIContent("Force generation of Controller layer"));
-                EditorGUI.EndDisabledGroup();
                 EditorGUILayout.PropertyField(doNotGenerateBlinkingOverrideLayer, new GUIContent("Don't update Blinking layer"));
                 GenBlinkingWarning(true);
                 EditorGUILayout.PropertyField(doNotGenerateLipsyncOverrideLayer, new GUIContent("Don't update Lipsync layer"));
