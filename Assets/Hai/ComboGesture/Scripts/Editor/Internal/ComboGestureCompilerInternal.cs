@@ -66,8 +66,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _gesturePlayableLayerController = compiler.gesturePlayableLayerController as AnimatorController;
             _customEmptyClip = compiler.customEmptyClip;
             _analogBlinkingUpperThreshold = compiler.analogBlinkingUpperThreshold;
-            _featuresToggles = (compiler.exposeDisableBlinkingOverride ? FeatureToggles.ExposeDisableBlinkingOverride : 0)
-                               | (compiler.exposeAreEyesClosed ? FeatureToggles.ExposeAreEyesClosed : 0)
+            _featuresToggles = (compiler.exposeAreEyesClosed ? FeatureToggles.ExposeAreEyesClosed : 0)
                                | (compiler.doNotGenerateControllerLayer ? FeatureToggles.DoNotGenerateControllerLayer : 0)
                                | (compiler.forceGenerationOfControllerLayer ? FeatureToggles.ForceGenerationOfControllerLayer : 0)
                                | (compiler.doNotGenerateBlinkingOverrideLayer ? FeatureToggles.DoNotGenerateBlinkingOverrideLayer : 0)
@@ -392,10 +391,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             if (_activityStageName != null)
             {
                 SharedLayerUtils.CreateParamIfNotExists(_animatorController, _activityStageName, AnimatorControllerParameterType.Int);
-            }
-            if (Feature(FeatureToggles.ExposeDisableBlinkingOverride))
-            {
-                SharedLayerUtils.CreateParamIfNotExists(_animatorController, SharedLayerUtils.HaiGestureComboDisableBlinkingOverrideParamName, AnimatorControllerParameterType.Int);
             }
             if (Feature(FeatureToggles.ExposeAreEyesClosed))
             {

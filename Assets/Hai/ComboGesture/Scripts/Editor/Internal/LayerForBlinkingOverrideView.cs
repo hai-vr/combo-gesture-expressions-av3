@@ -54,7 +54,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 CreateInternalParameterDriverWhenEyesAreClosed(disableBlinking);
             }
 
-            var requireSuspension = _activityStageName != null || Feature(FeatureToggles.ExposeDisableBlinkingOverride);
+            var requireSuspension = _activityStageName != null;
             if (requireSuspension)
             {
                 var suspend = CreateSuspendState(machine, _emptyClip);
@@ -65,12 +65,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                     CreateTransitionWhenActivityIsOutOfBounds(disableBlinking, suspend);
                 }
 
-                if (Feature(FeatureToggles.ExposeDisableBlinkingOverride))
-                {
-                    CreateTransitionWhenBlinkingIsDisabled(enableBlinking, suspend);
-                    CreateTransitionWhenBlinkingIsDisabled(disableBlinking, suspend);
-                }
-
                 foreach (var layer in _comboLayers)
                 {
                     var transition = suspend.AddTransition(enableBlinking);
@@ -78,11 +72,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                     if (_activityStageName != null)
                     {
                         transition.AddCondition(AnimatorConditionMode.Equals, layer.stageValue, _activityStageName);
-                    }
-
-                    if (Feature(FeatureToggles.ExposeDisableBlinkingOverride))
-                    {
-                        transition.AddCondition(AnimatorConditionMode.Equals, 0, SharedLayerUtils.HaiGestureComboDisableBlinkingOverrideParamName);
                     }
                 }
             }
@@ -112,13 +101,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             {
                 new VRC_AvatarParameterDriver.Parameter {name = SharedLayerUtils.HaiGestureComboAreEyesClosedParamName, value = 1}
             };
-        }
-
-        private static void CreateTransitionWhenBlinkingIsDisabled(AnimatorState from, AnimatorState to)
-        {
-            var transition = from.AddTransition(to);
-            SharedLayerUtils.SetupDefaultBlinkingTransition(transition);
-            transition.AddCondition(AnimatorConditionMode.NotEqual, 0, SharedLayerUtils.HaiGestureComboDisableBlinkingOverrideParamName);
         }
 
         private AnimatorState CreateSuspendState(AnimatorStateMachine machine, AnimationClip emptyClip)
