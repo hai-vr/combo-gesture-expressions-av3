@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors;
 using UnityEngine;
 
@@ -223,6 +224,12 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             {"anim71", "anim70"},
         };
 
+        private readonly HashSet<string> symmetricals = new HashSet<string>(new[]
+        {
+            "anim11", "anim11_L", "anim11_R", "anim22", "anim33", "anim44", "anim55", "anim66", "anim77",
+            "p_anim00", "p_anim11", "p_anim11_L", "p_anim11_R", "p_anim22", "p_anim33", "p_anim44", "p_anim55", "p_anim66", "p_anim77"
+        });
+
         private readonly CgeEditorEffector _editorEffector;
 
         public CgeActivityEditorDriver(CgeEditorEffector editorEffector)
@@ -232,7 +239,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         public bool IsSymmetrical(string propertyPath)
         {
-            return Translations[propertyPath].Contains("x2");
+            return symmetricals.Contains(propertyPath);
         }
 
         public string ShortTranslation(string propertyPath)
