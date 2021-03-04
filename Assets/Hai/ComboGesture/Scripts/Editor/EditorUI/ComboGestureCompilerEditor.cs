@@ -396,11 +396,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
                 EditorGUILayout.Separator();
 
-                EditorGUILayout.LabelField("Internal parameters", EditorStyles.boldLabel);
-                EditorGUILayout.PropertyField(exposeAreEyesClosed, new GUIContent("Expose " + SharedLayerUtils.HaiGestureComboAreEyesClosedParamName.Substring("_Hai_GestureCombo".Length)));
-
-                EditorGUILayout.Separator();
-
                 EditorGUILayout.LabelField("Layer generation", EditorStyles.boldLabel);
                 EditorGUILayout.PropertyField(expressionsAvatarMask, new GUIContent("Add Avatar Mask to Expressions layer"));
                 EditorGUILayout.PropertyField(logicalAvatarMask, new GUIContent("Add Avatar Mask to Controller&Blinking layers"));

@@ -15,19 +15,17 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly string _activityStageName;
         private readonly List<GestureComboStageMapper> _comboLayers;
         private readonly float _analogBlinkingUpperThreshold;
-        private readonly FeatureToggles _featuresToggles;
         private readonly AvatarMask _logicalAvatarMask;
         private readonly AnimatorGenerator _animatorGenerator;
         private readonly AnimationClip _emptyClip;
         private readonly List<ManifestBinding> _manifestBindings;
         private readonly bool _writeDefaultsForLogicalStates;
 
-        public LayerForBlinkingOverrideView(string activityStageName, List<GestureComboStageMapper> comboLayers, float analogBlinkingUpperThreshold, FeatureToggles featuresToggles, AvatarMask logicalAvatarMask, AnimatorGenerator animatorGenerator, AnimationClip emptyClip, List<ManifestBinding> manifestBindings, bool writeDefaults)
+        public LayerForBlinkingOverrideView(string activityStageName, List<GestureComboStageMapper> comboLayers, float analogBlinkingUpperThreshold, AvatarMask logicalAvatarMask, AnimatorGenerator animatorGenerator, AnimationClip emptyClip, List<ManifestBinding> manifestBindings, bool writeDefaults)
         {
             _activityStageName = activityStageName;
             _comboLayers = comboLayers;
             _analogBlinkingUpperThreshold = analogBlinkingUpperThreshold;
-            _featuresToggles = featuresToggles;
             _logicalAvatarMask = logicalAvatarMask;
             _animatorGenerator = animatorGenerator;
             _emptyClip = emptyClip;
@@ -47,12 +45,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
             var enableBlinking = CreateBlinkingState(machine, VRC_AnimatorTrackingControl.TrackingType.Tracking, _emptyClip);
             var disableBlinking = CreateBlinkingState(machine, VRC_AnimatorTrackingControl.TrackingType.Animation, _emptyClip);
-
-            if (Feature(FeatureToggles.ExposeAreEyesClosed))
-            {
-                CreateInternalParameterDriverWhenEyesAreOpen(enableBlinking);
-                CreateInternalParameterDriverWhenEyesAreClosed(disableBlinking);
-            }
 
             var requireSuspension = _activityStageName != null;
             if (requireSuspension)
@@ -83,24 +75,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             var toEnable = disableBlinking.AddTransition(enableBlinking);
             SetupBlinkingTransition(toEnable);
             toEnable.AddCondition(AnimatorConditionMode.Less, _analogBlinkingUpperThreshold, "_Hai_GestureAnimBlink");
-        }
-
-        private static void CreateInternalParameterDriverWhenEyesAreOpen(AnimatorState enableBlinking)
-        {
-            var driver = enableBlinking.AddStateMachineBehaviour<VRCAvatarParameterDriver>();
-            driver.parameters = new List<VRC_AvatarParameterDriver.Parameter>
-            {
-                new VRC_AvatarParameterDriver.Parameter {name = SharedLayerUtils.HaiGestureComboAreEyesClosedParamName, value = 0}
-            };
-        }
-
-        private static void CreateInternalParameterDriverWhenEyesAreClosed(AnimatorState disableBlinking)
-        {
-            var driver = disableBlinking.AddStateMachineBehaviour<VRCAvatarParameterDriver>();
-            driver.parameters = new List<VRC_AvatarParameterDriver.Parameter>
-            {
-                new VRC_AvatarParameterDriver.Parameter {name = SharedLayerUtils.HaiGestureComboAreEyesClosedParamName, value = 1}
-            };
         }
 
         private AnimatorState CreateSuspendState(AnimatorStateMachine machine, AnimationClip emptyClip)
@@ -137,11 +111,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private AnimatorStateMachine ReinitializeLayer()
         {
             return _animatorGenerator.CreateOrRemakeLayerAtSameIndex("Hai_GestureBlinking", 0f, _logicalAvatarMask).ExposeMachine();
-        }
-
-        private bool Feature(FeatureToggles feature)
-        {
-            return (_featuresToggles & feature) == feature;
         }
 
         private static void SetupBlinkingTransition(AnimatorStateTransition transition)

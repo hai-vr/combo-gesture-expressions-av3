@@ -28,15 +28,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             transition.canTransitionToSelf = false;
         }
 
-        internal static void SetupDefaultBlinkingTransition(AnimatorStateTransition transition)
-        {
-            SetupCommonTransition(transition);
-
-            transition.duration = 0;
-            transition.orderedInterruption = false; // Is the difference relevant?!
-            transition.canTransitionToSelf = false;
-        }
-
         internal static void SetupCommonTransition(AnimatorStateTransition transition)
         {
             transition.hasExitTime = false;
@@ -54,7 +45,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         internal const string GestureLeft = "GestureLeft";
         internal const string GestureRight = "GestureRight";
         internal const string HaiGestureComboParamName = "_Hai_GestureComboValue";
-        internal const string HaiGestureComboAreEyesClosedParamName = "_Hai_GestureComboAreEyesClosed";
         internal const string HaiGestureComboIsLipsyncLimitedParamName = "_Hai_GestureComboIsLipsyncLimited";
         internal const string HaiGestureComboDisableLipsyncOverrideParamName = "_Hai_GestureComboDisableLipsyncOverride";
         internal const string HaiGestureComboLeftWeightProxy = "_Hai_GestureLWProxy";
