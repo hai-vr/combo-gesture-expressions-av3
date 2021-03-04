@@ -21,12 +21,12 @@ namespace Hai.ComboGesture.Scripts.Components
         public bool integrateLimitedLipsync;
         public ComboGestureLimitedLipsync lipsyncForWideOpenMouth;
 
-        public bool exposeDisableExpressions;
-        public bool exposeDisableBlinkingOverride;
-        public bool exposeAreEyesClosed;
+        public bool exposeDisableExpressions; // Deprecated
+        public bool exposeDisableBlinkingOverride; // Deprecated
+        public bool exposeAreEyesClosed; // Deprecated
 
-        public bool doNotGenerateControllerLayer;
-        public bool forceGenerationOfControllerLayer;
+        public bool doNotGenerateControllerLayer; // Deprecated
+        public bool forceGenerationOfControllerLayer; // Deprecated
         public bool doNotGenerateBlinkingOverrideLayer;
         public bool doNotGenerateLipsyncOverrideLayer;
         public bool doNotGenerateWeightCorrectionLayer;
