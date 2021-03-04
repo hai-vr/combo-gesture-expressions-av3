@@ -11,13 +11,25 @@ The animations you provide are not used directly in animators: I create modified
 
 The applied fix is to make sure all FX layer animations will always modify all animated curves. 
 
-#### GestureWeight correction
+#### GestureWeight transition correction
 
 GestureWeight value depends on how much the trigger is squeezed when the hand is doing a Fist gesture. The value of GestureWeight will always be 1.0 if the hand is not a Fist.
 
 This causes an issue right when the hand stops doing a Fist gesture: The animation will transition to another state, but the blend tree read the new GestureWeight value of 1.0 instantly. This causes the face expression to instantly change before the transition starts.
 
 The applied fix is to copy the GestureWeight value only as long as the hand is doing a Fist gesture, effectively freezing the last known value when the Fist is no longer doing that gesture. This is done by using a technique with *Animated Animator Parameters*, where an Animator parameter is animated using itself as the Normalized Time input.
+
+#### GestureWeight smoothing correction
+
+The trigger squeezes smoothly when looking at yourself on mirrors and cameras.
+
+However, when other players look at you, the animation looks laggy and jerky, it is not interpolated.
+
+The applied fix is to smooth that value by performing a mathematical operation on the received GestureWeight:
+
+> SmoothedValue ← TargetValue * SmoothingFactor + SmoothedValue * (1 - SmoothingFactor)
+
+This mathematical operation is implemented using several blend trees.
 
 #### Disabling blinking animation
 
