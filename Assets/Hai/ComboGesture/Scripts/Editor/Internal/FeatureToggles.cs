@@ -6,7 +6,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
     public enum FeatureToggles
     {
         None = 0,
-        ExposeDisableExpressions = 1,
+        // ExposeDisableExpressions = 1,
         ExposeDisableBlinkingOverride = 2,
         ExposeAreEyesClosed = 4,
         DoNotGenerateBlinkingOverrideLayer = 8,

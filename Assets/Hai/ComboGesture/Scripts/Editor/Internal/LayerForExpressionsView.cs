@@ -72,10 +72,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             var defaultState = machine.AddState("Default", SharedLayerUtils.GridPosition(-1, -1));
             defaultState.motion = _emptyClip;
             defaultState.writeDefaultValues = _conflictPrevention.ShouldWriteDefaults;
-            if (Feature(FeatureToggles.ExposeDisableExpressions))
-            {
-                CreateTransitionWhenExpressionsAreDisabled(machine, defaultState);
-            }
 
             if (_activityStageName != null)
             {
@@ -144,13 +140,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 })
                 .Distinct()
                 .ToList();
-        }
-
-        private static void CreateTransitionWhenExpressionsAreDisabled(AnimatorStateMachine machine, AnimatorState defaultState)
-        {
-            var transition = machine.AddAnyStateTransition(defaultState);
-            SharedLayerUtils.SetupDefaultTransition(transition);
-            transition.AddCondition(AnimatorConditionMode.NotEqual, 0, SharedLayerUtils.HaiGestureComboDisableExpressionsParamName);
         }
 
         private void CreateTransitionWhenActivityIsOutOfBounds(AnimatorStateMachine machine, AnimatorState defaultState)

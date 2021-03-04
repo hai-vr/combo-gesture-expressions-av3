@@ -66,8 +66,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _gesturePlayableLayerController = compiler.gesturePlayableLayerController as AnimatorController;
             _customEmptyClip = compiler.customEmptyClip;
             _analogBlinkingUpperThreshold = compiler.analogBlinkingUpperThreshold;
-            _featuresToggles = (compiler.exposeDisableExpressions ? FeatureToggles.ExposeDisableExpressions : 0)
-                               | (compiler.exposeDisableBlinkingOverride ? FeatureToggles.ExposeDisableBlinkingOverride : 0)
+            _featuresToggles = (compiler.exposeDisableBlinkingOverride ? FeatureToggles.ExposeDisableBlinkingOverride : 0)
                                | (compiler.exposeAreEyesClosed ? FeatureToggles.ExposeAreEyesClosed : 0)
                                | (compiler.doNotGenerateControllerLayer ? FeatureToggles.DoNotGenerateControllerLayer : 0)
                                | (compiler.forceGenerationOfControllerLayer ? FeatureToggles.ForceGenerationOfControllerLayer : 0)
@@ -321,7 +320,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         private void CreateOrReplaceExpressionsView(AnimationClip emptyClip, List<ManifestBinding> manifestBindings)
         {
-            CreateExpressionsViewParameters(_animatorController, Feature(FeatureToggles.ExposeDisableExpressions), _activityStageName);
+            CreateExpressionsViewParameters(_animatorController, _activityStageName);
             SharedLayerUtils.CreateParamIfNotExists(_animatorController, "_Hai_GestureAnimBlink", AnimatorControllerParameterType.Float);
             SharedLayerUtils.CreateParamIfNotExists(_animatorController, "_Hai_GestureAnimLSWide", AnimatorControllerParameterType.Float);
 
@@ -352,7 +351,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 ? _gesturePlayableLayerExpressionsAvatarMask
                 : AssetDatabase.LoadAssetAtPath<AvatarMask>(GesturePlayableLayerAvatarMaskPath);
 
-            CreateExpressionsViewParameters(_gesturePlayableLayerController, Feature(FeatureToggles.ExposeDisableExpressions), _activityStageName);
+            CreateExpressionsViewParameters(_gesturePlayableLayerController, _activityStageName);
 
             var avatarFallbacks = new CgeAvatarSnapshot(_avatarDescriptor, _compilerFallbackParamList).CaptureFallbacks();
             new LayerForExpressionsView(
@@ -375,7 +374,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             ).Create();
         }
 
-        private static void CreateExpressionsViewParameters(AnimatorController animatorController, bool disableExpressions, string activityStageName)
+        private static void CreateExpressionsViewParameters(AnimatorController animatorController, string activityStageName)
         {
             if (activityStageName != null)
             {
@@ -386,10 +385,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             SharedLayerUtils.CreateParamIfNotExists(animatorController, "GestureRight", AnimatorControllerParameterType.Int);
             SharedLayerUtils.CreateParamIfNotExists(animatorController, "GestureLeftWeight", AnimatorControllerParameterType.Float);
             SharedLayerUtils.CreateParamIfNotExists(animatorController, "GestureRightWeight", AnimatorControllerParameterType.Float);
-            if (disableExpressions)
-            {
-                SharedLayerUtils.CreateParamIfNotExists(animatorController, SharedLayerUtils.HaiGestureComboDisableExpressionsParamName, AnimatorControllerParameterType.Int);
-            }
         }
 
         private void CreateOrReplaceBlinkingOverrideView(AnimationClip emptyClip, List<ManifestBinding> manifestBindings)

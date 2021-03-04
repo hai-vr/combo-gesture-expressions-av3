@@ -54,7 +54,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         internal const string GestureLeft = "GestureLeft";
         internal const string GestureRight = "GestureRight";
         internal const string HaiGestureComboParamName = "_Hai_GestureComboValue";
-        internal const string HaiGestureComboDisableExpressionsParamName = "_Hai_GestureComboDisableExpressions";
         internal const string HaiGestureComboAreEyesClosedParamName = "_Hai_GestureComboAreEyesClosed";
         internal const string HaiGestureComboDisableBlinkingOverrideParamName = "_Hai_GestureComboDisableBlinkingOverride";
         internal const string HaiGestureComboIsLipsyncLimitedParamName = "_Hai_GestureComboIsLipsyncLimited";
