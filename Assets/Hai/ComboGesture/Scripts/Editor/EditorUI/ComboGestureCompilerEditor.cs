@@ -139,6 +139,11 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         public override void OnInspectorGUI()
         {
+            if (AsCompiler().comboLayers == null)
+            {
+                AsCompiler().comboLayers = new List<GestureComboStageMapper>();
+            }
+
             serializedObject.Update();
             var italic = new GUIStyle(GUI.skin.label) {fontStyle = FontStyle.Italic};
 
