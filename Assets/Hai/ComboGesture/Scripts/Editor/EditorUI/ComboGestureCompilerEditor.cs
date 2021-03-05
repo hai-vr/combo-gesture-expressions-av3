@@ -142,9 +142,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 Application.OpenURL(CgeLocale.DocumentationUrl());
             }
 
-            EditorGUILayout.LabelField(CgeLocale.CGEC_Activities, EditorStyles.boldLabel);
-            EditorGUILayout.LabelField(CgeLocale.CGEC_BackupFX, italic);
-            EditorGUILayout.PropertyField(animatorController, new GUIContent(CgeLocale.CGEC_FX_Animator_Controller));
+            EditorGUILayout.LabelField(CgeLocale.CGEC_Mood_sets, EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(avatarDescriptor, new GUIContent(CgeLocale.CGEC_Avatar_descriptor));
             var compiler = AsCompiler();
             EditorGUI.BeginDisabledGroup(comboLayers.arraySize <= 1);
             EditorGUILayout.PropertyField(parameterMode, new GUIContent(CgeLocale.CGEC_Parameter_Mode));
@@ -248,78 +247,48 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 }
             }
 
-            EditorGUILayout.LabelField("Corrections", EditorStyles.boldLabel);
-            EditorGUILayout.PropertyField(avatarDescriptor, new GUIContent(CgeLocale.CGEC_Avatar_descriptor));
-            if (compiler.avatarDescriptor != null) {
-                EditorGUILayout.PropertyField(weightCorrectionMode, new GUIContent(FakeBooleanIcon(compiler.WillUseGestureWeightCorrection()) + CgeLocale.CGEC_GestureWeight_correction));
+            EditorGUILayout.LabelField(CgeLocale.CGEC_FX_Playable_Layer, EditorStyles.boldLabel);
+            EditorGUILayout.LabelField(CgeLocale.CGEC_BackupFX, italic);
+            EditorGUILayout.PropertyField(animatorController, new GUIContent(CgeLocale.CGEC_FX_Animator_Controller));
+            EditorGUILayout.PropertyField(writeDefaultsRecommendationMode, new GUIContent(CgeLocale.CGEC_FX_Playable_Mode));
+            WriteDefaultsSection(compiler.animatorController, writeDefaultsRecommendationMode);
 
-                EditorGUI.BeginDisabledGroup(compiler.doNotGenerateLipsyncOverrideLayer);
-                if (compiler.integrateLimitedLipsync && !compiler.doNotGenerateLipsyncOverrideLayer)
-                {
-                    EditorGUILayout.PropertyField(lipsyncForWideOpenMouth, new GUIContent(CgeLocale.CGEC_Lipsync_correction));
-                    var lipsyncBlendshapes = new BlendshapesFinder(compiler.avatarDescriptor).FindLipsync();
-                    if (lipsyncBlendshapes.Any())
-                    {
-                        var firstLipsyncBlendshape = lipsyncBlendshapes.FirstOrDefault();
-                        if (lipsyncBlendshapes.Any())
-                        {
-                            EditorGUILayout.LabelField(CgeLocale.CGEC_Found_lipsync_blendshapes);
-                            EditorGUILayout.LabelField("- " + firstLipsyncBlendshape.Path + "::" + firstLipsyncBlendshape.BlendShapeName + " (+ " + (lipsyncBlendshapes.Count - 1) + " more...)");
-                        }
-                        else
-                        {
-                            EditorGUILayout.LabelField(CgeLocale.CGEC_No_lipsync_blendshapes_found);
-                        }
-                    }
-                }
-                EditorGUI.EndDisabledGroup();
-            }
+            EditorGUILayout.Separator();
 
-            EditorGUILayout.Space();
-
-            EditorGUILayout.LabelField(CgeLocale.CGEC_Support_for_other_transforms, EditorStyles.boldLabel);
+            EditorGUILayout.LabelField(CgeLocale.CGEC_Gesture_Playable_Layer, EditorStyles.boldLabel);
+            EditorGUILayout.LabelField(CgeLocale.CGEC_Support_for_other_transforms, italic);
+            EditorGUILayout.LabelField(CgeLocale.CGEC_MusclesUnsupported, italic);
             EditorGUILayout.PropertyField(useGesturePlayableLayer, new GUIContent(CgeLocale.CGEC_Gesture_playable_layer_support));
             if (useGesturePlayableLayer.boolValue)
             {
                 EditorGUILayout.LabelField(CgeLocale.CGEC_BackupGesture, italic);
                 EditorGUILayout.PropertyField(gesturePlayableLayerController, new GUIContent(CgeLocale.CGEC_Gesture_Animator_Controller));
-                EditorGUILayout.HelpBox(CgeLocale.CGEC_MusclesUnsupported, MessageType.Info);
-            }
 
-            EditorGUILayout.Space();
-
-            EditorGUILayout.LabelField(CgeLocale.CGEC_Write_Defaults_OFF, EditorStyles.boldLabel);
-            EditorGUILayout.PropertyField(writeDefaultsRecommendationMode, new GUIContent(CgeLocale.CGEC_FX_Playable_Mode));
-            if (useGesturePlayableLayer.boolValue)
-            {
                 EditorGUILayout.PropertyField(writeDefaultsRecommendationModeGesture, new GUIContent(CgeLocale.CGEC_Gesture_Playable_Mode));
                 EditorGUILayout.PropertyField(gestureLayerTransformCapture, new GUIContent(CgeLocale.CGEC_Capture_Transforms_Mode));
-            }
+                WriteDefaultsSection(compiler.gesturePlayableLayerController, writeDefaultsRecommendationModeGesture);
 
-            if (writeDefaultsRecommendationMode.intValue == (int) WriteDefaultsRecommendationMode.UseUnsupportedWriteDefaultsOn)
-            {
-                EditorGUILayout.HelpBox(CgeLocale.CGEC_WarnWriteDefaultsChosenOff, MessageType.Error);
-            }
-            else
-            {
-                var fxWdOn = ListAllWriteDefaults(compiler, 21);
-                if (fxWdOn.Count > 0)
+                if (compiler.writeDefaultsRecommendationModeGesture == WriteDefaultsRecommendationMode.FollowVrChatRecommendationWriteDefaultsOff)
                 {
-                    string message;
-                    if (fxWdOn.Count == 21)
+                    var missingMaskCount = IntrospectFxMasksEmptyMasks(compiler.animatorController);
+                    if (missingMaskCount > 0)
                     {
-                        message = string.Join("\n", fxWdOn.Take(15)) + CgeLocale.CGEC_AndMoreOnly15FirstResults;
+                        EditorGUILayout.HelpBox(string.Format(CgeLocale.CGEC_MissingFxMask, missingMaskCount), MessageType.Error);
                     }
-                    else
+                    EditorGUI.BeginDisabledGroup(missingMaskCount == 0);
+                    if (GUILayout.Button(CgeLocale.CGEC_Add_missing_masks))
                     {
-                        message = string.Join("\n", fxWdOn);
+                        new CgeMaskApplicator(AsCompiler().animatorController).AddMask();
                     }
-
-                    EditorGUILayout.HelpBox(CgeLocale.CGEC_WarnWriteDefaultsOnStatesFound + message, MessageType.Warning);
+                    EditorGUI.EndDisabledGroup();
+                    if (GUILayout.Button(CgeLocale.CGEC_Remove_applied_masks))
+                    {
+                        new CgeMaskApplicator(AsCompiler().animatorController).RemoveMask();
+                    }
                 }
             }
 
-            EditorGUILayout.Space();
+            EditorGUILayout.Separator();
 
             EditorGUILayout.LabelField(CgeLocale.CGEC_Synchronization, EditorStyles.boldLabel);
 
@@ -366,7 +335,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             if (GUILayout.Button(compiler.useGesturePlayableLayer ?
                 CgeLocale.CGEC_Synchronize_Animator_FX_and_Gesture_layers :
-                CgeLocale.CGEC_Synchronize_Animator_FX_layers))
+                CgeLocale.CGEC_Synchronize_Animator_FX_layers, GUILayout.Height(40)))
             {
                 DoGenerate();
             }
@@ -380,7 +349,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 EditorGUILayout.PropertyField(assetContainer, new GUIContent(CgeLocale.CGEC_Asset_container));
             }
 
-            EditorGUILayout.Space();
+            EditorGUILayout.Separator();
 
             EditorGUILayout.LabelField(CgeLocale.CGEC_Other_tweaks, EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(analogBlinkingUpperThreshold, new GUIContent(CgeLocale.CGEC_Analog_fist_blinking_threshold, CgeLocale.CGEC_AnalogFist_Popup));
@@ -388,17 +357,43 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             editorAdvancedFoldout.boolValue = EditorGUILayout.Foldout(editorAdvancedFoldout.boolValue, CgeLocale.CGEC_Advanced);
             if (editorAdvancedFoldout.boolValue)
             {
+                EditorGUILayout.LabelField("Corrections", EditorStyles.boldLabel);
+                if (compiler.avatarDescriptor != null) {
+                    EditorGUILayout.PropertyField(weightCorrectionMode, new GUIContent(FakeBooleanIcon(compiler.WillUseGestureWeightCorrection()) + CgeLocale.CGEC_GestureWeight_correction));
+
+                    EditorGUI.BeginDisabledGroup(compiler.doNotGenerateLipsyncOverrideLayer);
+                    if (compiler.integrateLimitedLipsync && !compiler.doNotGenerateLipsyncOverrideLayer)
+                    {
+                        EditorGUILayout.PropertyField(lipsyncForWideOpenMouth, new GUIContent(CgeLocale.CGEC_Lipsync_correction));
+                        var lipsyncBlendshapes = new BlendshapesFinder(compiler.avatarDescriptor).FindLipsync();
+                        if (lipsyncBlendshapes.Any())
+                        {
+                            var firstLipsyncBlendshape = lipsyncBlendshapes.FirstOrDefault();
+                            if (lipsyncBlendshapes.Any())
+                            {
+                                EditorGUILayout.LabelField(CgeLocale.CGEC_Found_lipsync_blendshapes);
+                                EditorGUILayout.LabelField("- " + firstLipsyncBlendshape.Path + "::" + firstLipsyncBlendshape.BlendShapeName + " (+ " + (lipsyncBlendshapes.Count - 1) + " more...)");
+                            }
+                            else
+                            {
+                                EditorGUILayout.LabelField(CgeLocale.CGEC_No_lipsync_blendshapes_found);
+                            }
+                        }
+                    }
+                    EditorGUI.EndDisabledGroup();
+                }
+
                 EditorGUILayout.LabelField("Fine tuning", EditorStyles.boldLabel);
                 EditorGUILayout.PropertyField(customEmptyClip, new GUIContent("Custom 2-frame empty animation clip (optional)"));
 
                 EditorGUILayout.Separator();
 
                 EditorGUILayout.LabelField("Layer generation", EditorStyles.boldLabel);
-                EditorGUILayout.PropertyField(expressionsAvatarMask, new GUIContent("Add Avatar Mask to Expressions layer"));
-                EditorGUILayout.PropertyField(logicalAvatarMask, new GUIContent("Add Avatar Mask to Controller&Blinking layers"));
-                EditorGUILayout.PropertyField(weightCorrectionAvatarMask, new GUIContent("Add Avatar Mask to Weight Correction layer"));
-                EditorGUILayout.PropertyField(gesturePlayableLayerExpressionsAvatarMask, new GUIContent("Use specific Avatar Mask on Gesture playable expressions layer"));
-                EditorGUILayout.PropertyField(gesturePlayableLayerTechnicalAvatarMask, new GUIContent("Use specific Avatar Mask on Gesture playable technical layers"));
+                EditorGUILayout.PropertyField(expressionsAvatarMask, new GUIContent("Override Avatar Mask on Expressions layer"));
+                EditorGUILayout.PropertyField(logicalAvatarMask, new GUIContent("Override Avatar Mask on Controller&Blinking layers"));
+                EditorGUILayout.PropertyField(weightCorrectionAvatarMask, new GUIContent("Override Avatar Mask on Weight Correction layer"));
+                EditorGUILayout.PropertyField(gesturePlayableLayerExpressionsAvatarMask, new GUIContent("Override Avatar Mask on Gesture playable expressions layer"));
+                EditorGUILayout.PropertyField(gesturePlayableLayerTechnicalAvatarMask, new GUIContent("Override Avatar Mask on Gesture playable technical layers"));
                 EditorGUILayout.PropertyField(doNotGenerateBlinkingOverrideLayer, new GUIContent("Don't update Blinking layer"));
                 GenBlinkingWarning(true);
                 EditorGUILayout.PropertyField(doNotGenerateLipsyncOverrideLayer, new GUIContent("Don't update Lipsync layer"));
@@ -452,11 +447,45 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             serializedObject.ApplyModifiedProperties();
         }
 
-        private static List<string> ListAllWriteDefaults(ComboGestureCompiler compiler, int limit)
+        private static int IntrospectFxMasksEmptyMasks(RuntimeAnimatorController ctrl)
         {
-            if (!(compiler.animatorController is AnimatorController)) return new List<string>();
+            var animatorController = ctrl as AnimatorController;
+            if (animatorController == null) return 0;
 
-            var ac = (AnimatorController)compiler.animatorController;
+            return animatorController.layers.Skip(1).Count(layer => layer.avatarMask == null);
+        }
+
+        private static void WriteDefaultsSection(RuntimeAnimatorController ctrl, SerializedProperty recommendationMode)
+        {
+            if (recommendationMode.intValue == (int) WriteDefaultsRecommendationMode.UseUnsupportedWriteDefaultsOn)
+            {
+                EditorGUILayout.HelpBox(CgeLocale.CGEC_WarnWriteDefaultsChosenOff, MessageType.Error);
+            }
+            else
+            {
+                var fxWdOn = ListAllWriteDefaults(ctrl as AnimatorController, 21);
+                if (fxWdOn.Count > 0)
+                {
+                    string message;
+                    if (fxWdOn.Count == 21)
+                    {
+                        message = string.Join("\n", fxWdOn.Take(15)) + CgeLocale.CGEC_AndMoreOnly15FirstResults;
+                    }
+                    else
+                    {
+                        message = string.Join("\n", fxWdOn);
+                    }
+
+                    EditorGUILayout.HelpBox(CgeLocale.CGEC_WarnWriteDefaultsOnStatesFound + "\n\n" + message, MessageType.Warning);
+                }
+            }
+        }
+
+        private static List<string> ListAllWriteDefaults(AnimatorController animatorController, int limit)
+        {
+            if (animatorController == null) return new List<string>();
+
+            var ac = animatorController;
             return ac.layers
                 .Where(layer => !layer.name.StartsWith("Hai_Gesture"))
                 .SelectMany(layer => layer.stateMachine.states.Where(state => state.state.writeDefaultValues).Select(state => layer.name + " ▶ " + state.state.name))

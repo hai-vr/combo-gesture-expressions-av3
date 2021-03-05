@@ -10,14 +10,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
     internal class SharedLayerUtils
     {
-        internal static void SetupImmediateTransition(AnimatorStateTransition transition)
-        {
-            SetupCommonTransition(transition);
-
-            transition.duration = 0;
-            transition.orderedInterruption = true;
-            transition.canTransitionToSelf = false;
-        }
+        internal const string FxPlayableLayerAvatarMaskPath = "Assets/Hai/ComboGesture/Hai_ComboGesture_FX_HideTransformsAndMuscles.mask";
+        internal const string FxPlayableLayerAvatarMaskAutomaticPath = "Assets/Hai/ComboGesture/Hai_ComboGesture_FX_HideTransformsAndMuscles_Automatic.mask";
 
         internal static void SetupDefaultTransition(AnimatorStateTransition transition)
         {

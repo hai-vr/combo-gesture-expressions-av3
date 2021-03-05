@@ -8,7 +8,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         internal static string OfficialDocumentationUrlAsPrefix = "https://hai-vr.github.io/combo-gesture-expressions-av3/";
         internal static string CGE_Documentation_URL = OfficialDocumentationUrlAsPrefix;
         internal static string CGE_PermutationsDocumentation_URL = OfficialDocumentationUrlAsPrefix + "#permutations";
-        internal static string CGE_IntegratorDocumentation_URL = OfficialDocumentationUrlAsPrefix + "integrator.md";
+        internal static string CGE_IntegratorDocumentation_URL = OfficialDocumentationUrlAsPrefix + "integrator.html";
         internal static string CGEE_Additional_editors = "Additional editors";
         internal static string CGEE_All_combos = "All combos";
         internal static string CGEE_Analog_Fist = "Analog Fist";
@@ -64,8 +64,9 @@ Compiling an Activity with permutations disabled will not take any saved permuta
         internal static string CGEE_Blend_tree_asset = "Blend tree asset";
         //
         internal static string CGEC_Documentation_and_tutorials = @"Documentation and tutorials";
-        internal static string CGEC_Activities = @"Activities";
         internal static string CGEC_BackupFX = @"Make backups! The FX Animator Controller will be modified directly.";
+        internal static string CGEC_FX_Playable_Layer = @"FX Playable Layer";
+        internal static string CGEC_Gesture_Playable_Layer = @"Gesture Playable Layer";
         internal static string CGEC_FX_Animator_Controller = @"FX Animator Controller";
         internal static string CGEC_Parameter_Mode = @"Parameter Type";
         internal static string CGEC_Parameter_Name = @"Parameter Name";
@@ -87,8 +88,8 @@ You may choose to leave one of the mood set Parameter Name blank and it will bec
         internal static string CGEC_Lipsync_correction = @"Lipsync correction";
         internal static string CGEC_Found_lipsync_blendshapes = @"Found lipsync blendshapes:";
         internal static string CGEC_No_lipsync_blendshapes_found = @"No lipsync blendshapes found";
-        internal static string CGEC_Support_for_other_transforms = @"Support for ears/wings/tail/other transforms";
-        internal static string CGEC_Gesture_playable_layer_support = @"Gesture playable layer support";
+        internal static string CGEC_Support_for_other_transforms = @"Enable this if you need support for ears/wings/tail/other transforms.";
+        internal static string CGEC_Gesture_playable_layer_support = @"Gesture Playable Layer support";
         internal static string CGEC_BackupGesture = @"Make backups! The Gesture Animator Controller will be modified directly.";
         internal static string CGEC_Gesture_Animator_Controller = @"Gesture Animator Controller";
         internal static string CGEC_MusclesUnsupported = @"Finger positions or other muscles are not supported.";
@@ -107,20 +108,22 @@ You should press synchronize when any of the following happens:
 - the avatar transforms are modified.";
         internal static string CGEC_Asset_generation = @"Asset generation";
         internal static string CGEC_Asset_container = @"Asset container";
-        internal static string CGEC_Write_Defaults_OFF = @"Write Defaults OFF";
         internal static string CGEC_FX_Playable_Mode = @"FX Playable Mode";
         internal static string CGEC_WarnWriteDefaultsChosenOff = @"You have chosen to use Write Defaults ON. This goes against VRChat recommendation.";
         internal static string CGEC_AndMoreOnly15FirstResults = @"
 ... and more (only first 15 results shown).";
-        internal static string CGEC_WarnWriteDefaultsOnStatesFound = @"Some states of your FX layer have Write Defaults ON:
-
-";
+        internal static string CGEC_WarnWriteDefaultsOnStatesFound = @"Some states have Write Defaults ON:";
         internal static string CGEC_Gesture_Playable_Mode = @"Gesture Playable Mode";
         internal static string CGEC_Other_tweaks = @"Other tweaks";
         internal static string CGEC_Analog_fist_blinking_threshold = @"Analog fist blinking threshold";
         internal static string CGEC_AnalogFist_Popup = @"(0: Eyes are open, 1: Eyes are closed)";
         internal static string CGEC_Advanced = @"Advanced";
         internal static string CGEC_Capture_Transforms_Mode = @"Capture Transforms Mode";
+        internal static string CGEC_MissingFxMask = @"There are {0} layers of your FX animator that have a missing mask. This will usually prevent Transform animations of the Gesture Playable Layer from functioning properly.
+
+You can try to fix this by clicking ""Add missing masks"" which will modify your existing FX animator. However, be aware that masks might cause conflicts with other functions of your avatar.";
+        internal static string CGEC_Add_missing_masks = "Add missing masks";
+        internal static string CGEC_Remove_applied_masks = "Remove applied masks";
 
         internal static string CGEI_BackupAnimator = @"Make backups! The Animator Controller will be modified directly.";
         internal static string CGEI_Animator_Controller = @"Animator Controller";

@@ -77,11 +77,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _compilerIgnoreParamList = compiler.ignoreParamList;
             _compilerFallbackParamList = compiler.fallbackParamList;
             _avatarDescriptor = compiler.avatarDescriptor;
-            _expressionsAvatarMask = compiler.expressionsAvatarMask;
-            _logicalAvatarMask = compiler.logicalAvatarMask;
-            _weightCorrectionAvatarMask = compiler.weightCorrectionAvatarMask;
-            _gesturePlayableLayerExpressionsAvatarMask = compiler.gesturePlayableLayerExpressionsAvatarMask;
-            _gesturePlayableLayerTechnicalAvatarMask = compiler.gesturePlayableLayerTechnicalAvatarMask;
+            _expressionsAvatarMask = compiler.expressionsAvatarMask ? compiler.expressionsAvatarMask : AssetDatabase.LoadAssetAtPath<AvatarMask>(SharedLayerUtils.FxPlayableLayerAvatarMaskPath);
+            _logicalAvatarMask = compiler.logicalAvatarMask ? compiler.logicalAvatarMask : AssetDatabase.LoadAssetAtPath<AvatarMask>(SharedLayerUtils.FxPlayableLayerAvatarMaskPath);
+            _weightCorrectionAvatarMask = compiler.weightCorrectionAvatarMask ? compiler.weightCorrectionAvatarMask : AssetDatabase.LoadAssetAtPath<AvatarMask>(SharedLayerUtils.FxPlayableLayerAvatarMaskPath);
+            _gesturePlayableLayerExpressionsAvatarMask = compiler.gesturePlayableLayerExpressionsAvatarMask ? compiler.gesturePlayableLayerExpressionsAvatarMask : AssetDatabase.LoadAssetAtPath<AvatarMask>(GesturePlayableLayerAvatarMaskPath);
+            _gesturePlayableLayerTechnicalAvatarMask = compiler.gesturePlayableLayerTechnicalAvatarMask ? compiler.gesturePlayableLayerTechnicalAvatarMask : AssetDatabase.LoadAssetAtPath<AvatarMask>(GesturePlayableLayerAvatarMaskPath);
             _integrateLimitedLipsync = false; // For now, Limited Lipsync is disabled regardless of the compiler value
             _limitedLipsync = compiler.lipsyncForWideOpenMouth;
             _assetContainer = assetContainer;
@@ -231,10 +231,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             {
                 if (_useGestureWeightCorrection)
                 {
-                    var technicalAvatarMask = _gesturePlayableLayerTechnicalAvatarMask
-                        ? _gesturePlayableLayerTechnicalAvatarMask
-                        : AssetDatabase.LoadAssetAtPath<AvatarMask>(GesturePlayableLayerAvatarMaskPath);
-                    CreateOrReplaceWeightCorrection(technicalAvatarMask, _animatorGenerator, _gesturePlayableLayerController, _conflictPreventionTempGestureLayer);
+                    CreateOrReplaceWeightCorrection(_gesturePlayableLayerTechnicalAvatarMask, _animatorGenerator, _gesturePlayableLayerController, _conflictPreventionTempGestureLayer);
                     if (_useSmoothing)
                     {
                         CreateOrReplaceSmoothing(_weightCorrectionAvatarMask, _animatorGenerator, _gesturePlayableLayerController, _conflictPrevention);

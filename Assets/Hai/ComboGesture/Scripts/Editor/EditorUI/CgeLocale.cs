@@ -9,9 +9,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 {
     public class CgeLocale
     {
-        internal static string CGE_Documentation_URL => LocalizeOrElse("CGE_Documentation_URL", CgeLocaleDefaults.CGE_Documentation_URL);
-        internal static string CGE_PermutationsDocumentation_URL => LocalizeOrElse("CGE_PermutationsDocumentation_URL", CgeLocaleDefaults.CGE_PermutationsDocumentation_URL);
-        internal static string CGE_IntegratorDocumentation_URL => LocalizeOrElse("CGE_IntegratorDocumentation_URL", CgeLocaleDefaults.CGE_IntegratorDocumentation_URL);
+        private static string CGE_Documentation_URL => LocalizeOrElse("CGE_Documentation_URL", CgeLocaleDefaults.CGE_Documentation_URL);
+        private static string CGE_PermutationsDocumentation_URL => LocalizeOrElse("CGE_PermutationsDocumentation_URL", CgeLocaleDefaults.CGE_PermutationsDocumentation_URL);
+        private static string CGE_IntegratorDocumentation_URL => LocalizeOrElse("CGE_IntegratorDocumentation_URL", CgeLocaleDefaults.CGE_IntegratorDocumentation_URL);
         //
         internal static string CGEE_Additional_editors => LocalizeOrElse("CGEE_Additional_editors", CgeLocaleDefaults.CGEE_Additional_editors);
         internal static string CGEE_All_combos => LocalizeOrElse("CGEE_All_combos", CgeLocaleDefaults.CGEE_All_combos);
@@ -64,9 +64,10 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         internal static string CGEE_Blend_tree_asset => LocalizeOrElse("CGEE_Blend_tree_asset", CgeLocaleDefaults.CGEE_Blend_tree_asset);
         //
         internal static string CGEC_Documentation_and_tutorials => LocalizeOrElse("CGEC_Documentation_and_tutorials", CgeLocaleDefaults.CGEC_Documentation_and_tutorials);
-        internal static string CGEC_Activities => LocalizeOrElse("CGEC_Activities", CgeLocaleDefaults.CGEC_Activities);
         internal static string CGEC_BackupFX => LocalizeOrElse("CGEC_BackupFX", CgeLocaleDefaults.CGEC_BackupFX);
         internal static string CGEC_FX_Animator_Controller => LocalizeOrElse("CGEC_FX_Animator_Controller", CgeLocaleDefaults.CGEC_FX_Animator_Controller);
+        internal static string CGEC_FX_Playable_Layer => LocalizeOrElse("CGEC_FX_Playable_Layer", CgeLocaleDefaults.CGEC_FX_Playable_Layer);
+        internal static string CGEC_Gesture_Playable_Layer => LocalizeOrElse("CGEC_Gesture_Playable_Layer", CgeLocaleDefaults.CGEC_Gesture_Playable_Layer);
         internal static string CGEC_Parameter_Mode => LocalizeOrElse("CGEC_Parameter_Mode", CgeLocaleDefaults.CGEC_Parameter_Mode);
         internal static string CGEC_Parameter_Name => LocalizeOrElse("CGEC_Parameter_Name", CgeLocaleDefaults.CGEC_Parameter_Name);
         internal static string CGEC_Parameter_Value => LocalizeOrElse("CGEC_Parameter_Value", CgeLocaleDefaults.CGEC_Parameter_Value);
@@ -94,7 +95,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         internal static string CGEC_SynchronizationConditionsV1 => LocalizeOrElse("CGEC_SynchronizationConditionsV1", CgeLocaleDefaults.CGEC_SynchronizationConditionsV1);
         internal static string CGEC_Asset_generation => LocalizeOrElse("CGEC_Asset_generation", CgeLocaleDefaults.CGEC_Asset_generation);
         internal static string CGEC_Asset_container => LocalizeOrElse("CGEC_Asset_container", CgeLocaleDefaults.CGEC_Asset_container);
-        internal static string CGEC_Write_Defaults_OFF => LocalizeOrElse("CGEC_Write_Defaults_OFF", CgeLocaleDefaults.CGEC_Write_Defaults_OFF);
         internal static string CGEC_FX_Playable_Mode => LocalizeOrElse("CGEC_FX_Playable_Mode", CgeLocaleDefaults.CGEC_FX_Playable_Mode);
         internal static string CGEC_WarnWriteDefaultsChosenOff => LocalizeOrElse("CGEC_WarnWriteDefaultsChosenOff", CgeLocaleDefaults.CGEC_WarnWriteDefaultsChosenOff);
         internal static string CGEC_AndMoreOnly15FirstResults => LocalizeOrElse("CGEC_AndMoreOnly15FirstResults", CgeLocaleDefaults.CGEC_AndMoreOnly15FirstResults);
@@ -106,6 +106,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         internal static string CGEC_Advanced => LocalizeOrElse("CGEC_Advanced", CgeLocaleDefaults.CGEC_Advanced);
         internal static string CGEC_WarnNoActivityName => LocalizeOrElse("CGEC_WarnNoActivityName", CgeLocaleDefaults.CGEC_WarnNoActivityName);
         internal static string CGEC_Capture_Transforms_Mode => LocalizeOrElse("CGEC_Capture_Transforms_Mode", CgeLocaleDefaults.CGEC_Capture_Transforms_Mode);
+        internal static string CGEC_MissingFxMask => LocalizeOrElse("CGEC_MissingFxMask", CgeLocaleDefaults.CGEC_MissingFxMask);
+        internal static string CGEC_Add_missing_masks => LocalizeOrElse("CGEC_Add_missing_masks", CgeLocaleDefaults.CGEC_Add_missing_masks);
+        internal static string CGEC_Remove_applied_masks => LocalizeOrElse("CGEC_Remove_applied_masks", CgeLocaleDefaults.CGEC_Remove_applied_masks);
         //
         internal static string CGEI_Documentation => LocalizeOrElse("CGEI_Documentation", CgeLocaleDefaults.CGEI_Documentation);
         internal static string CGEI_BackupAnimator => LocalizeOrElse("CGEI_BackupAnimator", CgeLocaleDefaults.CGEI_BackupAnimator);
