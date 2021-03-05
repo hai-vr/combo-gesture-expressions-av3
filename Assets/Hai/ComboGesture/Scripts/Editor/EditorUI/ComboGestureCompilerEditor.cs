@@ -25,12 +25,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public SerializedProperty analogBlinkingUpperThreshold;
         public SerializedProperty parameterMode;
 
-        public SerializedProperty integrateLimitedLipsync;
         public SerializedProperty lipsyncForWideOpenMouth;
-
-        public SerializedProperty exposeDisableExpressions;
-        public SerializedProperty exposeDisableBlinkingOverride;
-        public SerializedProperty exposeAreEyesClosed;
 
         public SerializedProperty expressionsAvatarMask;
         public SerializedProperty logicalAvatarMask;
@@ -42,10 +37,10 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public SerializedProperty doNotGenerateWeightCorrectionLayer;
 
         public SerializedProperty writeDefaultsRecommendationMode;
-        public SerializedProperty conflictPreventionTempGestureLayerMode;
+        public SerializedProperty writeDefaultsRecommendationModeGesture;
+        public SerializedProperty gestureLayerTransformCapture;
         public SerializedProperty conflictFxLayerMode;
         public SerializedProperty weightCorrectionMode;
-        public SerializedProperty blinkCorrectionMode;
         public SerializedProperty ignoreParamList;
         public SerializedProperty fallbackParamList;
         public SerializedProperty folderToGenerateNeutralizedAssetsIn;
@@ -69,12 +64,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             analogBlinkingUpperThreshold = serializedObject.FindProperty("analogBlinkingUpperThreshold");
             parameterMode = serializedObject.FindProperty("parameterMode");
 
-            integrateLimitedLipsync = serializedObject.FindProperty("integrateLimitedLipsync");
             lipsyncForWideOpenMouth = serializedObject.FindProperty("lipsyncForWideOpenMouth");
-
-            exposeDisableExpressions = serializedObject.FindProperty("exposeDisableExpressions");
-            exposeDisableBlinkingOverride = serializedObject.FindProperty("exposeDisableBlinkingOverride");
-            exposeAreEyesClosed = serializedObject.FindProperty("exposeAreEyesClosed");
 
             expressionsAvatarMask = serializedObject.FindProperty("expressionsAvatarMask");
             logicalAvatarMask = serializedObject.FindProperty("logicalAvatarMask");
@@ -86,10 +76,10 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             doNotGenerateWeightCorrectionLayer = serializedObject.FindProperty("doNotGenerateWeightCorrectionLayer");
 
             writeDefaultsRecommendationMode = serializedObject.FindProperty("writeDefaultsRecommendationMode");
-            conflictPreventionTempGestureLayerMode = serializedObject.FindProperty("conflictPreventionTempGestureLayerMode");
+            writeDefaultsRecommendationModeGesture = serializedObject.FindProperty("writeDefaultsRecommendationModeGesture");
+            gestureLayerTransformCapture = serializedObject.FindProperty("gestureLayerTransformCapture");
             conflictFxLayerMode = serializedObject.FindProperty("conflictFxLayerMode");
             weightCorrectionMode = serializedObject.FindProperty("weightCorrectionMode");
-            blinkCorrectionMode = serializedObject.FindProperty("blinkCorrectionMode");
             ignoreParamList = serializedObject.FindProperty("ignoreParamList");
             fallbackParamList = serializedObject.FindProperty("fallbackParamList");
             folderToGenerateNeutralizedAssetsIn = serializedObject.FindProperty("folderToGenerateNeutralizedAssetsIn");
@@ -302,7 +292,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             EditorGUILayout.PropertyField(writeDefaultsRecommendationMode, new GUIContent(CgeLocale.CGEC_FX_Playable_Mode));
             if (useGesturePlayableLayer.boolValue)
             {
-                EditorGUILayout.PropertyField(conflictPreventionTempGestureLayerMode, new GUIContent(CgeLocale.CGEC_Gesture_Playable_Mode__Temporary));
+                EditorGUILayout.PropertyField(writeDefaultsRecommendationModeGesture, new GUIContent(CgeLocale.CGEC_Gesture_Playable_Mode));
+                EditorGUILayout.PropertyField(gestureLayerTransformCapture, new GUIContent(CgeLocale.CGEC_Capture_Transforms_Mode));
             }
 
             if (writeDefaultsRecommendationMode.intValue == (int) WriteDefaultsRecommendationMode.UseUnsupportedWriteDefaultsOn)
@@ -413,12 +404,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 EditorGUILayout.PropertyField(doNotGenerateLipsyncOverrideLayer, new GUIContent("Don't update Lipsync layer"));
                 EditorGUILayout.PropertyField(doNotGenerateWeightCorrectionLayer, new GUIContent("Don't update Weight Correction layer"));
                 GenWeightCorrection(true);
-
-                EditorGUILayout.LabelField("Animation Conflict Prevention", EditorStyles.boldLabel);
-                EditorGUILayout.PropertyField(writeDefaultsRecommendationMode, new GUIContent(CgeLocale.CGEC_FX_Playable_Mode));
-                EditorGUILayout.PropertyField(conflictPreventionTempGestureLayerMode, new GUIContent("Gesture Playable Mode"));
-
-                CpmFxValueWarning(true);
 
                 EditorGUILayout.LabelField("Animation generation", EditorStyles.boldLabel);
                 EditorGUILayout.PropertyField(assetContainer, new GUIContent(CgeLocale.CGEC_Asset_container));

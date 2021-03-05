@@ -72,7 +72,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                                | (compiler.doNotGenerateWeightCorrectionLayer ? FeatureToggles.DoNotGenerateWeightCorrectionLayer : 0)
                                | (compiler.doNotFixSingleKeyframes ? FeatureToggles.DoNotFixSingleKeyframes : 0);
             _conflictPrevention = ConflictPrevention.OfFxLayer(compiler.writeDefaultsRecommendationMode);
-            _conflictPreventionTempGestureLayer = ConflictPrevention.OfTempGestureLayer(compiler.conflictPreventionTempGestureLayerMode);
+            _conflictPreventionTempGestureLayer = ConflictPrevention.OfGestureLayer(compiler.writeDefaultsRecommendationModeGesture, compiler.gestureLayerTransformCapture);
             _compilerConflictFxLayerMode = compiler.conflictFxLayerMode;
             _compilerIgnoreParamList = compiler.ignoreParamList;
             _compilerFallbackParamList = compiler.fallbackParamList;
@@ -102,7 +102,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _analogBlinkingUpperThreshold = 0f;
             _featuresToggles = 0;
             _conflictPrevention = ConflictPrevention.OfFxLayer(WriteDefaultsRecommendationMode.UseUnsupportedWriteDefaultsOn);
-            _conflictPreventionTempGestureLayer = ConflictPrevention.OfTempGestureLayer(ConflictPreventionMode.OnlyWriteDefaults);
+            _conflictPreventionTempGestureLayer = ConflictPrevention.OfFxLayer(WriteDefaultsRecommendationMode.UseUnsupportedWriteDefaultsOn);
             _compilerConflictFxLayerMode = ConflictFxLayerMode.KeepBoth;
             _compilerIgnoreParamList = new AnimationClip();
             _compilerFallbackParamList = new AnimationClip();

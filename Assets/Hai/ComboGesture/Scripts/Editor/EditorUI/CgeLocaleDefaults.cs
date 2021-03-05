@@ -115,11 +115,12 @@ You should press synchronize when any of the following happens:
         internal static string CGEC_WarnWriteDefaultsOnStatesFound = @"Some states of your FX layer have Write Defaults ON:
 
 ";
-        internal static string CGEC_Gesture_Playable_Mode__Temporary = @"Gesture Playable Mode (Temporary)";
+        internal static string CGEC_Gesture_Playable_Mode = @"Gesture Playable Mode";
         internal static string CGEC_Other_tweaks = @"Other tweaks";
         internal static string CGEC_Analog_fist_blinking_threshold = @"Analog fist blinking threshold";
         internal static string CGEC_AnalogFist_Popup = @"(0: Eyes are open, 1: Eyes are closed)";
         internal static string CGEC_Advanced = @"Advanced";
+        internal static string CGEC_Capture_Transforms_Mode = @"Capture Transforms Mode";
 
         internal static string CGEI_BackupAnimator = @"Make backups! The Animator Controller will be modified directly.";
         internal static string CGEI_Animator_Controller = @"Animator Controller";

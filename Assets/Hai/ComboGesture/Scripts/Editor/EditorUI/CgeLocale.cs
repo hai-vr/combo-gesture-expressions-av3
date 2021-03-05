@@ -99,12 +99,13 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         internal static string CGEC_WarnWriteDefaultsChosenOff => LocalizeOrElse("CGEC_WarnWriteDefaultsChosenOff", CgeLocaleDefaults.CGEC_WarnWriteDefaultsChosenOff);
         internal static string CGEC_AndMoreOnly15FirstResults => LocalizeOrElse("CGEC_AndMoreOnly15FirstResults", CgeLocaleDefaults.CGEC_AndMoreOnly15FirstResults);
         internal static string CGEC_WarnWriteDefaultsOnStatesFound => LocalizeOrElse("CGEC_WarnWriteDefaultsOnStatesFound", CgeLocaleDefaults.CGEC_WarnWriteDefaultsOnStatesFound);
-        internal static string CGEC_Gesture_Playable_Mode__Temporary => LocalizeOrElse("CGEC_Gesture_Playable_Mode__Temporary", CgeLocaleDefaults.CGEC_Gesture_Playable_Mode__Temporary);
+        internal static string CGEC_Gesture_Playable_Mode => LocalizeOrElse("CGEC_Gesture_Playable_Mode", CgeLocaleDefaults.CGEC_Gesture_Playable_Mode);
         internal static string CGEC_Other_tweaks => LocalizeOrElse("CGEC_Other_tweaks", CgeLocaleDefaults.CGEC_Other_tweaks);
         internal static string CGEC_Analog_fist_blinking_threshold => LocalizeOrElse("CGEC_Analog_fist_blinking_threshold", CgeLocaleDefaults.CGEC_Analog_fist_blinking_threshold);
         internal static string CGEC_AnalogFist_Popup => LocalizeOrElse("CGEC_AnalogFist_Popup", CgeLocaleDefaults.CGEC_AnalogFist_Popup);
         internal static string CGEC_Advanced => LocalizeOrElse("CGEC_Advanced", CgeLocaleDefaults.CGEC_Advanced);
         internal static string CGEC_WarnNoActivityName => LocalizeOrElse("CGEC_WarnNoActivityName", CgeLocaleDefaults.CGEC_WarnNoActivityName);
+        internal static string CGEC_Capture_Transforms_Mode => LocalizeOrElse("CGEC_Capture_Transforms_Mode", CgeLocaleDefaults.CGEC_Capture_Transforms_Mode);
         //
         internal static string CGEI_Documentation => LocalizeOrElse("CGEI_Documentation", CgeLocaleDefaults.CGEI_Documentation);
         internal static string CGEI_BackupAnimator => LocalizeOrElse("CGEI_BackupAnimator", CgeLocaleDefaults.CGEI_BackupAnimator);
