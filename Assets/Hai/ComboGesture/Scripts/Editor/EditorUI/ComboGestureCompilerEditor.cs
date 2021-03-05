@@ -446,6 +446,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 EditorGUILayout.PropertyField(doNotFixSingleKeyframes, new GUIContent("Do not fix single keyframes"));
                 EditorGUILayout.PropertyField(bypassMandatoryAvatarDescriptor, new GUIContent("Bypass mandatory avatar descriptor"));
 
+                EditorGUILayout.LabelField("Translations", EditorStyles.boldLabel);
                 if (GUILayout.Button("(Debug) Print default translation file to console"))
                 {
                     Debug.Log(CgeLocale.CompileDefaultLocaleJson());

@@ -101,10 +101,9 @@ You may choose to leave one of the mood set Parameter Name blank and it will bec
 
 You should press synchronize when any of the following happens:
 - this Compiler is modified,
-- an Activity, a Puppet, or a LimitedLipsync is modified,
+- an Activity or a Puppet is modified,
 - an animation or a blend tree or avatar mask is modified,
-- the order of layers in any animator controller changes,
-- the avatar descriptor Eyelids or Lipsync is modified,
+- the avatar descriptor Eyelids is modified,
 - the avatar transforms are modified.";
         internal static string CGEC_Asset_generation = @"Asset generation";
         internal static string CGEC_Asset_container = @"Asset container";
