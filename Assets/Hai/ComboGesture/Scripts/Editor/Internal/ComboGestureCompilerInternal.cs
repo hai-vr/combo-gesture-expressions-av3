@@ -89,9 +89,55 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _useSmoothing = _useGestureWeightCorrection;
         }
 
+        public ComboGestureCompilerInternal(
+            ComboGestureIntegrator integrator)
+        {
+            _animatorController = (AnimatorController)integrator.animatorController;
+
+            // FIXME: Incorrect pattern in use here, none of those are necessary
+            _comboLayers = new List<GestureComboStageMapper>();
+            _parameterGeneration = ParameterGeneration.Unique;
+            _gesturePlayableLayerController = null;
+            _customEmptyClip = null;
+            _analogBlinkingUpperThreshold = 0f;
+            _featuresToggles = 0;
+            _conflictPrevention = ConflictPrevention.OfFxLayer(WriteDefaultsRecommendationMode.UseUnsupportedWriteDefaultsOn);
+            _conflictPreventionTempGestureLayer = ConflictPrevention.OfTempGestureLayer(ConflictPreventionMode.OnlyWriteDefaults);
+            _compilerConflictFxLayerMode = ConflictFxLayerMode.KeepBoth;
+            _compilerIgnoreParamList = new AnimationClip();
+            _compilerFallbackParamList = new AnimationClip();
+            _avatarDescriptor = null;
+            _expressionsAvatarMask = null;
+            _logicalAvatarMask = null;
+            _weightCorrectionAvatarMask = null;
+            _gesturePlayableLayerExpressionsAvatarMask = null;
+            _gesturePlayableLayerTechnicalAvatarMask = null;
+            _integrateLimitedLipsync = false;
+            _limitedLipsync = null;
+            _assetContainer = null;
+            _useGestureWeightCorrection = false;
+            _useSmoothing = _useGestureWeightCorrection;
+        }
+
         enum ParameterGeneration
         {
             Unique, UserDefinedActivity, VirtualActivity
+        }
+
+        public void IntegrateWeightCorrection()
+        {
+            _animatorGenerator = new AnimatorGenerator(_animatorController, new StatefulEmptyClipProvider(new ClipGenerator(_customEmptyClip, EmptyClipPath, "ComboGesture")));
+
+            CreateOrReplaceWeightCorrection(
+                AssetDatabase.LoadAssetAtPath<AvatarMask>(GesturePlayableLayerAvatarMaskPath),
+                _animatorGenerator,
+                _animatorController,
+                ConflictPrevention.OfFxLayer(WriteDefaultsRecommendationMode.FollowVrChatRecommendationWriteDefaultsOff));
+
+            ReapAnimator(_animatorController);
+
+            AssetDatabase.Refresh();
+            EditorUtility.ClearProgressBar();
         }
 
         public void DoOverwriteAnimatorFxLayer()
@@ -157,7 +203,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 }
             }
 
-            ReapAnimator();
+            ReapAnimator(_animatorController);
 
             AssetDatabase.Refresh();
             EditorUtility.ClearProgressBar();
@@ -189,10 +235,19 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                         ? _gesturePlayableLayerTechnicalAvatarMask
                         : AssetDatabase.LoadAssetAtPath<AvatarMask>(GesturePlayableLayerAvatarMaskPath);
                     CreateOrReplaceWeightCorrection(technicalAvatarMask, _animatorGenerator, _gesturePlayableLayerController, _conflictPreventionTempGestureLayer);
+                    if (_useSmoothing)
+                    {
+                        CreateOrReplaceSmoothing(_weightCorrectionAvatarMask, _animatorGenerator, _gesturePlayableLayerController, _conflictPrevention);
+                    }
+                    else
+                    {
+                        DeleteSmoothing();
+                    }
                 }
                 else
                 {
                     DeleteWeightCorrection();
+                    DeleteSmoothing();
                 }
             }
 
@@ -200,7 +255,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
             CreateOrReplaceGesturePlayableLayerExpressionsView(emptyClip, manifestBindings);
 
-            ReapAnimator();
+            ReapAnimator(_gesturePlayableLayerController);
 
             AssetDatabase.Refresh();
             EditorUtility.ClearProgressBar();
@@ -217,16 +272,16 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 .ToList();
         }
 
-        private void ReapAnimator()
+        private static void ReapAnimator(AnimatorController animatorController)
         {
-            if (AssetDatabase.GetAssetPath(_animatorController) == "")
+            if (AssetDatabase.GetAssetPath(animatorController) == "")
             {
                 return;
             }
 
-            var allSubAssets = AssetDatabase.LoadAllAssetsAtPath(AssetDatabase.GetAssetPath(_animatorController));
+            var allSubAssets = AssetDatabase.LoadAllAssetsAtPath(AssetDatabase.GetAssetPath(animatorController));
 
-            var reachableMotions = ConcatStateMachines()
+            var reachableMotions = ConcatStateMachines(animatorController)
                 .SelectMany(machine => machine.states)
                 .Select(state => state.state.motion)
                 .Where(motion => motion != null)
@@ -235,13 +290,13 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             Reap(allSubAssets, typeof(BlendTree), reachableMotions, o => o.name.StartsWith("autoBT_"));
         }
 
-        private IEnumerable<Motion> Unwrap(Motion motion)
+        private static IEnumerable<Motion> Unwrap(Motion motion)
         {
             var itself = new[] {motion};
             return motion is BlendTree bt ? itself.Concat(AllChildrenOf(bt)) : itself;
         }
 
-        private IEnumerable<Motion> AllChildrenOf(BlendTree blendTree)
+        private static IEnumerable<Motion> AllChildrenOf(BlendTree blendTree)
         {
             return blendTree.children
                 .Select(motion => motion.motion)
@@ -250,10 +305,10 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 .ToList();
         }
 
-        private IEnumerable<AnimatorStateMachine> ConcatStateMachines()
+        private static IEnumerable<AnimatorStateMachine> ConcatStateMachines(AnimatorController animatorController)
         {
-            return _animatorController.layers.Select(layer => layer.stateMachine)
-                .Concat(_animatorController.layers.SelectMany(layer => layer.stateMachine.stateMachines).Select(machine => machine.stateMachine));
+            return animatorController.layers.Select(layer => layer.stateMachine)
+                .Concat(animatorController.layers.SelectMany(layer => layer.stateMachine.stateMachines).Select(machine => machine.stateMachine));
         }
 
         private static void Reap(Object[] allAssets, Type type, List<Object> existingAssets, Predicate<Object> predicate)

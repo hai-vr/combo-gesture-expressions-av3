@@ -9,9 +9,10 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 {
     public class CgeLocale
     {
-        internal static string CGEC_WarnNoActivityName => LocalizeOrElse("CGEC_WarnNoActivityName", CgeLocaleDefaults.CGEC_WarnNoActivityName);
         internal static string CGE_Documentation_URL => LocalizeOrElse("CGE_Documentation_URL", CgeLocaleDefaults.CGE_Documentation_URL);
         internal static string CGE_PermutationsDocumentation_URL => LocalizeOrElse("CGE_PermutationsDocumentation_URL", CgeLocaleDefaults.CGE_PermutationsDocumentation_URL);
+        internal static string CGE_IntegratorDocumentation_URL => LocalizeOrElse("CGE_IntegratorDocumentation_URL", CgeLocaleDefaults.CGE_IntegratorDocumentation_URL);
+        //
         internal static string CGEE_Additional_editors => LocalizeOrElse("CGEE_Additional_editors", CgeLocaleDefaults.CGEE_Additional_editors);
         internal static string CGEE_All_combos => LocalizeOrElse("CGEE_All_combos", CgeLocaleDefaults.CGEE_All_combos);
         internal static string CGEE_Analog_Fist => LocalizeOrElse("CGEE_Analog_Fist", CgeLocaleDefaults.CGEE_Analog_Fist);
@@ -61,7 +62,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         internal static string CGEE_ExplainDualAnalogFist => LocalizeOrElse("CGEE_ExplainDualAnalogFist", CgeLocaleDefaults.CGEE_ExplainDualAnalogFist);
         internal static string CGEE_Create_a_new_blend_tree => LocalizeOrElse("CGEE_Create_a_new_blend_tree", CgeLocaleDefaults.CGEE_Create_a_new_blend_tree);
         internal static string CGEE_Blend_tree_asset => LocalizeOrElse("CGEE_Blend_tree_asset", CgeLocaleDefaults.CGEE_Blend_tree_asset);
-
+        //
         internal static string CGEC_Documentation_and_tutorials => LocalizeOrElse("CGEC_Documentation_and_tutorials", CgeLocaleDefaults.CGEC_Documentation_and_tutorials);
         internal static string CGEC_Activities => LocalizeOrElse("CGEC_Activities", CgeLocaleDefaults.CGEC_Activities);
         internal static string CGEC_BackupFX => LocalizeOrElse("CGEC_BackupFX", CgeLocaleDefaults.CGEC_BackupFX);
@@ -103,6 +104,13 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         internal static string CGEC_Analog_fist_blinking_threshold => LocalizeOrElse("CGEC_Analog_fist_blinking_threshold", CgeLocaleDefaults.CGEC_Analog_fist_blinking_threshold);
         internal static string CGEC_AnalogFist_Popup => LocalizeOrElse("CGEC_AnalogFist_Popup", CgeLocaleDefaults.CGEC_AnalogFist_Popup);
         internal static string CGEC_Advanced => LocalizeOrElse("CGEC_Advanced", CgeLocaleDefaults.CGEC_Advanced);
+        internal static string CGEC_WarnNoActivityName => LocalizeOrElse("CGEC_WarnNoActivityName", CgeLocaleDefaults.CGEC_WarnNoActivityName);
+        //
+        internal static string CGEI_Documentation => LocalizeOrElse("CGEI_Documentation", CgeLocaleDefaults.CGEI_Documentation);
+        internal static string CGEI_BackupAnimator => LocalizeOrElse("CGEI_BackupAnimator", CgeLocaleDefaults.CGEI_BackupAnimator);
+        internal static string CGEI_Animator_Controller => LocalizeOrElse("CGEI_Animator_Controller", CgeLocaleDefaults.CGEI_Animator_Controller);
+        internal static string CGEI_Info => LocalizeOrElse("CGEI_Info", CgeLocaleDefaults.CGEI_Info);
+        internal static string CGEI_Synchronize_Animator_layers => LocalizeOrElse("CGEI_Synchronize_Animator_layers", CgeLocaleDefaults.CGEI_Synchronize_Animator_layers);
 
         private static string LocalizeOrElse(string key, string defaultCultureLocalization)
         {
@@ -119,6 +127,12 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         {
             var localizedUrl = CGE_PermutationsDocumentation_URL;
             return localizedUrl.StartsWith(CgeLocaleDefaults.OfficialDocumentationUrlAsPrefix) ? localizedUrl : CgeLocaleDefaults.CGE_PermutationsDocumentation_URL;
+        }
+
+        public static string IntegratorDocumentationUrl()
+        {
+            var localizedUrl = CGE_IntegratorDocumentation_URL;
+            return localizedUrl.StartsWith(CgeLocaleDefaults.OfficialDocumentationUrlAsPrefix) ? localizedUrl : CgeLocaleDefaults.CGE_IntegratorDocumentation_URL;
         }
 
         public static string CompileDefaultLocaleJson()

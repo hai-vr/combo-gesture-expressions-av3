@@ -8,6 +8,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         internal static string OfficialDocumentationUrlAsPrefix = "https://hai-vr.github.io/combo-gesture-expressions-av3/";
         internal static string CGE_Documentation_URL = OfficialDocumentationUrlAsPrefix;
         internal static string CGE_PermutationsDocumentation_URL = OfficialDocumentationUrlAsPrefix + "#permutations";
+        internal static string CGE_IntegratorDocumentation_URL = OfficialDocumentationUrlAsPrefix + "integrator.md";
         internal static string CGEE_Additional_editors = "Additional editors";
         internal static string CGEE_All_combos = "All combos";
         internal static string CGEE_Analog_Fist = "Analog Fist";
@@ -120,5 +121,18 @@ You should press synchronize when any of the following happens:
         internal static string CGEC_Analog_fist_blinking_threshold = @"Analog fist blinking threshold";
         internal static string CGEC_AnalogFist_Popup = @"(0: Eyes are open, 1: Eyes are closed)";
         internal static string CGEC_Advanced = @"Advanced";
+
+        internal static string CGEI_BackupAnimator = @"Make backups! The Animator Controller will be modified directly.";
+        internal static string CGEI_Animator_Controller = @"Animator Controller";
+        internal static string CGEI_Info = @"ComboGestureIntegrator is a module that lets you integrate the Weight Correction layers onto your Animator controller even if you don't use ComboGesture face expression system.
+
+After synchronizing, you will need to edit your Normalized Time or Blend Tree parameters manually:
+- Replace GestureLeftWeight with _Hai_GestureLWSmoothing
+- Replace GestureRightWeight with _Hai_GestureRWSmoothing
+
+You need one ComboGestureIntegrator per animator layer that depends on it (Gesture, FX...).
+You usually need to synchronize only once.";
+        internal static string CGEI_Synchronize_Animator_layers = @"Synchronize Animator layers";
+        internal static string CGEI_Documentation = @"Integrator Documentation";
     }
 }

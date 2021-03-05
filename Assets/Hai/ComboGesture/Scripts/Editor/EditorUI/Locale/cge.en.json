@@ -1,6 +1,7 @@
 ﻿{
   "CGE_Documentation_URL": "https://hai-vr.github.io/combo-gesture-expressions-av3/",
   "CGE_PermutationsDocumentation_URL": "https://hai-vr.github.io/combo-gesture-expressions-av3/#permutations",
+  "CGE_IntegratorDocumentation_URL": "https://hai-vr.github.io/combo-gesture-expressions-av3/integrator.md",
   "CGEE_Additional_editors": "Additional editors",
   "CGEE_All_combos": "All combos",
   "CGEE_Analog_Fist": "Analog Fist",
@@ -91,5 +92,10 @@
   "CGEC_Other_tweaks": "Other tweaks",
   "CGEC_Analog_fist_blinking_threshold": "Analog fist blinking threshold",
   "CGEC_AnalogFist_Popup": "(0: Eyes are open, 1: Eyes are closed)",
-  "CGEC_Advanced": "Advanced"
+  "CGEC_Advanced": "Advanced",
+  "CGEI_BackupAnimator": "Make backups! The Animator Controller will be modified directly.",
+  "CGEI_Animator_Controller": "Animator Controller",
+  "CGEI_Info": "ComboGestureIntegrator is a module that lets you integrate the Weight Correction layers onto your Animator controller even if you don't use ComboGesture face expression system.\r\n\r\nAfter synchronizing, you will need to edit your Normalized Time or Blend Tree parameters manually:\r\n- Replace GestureLeftWeight with _Hai_GestureLWSmoothing\r\n- Replace GestureRightWeight with _Hai_GestureRWSmoothing\r\n\r\nYou need one ComboGestureIntegrator per animator layer that depends on it (Gesture, FX...).\r\nYou usually need to synchronize only once.",
+  "CGEI_Synchronize_Animator_layers": "Synchronize Animator layers",
+  "CGEI_Documentation": "Integrator Documentation"
 }
