@@ -9,6 +9,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 {
     public class CgeLocale
     {
+        internal static string CGEC_WarnNoActivityName => LocalizeOrElse("CGEC_WarnNoActivityName", CgeLocaleDefaults.CGEC_WarnNoActivityName);
         internal static string CGE_Documentation_URL => LocalizeOrElse("CGE_Documentation_URL", CgeLocaleDefaults.CGE_Documentation_URL);
         internal static string CGE_PermutationsDocumentation_URL => LocalizeOrElse("CGE_PermutationsDocumentation_URL", CgeLocaleDefaults.CGE_PermutationsDocumentation_URL);
         internal static string CGEE_Additional_editors => LocalizeOrElse("CGEE_Additional_editors", CgeLocaleDefaults.CGEE_Additional_editors);

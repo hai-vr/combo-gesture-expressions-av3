@@ -150,14 +150,16 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             EditorGUILayout.LabelField(CgeLocale.CGEC_Activities, EditorStyles.boldLabel);
             EditorGUILayout.LabelField(CgeLocale.CGEC_BackupFX, italic);
             EditorGUILayout.PropertyField(animatorController, new GUIContent(CgeLocale.CGEC_FX_Animator_Controller));
-            EditorGUILayout.PropertyField(parameterMode, new GUIContent(CgeLocale.CGEC_Parameter_Mode));
             var compiler = AsCompiler();
+            EditorGUI.BeginDisabledGroup(comboLayers.arraySize <= 1);
+            EditorGUILayout.PropertyField(parameterMode, new GUIContent(CgeLocale.CGEC_Parameter_Mode));
+            EditorGUI.EndDisabledGroup();
             if (compiler.parameterMode == ParameterMode.SingleInt)
             {
                 EditorGUILayout.PropertyField(activityStageName, new GUIContent(CgeLocale.CGEC_Parameter_Name));
             }
 
-            if (compiler.parameterMode == ParameterMode.SingleInt && comboLayers.arraySize < 8)
+            if (compiler.parameterMode == ParameterMode.SingleInt && comboLayers.arraySize < 8 && comboLayers.arraySize > 1)
             {
                 EditorGUILayout.HelpBox(
                     CgeLocale.CGEC_HelpExpressionParameterOptimize,
@@ -182,7 +184,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             bool MultipleBooleanNoDefault()
             {
-                return compiler.parameterMode == ParameterMode.MultipleBooleans && compiler.comboLayers != null && compiler.comboLayers.TrueForAll(mapper => !string.IsNullOrEmpty(mapper.booleanParameterName));
+                return compiler.parameterMode == ParameterMode.MultipleBools && compiler.comboLayers != null && compiler.comboLayers.TrueForAll(mapper => !string.IsNullOrEmpty(mapper.booleanParameterName));
             }
 
             bool ThereIsAPuppetWithNoBlendTree()
@@ -201,6 +203,11 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 );
             }
 
+            bool ThereIsNoActivityNameForMultipleActivities()
+            {
+                return compiler.parameterMode == ParameterMode.SingleInt && comboLayers.arraySize >= 2 && (activityStageName.stringValue == null || activityStageName.stringValue.Trim() == "");
+            }
+
             if (ThereIsAnOverlap())
             {
                 if (compiler.parameterMode == ParameterMode.SingleInt)
@@ -211,11 +218,14 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 {
                     EditorGUILayout.HelpBox(CgeLocale.CGEC_WarnNamesOverlap, MessageType.Error);
                 }
-
             }
             else if (ThereIsAPuppetWithNoBlendTree())
             {
                 EditorGUILayout.HelpBox(CgeLocale.CGEC_WarnNoBlendTree, MessageType.Error);
+            }
+            else if (ThereIsNoActivityNameForMultipleActivities())
+            {
+                EditorGUILayout.HelpBox(CgeLocale.CGEC_WarnNoActivityName, MessageType.Error);
             }
             else if (ThereIsANullActivityOrPuppet())
             {
@@ -232,11 +242,11 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                     }
 
                     var defaultMapper = compiler.comboLayers.FirstOrDefault(mapper => mapper.booleanParameterName == "");
-                    if (compiler.parameterMode == ParameterMode.MultipleBooleans && defaultMapper.kind == GestureComboStageKind.Activity && defaultMapper.activity != null)
+                    if (compiler.parameterMode == ParameterMode.MultipleBools && defaultMapper.kind == GestureComboStageKind.Activity && defaultMapper.activity != null)
                     {
                         EditorGUILayout.HelpBox(string.Format(CgeLocale.CGEC_HintDefaultMood, defaultMapper.activity.name), MessageType.Info);
                     }
-                    if (compiler.parameterMode == ParameterMode.MultipleBooleans && defaultMapper.kind == GestureComboStageKind.Puppet && defaultMapper.puppet != null)
+                    if (compiler.parameterMode == ParameterMode.MultipleBools && defaultMapper.kind == GestureComboStageKind.Puppet && defaultMapper.puppet != null)
                     {
                         EditorGUILayout.HelpBox(string.Format(CgeLocale.CGEC_HintDefaultMood, defaultMapper.puppet.name), MessageType.Info);
                     }
@@ -283,6 +293,38 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             EditorGUILayout.Space();
 
+            EditorGUILayout.LabelField(CgeLocale.CGEC_Write_Defaults_OFF, EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(writeDefaultsRecommendationMode, new GUIContent(CgeLocale.CGEC_FX_Playable_Mode));
+            if (useGesturePlayableLayer.boolValue)
+            {
+                EditorGUILayout.PropertyField(conflictPreventionTempGestureLayerMode, new GUIContent(CgeLocale.CGEC_Gesture_Playable_Mode__Temporary));
+            }
+
+            if (writeDefaultsRecommendationMode.intValue == (int) WriteDefaultsRecommendationMode.UseUnsupportedWriteDefaultsOn)
+            {
+                EditorGUILayout.HelpBox(CgeLocale.CGEC_WarnWriteDefaultsChosenOff, MessageType.Error);
+            }
+            else
+            {
+                var fxWdOn = ListAllWriteDefaults(compiler, 21);
+                if (fxWdOn.Count > 0)
+                {
+                    string message;
+                    if (fxWdOn.Count == 21)
+                    {
+                        message = string.Join("\n", fxWdOn.Take(15)) + CgeLocale.CGEC_AndMoreOnly15FirstResults;
+                    }
+                    else
+                    {
+                        message = string.Join("\n", fxWdOn);
+                    }
+
+                    EditorGUILayout.HelpBox(CgeLocale.CGEC_WarnWriteDefaultsOnStatesFound + message, MessageType.Warning);
+                }
+            }
+
+            EditorGUILayout.Space();
+
             EditorGUILayout.LabelField(CgeLocale.CGEC_Synchronization, EditorStyles.boldLabel);
 
             EditorGUI.BeginDisabledGroup(
@@ -310,11 +352,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             bool ThereIsNoActivity()
             {
                 return comboLayers.arraySize == 0;
-            }
-
-            bool ThereIsNoActivityNameForMultipleActivities()
-            {
-                return compiler.parameterMode == ParameterMode.SingleInt && comboLayers.arraySize >= 2 && (activityStageName.stringValue == null || activityStageName.stringValue.Trim() == "");
             }
 
             bool ThereIsNoAvatarDescriptor()
@@ -345,38 +382,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             if (compiler.assetContainer != null) {
                 EditorGUILayout.LabelField(CgeLocale.CGEC_Asset_generation, EditorStyles.boldLabel);
                 EditorGUILayout.PropertyField(assetContainer, new GUIContent(CgeLocale.CGEC_Asset_container));
-            }
-
-            EditorGUILayout.Space();
-
-            EditorGUILayout.LabelField(CgeLocale.CGEC_Write_Defaults_OFF, EditorStyles.boldLabel);
-            EditorGUILayout.PropertyField(writeDefaultsRecommendationMode, new GUIContent(CgeLocale.CGEC_FX_Playable_Mode));
-            if (writeDefaultsRecommendationMode.intValue == (int) WriteDefaultsRecommendationMode.UseUnsupportedWriteDefaultsOn)
-            {
-                EditorGUILayout.HelpBox(CgeLocale.CGEC_WarnWriteDefaultsChosenOff, MessageType.Error);
-            }
-            else
-            {
-                var fxWdOn = ListAllWriteDefaults(compiler, 21);
-                if (fxWdOn.Count > 0)
-                {
-                    string message;
-                    if (fxWdOn.Count == 21)
-                    {
-                        message = string.Join("\n", fxWdOn.Take(15)) + CgeLocale.CGEC_AndMoreOnly15FirstResults;
-                    }
-                    else
-                    {
-                        message = string.Join("\n", fxWdOn);
-                    }
-
-                    EditorGUILayout.HelpBox(CgeLocale.CGEC_WarnWriteDefaultsOnStatesFound + message, MessageType.Warning);
-                }
-            }
-
-            if (useGesturePlayableLayer.boolValue)
-            {
-                EditorGUILayout.PropertyField(conflictPreventionTempGestureLayerMode, new GUIContent(CgeLocale.CGEC_Gesture_Playable_Mode__Temporary));
             }
 
             EditorGUILayout.Space();
@@ -560,7 +565,7 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
                 compiler.assetContainer = actualContainer.ExposeContainerAsset();
             }
 
-            if (compiler.comboLayers.Count > 1 && compiler.parameterMode == ParameterMode.MultipleBooleans)
+            if (compiler.comboLayers.Count > 1 && compiler.parameterMode == ParameterMode.MultipleBools)
             {
                 var virtualInt = compiler.comboLayers.Exists(mapper => string.IsNullOrEmpty(mapper.booleanParameterName)) ? 1 : 0;
                 for (var index = 0; index < compiler.comboLayers.Count; index++)
@@ -616,9 +621,11 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
                 GUIContent.none
             );
 
-            var singleInt = AsCompiler().parameterMode == ParameterMode.SingleInt;
             var kind = (GestureComboStageKind) element.FindPropertyRelative("kind").intValue;
-            var trailingWidth = singleInt ? 50 : 140;
+            var compiler = AsCompiler();
+            var onlyOneLayer = compiler.comboLayers.Count <= 1;
+            var singleInt = compiler.parameterMode == ParameterMode.SingleInt;
+            var trailingWidth = onlyOneLayer ? 0 : singleInt ? 50 : 140;
             EditorGUI.PropertyField(
                 new Rect(rect.x + 70, rect.y, rect.width - 70 - 20 - trailingWidth, EditorGUIUtility.singleLineHeight),
                 kind != GestureComboStageKind.Puppet
@@ -627,17 +634,23 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
                 GUIContent.none
             );
 
-            EditorGUI.PropertyField(
-                new Rect(rect.x + rect.width - 20 - trailingWidth, rect.y, trailingWidth, EditorGUIUtility.singleLineHeight),
-                singleInt ? element.FindPropertyRelative("stageValue") : element.FindPropertyRelative("booleanParameterName"),
-                GUIContent.none
-            );
+            if (!onlyOneLayer)
+            {
+                EditorGUI.PropertyField(
+                    new Rect(rect.x + rect.width - 20 - trailingWidth, rect.y, trailingWidth, EditorGUIUtility.singleLineHeight),
+                    singleInt ? element.FindPropertyRelative("stageValue") : element.FindPropertyRelative("booleanParameterName"),
+                    GUIContent.none
+                );
+            }
         }
 
         private void ComboLayersListHeader(Rect rect)
         {
             EditorGUI.LabelField(new Rect(rect.x, rect.y, rect.width - 70 - 51, EditorGUIUtility.singleLineHeight), CgeLocale.CGEC_Mood_sets);
-            EditorGUI.LabelField(new Rect(rect.x + rect.width - 70 - 51, rect.y, 50 + 51, EditorGUIUtility.singleLineHeight), AsCompiler().parameterMode == ParameterMode.SingleInt ? CgeLocale.CGEC_Parameter_Value : CgeLocale.CGEC_Parameter_Name);
+            if (AsCompiler().comboLayers.Count > 1)
+            {
+                EditorGUI.LabelField(new Rect(rect.x + rect.width - 70 - 51, rect.y, 50 + 51, EditorGUIUtility.singleLineHeight), AsCompiler().parameterMode == ParameterMode.SingleInt ? CgeLocale.CGEC_Parameter_Value : CgeLocale.CGEC_Parameter_Name);
+            }
         }
     }
 }

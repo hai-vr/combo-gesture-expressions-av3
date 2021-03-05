@@ -111,6 +111,6 @@ namespace Hai.ComboGesture.Scripts.Components
     [System.Serializable]
     public enum ParameterMode
     {
-        MultipleBooleans, SingleInt
+        MultipleBools, SingleInt
     }
 }

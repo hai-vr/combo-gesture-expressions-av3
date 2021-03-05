@@ -66,24 +66,20 @@ Compiling an Activity with permutations disabled will not take any saved permuta
         internal static string CGEC_Activities = @"Activities";
         internal static string CGEC_BackupFX = @"Make backups! The FX Animator Controller will be modified directly.";
         internal static string CGEC_FX_Animator_Controller = @"FX Animator Controller";
-        internal static string CGEC_Parameter_Mode = @"Parameter Mode";
+        internal static string CGEC_Parameter_Mode = @"Parameter Type";
         internal static string CGEC_Parameter_Name = @"Parameter Name";
         internal static string CGEC_Parameter_Value = @"Parameter Value";
         internal static string CGEC_Mood_sets = @"Mood sets";
-        internal static string CGEC_HelpExpressionParameterOptimize = @"Parameter mode is set to Single Int. This will cost 8 bits of memory in your Expression Parameters even though you're not using a large amount of mood sets.
+        internal static string CGEC_HelpExpressionParameterOptimize = @"Parameter Type is set to Single Int. This will cost 8 bits of memory in your Expression Parameters even though you're not using a large amount of mood sets.
 
-Usually, you should switch to Multiple Booleans instead especially if you're short on Expression Parameters.";
+Usually, you should switch to Multiple Bools instead especially if you're short on Expression Parameters.";
         internal static string CGEC_WarnValuesOverlap = @"Some Parameters Values are overlapping.";
         internal static string CGEC_WarnNamesOverlap = @"Some Parameter Names are overlapping.";
         internal static string CGEC_WarnNoBlendTree = @"One of the puppets has no blend tree defined inside it.";
-        internal static string CGEC_WarnNoActivity = @"One of the activities is missing.";
-        internal static string CGEC_HelpWhenAllParameterNamesDefined = @"All of your mood sets have a Parameter Name.
-The first in the list ""{0}"" having Parameter name ""{1}"" will be active by default whenever none of the others are active.
-
-It is not necessary to assign a Parameter Name to all mood sets:
-You may choose to leave one of the mood set Parameter Name blank and it will become the default instead, which will save you 1 boolean in your Expression Parameters.
-
-Assigning a Parameter Name to all moods sets will allow you to setup a toggle in the Expression Menu to represent the Default expression, but it is completely optional.";
+        internal static string CGEC_WarnNoActivity = @"One of the mood sets is missing.";
+        internal static string CGEC_WarnNoActivityName = @"Parameter Name is missing.";
+        internal static string CGEC_HelpWhenAllParameterNamesDefined = @"The first Mood set in the list ""{0}"" having Parameter name ""{1}"" will be active by default whenever none of the others are active.
+You may choose to leave one of the mood set Parameter Name blank and it will become the default instead.";
         internal static string CGEC_HintDefaultMood = @"The mood set ""{0}"" is the default mood because it has a blank Parameter Name.";
         internal static string CGEC_GestureWeight_correction = @"GestureWeight correction";
         internal static string CGEC_Avatar_descriptor = @"Avatar descriptor";
