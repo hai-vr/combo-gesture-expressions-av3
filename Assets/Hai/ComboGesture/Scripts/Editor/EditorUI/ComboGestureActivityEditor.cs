@@ -227,6 +227,20 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         {
             serializedObject.Update();
 
+            if (GUILayout.Button("Switch language (English / 日本語)"))
+            {
+                CgeLocalization.CycleLocale();
+            }
+
+            if (CgeLocalization.IsEnglishLocaleActive())
+            {
+                EditorGUILayout.LabelField("");
+            }
+            else
+            {
+                EditorGUILayout.LabelField("翻訳は正確ではありません。cge.jp.jsonを編集することができます。");
+            }
+
             _foldoutHelp = EditorGUILayout.Foldout(_foldoutHelp, new GUIContent("Help", _guideIcon32));
             if (_foldoutHelp)
             {
@@ -238,7 +252,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             EditorGUILayout.Separator();
             EditorGUI.BeginDisabledGroup(serializedObject.isEditingMultipleObjects);
-            if (GUILayout.Button(new GUIContent("Open editor")))
+            if (GUILayout.Button(new GUIContent(CgeLocale.CGEE_Open_editor), GUILayout.Height(40)))
             {
                 CgeWindowHandler.Obtain().ShowActivity((ComboGestureActivity)serializedObject.targetObject);
             }

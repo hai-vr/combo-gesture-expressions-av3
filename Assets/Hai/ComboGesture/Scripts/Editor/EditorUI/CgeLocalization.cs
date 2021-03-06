@@ -13,6 +13,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         private const string Suffix = ".json";
         private static readonly CgeLocalization Myself = new CgeLocalization();
         private Dictionary<string, Dictionary<string, string>> _localizations;
+        private Dictionary<string, string> _activeLocaleNullable;
+        private bool _isEnglish;
+        private static int _lang;
 
         private CgeLocalization()
         {
@@ -24,11 +27,22 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             Myself.ReloadLocalizationsInternal();
         }
 
+        public static bool IsEnglishLocaleActive()
+        {
+            return Myself._isEnglish;
+        }
+
+        public static void CycleLocale()
+        {
+            _lang++;
+            Myself.ReloadLocalizationsInternal();
+        }
+
         private void ReloadLocalizationsInternal()
         {
             var localizationGuids = AssetDatabase.FindAssets("", new[] {"Assets/Hai/ComboGesture/Scripts/Editor/EditorUI/Locale"});
             _localizations = localizationGuids
-                .Select(guid => AssetDatabase.GUIDToAssetPath(guid))
+                .Select(AssetDatabase.GUIDToAssetPath)
                 .Where(path =>
                 {
                     var fileName = Path.GetFileName(path);
@@ -40,13 +54,32 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                     var languageCode = fileName.Substring(Prefix.Length, fileName.Length - Prefix.Length - Suffix.Length);
                     return languageCode;
                 }, ExtractDictionaryFromPath);
+
+            ReevaluateActiveLocale();
+        }
+
+        private void ReevaluateActiveLocale()
+        {
+            var nonEnglish = _localizations.ToList().Where(pair => pair.Key != "en").ToList();
+            var langModulo = _lang % (nonEnglish.Count + 1);
+
+            if (langModulo == 0)
+            {
+                _isEnglish = true;
+                _activeLocaleNullable = _localizations.Keys.Contains("en") ? _localizations["en"] : null;
+            }
+            else
+            {
+                _isEnglish = false;
+                _activeLocaleNullable = nonEnglish.ToList()[langModulo - 1].Value;
+            }
         }
 
         public static string LocalizeOrElse(string key, string defaultCultureLocalization)
         {
-            var anyLocalization = Myself._localizations
-                .Select(pair => pair.Value.ContainsKey(key) ? pair.Value[key] : null)
-                .LastOrDefault(result => result != null);
+            if (Myself._activeLocaleNullable == null) return defaultCultureLocalization;
+
+            var anyLocalization = Myself._activeLocaleNullable.ContainsKey(key) ? Myself._activeLocaleNullable[key] : null;
             return anyLocalization ?? defaultCultureLocalization;
         }
 

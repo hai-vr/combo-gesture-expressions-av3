@@ -21,6 +21,20 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         {
             serializedObject.Update();
 
+            if (GUILayout.Button("Switch language (English / 日本語)"))
+            {
+                CgeLocalization.CycleLocale();
+            }
+
+            if (CgeLocalization.IsEnglishLocaleActive())
+            {
+                EditorGUILayout.LabelField("");
+            }
+            else
+            {
+                EditorGUILayout.LabelField("翻訳は正確ではありません。cge.jp.jsonを編集することができます。");
+            }
+
             if (GUILayout.Button(new GUIContent(CgeLocale.CGEI_Documentation, _guideIcon32)))
             {
                 Application.OpenURL(CgeLocale.IntegratorDocumentationUrl());
@@ -40,7 +54,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 return animatorController.objectReferenceValue == null;
             }
 
-            if (GUILayout.Button(CgeLocale.CGEI_Synchronize_Animator_layers))
+            if (GUILayout.Button(CgeLocale.CGEI_Synchronize_Animator_layers, GUILayout.Height(40)))
             {
                 DoGenerate();
             }

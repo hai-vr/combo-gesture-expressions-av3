@@ -9,6 +9,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         internal static string CGE_Documentation_URL = OfficialDocumentationUrlAsPrefix;
         internal static string CGE_PermutationsDocumentation_URL = OfficialDocumentationUrlAsPrefix + "#permutations";
         internal static string CGE_IntegratorDocumentation_URL = OfficialDocumentationUrlAsPrefix + "integrator.html";
+        internal static string CGEE_Open_editor = "Open editor";
         internal static string CGEE_Additional_editors = "Additional editors";
         internal static string CGEE_All_combos = "All combos";
         internal static string CGEE_Analog_Fist = "Analog Fist";

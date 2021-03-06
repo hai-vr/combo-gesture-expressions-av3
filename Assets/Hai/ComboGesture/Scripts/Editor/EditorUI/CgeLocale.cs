@@ -13,6 +13,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         private static string CGE_PermutationsDocumentation_URL => LocalizeOrElse("CGE_PermutationsDocumentation_URL", CgeLocaleDefaults.CGE_PermutationsDocumentation_URL);
         private static string CGE_IntegratorDocumentation_URL => LocalizeOrElse("CGE_IntegratorDocumentation_URL", CgeLocaleDefaults.CGE_IntegratorDocumentation_URL);
         //
+        internal static string CGEE_Open_editor => LocalizeOrElse("CGEE_Open_editor", CgeLocaleDefaults.CGEE_Open_editor);
         internal static string CGEE_Additional_editors => LocalizeOrElse("CGEE_Additional_editors", CgeLocaleDefaults.CGEE_Additional_editors);
         internal static string CGEE_All_combos => LocalizeOrElse("CGEE_All_combos", CgeLocaleDefaults.CGEE_All_combos);
         internal static string CGEE_Analog_Fist => LocalizeOrElse("CGEE_Analog_Fist", CgeLocaleDefaults.CGEE_Analog_Fist);

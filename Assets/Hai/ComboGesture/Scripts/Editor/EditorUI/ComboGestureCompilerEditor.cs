@@ -133,9 +133,22 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             {
                 AsCompiler().comboLayers = new List<GestureComboStageMapper>();
             }
-
             serializedObject.Update();
             var italic = new GUIStyle(GUI.skin.label) {fontStyle = FontStyle.Italic};
+
+            if (GUILayout.Button("Switch language (English / 日本語)"))
+            {
+                CgeLocalization.CycleLocale();
+            }
+
+            if (CgeLocalization.IsEnglishLocaleActive())
+            {
+                EditorGUILayout.LabelField("");
+            }
+            else
+            {
+                EditorGUILayout.LabelField("翻訳は正確ではありません。cge.jp.jsonを編集することができます。");
+            }
 
             if (GUILayout.Button(new GUIContent(CgeLocale.CGEC_Documentation_and_tutorials, _guideIcon32)))
             {
