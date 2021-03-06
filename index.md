@@ -159,15 +159,15 @@ Earlier, you set up face expressions within `Default` object of the prefab. This
 
 The prefab contains another object called `Smiling` as an example, which contains a separate *Combo Gesture Activity* component. Select that object and rename it; It is up to you to organize the mood sets the way you want it (Smiling, Sad, Eccentric, Drunk, Romantic, ...) and it does not necessarily have to be moods (Sign Language, One-handed, Conversation, Dancing, ...)
 
-Select the `ComboGestureExpressions` object of the prefab. In the inspector, set the `Parameter Name` to a parameter name of your choice.
+Select the `ComboGestureExpressions` object of the prefab. In the inspector, set a `Parameter Name` to that new mood set, leaving the first one blank. The blank mood set will be the default mood set that is active when you load your avatar for the first time, or when you deselect a mood set.
 
-In your Avatar Parameters, add that parameter name as an Int.
+In your Expression Parameters, add a new Parameter of type `Bool`.
 
-In your Expression Menu, create a Toggle control to switch that Parameter name to the value of 1.
+In your Expression Menu, create a Toggle to control that Parameter.
 
 Add additional mood sets by clicking <span class="hai-btn">+</span> on the list, then drag-and-drop or select another *ComboGestureActivity* component. The number on the right is the value you need to set in your Expressions Menu for that Parameter Name.
 
-It is not necessary, but I also like to create a Toggle control to switch the Parameter name to the value of 0 in order to have an icon for it.
+*It is not necessary, you can optionally add a `Parameter Name` to the blank mood set. In that case, the first mood set in the list will be default mood set. This will allow you to add a toggle control to the default mood set in order to have an icon for it.*
 
 # Standalone puppets and blend trees
 
