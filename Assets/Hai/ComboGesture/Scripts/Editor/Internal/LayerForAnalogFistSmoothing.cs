@@ -13,6 +13,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private const string SmoothLeftOne = "Assets/Hai/ComboGesture/Hai_ComboGesture_LWSmoothOne.anim";
         private const string SmoothRightZero = "Assets/Hai/ComboGesture/Hai_ComboGesture_RWSmoothZero.anim";
         private const string SmoothRightOne = "Assets/Hai/ComboGesture/Hai_ComboGesture_RWSmoothOne.anim";
+        private const float DefaultSmoothingFactor = 0.5f;
 
         private readonly AnimatorGenerator _animatorGenerator;
         private readonly AvatarMask _weightCorrectionAvatarMask;
@@ -73,7 +74,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             machine.NewState("Interpolating", 1, 1)
                 .WithAnimation(factorTree)
                 .WithWriteDefaultsSetTo(_writeDefaultsForAnimatedAnimatorParameterStates)
-                .Drives(new FloatParameterist(SharedLayerUtils.HaiGestureComboSmoothingFactor), 0.75f);
+                .Drives(new FloatParameterist(SharedLayerUtils.HaiGestureComboSmoothingFactor), DefaultSmoothingFactor);
 
         }
 
