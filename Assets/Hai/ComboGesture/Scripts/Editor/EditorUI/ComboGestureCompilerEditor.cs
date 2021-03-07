@@ -489,7 +489,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         {
             CreateAvatarMaskAssetIfNecessary(compiler);
             new CgeMaskApplicator(compiler.animatorController, compiler.generatedAvatarMask).AddMissingMasks();
-            new CgeMaskApplicator(compiler.animatorController, compiler.generatedAvatarMask).UpdateMask(compiler.avatarDescriptor.transform);
+            new CgeMaskApplicator(compiler.animatorController, compiler.generatedAvatarMask).UpdateMask();
         }
 
         private void DoRemoveAppliedMasks(ComboGestureCompiler compiler)
@@ -671,7 +671,7 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
                 || compiler.generatedAvatarMask != null))
             {
                 CreateAvatarMaskAssetIfNecessary(compiler);
-                new CgeMaskApplicator(compiler.animatorController, compiler.generatedAvatarMask).UpdateMask(compiler.avatarDescriptor.transform);
+                new CgeMaskApplicator(compiler.animatorController, compiler.generatedAvatarMask).UpdateMask();
             }
 
             new ComboGestureCompilerInternal(compiler, actualContainer).DoOverwriteAnimatorFxLayer();

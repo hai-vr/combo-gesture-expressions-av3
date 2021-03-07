@@ -50,7 +50,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             AssetDatabase.Refresh();
         }
 
-        public void UpdateMask(Transform avatar)
+        public void UpdateMask()
         {
             foreach (AvatarMaskBodyPart part in Enum.GetValues(typeof(AvatarMaskBodyPart)))
             {
@@ -58,7 +58,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 _mask.SetHumanoidBodyPartActive(part, false);
             }
 
-            var potentiallyAnimatedPaths = FindPotentiallyAnimatedPaths(avatar);
+            var potentiallyAnimatedPaths = FindPotentiallyAnimatedPaths();
 
             if (potentiallyAnimatedPaths.Count == 0)
             {
@@ -72,17 +72,20 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             AssetDatabase.Refresh();
         }
 
-        private static List<string> FindPotentiallyAnimatedPaths(Transform avatar)
+        private List<string> FindPotentiallyAnimatedPaths()
         {
-            var materialSwappableComponents = avatar.GetComponentsInChildren<MeshRenderer>(true)
-                .Concat<Component>(avatar.GetComponentsInChildren<SkinnedMeshRenderer>(true));
-
-            var potentiallyAnimatedPaths = materialSwappableComponents
-                .Select(component => component.transform)
-                .Select(transform => SharedLayerUtils.ResolveRelativePath(avatar, transform))
+            return SharedLayerUtils.FindAllReachableClipsAndBlendTrees(_fxController)
+                .OfType<AnimationClip>()
+                .SelectMany(clip =>
+                {
+                    var materialSwaps = AnimationUtility.GetObjectReferenceCurveBindings(clip);
+                    var transforms = AnimationUtility.GetCurveBindings(clip)
+                        .Where(binding => binding.type == typeof(Transform));
+                    return transforms.Concat(materialSwaps)
+                        .Select(binding => binding.path);
+                })
                 .Distinct()
                 .ToList();
-            return potentiallyAnimatedPaths;
         }
 
         private void MutateMaskToContainAtLeastOneTransform()

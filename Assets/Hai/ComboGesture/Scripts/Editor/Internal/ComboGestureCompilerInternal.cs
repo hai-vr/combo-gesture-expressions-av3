@@ -278,34 +278,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
             var allSubAssets = AssetDatabase.LoadAllAssetsAtPath(AssetDatabase.GetAssetPath(animatorController));
 
-            var reachableMotions = ConcatStateMachines(animatorController)
-                .SelectMany(machine => machine.states)
-                .Select(state => state.state.motion)
-                .Where(motion => motion != null)
-                .SelectMany(Unwrap)
+            var reachableMotions = SharedLayerUtils.FindAllReachableClipsAndBlendTrees(animatorController)
                 .ToList<Object>();
             Reap(allSubAssets, typeof(BlendTree), reachableMotions, o => o.name.StartsWith("autoBT_"));
-        }
-
-        private static IEnumerable<Motion> Unwrap(Motion motion)
-        {
-            var itself = new[] {motion};
-            return motion is BlendTree bt ? itself.Concat(AllChildrenOf(bt)) : itself;
-        }
-
-        private static IEnumerable<Motion> AllChildrenOf(BlendTree blendTree)
-        {
-            return blendTree.children
-                .Select(motion => motion.motion)
-                .Where(motion => motion != null)
-                .SelectMany(Unwrap)
-                .ToList();
-        }
-
-        private static IEnumerable<AnimatorStateMachine> ConcatStateMachines(AnimatorController animatorController)
-        {
-            return animatorController.layers.Select(layer => layer.stateMachine)
-                .Concat(animatorController.layers.SelectMany(layer => layer.stateMachine.stateMachines).Select(machine => machine.stateMachine));
         }
 
         private static void Reap(Object[] allAssets, Type type, List<Object> existingAssets, Predicate<Object> predicate)
