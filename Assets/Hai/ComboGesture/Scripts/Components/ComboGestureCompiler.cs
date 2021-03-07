@@ -46,6 +46,8 @@ namespace Hai.ComboGesture.Scripts.Components
         public WeightCorrectionMode weightCorrectionMode = WeightCorrectionMode.UseRecommendedConfiguration;
         public BlinkCorrectionMode blinkCorrectionMode = BlinkCorrectionMode.UseRecommendedConfiguration; // Deprecated
 
+        public AvatarMask generatedAvatarMask;
+
         public bool editorAdvancedFoldout;
 
         public AnimationClip ignoreParamList;
