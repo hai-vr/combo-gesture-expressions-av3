@@ -8,7 +8,9 @@ If you do use ComboGestureExpressions to manage your face expressions, you shoul
 
 ComboGestureExpressions generates animator layers that may be interesting to users who use the Analog Fist gesture weight (`GestureLeftWeight` and `GestureRightWeight`).
 
-In particular, when other players look at you, the animation looks laggy and jerky. The generated layers can help address this issue *(For more information, see [Corrections](corrections.md#gestureweight-smoothing-correction))*. 
+In particular, when other players look at you, the animation looks laggy and jerky. The generated layers can help address this issue *(For more information, see [Corrections](corrections.md#gestureweight-smoothing-correction))*.
+
+<iframe src="https://streamable.com/e/42360m?loop=0" width="408" height="256" frameborder="0" allowfullscreen></iframe> 
 
 The Integrator will generate those layers without requiring you to manage any face expression.
 
