@@ -13,7 +13,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private const string SmoothLeftOne = "Assets/Hai/ComboGesture/Hai_ComboGesture_LWSmoothOne.anim";
         private const string SmoothRightZero = "Assets/Hai/ComboGesture/Hai_ComboGesture_RWSmoothZero.anim";
         private const string SmoothRightOne = "Assets/Hai/ComboGesture/Hai_ComboGesture_RWSmoothOne.anim";
-        private const float DefaultSmoothingFactor = 0.5f;
+        private const float DefaultSmoothingFactor = 0.7f;
 
         private readonly AnimatorGenerator _animatorGenerator;
         private readonly AvatarMask _weightCorrectionAvatarMask;
