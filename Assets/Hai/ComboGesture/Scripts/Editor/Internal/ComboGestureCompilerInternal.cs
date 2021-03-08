@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Hai.ComboGesture.Scripts.Components;
@@ -238,7 +238,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                     CreateOrReplaceWeightCorrection(_gesturePlayableLayerTechnicalAvatarMask, _animatorGenerator, _gesturePlayableLayerController, _conflictPreventionTempGestureLayer);
                     if (_useSmoothing)
                     {
-                        CreateOrReplaceSmoothing(_weightCorrectionAvatarMask, _animatorGenerator, _gesturePlayableLayerController, _conflictPrevention);
+                        CreateOrReplaceSmoothing(_weightCorrectionAvatarMask, _animatorGenerator, _gesturePlayableLayerController, _conflictPreventionTempGestureLayer);
                     }
                     else
                     {
