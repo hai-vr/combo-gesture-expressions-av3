@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Hai.ComboGesture.Scripts.Components;
@@ -128,11 +128,15 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         {
             _animatorGenerator = new AnimatorGenerator(_animatorController, new StatefulEmptyClipProvider(new ClipGenerator(_customEmptyClip, EmptyClipPath, "ComboGesture")));
 
+            var avatarMaskPath = AssetDatabase.LoadAssetAtPath<AvatarMask>(GesturePlayableLayerAvatarMaskPath);
+            var conflictPrevention = ConflictPrevention.OfFxLayer(WriteDefaultsRecommendationMode.FollowVrChatRecommendationWriteDefaultsOff);
             CreateOrReplaceWeightCorrection(
-                AssetDatabase.LoadAssetAtPath<AvatarMask>(GesturePlayableLayerAvatarMaskPath),
+                avatarMaskPath,
                 _animatorGenerator,
                 _animatorController,
-                ConflictPrevention.OfFxLayer(WriteDefaultsRecommendationMode.FollowVrChatRecommendationWriteDefaultsOff));
+                conflictPrevention
+            );
+            CreateOrReplaceSmoothing(avatarMaskPath, _animatorGenerator, _animatorController, conflictPrevention);
 
             ReapAnimator(_animatorController);
 
