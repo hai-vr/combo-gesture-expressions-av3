@@ -9,11 +9,14 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
     public class ComboGestureIntegratorEditor : UnityEditor.Editor
     {
         public SerializedProperty animatorController;
+        private SerializedProperty writeDefaults;
+
         private Texture _guideIcon32;
 
         private void OnEnable()
         {
             animatorController = serializedObject.FindProperty("animatorController");
+            writeDefaults = serializedObject.FindProperty("writeDefaults");
             _guideIcon32 = AssetDatabase.LoadAssetAtPath<Texture>("Assets/Hai/ComboGesture/Icons/guide-32.png");
         }
 
@@ -44,6 +47,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             EditorGUILayout.LabelField(CgeLocale.CGEI_BackupAnimator, italic);
             EditorGUILayout.PropertyField(animatorController, new GUIContent(CgeLocale.CGEI_Animator_Controller));
+            EditorGUILayout.PropertyField(writeDefaults, new GUIContent("Write Defaults"));
 
             EditorGUILayout.Space();
 

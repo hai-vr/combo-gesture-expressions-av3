@@ -93,6 +93,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             ComboGestureIntegrator integrator)
         {
             _animatorController = (AnimatorController)integrator.animatorController;
+            _conflictPrevention = ConflictPrevention.OfIntegrator(integrator.writeDefaults);
 
             // FIXME: Incorrect pattern in use here, none of those are necessary
             _comboLayers = new List<GestureComboStageMapper>();
@@ -101,7 +102,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _customEmptyClip = null;
             _analogBlinkingUpperThreshold = 0f;
             _featuresToggles = 0;
-            _conflictPrevention = ConflictPrevention.OfFxLayer(WriteDefaultsRecommendationMode.UseUnsupportedWriteDefaultsOn);
             _conflictPreventionTempGestureLayer = ConflictPrevention.OfFxLayer(WriteDefaultsRecommendationMode.UseUnsupportedWriteDefaultsOn);
             _compilerConflictFxLayerMode = ConflictFxLayerMode.KeepBoth;
             _compilerIgnoreParamList = new AnimationClip();
@@ -129,14 +129,13 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _animatorGenerator = new AnimatorGenerator(_animatorController, new StatefulEmptyClipProvider(new ClipGenerator(_customEmptyClip, EmptyClipPath, "ComboGesture")));
 
             var avatarMaskPath = AssetDatabase.LoadAssetAtPath<AvatarMask>(GesturePlayableLayerAvatarMaskPath);
-            var conflictPrevention = ConflictPrevention.OfFxLayer(WriteDefaultsRecommendationMode.FollowVrChatRecommendationWriteDefaultsOff);
             CreateOrReplaceWeightCorrection(
                 avatarMaskPath,
                 _animatorGenerator,
                 _animatorController,
-                conflictPrevention
+                _conflictPrevention
             );
-            CreateOrReplaceSmoothing(avatarMaskPath, _animatorGenerator, _animatorController, conflictPrevention);
+            CreateOrReplaceSmoothing(avatarMaskPath, _animatorGenerator, _animatorController, _conflictPrevention);
 
             ReapAnimator(_animatorController);
 
