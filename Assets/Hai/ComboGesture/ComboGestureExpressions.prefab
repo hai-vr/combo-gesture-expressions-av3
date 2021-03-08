@@ -41,8 +41,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2d2badf0290f49448345fff636b91b23, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
   transitionDuration: 0.1
   anim00: {fileID: 0}
   anim01: {fileID: 0}
@@ -158,8 +158,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2d2badf0290f49448345fff636b91b23, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
   transitionDuration: 0.1
   anim00: {fileID: 0}
   anim01: {fileID: 0}
@@ -278,21 +278,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 920a099f71774a43920a1cc216a86bba, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
   activityStageName: Activity
   comboLayers:
   - kind: 0
     activity: {fileID: 258466012350164061}
     puppet: {fileID: 0}
     stageValue: 0
-    booleanParameterName: 
+    booleanParameterName:
     internalVirtualStageValue: 0
   - kind: 0
     activity: {fileID: 4210607655909169378}
     puppet: {fileID: 0}
     stageValue: 1
-    booleanParameterName: CGESmiling
+    booleanParameterName: CgeSmiling
     internalVirtualStageValue: 0
   animatorController: {fileID: 0}
   useGesturePlayableLayer: 0
@@ -319,10 +319,13 @@ MonoBehaviour:
   gesturePlayableLayerTechnicalAvatarMask: {fileID: 0}
   conflictPreventionMode: 0
   writeDefaultsRecommendationMode: 0
+  cautiousWriteDefaultsRecommendationModeGesture: 0
+  gestureLayerTransformCapture: 0
   conflictPreventionTempGestureLayerMode: 0
   conflictFxLayerMode: 0
   weightCorrectionMode: 0
   blinkCorrectionMode: 0
+  generatedAvatarMask: {fileID: 0}
   editorAdvancedFoldout: 0
   ignoreParamList: {fileID: 0}
   fallbackParamList: {fileID: 0}
@@ -371,8 +374,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d9da21d457dc40b8a8c446a8b52a69fb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
   transitionDuration: 0.1
   mainTree: {fileID: 0}
   intent: 0
