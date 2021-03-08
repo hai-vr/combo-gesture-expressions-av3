@@ -110,6 +110,7 @@ You should press synchronize when any of the following happens:
         internal static string CGEC_Asset_generation = @"Asset generation";
         internal static string CGEC_Asset_container = @"Asset container";
         internal static string CGEC_FX_Playable_Mode = @"FX Playable Mode";
+        internal static string CGEC_WarnCautiousWriteDefaultsChosenOff = @"Write Defaults is ON for the Gesture layer. You can choose to switch to Write Defaults OFF to follow VRChat documentation, but be aware it is more difficult to do.";
         internal static string CGEC_WarnWriteDefaultsChosenOff = @"You have chosen to use Write Defaults ON. This goes against VRChat recommendation.";
         internal static string CGEC_AndMoreOnly15FirstResults = @"
 ... and more (only first 15 results shown).";

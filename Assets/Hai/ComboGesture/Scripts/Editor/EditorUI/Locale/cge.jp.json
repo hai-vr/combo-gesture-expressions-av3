@@ -86,6 +86,7 @@
   "CGEC_Asset_generation": "資産の生成",
   "CGEC_Asset_container": "資産コンテナー",
   "CGEC_FX_Playable_Mode": "FX プレイブル・モード",
+  "CGEC_WarnCautiousWriteDefaultsChosenOff": "「ジェスチャー」レイヤーに「デフォルトの書き込み」がオンである VRChat の文書に従うには、「デフォルトへの書き込みオフ」に切り替えることを選択できますが、実行するのは難しいことに注意してください。",
   "CGEC_WarnWriteDefaultsChosenOff": "「デフォルトの書き込み」を使用するよう選択しました。 これは VRChat の推奨に反しています",
   "CGEC_AndMoreOnly15FirstResults": "\r\n... 以上 ( 最初の 15 件の結果のみが表示される ) 。",
   "CGEC_WarnWriteDefaultsOnStatesFound": "いくつかの状態にはデフォルトがオン",

@@ -72,7 +72,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                                | (compiler.doNotGenerateWeightCorrectionLayer ? FeatureToggles.DoNotGenerateWeightCorrectionLayer : 0)
                                | (compiler.doNotFixSingleKeyframes ? FeatureToggles.DoNotFixSingleKeyframes : 0);
             _conflictPrevention = ConflictPrevention.OfFxLayer(compiler.writeDefaultsRecommendationMode);
-            _conflictPreventionTempGestureLayer = ConflictPrevention.OfGestureLayer(compiler.writeDefaultsRecommendationModeGesture, compiler.gestureLayerTransformCapture);
+            _conflictPreventionTempGestureLayer = ConflictPrevention.OfGestureLayerCautious(compiler.cautiousWriteDefaultsRecommendationModeGesture, compiler.gestureLayerTransformCapture);
             _compilerConflictFxLayerMode = compiler.conflictFxLayerMode;
             _compilerIgnoreParamList = compiler.ignoreParamList;
             _compilerFallbackParamList = compiler.fallbackParamList;

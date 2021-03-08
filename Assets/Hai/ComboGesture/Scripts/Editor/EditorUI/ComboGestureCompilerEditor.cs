@@ -37,7 +37,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public SerializedProperty doNotGenerateWeightCorrectionLayer;
 
         public SerializedProperty writeDefaultsRecommendationMode;
-        public SerializedProperty writeDefaultsRecommendationModeGesture;
+        public SerializedProperty cautiousWriteDefaultsRecommendationModeGesture;
         public SerializedProperty gestureLayerTransformCapture;
         public SerializedProperty generatedAvatarMask;
         public SerializedProperty conflictFxLayerMode;
@@ -77,7 +77,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             doNotGenerateWeightCorrectionLayer = serializedObject.FindProperty("doNotGenerateWeightCorrectionLayer");
 
             writeDefaultsRecommendationMode = serializedObject.FindProperty("writeDefaultsRecommendationMode");
-            writeDefaultsRecommendationModeGesture = serializedObject.FindProperty("writeDefaultsRecommendationModeGesture");
+            cautiousWriteDefaultsRecommendationModeGesture = serializedObject.FindProperty("cautiousWriteDefaultsRecommendationModeGesture");
             gestureLayerTransformCapture = serializedObject.FindProperty("gestureLayerTransformCapture");
             generatedAvatarMask = serializedObject.FindProperty("generatedAvatarMask");
             conflictFxLayerMode = serializedObject.FindProperty("conflictFxLayerMode");
@@ -266,7 +266,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             EditorGUILayout.LabelField(CgeLocale.CGEC_BackupFX, italic);
             EditorGUILayout.PropertyField(animatorController, new GUIContent(CgeLocale.CGEC_FX_Animator_Controller));
             EditorGUILayout.PropertyField(writeDefaultsRecommendationMode, new GUIContent(CgeLocale.CGEC_FX_Playable_Mode));
-            WriteDefaultsSection(compiler.animatorController, writeDefaultsRecommendationMode);
+            WriteDefaultsSection(compiler.animatorController, writeDefaultsRecommendationMode, false);
 
             EditorGUILayout.Separator();
 
@@ -279,11 +279,11 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 EditorGUILayout.LabelField(CgeLocale.CGEC_BackupGesture, italic);
                 EditorGUILayout.PropertyField(gesturePlayableLayerController, new GUIContent(CgeLocale.CGEC_Gesture_Animator_Controller));
 
-                EditorGUILayout.PropertyField(writeDefaultsRecommendationModeGesture, new GUIContent(CgeLocale.CGEC_Gesture_Playable_Mode));
+                EditorGUILayout.PropertyField(cautiousWriteDefaultsRecommendationModeGesture, new GUIContent(CgeLocale.CGEC_Gesture_Playable_Mode));
                 EditorGUILayout.PropertyField(gestureLayerTransformCapture, new GUIContent(CgeLocale.CGEC_Capture_Transforms_Mode));
-                WriteDefaultsSection(compiler.gesturePlayableLayerController, writeDefaultsRecommendationModeGesture);
+                WriteDefaultsSection(compiler.gesturePlayableLayerController, cautiousWriteDefaultsRecommendationModeGesture, true);
 
-                if (compiler.writeDefaultsRecommendationModeGesture == WriteDefaultsRecommendationMode.FollowVrChatRecommendationWriteDefaultsOff)
+                if (compiler.cautiousWriteDefaultsRecommendationModeGesture == CautiousWriteDefaultsRecommendationMode.FollowVrChatRecommendationWriteDefaultsOff)
                 {
                     EditorGUI.BeginDisabledGroup(true);
                     EditorGUILayout.PropertyField(generatedAvatarMask, new GUIContent(CgeLocale.CGEC_Asset_container));
@@ -314,7 +314,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 }
             }
 
-            if (compiler.animatorController != null && compiler.generatedAvatarMask != null && (!useGesturePlayableLayer.boolValue || compiler.writeDefaultsRecommendationModeGesture != WriteDefaultsRecommendationMode.FollowVrChatRecommendationWriteDefaultsOff))
+            if (compiler.animatorController != null && compiler.generatedAvatarMask != null && (!useGesturePlayableLayer.boolValue || compiler.cautiousWriteDefaultsRecommendationModeGesture != CautiousWriteDefaultsRecommendationMode.FollowVrChatRecommendationWriteDefaultsOff))
             {
                 EditorGUI.BeginDisabledGroup(true);
                 EditorGUILayout.PropertyField(generatedAvatarMask, new GUIContent(CgeLocale.CGEC_Asset_container));
@@ -516,11 +516,14 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             return animatorController.layers.Skip(1).Count(layer => layer.avatarMask == null);
         }
 
-        private static void WriteDefaultsSection(RuntimeAnimatorController ctrl, SerializedProperty recommendationMode)
+        private static void WriteDefaultsSection(RuntimeAnimatorController ctrl, SerializedProperty recommendationMode, bool isGesture)
         {
-            if (recommendationMode.intValue == (int) WriteDefaultsRecommendationMode.UseUnsupportedWriteDefaultsOn)
+            if (isGesture
+                ? recommendationMode.intValue == (int) CautiousWriteDefaultsRecommendationMode.UseWriteDefaultsOn
+                : recommendationMode.intValue == (int) WriteDefaultsRecommendationMode.UseUnsupportedWriteDefaultsOn
+            )
             {
-                EditorGUILayout.HelpBox(CgeLocale.CGEC_WarnWriteDefaultsChosenOff, MessageType.Warning);
+                EditorGUILayout.HelpBox(isGesture ? CgeLocale.CGEC_WarnCautiousWriteDefaultsChosenOff : CgeLocale.CGEC_WarnWriteDefaultsChosenOff, MessageType.Warning);
             }
             else
             {
@@ -667,7 +670,7 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
             }
 
             if (compiler.avatarDescriptor.transform != null
-                && (compiler.useGesturePlayableLayer && compiler.writeDefaultsRecommendationModeGesture == WriteDefaultsRecommendationMode.FollowVrChatRecommendationWriteDefaultsOff
+                && (compiler.useGesturePlayableLayer && compiler.cautiousWriteDefaultsRecommendationModeGesture == CautiousWriteDefaultsRecommendationMode.FollowVrChatRecommendationWriteDefaultsOff
                 || compiler.generatedAvatarMask != null))
             {
                 CreateAvatarMaskAssetIfNecessary(compiler);

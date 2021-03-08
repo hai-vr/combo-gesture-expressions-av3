@@ -56,5 +56,12 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 compilerGestureLayerTransformCapture == GestureLayerTransformCapture.CaptureDefaultTransformsFromAvatar,
                 compilerWriteDefaultsRecommendationModeGesture == WriteDefaultsRecommendationMode.UseUnsupportedWriteDefaultsOn);
         }
+
+        public static ConflictPrevention OfGestureLayerCautious(CautiousWriteDefaultsRecommendationMode compilerWriteDefaultsRecommendationModeGesture, GestureLayerTransformCapture compilerGestureLayerTransformCapture)
+        {
+            return new ConflictPrevention(
+                compilerGestureLayerTransformCapture == GestureLayerTransformCapture.CaptureDefaultTransformsFromAvatar,
+                compilerWriteDefaultsRecommendationModeGesture == CautiousWriteDefaultsRecommendationMode.UseWriteDefaultsOn);
+        }
     }
 }

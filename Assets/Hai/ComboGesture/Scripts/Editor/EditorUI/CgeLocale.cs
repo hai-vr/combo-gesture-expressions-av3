@@ -97,6 +97,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         internal static string CGEC_Asset_generation => LocalizeOrElse("CGEC_Asset_generation", CgeLocaleDefaults.CGEC_Asset_generation);
         internal static string CGEC_Asset_container => LocalizeOrElse("CGEC_Asset_container", CgeLocaleDefaults.CGEC_Asset_container);
         internal static string CGEC_FX_Playable_Mode => LocalizeOrElse("CGEC_FX_Playable_Mode", CgeLocaleDefaults.CGEC_FX_Playable_Mode);
+        internal static string CGEC_WarnCautiousWriteDefaultsChosenOff => LocalizeOrElse("CGEC_WarnCautiousWriteDefaultsChosenOff", CgeLocaleDefaults.CGEC_WarnCautiousWriteDefaultsChosenOff);
         internal static string CGEC_WarnWriteDefaultsChosenOff => LocalizeOrElse("CGEC_WarnWriteDefaultsChosenOff", CgeLocaleDefaults.CGEC_WarnWriteDefaultsChosenOff);
         internal static string CGEC_AndMoreOnly15FirstResults => LocalizeOrElse("CGEC_AndMoreOnly15FirstResults", CgeLocaleDefaults.CGEC_AndMoreOnly15FirstResults);
         internal static string CGEC_WarnWriteDefaultsOnStatesFound => LocalizeOrElse("CGEC_WarnWriteDefaultsOnStatesFound", CgeLocaleDefaults.CGEC_WarnWriteDefaultsOnStatesFound);

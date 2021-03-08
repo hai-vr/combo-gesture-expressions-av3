@@ -39,7 +39,7 @@ namespace Hai.ComboGesture.Scripts.Components
 
         public ConflictPreventionMode conflictPreventionMode; // Deprecated
         public WriteDefaultsRecommendationMode writeDefaultsRecommendationMode = WriteDefaultsRecommendationMode.FollowVrChatRecommendationWriteDefaultsOff;
-        public WriteDefaultsRecommendationMode writeDefaultsRecommendationModeGesture = WriteDefaultsRecommendationMode.FollowVrChatRecommendationWriteDefaultsOff;
+        public CautiousWriteDefaultsRecommendationMode cautiousWriteDefaultsRecommendationModeGesture = CautiousWriteDefaultsRecommendationMode.UseWriteDefaultsOn;
         public GestureLayerTransformCapture gestureLayerTransformCapture = GestureLayerTransformCapture.CaptureDefaultTransformsFromAvatar;
         public ConflictPreventionMode conflictPreventionTempGestureLayerMode = ConflictPreventionMode.UseRecommendedConfiguration; // Deprecated
         public ConflictFxLayerMode conflictFxLayerMode = ConflictFxLayerMode.RemoveTransformsAndMuscles;
@@ -95,11 +95,16 @@ namespace Hai.ComboGesture.Scripts.Components
     }
 
     [System.Serializable]
+    public enum CautiousWriteDefaultsRecommendationMode
+    {
+        UseWriteDefaultsOn, FollowVrChatRecommendationWriteDefaultsOff
+    }
+
+    [System.Serializable]
     public enum GestureLayerTransformCapture
     {
         CaptureDefaultTransformsFromAvatar, DoNotCaptureTransforms
     }
-
     [System.Serializable]
     public enum ConflictFxLayerMode
     {
