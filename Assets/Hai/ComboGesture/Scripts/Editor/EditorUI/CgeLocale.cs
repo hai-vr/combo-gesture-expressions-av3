@@ -4,6 +4,7 @@
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 {
@@ -111,6 +112,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         internal static string CGEC_MissingFxMask => LocalizeOrElse("CGEC_MissingFxMask", CgeLocaleDefaults.CGEC_MissingFxMask);
         internal static string CGEC_Add_missing_masks => LocalizeOrElse("CGEC_Add_missing_masks", CgeLocaleDefaults.CGEC_Add_missing_masks);
         internal static string CGEC_Remove_applied_masks => LocalizeOrElse("CGEC_Remove_applied_masks", CgeLocaleDefaults.CGEC_Remove_applied_masks);
+        internal static string CGEC_Unbind_Asset_container => LocalizeOrElse("CGEC_Unbind_Asset_container", CgeLocaleDefaults.CGEC_Unbind_Asset_container);
         //
         internal static string CGEI_Documentation => LocalizeOrElse("CGEI_Documentation", CgeLocaleDefaults.CGEI_Documentation);
         internal static string CGEI_BackupAnimator => LocalizeOrElse("CGEI_BackupAnimator", CgeLocaleDefaults.CGEI_BackupAnimator);

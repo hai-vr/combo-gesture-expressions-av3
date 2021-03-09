@@ -99,6 +99,7 @@
   "CGEC_MissingFxMask": "欠落しているマスクを持つ、 FX アニメーターのレイヤー {0} 個があります。 これにより、通常、ジェスチャー再生可能層の変換アニメーションが正常に機能しなくなります。\r\n\r\n既存の FX アニメーターを変更する「欠損マスクの追加」をクリックすることにより、修正を試行できます。 ただし、マスクは、アバターの他の機能と競合する可能性があることに注意してください。",
   "CGEC_Add_missing_masks": "欠落マスクの追加",
   "CGEC_Remove_applied_masks": "適用マスクの除去",
+  "CGEC_Unbind_Asset_container": "アセット・コンテナーのアンバインド",
   "CGEI_BackupAnimator": "バックアップを作成する アニメーター・コントローラーは直接変更されます。",
   "CGEI_Animator_Controller": "アニメーター・コントローラー",
   "CGEI_Info": "ComboGestureIntegrator は、コンボジェスチャーフェース式システムを使用しない場合でも、 Weight 矯正レイヤーをアニメーターコントローラに統合するためのモジュールです。\r\n\r\n同期化の後、正規化された時間またはブレンド・ツリー・パラメーターを手動で編集する必要があります。 - _Hai_GestureLWSmoothing で GestureLeftWeight を置換します。 _Hai_GestureRWSmoothing と置換するには、_Hai_GestureRWSmooシングを使用して、それに依存するアニメーター層 ( ジェスチャー、 FX...) に 1 つの ComboGestureIntegrator を使用する必要があります。通常、同期する必要があるのは 1 回のみです。",

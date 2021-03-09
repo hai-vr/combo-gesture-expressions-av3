@@ -37,7 +37,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public SerializedProperty doNotGenerateWeightCorrectionLayer;
 
         public SerializedProperty writeDefaultsRecommendationMode;
-        public SerializedProperty cautiousWriteDefaultsRecommendationModeGesture;
+        public SerializedProperty writeDefaultsRecommendationModeGesture;
         public SerializedProperty gestureLayerTransformCapture;
         public SerializedProperty generatedAvatarMask;
         public SerializedProperty conflictFxLayerMode;
@@ -77,7 +77,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             doNotGenerateWeightCorrectionLayer = serializedObject.FindProperty("doNotGenerateWeightCorrectionLayer");
 
             writeDefaultsRecommendationMode = serializedObject.FindProperty("writeDefaultsRecommendationMode");
-            cautiousWriteDefaultsRecommendationModeGesture = serializedObject.FindProperty("cautiousWriteDefaultsRecommendationModeGesture");
+            writeDefaultsRecommendationModeGesture = serializedObject.FindProperty("writeDefaultsRecommendationModeGesture");
             gestureLayerTransformCapture = serializedObject.FindProperty("gestureLayerTransformCapture");
             generatedAvatarMask = serializedObject.FindProperty("generatedAvatarMask");
             conflictFxLayerMode = serializedObject.FindProperty("conflictFxLayerMode");
@@ -266,7 +266,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             EditorGUILayout.LabelField(CgeLocale.CGEC_BackupFX, italic);
             EditorGUILayout.PropertyField(animatorController, new GUIContent(CgeLocale.CGEC_FX_Animator_Controller));
             EditorGUILayout.PropertyField(writeDefaultsRecommendationMode, new GUIContent(CgeLocale.CGEC_FX_Playable_Mode));
-            WriteDefaultsSection(compiler.animatorController, writeDefaultsRecommendationMode, false);
+            WriteDefaultsSection(writeDefaultsRecommendationMode);
 
             EditorGUILayout.Separator();
 
@@ -279,50 +279,39 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 EditorGUILayout.LabelField(CgeLocale.CGEC_BackupGesture, italic);
                 EditorGUILayout.PropertyField(gesturePlayableLayerController, new GUIContent(CgeLocale.CGEC_Gesture_Animator_Controller));
 
-                EditorGUILayout.PropertyField(cautiousWriteDefaultsRecommendationModeGesture, new GUIContent(CgeLocale.CGEC_Gesture_Playable_Mode));
+                EditorGUILayout.PropertyField(writeDefaultsRecommendationModeGesture, new GUIContent(CgeLocale.CGEC_Gesture_Playable_Mode));
                 EditorGUILayout.PropertyField(gestureLayerTransformCapture, new GUIContent(CgeLocale.CGEC_Capture_Transforms_Mode));
-                WriteDefaultsSection(compiler.gesturePlayableLayerController, cautiousWriteDefaultsRecommendationModeGesture, true);
+                WriteDefaultsSection(writeDefaultsRecommendationModeGesture);
 
-                if (compiler.cautiousWriteDefaultsRecommendationModeGesture == CautiousWriteDefaultsRecommendationMode.FollowVrChatRecommendationWriteDefaultsOff)
-                {
-                    EditorGUI.BeginDisabledGroup(true);
-                    EditorGUILayout.PropertyField(generatedAvatarMask, new GUIContent(CgeLocale.CGEC_Asset_container));
-                    EditorGUI.EndDisabledGroup();
-
-                    var missingMaskCount = IntrospectFxMasksEmptyMasks(compiler.animatorController);
-                    if (missingMaskCount > 0)
-                    {
-                        EditorGUILayout.HelpBox(string.Format(CgeLocale.CGEC_MissingFxMask, missingMaskCount), MessageType.Error);
-                    }
-
-                    EditorGUI.BeginDisabledGroup(compiler.avatarDescriptor == null || compiler.animatorController == null || missingMaskCount == 0);
-                    if (GUILayout.Button(CgeLocale.CGEC_Add_missing_masks))
-                    {
-                        AddMissingMasks(compiler);
-                    }
-                    EditorGUI.EndDisabledGroup();
-
-                    if (compiler.generatedAvatarMask != null)
-                    {
-                        EditorGUI.BeginDisabledGroup(compiler.avatarDescriptor == null || compiler.animatorController == null);
-                        if (GUILayout.Button(CgeLocale.CGEC_Remove_applied_masks))
-                        {
-                            DoRemoveAppliedMasks(compiler);
-                        }
-                        EditorGUI.EndDisabledGroup();
-                    }
-                }
-            }
-
-            if (compiler.animatorController != null && compiler.generatedAvatarMask != null && (!useGesturePlayableLayer.boolValue || compiler.cautiousWriteDefaultsRecommendationModeGesture != CautiousWriteDefaultsRecommendationMode.FollowVrChatRecommendationWriteDefaultsOff))
-            {
                 EditorGUI.BeginDisabledGroup(true);
                 EditorGUILayout.PropertyField(generatedAvatarMask, new GUIContent(CgeLocale.CGEC_Asset_container));
                 EditorGUI.EndDisabledGroup();
 
-                if (GUILayout.Button(CgeLocale.CGEC_Remove_applied_masks))
+                var missingMaskCount = CgeMaskApplicator.FindAllLayersMissingAMask(compiler.animatorController).Count();
+                if (missingMaskCount > 0)
                 {
-                    DoRemoveAppliedMasks(compiler);
+                    EditorGUILayout.HelpBox(string.Format(CgeLocale.CGEC_MissingFxMask, missingMaskCount), MessageType.Error);
+                }
+
+                EditorGUI.BeginDisabledGroup(compiler.avatarDescriptor == null || compiler.animatorController == null || missingMaskCount == 0);
+                if (GUILayout.Button(CgeLocale.CGEC_Add_missing_masks))
+                {
+                    AddMissingMasks(compiler);
+                }
+                EditorGUI.EndDisabledGroup();
+
+                if (compiler.generatedAvatarMask != null)
+                {
+                    EditorGUI.BeginDisabledGroup(compiler.avatarDescriptor == null || compiler.animatorController == null);
+                    MaskRemovalUi(compiler);
+                    EditorGUI.EndDisabledGroup();
+                }
+            }
+            else
+            {
+                if (compiler.animatorController != null && compiler.generatedAvatarMask != null)
+                {
+                    MaskRemovalUi(compiler);
                 }
             }
 
@@ -485,6 +474,26 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             serializedObject.ApplyModifiedProperties();
         }
 
+        private void MaskRemovalUi(ComboGestureCompiler compiler)
+        {
+            var isMaskUsed = compiler.animatorController != null && ((AnimatorController) compiler.animatorController).layers.Any(layer => layer.avatarMask == compiler.generatedAvatarMask);
+            EditorGUI.BeginDisabledGroup(!isMaskUsed);
+            if (GUILayout.Button(CgeLocale.CGEC_Remove_applied_masks))
+            {
+                DoRemoveAppliedMasks(compiler);
+            }
+
+            EditorGUI.EndDisabledGroup();
+
+            EditorGUI.BeginDisabledGroup(isMaskUsed);
+            if (GUILayout.Button(CgeLocale.CGEC_Unbind_Asset_container))
+            {
+                DoRemoveAppliedMasksAndAssetContainer(compiler);
+            }
+
+            EditorGUI.EndDisabledGroup();
+        }
+
         private void AddMissingMasks(ComboGestureCompiler compiler)
         {
             CreateAvatarMaskAssetIfNecessary(compiler);
@@ -493,6 +502,11 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         }
 
         private void DoRemoveAppliedMasks(ComboGestureCompiler compiler)
+        {
+            new CgeMaskApplicator(AsCompiler().animatorController, compiler.generatedAvatarMask).RemoveAppliedMask();
+        }
+
+        private void DoRemoveAppliedMasksAndAssetContainer(ComboGestureCompiler compiler)
         {
             new CgeMaskApplicator(AsCompiler().animatorController, compiler.generatedAvatarMask).RemoveAppliedMask();
             generatedAvatarMask.objectReferenceValue = null;
@@ -508,53 +522,12 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             compiler.generatedAvatarMask = mask;
         }
 
-        private static int IntrospectFxMasksEmptyMasks(RuntimeAnimatorController ctrl)
+        private static void WriteDefaultsSection(SerializedProperty recommendationMode)
         {
-            var animatorController = ctrl as AnimatorController;
-            if (animatorController == null) return 0;
-
-            return animatorController.layers.Skip(1).Count(layer => layer.avatarMask == null);
-        }
-
-        private static void WriteDefaultsSection(RuntimeAnimatorController ctrl, SerializedProperty recommendationMode, bool isGesture)
-        {
-            if (isGesture
-                ? recommendationMode.intValue == (int) CautiousWriteDefaultsRecommendationMode.UseWriteDefaultsOn
-                : recommendationMode.intValue == (int) WriteDefaultsRecommendationMode.UseUnsupportedWriteDefaultsOn
-            )
+            if (recommendationMode.intValue == (int) WriteDefaultsRecommendationMode.UseUnsupportedWriteDefaultsOn)
             {
-                EditorGUILayout.HelpBox(isGesture ? CgeLocale.CGEC_WarnCautiousWriteDefaultsChosenOff : CgeLocale.CGEC_WarnWriteDefaultsChosenOff, MessageType.Warning);
+                EditorGUILayout.HelpBox(CgeLocale.CGEC_WarnWriteDefaultsChosenOff, MessageType.Warning);
             }
-            else
-            {
-                var fxWdOn = ListAllWriteDefaults(ctrl as AnimatorController, 21);
-                if (fxWdOn.Count > 0)
-                {
-                    string message;
-                    if (fxWdOn.Count == 21)
-                    {
-                        message = string.Join("\n", fxWdOn.Take(15)) + CgeLocale.CGEC_AndMoreOnly15FirstResults;
-                    }
-                    else
-                    {
-                        message = string.Join("\n", fxWdOn);
-                    }
-
-                    EditorGUILayout.HelpBox(CgeLocale.CGEC_WarnWriteDefaultsOnStatesFound + "\n\n" + message, MessageType.Warning);
-                }
-            }
-        }
-
-        private static List<string> ListAllWriteDefaults(AnimatorController animatorController, int limit)
-        {
-            if (animatorController == null) return new List<string>();
-
-            var ac = animatorController;
-            return ac.layers
-                .Where(layer => !layer.name.StartsWith("Hai_Gesture"))
-                .SelectMany(layer => layer.stateMachine.states.Where(state => state.state.writeDefaultValues).Select(state => layer.name + " ▶ " + state.state.name))
-                .Take(limit)
-                .ToList();
         }
 
         private static string FakeBooleanIcon(bool value)
@@ -669,9 +642,7 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
                 }
             }
 
-            if (compiler.avatarDescriptor.transform != null
-                && (compiler.useGesturePlayableLayer && compiler.cautiousWriteDefaultsRecommendationModeGesture == CautiousWriteDefaultsRecommendationMode.FollowVrChatRecommendationWriteDefaultsOff
-                || compiler.generatedAvatarMask != null))
+            if (compiler.avatarDescriptor.transform != null && (compiler.useGesturePlayableLayer || compiler.generatedAvatarMask != null))
             {
                 CreateAvatarMaskAssetIfNecessary(compiler);
                 new CgeMaskApplicator(compiler.animatorController, compiler.generatedAvatarMask).UpdateMask();

@@ -99,6 +99,7 @@
   "CGEC_MissingFxMask": "There are {0} layers of your FX animator that have a missing mask. This will usually prevent Transform animations of the Gesture Playable Layer from functioning properly.\r\n\r\nYou can try to fix this by clicking \"Add missing masks\" which will modify your existing FX animator. However, be aware that masks might cause conflicts with other functions of your avatar.",
   "CGEC_Add_missing_masks": "Add missing masks",
   "CGEC_Remove_applied_masks": "Remove applied masks",
+  "CGEC_Unbind_Asset_container": "Unbind Asset container",
   "CGEI_BackupAnimator": "Make backups! The Animator Controller will be modified directly.",
   "CGEI_Animator_Controller": "Animator Controller",
   "CGEI_Info": "ComboGestureIntegrator is a module that lets you integrate the Weight Correction layers onto your Animator controller even if you don't use ComboGesture face expression system.\r\n\r\nAfter synchronizing, you will need to edit your Normalized Time or Blend Tree parameters manually:\r\n- Replace GestureLeftWeight with _Hai_GestureLWSmoothing\r\n- Replace GestureRightWeight with _Hai_GestureRWSmoothing\r\n\r\nYou need one ComboGestureIntegrator per animator layer that depends on it (Gesture, FX...).\r\nYou usually need to synchronize only once.",

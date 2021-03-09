@@ -18,12 +18,36 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _fxController = (AnimatorController)fxController;
         }
 
+        public static IEnumerable<AnimatorControllerLayer> FindAllLayersMissingAMask(RuntimeAnimatorController ctrl)
+        {
+            var animatorController = ctrl as AnimatorController;
+            if (animatorController == null) return new List<AnimatorControllerLayer>();
+
+            return animatorController.layers
+                .Skip(1)
+                .Where(layer => !layer.name.StartsWith("Hai_Gesture"))
+                .Where(layer => layer.avatarMask == null)
+                .Where(layer => FindAllStates(layer).Any(state => state.writeDefaultValues == false));
+        }
+
+        private static IEnumerable<AnimatorState> FindAllStates(AnimatorControllerLayer layer)
+        {
+            return layer.stateMachine.states.Concat(layer.stateMachine.stateMachines.SelectMany(AllChildStates)).Select(state => state.state);
+        }
+
+        private static IEnumerable<ChildAnimatorState> AllChildStates(ChildAnimatorStateMachine casm)
+        {
+            return casm.stateMachine.states.Concat(casm.stateMachine.stateMachines.SelectMany(AllChildStates));
+        }
+
         public void AddMissingMasks()
         {
+            var layerNamesMissingAMask = FindAllLayersMissingAMask(_fxController).Select(layer => layer.name).ToList();
+
             _fxController.layers = _fxController.layers
                 .Select(layer =>
                 {
-                    if (layer.avatarMask == null)
+                    if (layer.avatarMask == null && layerNamesMissingAMask.Contains(layer.name))
                     {
                         layer.avatarMask = _mask;
                     }

@@ -126,6 +126,7 @@ You should press synchronize when any of the following happens:
 You can try to fix this by clicking ""Add missing masks"" which will modify your existing FX animator. However, be aware that masks might cause conflicts with other functions of your avatar.";
         internal static string CGEC_Add_missing_masks = "Add missing masks";
         internal static string CGEC_Remove_applied_masks = "Remove applied masks";
+        internal static string CGEC_Unbind_Asset_container = "Unbind Asset container";
 
         internal static string CGEI_BackupAnimator = @"Make backups! The Animator Controller will be modified directly.";
         internal static string CGEI_Animator_Controller = @"Animator Controller";

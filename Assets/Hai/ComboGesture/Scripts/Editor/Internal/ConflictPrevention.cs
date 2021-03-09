@@ -8,7 +8,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         public bool ShouldGenerateExhaustiveAnimations { get; }
         public bool ShouldWriteDefaults { get; }
 
-        private static readonly ConflictPrevention CopyAnimationsWithWriteDefaults = new ConflictPrevention(false, true);
         private static readonly ConflictPrevention GenerateExhaustiveAnimationsWithWriteDefaults = new ConflictPrevention(true, true);
         private static readonly ConflictPrevention GenerateExhaustiveAnimationsWithoutWriteDefaults = new ConflictPrevention(true, false);
 
@@ -38,35 +37,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
         }
 
-        public static ConflictPrevention OfTempGestureLayer(ConflictPreventionMode mode)
-        {
-            switch (mode)
-            {
-                case ConflictPreventionMode.UseRecommendedConfiguration:
-                    return GenerateExhaustiveAnimationsWithWriteDefaults;
-                case ConflictPreventionMode.OnlyWriteDefaults:
-                    return CopyAnimationsWithWriteDefaults;
-                case ConflictPreventionMode.GenerateAnimationsWithWriteDefaults:
-                    return GenerateExhaustiveAnimationsWithWriteDefaults;
-                case ConflictPreventionMode.GenerateAnimationsWithoutWriteDefaults:
-                    return GenerateExhaustiveAnimationsWithoutWriteDefaults;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(mode), mode, null);
-            }
-        }
-
         public static ConflictPrevention OfGestureLayer(WriteDefaultsRecommendationMode compilerWriteDefaultsRecommendationModeGesture, GestureLayerTransformCapture compilerGestureLayerTransformCapture)
         {
             return new ConflictPrevention(
                 compilerGestureLayerTransformCapture == GestureLayerTransformCapture.CaptureDefaultTransformsFromAvatar,
                 compilerWriteDefaultsRecommendationModeGesture == WriteDefaultsRecommendationMode.UseUnsupportedWriteDefaultsOn);
-        }
-
-        public static ConflictPrevention OfGestureLayerCautious(CautiousWriteDefaultsRecommendationMode compilerWriteDefaultsRecommendationModeGesture, GestureLayerTransformCapture compilerGestureLayerTransformCapture)
-        {
-            return new ConflictPrevention(
-                compilerGestureLayerTransformCapture == GestureLayerTransformCapture.CaptureDefaultTransformsFromAvatar,
-                compilerWriteDefaultsRecommendationModeGesture == CautiousWriteDefaultsRecommendationMode.UseWriteDefaultsOn);
         }
     }
 }
