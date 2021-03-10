@@ -34,6 +34,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly AvatarMask _weightCorrectionAvatarMask;
         private readonly bool _integrateLimitedLipsync;
         private readonly ComboGestureLimitedLipsync _limitedLipsync;
+        private readonly bool _doNotIncludeBlinkBlendshapes;
         private AnimatorGenerator _animatorGenerator;
         private readonly AssetContainer _assetContainer;
         private readonly bool _useGestureWeightCorrection;
@@ -84,6 +85,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _gesturePlayableLayerTechnicalAvatarMask = compiler.gesturePlayableLayerTechnicalAvatarMask ? compiler.gesturePlayableLayerTechnicalAvatarMask : AssetDatabase.LoadAssetAtPath<AvatarMask>(GesturePlayableLayerAvatarMaskPath);
             _integrateLimitedLipsync = false; // For now, Limited Lipsync is disabled regardless of the compiler value
             _limitedLipsync = compiler.lipsyncForWideOpenMouth;
+            _doNotIncludeBlinkBlendshapes = !compiler.WillUseBlinkBlendshapeCorrection();
             _assetContainer = assetContainer;
             _useGestureWeightCorrection = compiler.WillUseGestureWeightCorrection();
             _useSmoothing = _useGestureWeightCorrection;
@@ -383,7 +385,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 _compilerConflictFxLayerMode,
                 _compilerIgnoreParamList,
                 avatarFallbacks,
-                new List<CurveKey>(),
+                _doNotIncludeBlinkBlendshapes
+                    ? new List<CurveKey>()
+                    : new BlendshapesFinder(_avatarDescriptor).FindBlink().Select(key => key.AsCurveKey()).ToList(),
                 _animatorController,
                 _comboLayers,
                 _useGestureWeightCorrection,

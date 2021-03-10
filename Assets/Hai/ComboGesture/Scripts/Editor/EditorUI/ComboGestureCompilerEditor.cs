@@ -42,6 +42,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public SerializedProperty generatedAvatarMask;
         public SerializedProperty conflictFxLayerMode;
         public SerializedProperty weightCorrectionMode;
+        public SerializedProperty blinkCorrectionMode;
         public SerializedProperty ignoreParamList;
         public SerializedProperty fallbackParamList;
         public SerializedProperty folderToGenerateNeutralizedAssetsIn;
@@ -82,6 +83,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             generatedAvatarMask = serializedObject.FindProperty("generatedAvatarMask");
             conflictFxLayerMode = serializedObject.FindProperty("conflictFxLayerMode");
             weightCorrectionMode = serializedObject.FindProperty("weightCorrectionMode");
+            blinkCorrectionMode = serializedObject.FindProperty("blinkCorrectionMode");
             ignoreParamList = serializedObject.FindProperty("ignoreParamList");
             fallbackParamList = serializedObject.FindProperty("fallbackParamList");
             folderToGenerateNeutralizedAssetsIn = serializedObject.FindProperty("folderToGenerateNeutralizedAssetsIn");
@@ -269,6 +271,27 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             WriteDefaultsSection(writeDefaultsRecommendationMode);
 
             EditorGUILayout.Separator();
+
+            if (compiler.avatarDescriptor != null)
+            {
+                EditorGUILayout.PropertyField(blinkCorrectionMode, new GUIContent(FakeBooleanIcon(compiler.WillUseBlinkBlendshapeCorrection()) + "Blink blendshapes correction"));
+                if (compiler.WillUseBlinkBlendshapeCorrection())
+                {
+                    var blinkBlendshapes = new BlendshapesFinder(compiler.avatarDescriptor).FindBlink();
+                    if (blinkBlendshapes.Any())
+                    {
+                        EditorGUILayout.LabelField("Found blink blendshapes:");
+                        foreach (var blendShape in blinkBlendshapes)
+                        {
+                            EditorGUILayout.LabelField("- " + blendShape.Path + "::" + blendShape.BlendShapeName);
+                        }
+                    }
+                    else
+                    {
+                        EditorGUILayout.LabelField("No blink blendshapes found");
+                    }
+                }
+            }
 
             EditorGUILayout.LabelField(CgeLocale.CGEC_Gesture_Playable_Layer, EditorStyles.boldLabel);
             EditorGUILayout.LabelField(CgeLocale.CGEC_Support_for_other_transforms, italic);
