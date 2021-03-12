@@ -19,6 +19,7 @@ For instance, if a face expression closes the eyes on the left hand, but lowers 
 - Puppets and blend trees are integrated into the tool.
 - Animations are internally recalculated so you don't have to worry about weird conflicts.
 - Animations triggered by squeezing the controller trigger will look smooth to outside observers.
+  - *Note: This feature can be installed independently from ComboGestureExpressions using the [Integrator](integrator.md) if you are managing face expressions on your own.*
 - ...and more tweaks.
 
 This tool should NOT be used for:
