@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors;
+using Hai.ComboGesture.Scripts.Editor.EditorUI.Modules;
 using Hai.ComboGesture.Scripts.Editor.Internal;
 using UnityEngine;
 using static UnityEngine.Object;
@@ -17,21 +18,21 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         private readonly ComboGestureLimitedLipsync _limitedLipsync;
         private readonly Action _onClipRenderedFn;
         private readonly CgeEditorEffector _editorEffector;
-        private readonly CgePreviewEffector _previewEffector;
+        private readonly CgeRenderingCommands _renderingCommands;
 
         private readonly List<AnimationPreview> _visemePreviews;
 
-        public CgeActivityEditorLipsync(ComboGestureLimitedLipsync limitedLipsync, Action onClipRenderedFn, CgeEditorEffector editorEffector, CgePreviewEffector previewEffector)
+        public CgeActivityEditorLipsync(ComboGestureLimitedLipsync limitedLipsync, Action onClipRenderedFn, CgeEditorEffector editorEffector, CgeRenderingCommands renderingCommands)
         {
             _limitedLipsync = limitedLipsync;
             _onClipRenderedFn = onClipRenderedFn;
             _editorEffector = editorEffector;
-            _previewEffector = previewEffector;
+            _renderingCommands = renderingCommands;
 
             _visemePreviews = Enumerable.Range(0, 15)
                 .Select(i => new AnimationPreview(
                     new AnimationClip(),
-                    CgePreviewProcessor.NewPreviewTexture2D(LipsyncPreviewWidth,LipsyncPreviewHeight))
+                    CgeMemoryQuery.NewPreviewTexture2D(LipsyncPreviewWidth,LipsyncPreviewHeight))
                 )
                 .ToList();
         }
@@ -45,7 +46,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 _visemePreviews[visemeNumber] = new AnimationPreview(GenerateLipsyncClip(baseFace, visemeNumber), _visemePreviews[visemeNumber].RenderTexture);
             }
 
-            _previewEffector.GenerateSpecific(_visemePreviews.ToList(), OnClipRendered);
+            _renderingCommands.GenerateSpecific(_visemePreviews.ToList(), OnClipRendered, _editorEffector.PreviewSetup());
         }
 
         public void PrepareJust(AnimationClip baseFace, int visemeNumber)
@@ -54,7 +55,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             _visemePreviews[visemeNumber] = new AnimationPreview(GenerateLipsyncClip(baseFace, visemeNumber), _visemePreviews[visemeNumber].RenderTexture);
 
-            _previewEffector.GenerateSpecific(new[] {_visemePreviews[visemeNumber]}.ToList(), OnClipRendered);
+            _renderingCommands.GenerateSpecific(new[] {_visemePreviews[visemeNumber]}.ToList(), OnClipRendered, _editorEffector.PreviewSetup());
         }
 
         private AnimationClip GenerateLipsyncClip(AnimationClip baseFace, int visemeNumber)

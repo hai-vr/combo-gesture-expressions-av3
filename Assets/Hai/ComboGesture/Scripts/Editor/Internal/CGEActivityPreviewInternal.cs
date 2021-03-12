@@ -1,37 +1,41 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.EditorUI;
 using Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors;
-using UnityEditor;
+using Hai.ComboGesture.Scripts.Editor.EditorUI.Modules;
 using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
     public class CgeActivityPreviewInternal
     {
-
         private readonly Action _onClipRenderedFn;
         private readonly CgeEditorEffector _editorEffector;
         private readonly CgeBlendTreeEffector _blendTreeEffector;
-        private readonly Dictionary<AnimationClip, Texture2D> _animationClipToTextureDict;
-        private readonly Dictionary<AnimationClip, Texture2D> _animationClipToTextureDictGray;
+        private readonly CgeMemoization _memoization;
         private readonly int _pictureWidth;
         private readonly int _pictureHeight;
-        private readonly Action _onQueueTaskComplete;
         private readonly AnimationClip[] _editorArbitraryAnimations;
+        private readonly CgeRenderingCommands _cgeRenderingCommands;
 
-        public CgeActivityPreviewInternal(Action onClipRenderedFn, CgeEditorEffector editorEffector, CgeBlendTreeEffector blendTreeEffector, Dictionary<AnimationClip, Texture2D> animationClipToTextureDict, Dictionary<AnimationClip, Texture2D> animationClipToTextureDictGray, int pictureWidth, int pictureHeight, Action onQueueTaskComplete)
+        public CgeActivityPreviewInternal(Action onClipRenderedFn,
+            CgeEditorEffector editorEffector,
+            CgeBlendTreeEffector blendTreeEffector,
+            CgeMemoization memoization,
+            int pictureWidth,
+            int pictureHeight,
+            CgeRenderingCommands cgeRenderingCommands)
         {
             _onClipRenderedFn = onClipRenderedFn;
             _editorEffector = editorEffector;
             _blendTreeEffector = blendTreeEffector;
-            _animationClipToTextureDict = animationClipToTextureDict;
-            _animationClipToTextureDictGray = animationClipToTextureDictGray;
+            _memoization = memoization;
             _pictureWidth = pictureWidth;
             _pictureHeight = pictureHeight;
-            _onQueueTaskComplete = onQueueTaskComplete;
             _editorArbitraryAnimations = _editorEffector.GetActivity()?.editorArbitraryAnimations ?? new AnimationClip[]{};
+            _cgeRenderingCommands = cgeRenderingCommands;
         }
 
         public enum ProcessMode
@@ -39,23 +43,18 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             RecalculateEverything, CalculateMissing
         }
 
-        public void Process(ProcessMode processMode, AnimationClip prioritize)
+        public void Process(ProcessMode processMode, AnimationClip prioritize, ComboGesturePreviewSetup previewSetup)
         {
-            if (AnimationMode.InAnimationMode())
-            {
-                return;
-            }
-
             var clipDictionary = GatherAnimations(processMode);
             var animationPreviews = ToPrioritizedList(clipDictionary, prioritize);
 
-            new CgePreviewProcessor(_editorEffector.PreviewSetup(), animationPreviews, OnClipRendered, _onQueueTaskComplete).Capture();
+            _cgeRenderingCommands.GenerateSpecific(animationPreviews, OnClipRendered, previewSetup);
         }
 
         private void OnClipRendered(AnimationPreview animationPreview)
         {
-            _animationClipToTextureDict[animationPreview.Clip] = animationPreview.RenderTexture;
-            _animationClipToTextureDictGray[animationPreview.Clip] = GrayscaleCopyOf(animationPreview.RenderTexture);
+            _memoization.AssignRegular(animationPreview.Clip, animationPreview.RenderTexture);
+            _memoization.AssignGrayscale(animationPreview.Clip, GrayscaleCopyOf(animationPreview.RenderTexture));
             _onClipRenderedFn.Invoke();
         }
 
@@ -107,11 +106,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
             if (processMode == ProcessMode.CalculateMissing)
             {
-                enumerable = enumerable.Where(clip => !_animationClipToTextureDict.ContainsKey(clip));
+                enumerable = enumerable.Where(clip => !_memoization.Has(clip));
             }
 
             return new HashSet<AnimationClip>(enumerable.ToList())
-                    .ToDictionary(clip => clip, clip => CgePreviewProcessor.NewPreviewTexture2D(_pictureWidth, _pictureHeight));
+                    .ToDictionary(clip => clip, clip => CgeMemoryQuery.NewPreviewTexture2D(_pictureWidth, _pictureHeight));
         }
     }
 }

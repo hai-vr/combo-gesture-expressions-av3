@@ -2,6 +2,7 @@
 using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors;
 using Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts;
+using Hai.ComboGesture.Scripts.Editor.EditorUI.Modules;
 using UnityEditor;
 using UnityEngine;
 using static UnityEditor.EditorGUIUtility;
@@ -29,7 +30,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
     {
         CreateBlendTrees,
         ViewBlendTrees,
-        CombineFaceExpressions
+        CombineFaceExpressions,
+        CreateFaceExpressions
     }
 
     public class CgeEditorWindow : EditorWindow
@@ -42,6 +44,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         private readonly CgeLayoutOtherOptions _layoutOtherOptions;
         private readonly CgeLayoutSetFaceExpressions _layoutSetFaceExpressions;
         private readonly CgeLayoutManipulateTrees _layoutManipulateTrees;
+        private readonly CgeLayoutCreator _layoutCreator;
 
         private Vector2 _scrollPos;
         private Texture _helpIcon16;
@@ -51,15 +54,20 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         {
             _editorEffector = new CgeEditorEffector(new CgeEditorState());
             var blendTreeEffector = new CgeBlendTreeEffector();
-            var previewController = new CgePreviewEffector(new CgePreviewState(), _editorEffector, blendTreeEffector);
-            _common = new CgeLayoutCommon(Repaint, _editorEffector, previewController);
+            var memoization = new CgeMemoization();
+            var renderingCommands = new CgeRenderingCommands();
+            var activityPreviewQueryAggregator = new CgeActivityPreviewQueryAggregator(memoization, _editorEffector, blendTreeEffector, renderingCommands);
+            var creatorEffector = new CgeCreatorEffector(_editorEffector);
+            var cgeMemoryQuery = new CgeMemoryQuery(memoization);
+            _common = new CgeLayoutCommon(Repaint, _editorEffector, activityPreviewQueryAggregator, cgeMemoryQuery);
             var driver = new CgeActivityEditorDriver(_editorEffector);
             _layoutPreventEyesBlinking = new CgeLayoutPreventEyesBlinking(_common, _editorEffector);
-            _layoutMakeLipsyncMovementsSubtle = new CgeLayoutMakeLipsyncMovementsSubtle(_common, driver, _editorEffector, previewController);
-            _layoutFaceExpressionCombiner = new CgeLayoutFaceExpressionCombiner(_common, driver, _editorEffector, previewController);
-            _layoutOtherOptions = new CgeLayoutOtherOptions(_common, _editorEffector, previewController);
+            _layoutMakeLipsyncMovementsSubtle = new CgeLayoutMakeLipsyncMovementsSubtle(_common, driver, _editorEffector, renderingCommands);
+            _layoutFaceExpressionCombiner = new CgeLayoutFaceExpressionCombiner(_common, driver, _editorEffector, renderingCommands, activityPreviewQueryAggregator);
+            _layoutOtherOptions = new CgeLayoutOtherOptions(_common, _editorEffector, activityPreviewQueryAggregator);
             _layoutSetFaceExpressions = new CgeLayoutSetFaceExpressions(_common, driver, _layoutFaceExpressionCombiner /* FIXME it is not normal to inject the layout here */, _editorEffector, Repaint, blendTreeEffector);
             _layoutManipulateTrees = new CgeLayoutManipulateTrees(_common, _editorEffector, blendTreeEffector);
+            _layoutCreator = new CgeLayoutCreator(_editorEffector, renderingCommands, creatorEffector);
 
             WindowHandler = new CgeWindowHandler(this, _editorEffector);
         }
@@ -172,6 +180,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                             break;
                         case AdditionalEditorsMode.CombineFaceExpressions:
                             _layoutFaceExpressionCombiner.Layout(Repaint);
+                            break;
+                        case AdditionalEditorsMode.CreateFaceExpressions:
+                            _layoutCreator.Layout(Repaint);
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();
@@ -295,7 +306,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             GUILayout.Space(30);
             _editorEffector.SwitchAdditionalEditorTo((AdditionalEditorsMode)GUILayout.Toolbar((int)_editorEffector.GetAdditionalEditor(), new[]
             {
-                CgeLocale.CGEE_Create_blend_trees, CgeLocale.CGEE_View_blend_trees, CgeLocale.CGEE_Combine_expressions
+                CgeLocale.CGEE_Create_blend_trees, CgeLocale.CGEE_View_blend_trees, CgeLocale.CGEE_Combine_expressions, "Create new expressions"
             }, GUILayout.ExpandWidth(true)));
 
             GUILayout.Space(30 + 120);

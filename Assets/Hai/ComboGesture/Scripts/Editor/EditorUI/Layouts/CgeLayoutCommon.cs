@@ -12,7 +12,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
     {
         private readonly Action _repaintCallback;
         private readonly CgeEditorEffector _editorEffector;
-        private readonly CgePreviewEffector _previewController;
+        private readonly CgeMemoryQuery _memoryQuery;
+        private readonly CgeActivityPreviewQueryAggregator _activityPreviewQueryAggregator;
 
         public const int PictureWidth = 120;
         public const int PictureHeight = 80;
@@ -32,11 +33,12 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
         public static Texture GuideIcon32;
         private bool _isSimulationOfProSkin = false;
 
-        public CgeLayoutCommon(Action repaintCallback, CgeEditorEffector editorEffector, CgePreviewEffector previewController)
+        public CgeLayoutCommon(Action repaintCallback, CgeEditorEffector editorEffector, CgeActivityPreviewQueryAggregator activityPreviewQueryAggregator, CgeMemoryQuery memoryQuery)
         {
             _repaintCallback = repaintCallback;
             _editorEffector = editorEffector;
-            _previewController = previewController;
+            _activityPreviewQueryAggregator = activityPreviewQueryAggregator;
+            _memoryQuery = memoryQuery;
         }
 
         public void GuiInit()
@@ -100,7 +102,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
         public void DrawPreviewOrRefreshButton(Motion element, bool grayscale = false)
         {
             if (element is AnimationClip clip) {
-                if (_previewController.HasClip(clip))
+                if (_memoryQuery.HasClip(clip))
                 {
                     GUILayout.Box(Texture(grayscale, clip), GUIStyle.none, GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true));
                     InvisibleRankPreservingBox();
@@ -120,7 +122,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                     {
                         if (isPreviewSetupValid)
                         {
-                            _previewController.GenerateMissingPreviewsPrioritizing(_repaintCallback, clip);
+                            _activityPreviewQueryAggregator.GenerateMissingPreviewsPrioritizing(_repaintCallback, clip);
                         }
                         else
                         {
@@ -148,7 +150,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                     InvisibleRankPreservingBox();
                     InvisibleRankPreservingButton();
                 }
-                else if (_previewController.HasClip(animations[0]))
+                else if (_memoryQuery.HasClip(animations[0]))
                 {
                     GUILayout.BeginHorizontal();
                     TexturedBox(grayscale, animations, 0);
@@ -172,7 +174,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                     {
                         if (isPreviewSetupValid)
                         {
-                            _previewController.GenerateMissingPreviewsPrioritizing(_repaintCallback, animations[0]);
+                            _activityPreviewQueryAggregator.GenerateMissingPreviewsPrioritizing(_repaintCallback, animations[0]);
                         }
                         else
                         {
@@ -194,7 +196,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
 
         private void TexturedBox(bool grayscale, List<AnimationClip> animations, int index)
         {
-            if (animations.Count > index && _previewController.HasClip(animations[index]))
+            if (animations.Count > index && _memoryQuery.HasClip(animations[index]))
             {
                 GUILayout.Box(Texture(grayscale, animations[index]), GUIStyle.none, GUILayout.Width(PictureWidth / 2), GUILayout.Height(PictureHeight / 2));
             }
@@ -206,7 +208,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
 
         private Texture Texture(bool grayscale, AnimationClip clip)
         {
-            return grayscale ? _previewController.GetGrayscale(clip) : _previewController.GetPicture(clip);
+            return grayscale ? _memoryQuery.GetGrayscale(clip) : _memoryQuery.GetPicture(clip);
         }
 
         private static void InvisibleRankPreservingBox()

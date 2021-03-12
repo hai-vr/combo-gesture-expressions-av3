@@ -11,13 +11,13 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
     {
         private readonly CgeLayoutCommon _common;
         private readonly CgeEditorEffector _editorEffector;
-        private readonly CgePreviewEffector _previewController;
+        private readonly CgeActivityPreviewQueryAggregator _activityPreviewQueryAggregator;
 
-        public CgeLayoutOtherOptions(CgeLayoutCommon common, CgeEditorEffector editorEffector, CgePreviewEffector previewController)
+        public CgeLayoutOtherOptions(CgeLayoutCommon common, CgeEditorEffector editorEffector, CgeActivityPreviewQueryAggregator activityPreviewQueryAggregator)
         {
             _common = common;
             _editorEffector = editorEffector;
-            _previewController = previewController;
+            _activityPreviewQueryAggregator = activityPreviewQueryAggregator;
         }
 
         public void Layout(Action repaintCallback, Rect position)
@@ -71,12 +71,12 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                 EditorGUI.BeginDisabledGroup(AnimationMode.InAnimationMode());
                 if (GUILayout.Button(CgeLocale.CGEE_Generate_missing_previews))
                 {
-                    _previewController.GenerateMissingPreviews(repaintCallback);
+                    _activityPreviewQueryAggregator.GenerateMissingPreviews(repaintCallback);
                 }
 
                 if (GUILayout.Button(CgeLocale.CGEE_Regenerate_all_previews))
                 {
-                    _previewController.GenerateAll(repaintCallback);
+                    _activityPreviewQueryAggregator.GenerateAll(repaintCallback);
                 }
                 if (_editorEffector.GetCurrentlyEditing() == CurrentlyEditing.Activity)
                 {
@@ -85,10 +85,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                 EditorGUI.EndDisabledGroup();
 
                 EditorGUI.BeginDisabledGroup(!AnimationMode.InAnimationMode());
-                if (GUILayout.Button(CgeLocale.CGEE_Stop_generating_previews))
-                {
-                    CgePreviewProcessor.Stop_Temp();
-                }
                 EditorGUI.EndDisabledGroup();
 
                 if (_editorEffector.GetCurrentlyEditing() == CurrentlyEditing.Activity)
