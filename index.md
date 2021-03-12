@@ -227,6 +227,7 @@ When placing a blend tree in the Fist x2 slot, the parameters `GestureLeftWeight
 # Learn more
 
 - [Corrections](corrections.md) - Learn about the various techniques used to fix animations.
+- [Integrator](integrator.md) - Documentation about the Integrator, a module to add Weight Corrections without using ComboGestureExpressions.
 - [Tutorials](tutorial.md) - Video tutorials with audio commentary.
 - [Unavailable feature: Limited Lipsync](limited-lipsync.md) - An explanation of what *Make lipsync movement subtle* is.
 - [Download on github.com](https://github.com/hai-vr/combo-gesture-expressions-av3/releases) - Main download location.
