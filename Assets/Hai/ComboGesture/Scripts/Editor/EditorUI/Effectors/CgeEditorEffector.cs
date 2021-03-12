@@ -2,6 +2,8 @@
 using System.Linq;
 using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.Internal.Processing;
+using Hai.ExpressionsEditor.Scripts.Components;
+using Hai.ExpressionsEditor.Scripts.Editor.Internal;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
@@ -12,7 +14,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
     {
         List<AnimationClip> AllDistinctAnimations { get; }
         List<AnimationClip> Blinking { get; }
-        ComboGesturePreviewSetup PreviewSetup { get; set; }
+        ExpressionEditorPreviewable PreviewSetup { get; set; }
         List<ComboGestureActivity.LimitedLipsyncAnimation> LimitedLipsync { get; }
     }
 
@@ -28,7 +30,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
         public List<AnimationClip> AllDistinctAnimations => CgeEditorEffector.AllDistinctAnimations(_activity);
         public List<AnimationClip> Blinking => _activity.blinking;
         public List<ComboGestureActivity.LimitedLipsyncAnimation> LimitedLipsync => _activity.limitedLipsync;
-        public ComboGesturePreviewSetup PreviewSetup
+        public ExpressionEditorPreviewable PreviewSetup
         {
             get => _activity.previewSetup;
             set => _activity.previewSetup = value;
@@ -47,7 +49,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
         public List<AnimationClip> AllDistinctAnimations => ManifestFromPuppet.AllDistinctAnimations(_puppet);
         public List<AnimationClip> Blinking => _puppet.blinking;
         public List<ComboGestureActivity.LimitedLipsyncAnimation> LimitedLipsync => _puppet.limitedLipsync;
-        public ComboGesturePreviewSetup PreviewSetup
+        public ExpressionEditorPreviewable PreviewSetup
         {
             get => _puppet.previewSetup;
             set => _puppet.previewSetup = value;
@@ -68,7 +70,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
         public int CurrentEditorToolValue = -1;
 
         public bool FirstTimeSetup;
-        public AutoSetupPreview.SetupResult? SetupResult;
+        public EePreviewSetupWizard.SetupResult? SetupResult;
     }
 
     public class CgeEditorEffector
@@ -160,14 +162,19 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
             return _state.FirstTimeSetup;
         }
 
-        public AutoSetupPreview.SetupResult? GetSetupResult()
+        public EePreviewSetupWizard.SetupResult? GetSetupResult()
         {
             return _state.SetupResult;
         }
 
         public void TryAutoSetup()
         {
-            _state.SetupResult = new AutoSetupPreview(this).AutoSetup();
+            var setup = new EePreviewSetupWizard().AutoSetup();
+            if (setup.PreviewAvatar != null)
+            {
+                SetPreviewSetup(setup.PreviewAvatar);
+            }
+            _state.SetupResult = setup.Result;
         }
 
         public void MarkFirstTimeSetup()
@@ -200,9 +207,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
             return _state.ActivityAccessor.Blinking;
         }
 
-        public ComboGesturePreviewSetup PreviewSetup()
+        public EePreviewAvatar PreviewSetup()
         {
-            return _state.ActivityAccessor.PreviewSetup;
+            return _state.ActivityAccessor.PreviewSetup.AsEePreviewAvatar();
         }
 
         public List<ComboGestureActivity.LimitedLipsyncAnimation> MutableLimitedLipsync()
@@ -220,7 +227,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
             return _state.ActivityAccessor.PreviewSetup != null && !_state.ActivityAccessor.PreviewSetup.IsValid();
         }
 
-        public void SetPreviewSetup(ComboGesturePreviewSetup previewSetup)
+        public void SetPreviewSetup(ExpressionEditorPreviewable previewSetup)
         {
             _state.ActivityAccessor.PreviewSetup = previewSetup;
         }

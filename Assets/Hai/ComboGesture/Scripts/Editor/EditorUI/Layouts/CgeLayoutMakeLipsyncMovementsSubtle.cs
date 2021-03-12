@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors;
+using Hai.ExpressionsEditor.Scripts.Editor.Internal.Modules;
 using UnityEditor;
 using UnityEngine;
 
@@ -22,15 +23,15 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
         private readonly CgeLayoutCommon _common;
         private readonly CgeActivityEditorDriver _driver;
         private readonly CgeEditorEffector _editorEffector;
-        private readonly CgePreviewEffector _previewEffector;
+        private readonly EeRenderingCommands _renderingCommands;
         private readonly LipsyncState _lipsyncState = new LipsyncState();
 
-        public CgeLayoutMakeLipsyncMovementsSubtle(CgeLayoutCommon common, CgeActivityEditorDriver driver, CgeEditorEffector editorEffector, CgePreviewEffector previewEffector)
+        public CgeLayoutMakeLipsyncMovementsSubtle(CgeLayoutCommon common, CgeActivityEditorDriver driver, CgeEditorEffector editorEffector, EeRenderingCommands renderingCommands)
         {
             _common = common;
             _driver = driver;
             _editorEffector = editorEffector;
-            _previewEffector = previewEffector;
+            _renderingCommands = renderingCommands;
         }
 
         public void Layout(Rect position, Action repaintCallback)
@@ -177,7 +178,7 @@ At the time this version has been published, generating the layer will break you
                     _lipsyncState.LimitedLipsyncPreviewIndex,
                     previewables
                 );
-                var avatarHasVisemeBlendShapes = _editorEffector.IsPreviewSetupValid() && _editorEffector.PreviewSetup().avatarDescriptor.VisemeSkinnedMesh;
+                var avatarHasVisemeBlendShapes = _editorEffector.IsPreviewSetupValid() && _editorEffector.PreviewSetup().TempCxSmr;
                 if (!avatarHasVisemeBlendShapes)
                 {
                     EditorGUILayout.HelpBox("The avatar has no lipsync face mesh.", MessageType.Error);
@@ -244,7 +245,7 @@ At the time this version has been published, generating the layer will break you
         {
             _lipsyncState.LimitedLipsync = limitedLipsync;
             _lipsyncState.SerializedLimitedLipsync = new SerializedObject(limitedLipsync);
-            _lipsyncState.Lipsync = new CgeActivityEditorLipsync(limitedLipsync, repaintCallback, _editorEffector, _previewEffector);
+            _lipsyncState.Lipsync = new CgeActivityEditorLipsync(limitedLipsync, repaintCallback, _editorEffector, _renderingCommands);
         }
 
         public bool IsLimitedLipsyncSameAs(ComboGestureLimitedLipsync selectedLimitedLipsync)

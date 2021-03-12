@@ -2,6 +2,9 @@
 using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors;
 using Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts;
+using Hai.ComboGesture.Scripts.Editor.EditorUI.Modules;
+using Hai.ExpressionsEditor.Scripts.Editor.EditorUI.EditorWindows;
+using Hai.ExpressionsEditor.Scripts.Editor.Internal.Modules;
 using UnityEditor;
 using UnityEngine;
 using static UnityEditor.EditorGUIUtility;
@@ -34,40 +37,46 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
     public class CgeEditorWindow : EditorWindow
     {
-        private readonly CgeLayoutCommon _common;
-        private readonly CgeEditorEffector _editorEffector;
-        private readonly CgeLayoutPreventEyesBlinking _layoutPreventEyesBlinking;
-        private readonly CgeLayoutMakeLipsyncMovementsSubtle _layoutMakeLipsyncMovementsSubtle;
-        private readonly CgeLayoutFaceExpressionCombiner _layoutFaceExpressionCombiner;
-        private readonly CgeLayoutOtherOptions _layoutOtherOptions;
-        private readonly CgeLayoutSetFaceExpressions _layoutSetFaceExpressions;
-        private readonly CgeLayoutManipulateTrees _layoutManipulateTrees;
+        private const int RightSpace = 30 + 120 + 220;
+        private CgeLayoutCommon _common;
+        private CgeEditorEffector _editorEffector;
+        private CgeLayoutPreventEyesBlinking _layoutPreventEyesBlinking;
+        private CgeLayoutMakeLipsyncMovementsSubtle _layoutMakeLipsyncMovementsSubtle;
+        private CgeLayoutFaceExpressionCombiner _layoutFaceExpressionCombiner;
+        private CgeLayoutOtherOptions _layoutOtherOptions;
+        private CgeLayoutSetFaceExpressions _layoutSetFaceExpressions;
+        private CgeLayoutManipulateTrees _layoutManipulateTrees;
 
         private Vector2 _scrollPos;
         private Texture _helpIcon16;
-        public CgeWindowHandler WindowHandler { get; }
+        public CgeWindowHandler WindowHandler { get; private set; }
 
-        public CgeEditorWindow()
+        private void OnEnable()
         {
             _editorEffector = new CgeEditorEffector(new CgeEditorState());
             var blendTreeEffector = new CgeBlendTreeEffector();
-            var previewController = new CgePreviewEffector(new CgePreviewState(), _editorEffector, blendTreeEffector);
-            _common = new CgeLayoutCommon(Repaint, _editorEffector, previewController);
+            var memoization = Cge.Get().Memoization;
+            var renderingCommands = Ee.Get().RenderingCommands;
+            var activityPreviewQueryAggregator = new CgeActivityPreviewQueryAggregator(memoization, _editorEffector, blendTreeEffector, renderingCommands);
+            var cgeMemoryQuery = new CgeMemoryQuery(memoization);
+            _common = new CgeLayoutCommon(Repaint, _editorEffector, activityPreviewQueryAggregator, cgeMemoryQuery);
             var driver = new CgeActivityEditorDriver(_editorEffector);
             _layoutPreventEyesBlinking = new CgeLayoutPreventEyesBlinking(_common, _editorEffector);
-            _layoutMakeLipsyncMovementsSubtle = new CgeLayoutMakeLipsyncMovementsSubtle(_common, driver, _editorEffector, previewController);
-            _layoutFaceExpressionCombiner = new CgeLayoutFaceExpressionCombiner(_common, driver, _editorEffector, previewController);
-            _layoutOtherOptions = new CgeLayoutOtherOptions(_common, _editorEffector, previewController);
+            _layoutMakeLipsyncMovementsSubtle = new CgeLayoutMakeLipsyncMovementsSubtle(_common, driver, _editorEffector, renderingCommands);
+            _layoutFaceExpressionCombiner = new CgeLayoutFaceExpressionCombiner(_common, driver, _editorEffector, renderingCommands, activityPreviewQueryAggregator);
+            _layoutOtherOptions = new CgeLayoutOtherOptions(_common, _editorEffector, activityPreviewQueryAggregator);
             _layoutSetFaceExpressions = new CgeLayoutSetFaceExpressions(_common, driver, _layoutFaceExpressionCombiner /* FIXME it is not normal to inject the layout here */, _editorEffector, Repaint, blendTreeEffector);
             _layoutManipulateTrees = new CgeLayoutManipulateTrees(_common, _editorEffector, blendTreeEffector);
 
             WindowHandler = new CgeWindowHandler(this, _editorEffector);
-        }
 
-        private void OnEnable()
-        {
             _common.GuiInit();
             _helpIcon16 = AssetDatabase.LoadAssetAtPath<Texture>("Assets/Hai/ComboGesture/Icons/help-16.png");
+
+            Ee.Get().Hooks.SetOnMainRenderedListener(rendered =>
+            {
+                activityPreviewQueryAggregator.OnMainRendered(rendered, Repaint);
+            });
         }
 
         private void OnInspectorUpdate()
@@ -121,6 +130,13 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             {
                 _editorEffector.ClearFirstTimeSetup();
             }
+
+            GUILayout.BeginArea(new Rect(position.width - 320, CgeLayoutCommon.SingleLineHeight * 2 + 5, 200, CgeLayoutCommon.SingleLineHeight + 2));
+            if (GUILayout.Button(new GUIContent("❈ ExpressionsEditor"), GUILayout.Width(170), GUILayout.Height(CgeLayoutCommon.SingleLineHeight + 2)))
+            {
+                EeAnimationEditorWindow.Obtain().Show();
+            }
+            GUILayout.EndArea();
 
             GUILayout.BeginArea(new Rect(position.width - 130, CgeLayoutCommon.SingleLineHeight * 2 + 5, 100, CgeLayoutCommon.SingleLineHeight + 2));
             if (GUILayout.Button(new GUIContent(" " + CgeLocale.CGEE_Tutorials, _helpIcon16), GUILayout.Width(100), GUILayout.Height(CgeLayoutCommon.SingleLineHeight + 2)))
@@ -214,7 +230,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 {
                     _editorEffector.SpEditorTool().intValue = GUILayout.Toolbar(_editorEffector.SpEditorTool().intValue, new[] {CgeLocale.CGEE_Simplified_view, CgeLocale.CGEE_Complete_view, CgeLocale.CGEE_Permutations});
                 }
-                GUILayout.Space(30 + 120);
+                GUILayout.Space(RightSpace);
                 GUILayout.EndHorizontal();
                 _editorEffector.SwitchCurrentEditorToolTo(_editorEffector.SpEditorTool().intValue);
             }
@@ -285,7 +301,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             {
                 CgeLocale.CGEE_Select_wide_open_mouth, CgeLocale.CGEE_Edit_lipsync_settings
             }, GUILayout.ExpandWidth(true)));
-            GUILayout.Space(30 + 120);
+            GUILayout.Space(RightSpace);
             GUILayout.EndHorizontal();
         }
 
@@ -298,7 +314,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 CgeLocale.CGEE_Create_blend_trees, CgeLocale.CGEE_View_blend_trees, CgeLocale.CGEE_Combine_expressions
             }, GUILayout.ExpandWidth(true)));
 
-            GUILayout.Space(30 + 120);
+            GUILayout.Space(RightSpace);
             GUILayout.EndHorizontal();
         }
     }

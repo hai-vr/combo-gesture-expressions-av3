@@ -1,5 +1,7 @@
 ﻿using System;
+using System.IO;
 using Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors;
+using Hai.ExpressionsEditor.Scripts.Editor.EditorUI.EditorWindows;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
@@ -414,6 +416,18 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                 EndInvisibleRankPreservingArea();
             }
 
+            if (element == null && !_driver.IsAPropertyThatCanBeCombined(propertyPath, usePermutations))
+            {
+                EditorGUI.BeginDisabledGroup(false);
+                GUILayout.BeginArea(new Rect(-3 + 10, CgeLayoutCommon.PictureHeight - CgeLayoutCommon.SingleLineHeight * 3f, CgeLayoutCommon.GuiSquareWidth - 20, CgeLayoutCommon.SingleLineHeight * 1.5f));
+                if (GUILayout.Button("❈ Create"))
+                {
+                    CreateNewAnimation(propertyPath);
+                }
+                GUILayout.EndArea();
+                EditorGUI.EndDisabledGroup();
+            }
+
             if (usePermutations && propertyPath != oppositePath && property.objectReferenceValue == oppositeProperty.objectReferenceValue && property.objectReferenceValue != null)
             {
                 EditorGUI.BeginDisabledGroup(false);
@@ -484,6 +498,26 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
 
             GUILayout.Space(CgeLayoutCommon.PictureHeight);
             EditorGUILayout.PropertyField(property, GUIContent.none);
+        }
+
+        private void CreateNewAnimation(string propertyPath)
+        {
+            var animations = _editorEffector.AllDistinctAnimations();
+            var folder = animations.Count > 0 ? AssetDatabase.GetAssetPath(animations[0]).Replace(Path.GetFileName(AssetDatabase.GetAssetPath(animations[0])), "") : "Assets/";
+
+            var finalFilename = "CGE_NewAnimation__" + DateTime.Now.ToString("yyyy'-'MM'-'dd'_'HHmmss") + ".anim";
+
+            var finalPath = folder + finalFilename;
+            var clip = new AnimationClip();
+            AssetDatabase.CreateAsset(clip, finalPath);
+            AssetDatabase.LoadAssetAtPath<AnimationClip>(finalPath);
+
+            _editorEffector.SpProperty(propertyPath).objectReferenceValue = clip;
+            _editorEffector.ApplyModifiedProperties();
+
+            EeAnimationEditorWindow.Obtain().Show();
+            EditorGUIUtility.PingObject(clip);
+            Selection.SetActiveObjectWithContext(clip, null);
         }
 
         private void DrawInnerReversal(string propertyPath)

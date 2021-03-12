@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors;
+using Hai.ExpressionsEditor.Scripts.Editor.Internal;
 using UnityEditor;
 using UnityEngine;
 
@@ -11,13 +12,13 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
     {
         private readonly CgeLayoutCommon _common;
         private readonly CgeEditorEffector _editorEffector;
-        private readonly CgePreviewEffector _previewController;
+        private readonly CgeActivityPreviewQueryAggregator _activityPreviewQueryAggregator;
 
-        public CgeLayoutOtherOptions(CgeLayoutCommon common, CgeEditorEffector editorEffector, CgePreviewEffector previewController)
+        public CgeLayoutOtherOptions(CgeLayoutCommon common, CgeEditorEffector editorEffector, CgeActivityPreviewQueryAggregator activityPreviewQueryAggregator)
         {
             _common = common;
             _editorEffector = editorEffector;
-            _previewController = previewController;
+            _activityPreviewQueryAggregator = activityPreviewQueryAggregator;
         }
 
         public void Layout(Action repaintCallback, Rect position)
@@ -37,7 +38,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                 if (GUILayout.Button(CgeLocale.CGEE_Automatically_setup_preview, GUILayout.Height(50), GUILayout.Width(300)))
                 {
                     DoAutoSetupPreview();
-                    if (_editorEffector.GetSetupResult() != AutoSetupPreview.SetupResult.NoAvatarFound)
+                    if (_editorEffector.GetSetupResult() != EePreviewSetupWizard.SetupResult.NoAvatarFound)
                     {
                         _editorEffector.SwitchTo(ActivityEditorMode.SetFaceExpressions);
                     }
@@ -51,16 +52,16 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                 EditorGUILayout.PropertyField(_editorEffector.SpPreviewSetup(), new GUIContent(CgeLocale.CGEE_Preview_setup));
                 if (_editorEffector.GetSetupResult() != null)
                 {
-                    var setupResult = (AutoSetupPreview.SetupResult) _editorEffector.GetSetupResult();
+                    var setupResult = (EePreviewSetupWizard.SetupResult) _editorEffector.GetSetupResult();
                     switch (setupResult)
                     {
-                        case AutoSetupPreview.SetupResult.ReusedExistsAndValidInScene:
+                        case EePreviewSetupWizard.SetupResult.ReusedExistsAndValidInScene:
                             EditorGUILayout.HelpBox(CgeLocale.CGEE_AutoSetupReused, MessageType.Info);
                             break;
-                        case AutoSetupPreview.SetupResult.NoAvatarFound:
+                        case EePreviewSetupWizard.SetupResult.NoAvatarFound:
                             EditorGUILayout.HelpBox(CgeLocale.CGEE_AutoSetupNoActiveAvatarDescriptor, MessageType.Error);
                             break;
-                        case AutoSetupPreview.SetupResult.CreatedNew:
+                        case EePreviewSetupWizard.SetupResult.CreatedNew:
                             EditorGUILayout.HelpBox(CgeLocale.CGEE_AutoSetupCreated, MessageType.Info);
                             break;
                         default:
@@ -71,12 +72,12 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                 EditorGUI.BeginDisabledGroup(AnimationMode.InAnimationMode());
                 if (GUILayout.Button(CgeLocale.CGEE_Generate_missing_previews))
                 {
-                    _previewController.GenerateMissingPreviews(repaintCallback);
+                    _activityPreviewQueryAggregator.GenerateMissingPreviews(repaintCallback);
                 }
 
                 if (GUILayout.Button(CgeLocale.CGEE_Regenerate_all_previews))
                 {
-                    _previewController.GenerateAll(repaintCallback);
+                    _activityPreviewQueryAggregator.GenerateAll(repaintCallback);
                 }
                 if (_editorEffector.GetCurrentlyEditing() == CurrentlyEditing.Activity)
                 {
@@ -85,10 +86,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                 EditorGUI.EndDisabledGroup();
 
                 EditorGUI.BeginDisabledGroup(!AnimationMode.InAnimationMode());
-                if (GUILayout.Button(CgeLocale.CGEE_Stop_generating_previews))
-                {
-                    CgePreviewProcessor.Stop_Temp();
-                }
                 EditorGUI.EndDisabledGroup();
 
                 if (_editorEffector.GetCurrentlyEditing() == CurrentlyEditing.Activity)

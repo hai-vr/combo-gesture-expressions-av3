@@ -4,6 +4,7 @@ using System.Linq;
 using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors;
 using Hai.ComboGesture.Scripts.Editor.Internal;
+using Hai.ExpressionsEditor.Scripts.Editor.Internal.Modules;
 using UnityEngine;
 using static UnityEngine.Object;
 
@@ -17,21 +18,22 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         private readonly ComboGestureLimitedLipsync _limitedLipsync;
         private readonly Action _onClipRenderedFn;
         private readonly CgeEditorEffector _editorEffector;
-        private readonly CgePreviewEffector _previewEffector;
+        private readonly EeRenderingCommands _renderingCommands;
 
-        private readonly List<AnimationPreview> _visemePreviews;
+        private readonly List<EeRenderingSample> _visemePreviews;
 
-        public CgeActivityEditorLipsync(ComboGestureLimitedLipsync limitedLipsync, Action onClipRenderedFn, CgeEditorEffector editorEffector, CgePreviewEffector previewEffector)
+        public CgeActivityEditorLipsync(ComboGestureLimitedLipsync limitedLipsync, Action onClipRenderedFn, CgeEditorEffector editorEffector, EeRenderingCommands renderingCommands)
         {
             _limitedLipsync = limitedLipsync;
             _onClipRenderedFn = onClipRenderedFn;
             _editorEffector = editorEffector;
-            _previewEffector = previewEffector;
+            _renderingCommands = renderingCommands;
 
             _visemePreviews = Enumerable.Range(0, 15)
-                .Select(i => new AnimationPreview(
+                .Select(i => new EeRenderingSample(
                     new AnimationClip(),
-                    CgePreviewProcessor.NewPreviewTexture2D(LipsyncPreviewWidth,LipsyncPreviewHeight))
+                    CgeMemoryQuery.NewPreviewTexture2D(LipsyncPreviewWidth,LipsyncPreviewHeight),
+                    OnClipRendered)
                 )
                 .ToList();
         }
@@ -42,19 +44,19 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             for (var visemeNumber = 0; visemeNumber < _visemePreviews.Count; visemeNumber++)
             {
-                _visemePreviews[visemeNumber] = new AnimationPreview(GenerateLipsyncClip(baseFace, visemeNumber), _visemePreviews[visemeNumber].RenderTexture);
+                _visemePreviews[visemeNumber] = new EeRenderingSample(GenerateLipsyncClip(baseFace, visemeNumber), _visemePreviews[visemeNumber].RenderTexture, OnClipRendered);
             }
 
-            _previewEffector.GenerateSpecific(_visemePreviews.ToList(), OnClipRendered);
+            _renderingCommands.GenerateSpecific(_visemePreviews.ToList(), _editorEffector.PreviewSetup());
         }
 
         public void PrepareJust(AnimationClip baseFace, int visemeNumber)
         {
             if (!_editorEffector.IsPreviewSetupValid()) return;
 
-            _visemePreviews[visemeNumber] = new AnimationPreview(GenerateLipsyncClip(baseFace, visemeNumber), _visemePreviews[visemeNumber].RenderTexture);
+            _visemePreviews[visemeNumber] = new EeRenderingSample(GenerateLipsyncClip(baseFace, visemeNumber), _visemePreviews[visemeNumber].RenderTexture, OnClipRendered);
 
-            _previewEffector.GenerateSpecific(new[] {_visemePreviews[visemeNumber]}.ToList(), OnClipRendered);
+            _renderingCommands.GenerateSpecific(new[] {_visemePreviews[visemeNumber]}.ToList(), _editorEffector.PreviewSetup());
         }
 
         private AnimationClip GenerateLipsyncClip(AnimationClip baseFace, int visemeNumber)
@@ -62,7 +64,10 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             var generatedClip = Instantiate(baseFace);
 
             var amplitude = _limitedLipsync.amplitudeScale * FindVisemeAmplitudeTweak(visemeNumber);
-            new VisemeAnimationMaker(_editorEffector.PreviewSetup().avatarDescriptor).OverrideAnimation(generatedClip, visemeNumber, amplitude);
+            new VisemeAnimationMaker(
+                // _editorEffector.PreviewSetup().avatarDescriptor
+                null // FIXME: Disabled this code because Limited Lipsync is a disabled feature, and refactoring this is harder when decoupling VRChat
+            ).OverrideAnimation(generatedClip, visemeNumber, amplitude);
 
             return generatedClip;
         }
@@ -90,7 +95,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             }
         }
 
-        private void OnClipRendered(AnimationPreview obj)
+        private void OnClipRendered(EeRenderingSample obj)
         {
             _onClipRenderedFn.Invoke();
         }

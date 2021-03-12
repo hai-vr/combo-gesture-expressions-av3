@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Hai.ExpressionsEditor.Scripts.Editor.Internal;
 using UnityEditor;
 using UnityEngine;
 
@@ -100,7 +101,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         private static Dictionary<string, string> ExtractDictionaryFromText(string contents)
         {
             var localizations = new Dictionary<string, string>();
-            var jsonObject = CgeJSON.Parse(contents);
+            var jsonObject = EeJSON.Parse(contents);
             foreach (var key in jsonObject.Keys)
             {
                 localizations.Add(key, jsonObject[key]);
