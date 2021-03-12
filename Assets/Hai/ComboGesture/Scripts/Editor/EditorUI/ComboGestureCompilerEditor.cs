@@ -467,7 +467,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             {
                 GenBlinkingWarning(false);
                 GenWeightCorrection(false);
-                CpmFxValueWarning(false);
                 CpmRemovalWarning(false);
             }
 
@@ -552,30 +551,6 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
                 EditorGUILayout.HelpBox(@"Weight correction layer should usually be generated, otherwise it may not be updated correctly on future updates of ComboGestureExpressions.
 
 This is not a normal usage of ComboGestureExpressions, and should not be used except in special cases." + (!advancedFoldoutIsOpen ? "\n\n(Advanced settings)" : ""), MessageType.Error);
-            }
-        }
-
-        private void CpmFxValueWarning(bool advancedFoldoutIsOpen)
-        {
-            var conflictPrevention = ConflictPrevention.OfFxLayer((WriteDefaultsRecommendationMode) writeDefaultsRecommendationMode.intValue);
-            if (!conflictPrevention.ShouldGenerateExhaustiveAnimations)
-            {
-                    EditorGUILayout.HelpBox(@"Exhaustive animations will not be generated. Your face expressions will be non-deterministic if you don't make sure to reset the blendshapes to defaults yourself.
-
-If in doubt, use Follow VRChat Recommendation instead." + (!advancedFoldoutIsOpen ? "\n\n(Advanced settings)" : ""), MessageType.Error);
-            }
-            else
-            {
-                if (advancedFoldoutIsOpen) {
-                    EditorGUILayout.HelpBox(@"Animations will be generated in a way that will prevent conflicts between face expressions.
-Whenever an animation is modified, you will need to click Synchronize again.", MessageType.Info);
-                }
-                if (conflictPrevention.ShouldWriteDefaults) {
-                    EditorGUILayout.HelpBox(@"The generated states will have ""Write Defaults"" to ON.
-This goes against VRChat guideline to use ""Write Defaults"" to OFF on all animator states.
-
-If in doubt, use Follow VRChat Recommendation instead." + (!advancedFoldoutIsOpen ? "\n\n(Advanced settings)" : ""), MessageType.Error);
-                }
             }
         }
 
