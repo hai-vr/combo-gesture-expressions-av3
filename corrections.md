@@ -19,6 +19,8 @@ This causes an issue right when the hand stops doing a Fist gesture: The animati
 
 The applied fix is to copy the GestureWeight value only as long as the hand is doing a Fist gesture, effectively freezing the last known value when the Fist is no longer doing that gesture. This is done by using a technique with *Animated Animator Parameters*, where an Animator parameter is animated using itself as the Normalized Time input.
 
+This correction can be installed without ComboGestureExpressions using the [Integrator](integrator.md).
+
 #### GestureWeight smoothing correction
 
 The trigger squeezes smoothly when looking at yourself on mirrors and cameras.
@@ -30,6 +32,8 @@ The applied fix is to smooth that value by performing a mathematical operation o
 > SmoothedValue ← TargetValue * SmoothingFactor + SmoothedValue * (1 - SmoothingFactor)
 
 This mathematical operation is implemented using several blend trees.
+
+This correction can be installed without ComboGestureExpressions using the [Integrator](integrator.md).
 
 #### Disabling blinking animation
 
