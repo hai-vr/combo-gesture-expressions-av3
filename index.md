@@ -166,7 +166,7 @@ In your Expression Parameters, add a new Parameter of type `Bool`.
 
 In your Expression Menu, create a Toggle to control that Parameter.
 
-Add additional mood sets by clicking <span class="hai-btn">+</span> on the list, then drag-and-drop or select another *ComboGestureActivity* component. The number on the right is the value you need to set in your Expressions Menu for that Parameter Name.
+Add additional mood sets by clicking <span class="hai-btn">+</span> on the list, then drag-and-drop or select another *ComboGestureActivity* component. Just like the second one, choose another `Parameter Name` for that mood set, create an Expression Parameter and a Expression Menu toggle.
 
 *It is not necessary, you can optionally add a `Parameter Name` to the blank mood set. In that case, the first mood set in the list will be default mood set. This will allow you to add a toggle control to the default mood set in order to have an icon for it.*
 
