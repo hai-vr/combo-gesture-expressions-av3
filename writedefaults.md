@@ -31,10 +31,12 @@ There is an unknown:
 
 - According to the VRChat documentation, the mask of the first layer of the FX Playable Layer will be replaced at runtime. This means I do not know what is the expected behavior of the animator if the base layer has a strange configuration of Write Defaults OFF.
 
-There are additional precautions that need to be taken for Write Defaults OFF to function properly, but it is outside of the scope of *ComboGestureExpressions*:
+There are additional precautions that need to be taken for Write Defaults OFF to function properly, but it is outside of the scope of *ComboGestureExpressions*. This list may not be totally accurate:
 
 - All transitions must have an Interruption Source set to None: This is because if a transition from A to B interrupts into a transition from A to C, which then interrupts back to a transition from A to B, it will exhibit a behavior similar to Write Defaults ON.
 - Blend trees should not have 0 Motions.
-- All states should have a Motion of at least 2 keyframes for safety, rather than `None (Motion)`.
 - Animation clips should not have 0 animated curves.
 - Avoid Blend trees of type *Direct*.
+
+The following are good practices that may not impact Write Defaults OFF but could be noteworthy:
+- All states should have a Motion of at least 2 keyframes for safety, rather than `None (Motion)`.
