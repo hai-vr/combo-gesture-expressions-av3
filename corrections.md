@@ -47,6 +47,10 @@ If the animation only has one keyframe, then most of the times it makes the anim
 
 ComboGestureExpressions automatically creates a modified copy of those animations to make sure all animations curves have at least two keyframes. You can safely create animations with only one keyframe.
 
+#### Automatic FX Avatar Mask generation
+
+Due to the nature of Write Defaults OFF, an Avatar Mask is generated when Transform animations are needed. [The process of generating the Avatar mask is explained here](writedefaults.md).
+
 ---
 
 - [Back to main page](index.md)
