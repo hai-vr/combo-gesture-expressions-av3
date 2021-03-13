@@ -25,6 +25,8 @@ This means we need to create an Avatar Mask to add in the FX Layer. However, tha
 - In the real world, there are prefabs that animate Transforms in the FX Playable Layer. Therefore the mask must *allow* these unusual transforms in order not to break existing prefabs.
 - If there are zero transforms that need to be *allowed* by the above rules, then the Avatar Mask must *allow* at least 1 random transform, because an Avatar Mask that has 0 transforms is considered to be *allowing all* the transforms.
 
+All of the above are implemented in the Avatar mask generator provided in *ComboGestureExpressions* by clicking <span class="hai-btn">Add missing masks</span>.
+
 There is an unknown:
 
 - According to the VRChat documentation, the mask of the first layer of the FX Playable Layer will be replaced at runtime. This means I do not know what is the expected behavior of the animator if the base layer has a strange configuration of Write Defaults OFF. (source: Haï)
