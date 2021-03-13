@@ -162,6 +162,8 @@ Handling the Gesture Playable is very tricky, and extra precautions need to be t
 - If you modify the FX Playable Layer, and <span class="hai-btn">Synchronize Animator FX and Gesture layers</span> every time you do a change in the FX Playable Layer. That is because the mask is generated based on the animations within the FX Playable layer.
 - You should not share your Gesture Playable Layer between two very different avatars that do not have the same base, because the avatar is being used to capture the default bone positions of the avatar when it is at rest, so that animated transforms can reset to a base position when they are not being used.
 
+*If you would like to know why an Avatar mask is needed on layers of the FX Playable Layer, [you may find additional information here](writedefaults.md).*
+
 # Using multiple mood sets
 
 <iframe src="https://streamable.com/e/c5x44o?loop=0" width="816" height="512" frameborder="0" allowfullscreen></iframe>
@@ -241,6 +243,7 @@ When placing a blend tree in the Fist x2 slot, the parameters `GestureLeftWeight
 - [Corrections](corrections.md) - Learn about the various techniques used to fix animations.
 - [Integrator](integrator.md) - Documentation about the Integrator, a module to add Weight Corrections without using ComboGestureExpressions.
 - [Tutorials](tutorial.md) - Video tutorials with audio commentary.
+- [Write Defaults](writedefaults.md) - Explanation of how the Avatar Mask is built.
 - [Unavailable feature: Limited Lipsync](limited-lipsync.md) - An explanation of what *Make lipsync movement subtle* is.
 - [Download on github.com](https://github.com/hai-vr/combo-gesture-expressions-av3/releases) - Main download location.
 - [Download on booth.pm](https://hai-vr.booth.pm/items/2219616) - Alternate download location.
