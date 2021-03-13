@@ -33,7 +33,7 @@ There is an unknown:
 
 There are additional precautions that need to be taken for Write Defaults OFF to function properly, but it is outside of the scope of *ComboGestureExpressions*:
 
-- All transition must have an Interruption Source set to None: This is because if a transition from A to B interrupts into a transition from A to C, which then interrupts back to a transition from A to B, it will exhibit a behavior similar to Write Defaults ON.
+- All transitions must have an Interruption Source set to None: This is because if a transition from A to B interrupts into a transition from A to C, which then interrupts back to a transition from A to B, it will exhibit a behavior similar to Write Defaults ON.
 - Blend trees should not have 0 Motions.
 - All states should have a Motion of at least 2 keyframes for safety, rather than `None (Motion)`.
 - Animation clips should not have 0 animated curves.
