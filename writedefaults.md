@@ -17,7 +17,7 @@ However, in the real world, Transform animations in the Gesture Playable Layer w
 - If in the FX layer, there is at least 1 layer with 1 active state having Write Defaults OFF, and
 - That layer has an Avatar Mask that does not *deny* all the transforms that are being animated.
 
-(This means that if a layer in the FX Playable Layer only has states with Write Defaults ON, it should not interfere and it doesn't need a mask)
+(If a layer in the FX Playable Layer only has states with Write Defaults ON, it should not interfere so it doesn't need a mask)
 
 This means we need to create an Avatar Mask to add in the layers of the FX Playable Layer that match those two conditions. However, that Avatar Mask needs to be crafted carefully:
 
