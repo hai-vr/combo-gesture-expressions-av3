@@ -22,7 +22,7 @@ However, in the real world, Transform animations in the Gesture Playable Layer w
 This means we need to create an Avatar Mask to add in the FX Layer. However, that Avatar Mask needs to be crafted carefully:
 
 - If a layer has animations that animates references such as Material swaps, then the Avatar Mask must *allow* that transform in the mask.
-- In the real world, there are prefabs that animate Transforms in the FX Playable Layer. Thereform the mask must *allow* these unusual transforms in order not to break existing prefabs.
+- In the real world, there are prefabs that animate Transforms in the FX Playable Layer. Therefore the mask must *allow* these unusual transforms in order not to break existing prefabs.
 - If there are zero transforms that need to be *allowed* by the above rules, then the Avatar Mask must *allow* at least 1 random transform, because an Avatar Mask that has 0 transforms is considered to be *allowing all* the transforms.
 
 There is an unknown:
