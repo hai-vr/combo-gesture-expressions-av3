@@ -143,7 +143,7 @@ When both hands are doing a Fist gesture, you are able to define an animation fo
 
 In Avatars 3.0, animations that modify transforms belong in the [Gesture playable layer](https://docs.vrchat.com/docs/playable-layers#gesture). In face expression animations, this is most often used to animate ears, wings, tails...
 
-**Skip this step** if you do not have such animations.
+**Skip this step** if you do not have such animations. You should only enable Gesture Playable Layer Support if you do animate those in your face expressions animations.
 
 Note that finger poses and humanoid muscle poses will be ignored by this process. Animating finger poses is done by modifying the Gesture layers, which is outside the scope of this documentation.
 
