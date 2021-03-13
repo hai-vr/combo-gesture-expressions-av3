@@ -5,8 +5,7 @@ Write Defaults is a tricky topic. According to the VRChat Documentation, it reco
 - Write Defaults should be OFF.
 - Transform animations belong in the Gesture Playable Layer.
 - Muscle animations belong in the Gesture Playable Layer.
-- Anything that is not a Transform animation nor a Muscle animation belong in the FX Playable Layer. This includes constraint animation curves and GameObject toggles.
-
+- Anything that is not a Transform animation nor a Muscle animation belong in the FX Playable Layer. This includes all Constraint component animation curves and GameObject toggles.
 For Transform animations to work in the Gesture Playable Layer:
 
 - The first mask of the Gesture Playable Layer must *allow* all Muscles and all Transforms that are animated by all the layers of the Gesture Playable Layer.
