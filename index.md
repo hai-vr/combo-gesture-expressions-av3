@@ -157,10 +157,10 @@ Depending on how your animator is built, choose the correct setting in `Gesture 
 
 Handling the Gesture Playable is very tricky, and extra precautions need to be taken:
 
-- You should not share your Gesture Playable Layer between two very different avatars that do not have the same base, because the avatar is being used to capture the default bone positions of the avatar when it is at rest, so that animated transforms can reset to a base position when they are not being used.
-- You will see a red warning regarding Avatar Masks if *ComgoGestureExpressions* detects that your FX Playable Layer may be incompatible with your Gesture Playable Layer, in which case it will suggest you a fix. If that's the case, click <span class="hai-btn">Add missing masks</span>. This will add a mask to the layers of your FX Playable Layer that do not yet have an Avatar mask.
+- **You will see a red warning regarding Avatar Masks if *ComboGestureExpressions* detects that your FX Playable Layer may be incompatible with your Gesture Playable Layer**, in which case it will suggest you a fix. If that's the case, click <span class="hai-btn">Add missing masks</span>. This will add a mask to the layers of your FX Playable Layer that do not yet have an Avatar mask.
 - If you add new layers to the FX Playable Layer, you may have to click <span class="hai-btn">Add missing masks</span> if you see the red warning again.
 - If you modify the FX Playable Layer, and <span class="hai-btn">Synchronize Animator FX and Gesture layers</span> every time you do a change in the FX Playable Layer. That is because the mask is generated based on the animations within the FX Playable layer.
+- You should not share your Gesture Playable Layer between two very different avatars that do not have the same base, because the avatar is being used to capture the default bone positions of the avatar when it is at rest, so that animated transforms can reset to a base position when they are not being used.
 
 # Using multiple mood sets
 
