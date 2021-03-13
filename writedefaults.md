@@ -41,3 +41,7 @@ There are additional precautions that need to be taken for Write Defaults OFF to
 
 The following are good practices that may not impact Write Defaults OFF but could be noteworthy:
 - All states should have a Motion of at least 2 keyframes for safety, rather than `None (Motion)`.
+
+---
+
+- [Back to main page](index.md)
