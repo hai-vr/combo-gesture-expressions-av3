@@ -15,7 +15,7 @@ For Transform animations to work in the Gesture Playable Layer:
 However, in the real world, Transform animations in the Gesture Playable Layer will not animate if all of the following are true (regardless of whether the Gesture Playable Layer uses Write Defaults OFF):
 
 - If in the FX layer, there is at least 1 layer with 1 active state having Write Defaults OFF, and
-- That layer has an Avatar Mask that does not *deny* all the transforms that are being animated.
+- That layer has no Avatar Mask, or it has an Avatar Mask that does not *deny* all the transforms that are being animated.
 
 (If a layer in the FX Playable Layer only has states with Write Defaults ON, it should not interfere so it doesn't need a mask)
 
