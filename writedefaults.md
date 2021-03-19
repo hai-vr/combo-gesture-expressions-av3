@@ -1,5 +1,7 @@
 # Write Defaults
 
+### Animating non-muscle transforms
+
 Write Defaults is a tricky topic. According to the VRChat Documentation, it recommends that in general:
 
 - Write Defaults should be OFF.
@@ -12,7 +14,7 @@ For Transform animations to work in the Gesture Playable Layer:
 - The first mask of the Gesture Playable Layer must *allow* all Muscles and all Transforms that are animated by all the layers of the Gesture Playable Layer.
 - The other masks of the Gesture Playable Layer should *allow* only the Muscles and Transforms that are animated by the layer on which the mask is on.
 
-However, that is not sufficient. Transform animations in the Gesture Playable Layer will **not** animate if:
+However, that is not sufficient. Transform animations in the Gesture Playable Layer will **not** animate if they match these two conditions:
 
 - If in the FX layer, there is at least 1 layer with 1 active state having Write Defaults OFF, **and**
 - That layer has no Avatar Mask, or it has an Avatar Mask that does not *deny* all the transforms that are being animated.
@@ -23,7 +25,9 @@ However, that is not sufficient. Transform animations in the Gesture Playable La
   <p>If a layer in the FX Playable Layer only has states with Write Defaults ON, it should not interfere so it doesn't need a mask.</p>
 </div>
 
-This means we need to create an Avatar Mask to add in the layers of the FX Playable Layer that match those two conditions. However, that Avatar Mask needs to be crafted carefully:
+### Creating an Avatar Mask for the FX Layer
+
+We need to create an Avatar Mask to add in the layers of the FX Playable Layer that match those two conditions. However, that Avatar Mask needs to be crafted carefully:
 
 - If a layer has animations that animates references such as Material swaps, then the Avatar Mask must *allow* that transform in the mask. This is because the Material swap will no longer animate if it not allowed in the mask.
 - In the real world, there are prefabs that animate Transforms in the FX Playable Layer. Therefore the mask must *allow* these unusual transforms in order not to break existing prefabs.
@@ -34,6 +38,8 @@ All of the above are implemented in the Avatar mask generator provided in *Combo
 There is an unknown:
 
 - According to the VRChat documentation, the mask of the first layer of the FX Playable Layer will be replaced at runtime. This means I do not know what is the expected behavior of the animator if the base layer has a strange configuration of Write Defaults OFF.
+
+### Quirks
 
 There are additional precautions that need to be taken for Write Defaults OFF to function properly, but it is outside of the scope of *ComboGestureExpressions*. This list may not be totally accurate:
 
