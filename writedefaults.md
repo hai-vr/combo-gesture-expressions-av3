@@ -35,6 +35,8 @@ We need to create an Avatar Mask to add in the layers of the FX Playable Layer t
 
 All of the above are implemented in the Avatar mask generator provided in *ComboGestureExpressions* by clicking <span class="hai-btn">Add missing masks</span>.
 
+*Please note that the default Avatar Mask editor in Unity is not flexible enough to properly build an Avatar Mask that follows the above rules, as it does not have a facility to let you insert arbitrary transforms. If you don't use the Avatar Mask generator in CGE, you may have to create it using a Debug inspector.*
+
 There is an unknown:
 
 - According to the VRChat documentation, the mask of the first layer of the FX Playable Layer will be replaced at runtime. This means I do not know what is the expected behavior of the animator if the base layer has a strange configuration of Write Defaults OFF.
