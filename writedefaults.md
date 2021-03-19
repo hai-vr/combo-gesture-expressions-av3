@@ -1,5 +1,7 @@
 # Write Defaults
 
+While working on ComboGestureExpressions 1.4, I had a lot of struggles with Write Defaults OFF. I have consolidated everything I've learned along the way on this page.
+
 ### Animating non-muscle transforms
 
 Write Defaults is a tricky topic. According to the VRChat Documentation, it recommends that in general:
