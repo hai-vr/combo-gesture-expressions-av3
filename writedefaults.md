@@ -16,7 +16,7 @@ For Transform animations to work in the Gesture Playable Layer:
 - The first mask of the Gesture Playable Layer must *allow* all Muscles and all Transforms that are animated by all the layers of the Gesture Playable Layer.
 - The other masks of the Gesture Playable Layer should *allow* only the Muscles and Transforms that are animated by the layer on which the mask is on.
 
-However, that is not sufficient. Transform animations in the Gesture Playable Layer will **not** animate if they match these two conditions:
+However, that is not sufficient. Transform animations in the Gesture Playable Layer will **not** animate if there is at least 1 layer in the FX Playable Layer that match these two conditions:
 
 - If in the FX layer, there is at least 1 layer with 1 active state having Write Defaults OFF, **and**
 - That layer has no Avatar Mask, or it has an Avatar Mask that does not *deny* all the transforms that are being animated.
