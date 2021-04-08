@@ -44,7 +44,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
 
         private void DrawBlinkingSwitch(AnimationClip element)
         {
-            var isRegisteredAsBlinking = _editorEffector.MutableBlinking().Contains(element);
+            var isRegisteredAsBlinking = _editorEffector.BlinkingContains(element);
 
             if (isRegisteredAsBlinking)
             {
@@ -62,11 +62,11 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             {
                 if (isRegisteredAsBlinking)
                 {
-                    _editorEffector.MutableBlinking().Remove(element);
+                    _editorEffector.RemoveFromBlinking(element);
                 }
                 else
                 {
-                    _editorEffector.MutableBlinking().Add(element);
+                    _editorEffector.AddToBlinking(element);
                 }
             }
         }

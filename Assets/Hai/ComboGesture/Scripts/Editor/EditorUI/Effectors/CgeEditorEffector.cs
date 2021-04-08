@@ -16,6 +16,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
         List<AnimationClip> Blinking { get; }
         ExpressionEditorPreviewable PreviewSetup { get; set; }
         List<ComboGestureActivity.LimitedLipsyncAnimation> LimitedLipsync { get; }
+        void RecordMutation();
     }
 
     class CgeActivityAccessor : IActivityAccessor
@@ -30,6 +31,11 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
         public List<AnimationClip> AllDistinctAnimations => CgeEditorEffector.AllDistinctAnimations(_activity);
         public List<AnimationClip> Blinking => _activity.blinking;
         public List<ComboGestureActivity.LimitedLipsyncAnimation> LimitedLipsync => _activity.limitedLipsync;
+        public void RecordMutation()
+        {
+            Undo.RecordObject(_activity, "Activity modified");
+        }
+
         public ExpressionEditorPreviewable PreviewSetup
         {
             get => _activity.previewSetup;
@@ -53,6 +59,10 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
         {
             get => _puppet.previewSetup;
             set => _puppet.previewSetup = value;
+        }
+        public void RecordMutation()
+        {
+            Undo.RecordObject(_puppet, "Puppet modified");
         }
     }
 
@@ -202,9 +212,21 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
             return _state.ActivityAccessor.AllDistinctAnimations;
         }
 
-        public List<AnimationClip> MutableBlinking()
+        public bool BlinkingContains(AnimationClip clip)
         {
-            return _state.ActivityAccessor.Blinking;
+            return _state.ActivityAccessor.Blinking.Contains(clip);
+        }
+
+        public void AddToBlinking(AnimationClip clip)
+        {
+            _state.ActivityAccessor.RecordMutation();
+            _state.ActivityAccessor.Blinking.Add(clip);
+        }
+
+        public void RemoveFromBlinking(AnimationClip clip)
+        {
+            _state.ActivityAccessor.RecordMutation();
+            _state.ActivityAccessor.Blinking.Remove(clip);
         }
 
         public EePreviewAvatar PreviewSetup()
@@ -229,6 +251,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
 
         public void SetPreviewSetup(ExpressionEditorPreviewable previewSetup)
         {
+            _state.ActivityAccessor.RecordMutation();
             _state.ActivityAccessor.PreviewSetup = previewSetup;
         }
 
