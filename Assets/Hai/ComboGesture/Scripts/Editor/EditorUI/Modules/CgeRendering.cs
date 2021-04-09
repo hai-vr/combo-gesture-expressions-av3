@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Hai.ComboGesture.Scripts.Components;
+using Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -51,6 +52,102 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Modules
             else
             {
                 ExecuteNextInQueue();
+            }
+        }
+    }
+
+    public static class CgeRenderingSupport
+    {
+        private const int Border = 4;
+
+        public static void MutateHighlightDifferences(Texture2D mutableTexture, Texture2D noShapekeys)
+        {
+            var tex = mutableTexture;
+            var boundaries = DifferenceAsBoundaries(tex, noShapekeys);
+
+            var width = mutableTexture.width;
+            var height = mutableTexture.height;
+            for (var y = 0; y < height; y++)
+            {
+                for (var x = 0; x < width; x++)
+                {
+                    var value = tex.GetPixel(x, y);
+
+                    var gsv = (value.r + value.g + value.b) / 3f;
+                    var actualGsv = value * 0.3f + new Color(gsv, gsv, gsv, value.a) * 0.7f;
+
+                    if (boundaries.MinX == -1)
+                    {
+                        tex.SetPixel(x, y, actualGsv * 0.2f);
+                    }
+                    else
+                    {
+                        var isIn = x >= boundaries.MinX - Border && x <= boundaries.MaxX + Border && y >= boundaries.MinY - Border && y <= boundaries.MaxY + Border;
+                        tex.SetPixel(x, y, isIn ? value : actualGsv * 0.5f);
+                    }
+                }
+            }
+
+            tex.Apply(false);
+        }
+
+        private static PreviewBoundaries DifferenceAsBoundaries(Texture2D a, Texture2D b)
+        {
+            var minX = -1;
+            var maxX = -1;
+            var minY = -1;
+            var maxY = -1;
+
+            for (var y = 0; y < a.height; y++)
+            {
+                for (var x = 0; x < a.width; x++)
+                {
+                    if (a.GetPixel(x, y) != b.GetPixel(x, y))
+                    {
+                        if (minX == -1 || x < minX)
+                        {
+                            minX = x;
+                        }
+
+                        if (minY == -1 || y < minY)
+                        {
+                            minY = y;
+                        }
+
+                        if (x > maxX)
+                        {
+                            maxX = x;
+                        }
+
+                        if (y > maxY)
+                        {
+                            maxY = y;
+                        }
+                    }
+                }
+            }
+
+            return new PreviewBoundaries(minX, maxX, minY, maxY);
+        }
+
+        private readonly struct PreviewBoundaries
+        {
+            public PreviewBoundaries(int minX, int maxX, int minY, int maxY)
+            {
+                MinX = minX;
+                MaxX = maxX;
+                MinY = minY;
+                MaxY = maxY;
+            }
+
+            public readonly int MinX;
+            public readonly int MaxX;
+            public readonly int MinY;
+            public readonly int MaxY;
+
+            public bool IsEmpty()
+            {
+                return MinX == -1 && MaxX == -1 && MinY == -1 && MaxY == -1;
             }
         }
     }

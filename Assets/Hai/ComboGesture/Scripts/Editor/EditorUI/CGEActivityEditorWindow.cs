@@ -54,8 +54,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         {
             _editorEffector = new CgeEditorEffector(new CgeEditorState());
             var blendTreeEffector = new CgeBlendTreeEffector();
-            var memoization = new CgeMemoization();
-            var renderingCommands = new CgeRenderingCommands();
+            var memoization = Cge.Memoization;
+            var renderingCommands = Cge.RenderingCommands;
             var activityPreviewQueryAggregator = new CgeActivityPreviewQueryAggregator(memoization, _editorEffector, blendTreeEffector, renderingCommands);
             var creatorEffector = new CgeCreatorEffector(_editorEffector);
             var cgeMemoryQuery = new CgeMemoryQuery(memoization);

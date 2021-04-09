@@ -57,7 +57,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             return SetupResult.CreatedNew;
         }
 
-        private static ComboGesturePreviewSetup MaybeFindLastActiveAndValidPreviewComponentInRoot()
+        public static ComboGesturePreviewSetup MaybeFindLastActiveAndValidPreviewComponentInRoot()
         {
             return SceneManager.GetActiveScene().GetRootGameObjects()
                 .Select(obj => obj.GetComponent<ComboGesturePreviewSetup>())
