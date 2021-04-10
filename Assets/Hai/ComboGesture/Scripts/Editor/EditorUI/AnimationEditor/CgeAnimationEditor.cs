@@ -15,6 +15,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.AnimationEditor
         public AnimationPreview Preview;
         public float Value;
         public EditorCurveBinding Binding;
+        public Texture2D BoundaryTexture;
     }
 
     public class CgeAnimationEditorWindow : EditorWindow
@@ -122,14 +123,17 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.AnimationEditor
                         Preview = preview,
                         Property = binding.propertyName,
                         Value = AnimationUtility.GetEditorCurve(active, binding).keys.Select(keyframe => keyframe.value).Min(),
-                        Binding = binding
+                        Binding = binding,
+                        BoundaryTexture = new Texture2D(HalfWidth, HalfHeight, TextureFormat.ARGB32, false)
                     };
                 }).ToList();
             _renderingCommands.GenerateSpecificFastMode(
                 _editableProperties.Select(info => info.Preview).ToList(),
                 preview =>
                 {
-                    CgeRenderingSupport.MutateHighlightDifferences(preview.RenderTexture, _based);
+                    var editable = _editableProperties
+                        .First(info => info.Preview == preview);
+                    CgeRenderingSupport.MutateMultilevelHighlightDifferences(editable.BoundaryTexture, preview.RenderTexture, _based);
                     Repaint();
                 },
                 previewSetup
@@ -187,7 +191,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.AnimationEditor
             {
                 var editableProperty = _editableProperties[index];
                 GUILayout.BeginVertical();
-                GUILayout.Box(editableProperty.Preview.RenderTexture, GUIStyle.none, GUILayout.Width(HalfWidth), GUILayout.Height(HalfHeight));
+                GUILayout.Box(editableProperty.BoundaryTexture, GUIStyle.none, GUILayout.Width(HalfWidth), GUILayout.Height(HalfHeight));
                 var blendshapePrefix = "blendShape.";
                 GUILayout.Label(editableProperty.Property.StartsWith(blendshapePrefix) ? editableProperty.Property.Substring(blendshapePrefix.Length) : editableProperty.Property, GUILayout.Width(HalfWidth));
                 var newValue = EditorGUILayout.Slider(editableProperty.Value, 0, 100, GUILayout.Width(HalfWidth));
@@ -215,7 +219,10 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.AnimationEditor
                 }
             }
 
-            GUILayout.Button("+", GUILayout.Width(HalfWidth / 2), GUILayout.Height(HalfHeight));
+            if (GUILayout.Button("+", GUILayout.Width(HalfWidth / 2), GUILayout.Height(HalfHeight)))
+            {
+                CgePropertyExplorerWindow.OpenEditor();
+            }
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
             GUILayout.EndScrollView();
@@ -266,7 +273,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.AnimationEditor
                     new List<AnimationPreview> {animationPreview},
                     preview =>
                     {
-                        CgeRenderingSupport.MutateHighlightDifferences(preview.RenderTexture, _based);
+                        var editable = _editableProperties
+                            .First(info => info.Preview == preview);
+                        CgeRenderingSupport.MutateMultilevelHighlightDifferences(editable.BoundaryTexture, preview.RenderTexture, _based);
                         Repaint();
                     },
                     previewSetup

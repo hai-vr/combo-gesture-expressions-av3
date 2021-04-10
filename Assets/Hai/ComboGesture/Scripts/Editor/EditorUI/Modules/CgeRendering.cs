@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Hai.ComboGesture.Scripts.Components;
-using Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -60,10 +60,114 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Modules
     {
         private const int Border = 4;
 
-        public static void MutateHighlightDifferences(Texture2D mutableTexture, Texture2D noShapekeys)
+        private static Color ComputeGrayscaleValue(Texture2D tex, int x, int y)
+        {
+            var value = tex.GetPixel(x, y);
+
+            var gsv = (value.r + value.g + value.b) / 3f;
+            var actualGsv = value * 0.3f + new Color(gsv, gsv, gsv, value.a) * 0.7f;
+            return actualGsv;
+        }
+
+        public static void MutateMultilevelHighlightDifferences(Texture2D mutableTexture, Texture2D shapekeys, Texture2D noShapekeys)
+        {
+            var width = mutableTexture.width;
+            var height = mutableTexture.height;
+            var mutableDiff = new bool[width * height];
+            var mutableDiffMajor = new bool[width * height];
+            MutateGetComputeDifference(mutableDiff, shapekeys, noShapekeys, 0.0015f);
+            var hasAnyMajorDifference = MutateGetComputeDifference(mutableDiffMajor, shapekeys, noShapekeys, 0.05f);
+            var boundaries = hasAnyMajorDifference ? DifferenceAsBoundaries(mutableDiffMajor, width, height) : DifferenceAsBoundaries(mutableDiff, width, height);
+            if (boundaries.IsEmpty())
+            {
+                for (var y = 0; y < height; y++)
+                for (var x = 0; x < width; x++)
+                    mutableTexture.SetPixel(x, y, ComputeGrayscaleValue(shapekeys, x, y) * 0.2f);
+
+                mutableTexture.Apply();
+            }
+            else
+            {
+                MutateBoundariesGrayscale(mutableTexture, shapekeys, boundaries);
+            }
+        }
+
+        private static void MutateBoundariesGrayscale(Texture2D mutaTexture, Texture2D shapekeys, PreviewBoundaries boundaries)
+        {
+            var width = mutaTexture.width;
+            var height = mutaTexture.height;
+            for (var y = 0; y < height; y++)
+            for (var x = 0; x < width; x++)
+            {
+                var isIn = x >= boundaries.MinX - Border && x <= boundaries.MaxX + Border && y >= boundaries.MinY - Border && y <= boundaries.MaxY + Border;
+                mutaTexture.SetPixel(x, y, isIn ? shapekeys.GetPixel(x, y) : ComputeGrayscaleValue(shapekeys, x, y) * 0.5f);
+            }
+
+            mutaTexture.Apply(false);
+        }
+
+        private static void MutateExpand(bool[] mutableDiff, int width, int height)
+        {
+            var copy = mutableDiff.ToArray();
+
+            for (var y = 0; y < height; y++)
+            for (var x = 0; x < width; x++)
+            {
+                mutableDiff[x + y * width] =
+                    GetPixelClamped(copy, x, y, width, height)
+                    || GetPixelClamped(copy, x - 1, y - 1, width, height)
+                    || GetPixelClamped(copy, x - 1, y, width, height)
+                    || GetPixelClamped(copy, x - 1, y + 1, width, height)
+                    || GetPixelClamped(copy, x, y - 1, width, height)
+                    || GetPixelClamped(copy, x, y + 1, width, height)
+                    || GetPixelClamped(copy, x + 1, y - 1, width, height)
+                    || GetPixelClamped(copy, x + 1, y, width, height)
+                    || GetPixelClamped(copy, x + 1, y + 1, width, height);
+            }
+        }
+
+        private static bool GetPixelClamped(bool[] diff, int x, int y, int width, int height)
+        {
+            return diff[Clamp(x, width) + Clamp(y, height) * width];
+        }
+
+        private static int Clamp(int source, int maxExclusive)
+        {
+            if (source < 0) { return 0; }
+            if (source >= maxExclusive) { source = maxExclusive - 1; }
+            return source;
+        }
+
+        private static bool MutateGetComputeDifference(bool[] mutated, Texture2D shapekeys, Texture2D noShapekeys, float threshold)
+        {
+            bool hasAnyDifference = false;
+
+            var width = shapekeys.width;
+            var height = shapekeys.height;
+            for (var y = 0; y < height; y++)
+            for (var x = 0; x < width; x++)
+            {
+                var a = shapekeys.GetPixel(x, y);
+                var b = noShapekeys.GetPixel(x, y);
+                var isDifferent = a != b && MeasureDifference(a, b) > threshold;
+                if (!hasAnyDifference && isDifferent)
+                {
+                    hasAnyDifference = true;
+                }
+                mutated[x + y * width] = isDifferent;
+            }
+
+            return hasAnyDifference;
+        }
+
+        private static float MeasureDifference(Color a, Color b)
+        {
+            return Mathf.Abs((a.r + a.g + a.b) - (b.r + b.g + b.b)) / 3f;
+        }
+
+        public static void MutateHighlightHotspots(Texture2D mutableTexture, Texture2D blendshapeTexture, Texture2D noShapekeys)
         {
             var tex = mutableTexture;
-            var boundaries = DifferenceAsBoundaries(tex, noShapekeys);
 
             var width = mutableTexture.width;
             var height = mutableTexture.height;
@@ -71,19 +175,16 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Modules
             {
                 for (var x = 0; x < width; x++)
                 {
-                    var value = tex.GetPixel(x, y);
-
-                    var gsv = (value.r + value.g + value.b) / 3f;
-                    var actualGsv = value * 0.3f + new Color(gsv, gsv, gsv, value.a) * 0.7f;
-
-                    if (boundaries.MinX == -1)
+                    var blendShapePixel = blendshapeTexture.GetPixel(x, y);
+                    var other = noShapekeys.GetPixel(x, y);
+                    if (blendShapePixel != other)
                     {
-                        tex.SetPixel(x, y, actualGsv * 0.2f);
+                        var difference = MeasureDifference(blendShapePixel, other) * 10;
+                        tex.SetPixel(x, y, Color.Lerp(Color.blue, Color.red, Mathf.SmoothStep(0f, 1f, difference)));
                     }
                     else
                     {
-                        var isIn = x >= boundaries.MinX - Border && x <= boundaries.MaxX + Border && y >= boundaries.MinY - Border && y <= boundaries.MaxY + Border;
-                        tex.SetPixel(x, y, isIn ? value : actualGsv * 0.5f);
+                        tex.SetPixel(x, y, Color.green);
                     }
                 }
             }
@@ -91,18 +192,18 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Modules
             tex.Apply(false);
         }
 
-        private static PreviewBoundaries DifferenceAsBoundaries(Texture2D a, Texture2D b)
+        private static PreviewBoundaries DifferenceAsBoundaries(bool[] mutableDiff, int width, int height)
         {
             var minX = -1;
             var maxX = -1;
             var minY = -1;
             var maxY = -1;
 
-            for (var y = 0; y < a.height; y++)
+            for (var y = 0; y < height; y++)
             {
-                for (var x = 0; x < a.width; x++)
+                for (var x = 0; x < width; x++)
                 {
-                    if (a.GetPixel(x, y) != b.GetPixel(x, y))
+                    if (mutableDiff[x + y * width])
                     {
                         if (minX == -1 || x < minX)
                         {
