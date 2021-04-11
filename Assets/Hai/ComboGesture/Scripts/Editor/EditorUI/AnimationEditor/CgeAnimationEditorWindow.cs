@@ -100,6 +100,10 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.AnimationEditor
             {
                 _animationEditor.MaintainPreviewToggled();
             }
+            if (GUILayout.Button("Delete 0-values"))
+            {
+                _animationEditor.Delete0Values();
+            }
             GUILayout.EndVertical();
             GUILayout.EndHorizontal();
 

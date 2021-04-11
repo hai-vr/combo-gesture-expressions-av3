@@ -16,13 +16,18 @@ namespace Hai.ComboGesture.Scripts.ScriptableObjects
 
         public void RemoveBasedBlendshape(string subjectToRemove)
         {
-            basedBlendshapes = basedBlendshapes.Where(it => it.subject == subjectToRemove).ToList();
+            basedBlendshapes = basedBlendshapes.Where(it => it.subject != subjectToRemove).ToList();
         }
 
         public string GetBased(string subject)
         {
             var onWhat = basedBlendshapes.Where(it => it.subject == subject).Select(it => it.based).FirstOrDefault();
             return onWhat;
+        }
+
+        public List<string> AllBased()
+        {
+            return basedBlendshapes.Select(blendshape => blendshape.based).Distinct().ToList();
         }
     }
 
