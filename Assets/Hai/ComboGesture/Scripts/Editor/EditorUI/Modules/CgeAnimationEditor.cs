@@ -4,6 +4,7 @@ using System.Linq;
 using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.EditorUI.AnimationEditor;
 using Hai.ComboGesture.Scripts.Editor.Internal;
+using Hai.ComboGesture.Scripts.ScriptableObjects;
 using UnityEditor;
 using UnityEngine;
 
@@ -16,6 +17,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Modules
         private const int StandardHeight = 200;
         private const int HalfWidth = StandardWidth / 2;
         private const int HalfHeight = StandardHeight / 2;
+        private const string CgeAnimationEditorMetadataAssetPath = "Assets/Hai/CgeAnimationEditorMetadata.asset";
 
         private readonly CgeRenderingCommands _renderingCommands;
         private Texture2D _activePreview;
@@ -26,6 +28,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Modules
         private Action _action;
         private bool _isCalling;
         private bool _maintain;
+        private CgeAnimationEditorMetadata _metadataAsset;
 
         public CgeAnimationEditor()
         {
@@ -343,6 +346,43 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Modules
             AnimationMode.BeginSampling();
             AnimationMode.SampleAnimationClip(DummyNullable().previewDummy.gameObject, _currentClip, 1/60f);
             AnimationMode.EndSampling();
+        }
+
+        public void AssignBased(string based, List<string> subjects)
+        {
+            EnsureMetadataAssetInitialized();
+
+            EditorUtility.SetDirty(_metadataAsset);
+            foreach (var basedBlendshape in subjects
+                .Distinct()
+                .Select(subject => new CgeAnimationEditorMetadataBasedBlendshape { based = based, subject = subject }))
+            {
+                _metadataAsset.PutBasedBlendshape(basedBlendshape);
+            }
+        }
+
+        private CgeAnimationEditorMetadata EnsureMetadataAssetInitialized()
+        {
+            return _metadataAsset = GetOrCreateMetadataAsset();
+        }
+
+        public string GetBased(string blendshapePrefix)
+        {
+            EnsureMetadataAssetInitialized();
+
+            return _metadataAsset.GetBased(blendshapePrefix);
+        }
+
+        private static CgeAnimationEditorMetadata GetOrCreateMetadataAsset()
+        {
+            var asset = AssetDatabase.LoadAssetAtPath<CgeAnimationEditorMetadata>(CgeAnimationEditorMetadataAssetPath);
+            if (asset == null)
+            {
+                asset = ScriptableObject.CreateInstance<CgeAnimationEditorMetadata>();
+                AssetDatabase.CreateAsset(asset, CgeAnimationEditorMetadataAssetPath);
+            }
+
+            return asset;
         }
     }
 }

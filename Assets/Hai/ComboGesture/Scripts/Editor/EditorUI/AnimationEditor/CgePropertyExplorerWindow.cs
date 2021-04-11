@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Hai.ComboGesture.Scripts.Editor.EditorUI.Modules;
 using UnityEditor;
 using UnityEngine;
@@ -130,29 +131,34 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.AnimationEditor
                 }
                 else
                 {
-                    var isSelected = _basedOnSomethingElseSelection.Contains(blendShapeProperty.Property);
-                    if (GreenBackground(isSelected, () => GUILayout.Button(isSelected ? "✕" : "Select", GUILayout.Width(isSelected ? 20 : 70))))
-                    {
-                        if (isSelected)
-                        {
-                            _basedOnSomethingElseSelection.Remove(blendShapeProperty.Property);
-                        }
-                        else
-                        {
-                            _basedOnSomethingElseSelection.Add(blendShapeProperty.Property);
-                        }
-                    }
-
-                    if (isSelected)
+                    var basedOnWhat = _animationEditor.GetBased(blendShapeProperty.Property);
+                    if (basedOnWhat != null)
                     {
                         EditorGUI.BeginDisabledGroup(true);
-                        GUILayout.TextField("yeah yeah yeah", GUILayout.ExpandWidth(true));
+                        GUILayout.TextField(basedOnWhat, GUILayout.ExpandWidth(true));
                         EditorGUI.EndDisabledGroup();
                     }
                     else
                     {
-                        EditorGUI.BeginDisabledGroup(_basedOnSomethingElseSelection.Count == 0);
-                        GUILayout.Button("Assign");
+                        var isSelected = _basedOnSomethingElseSelection.Contains(blendShapeProperty.Property);
+                        if (GreenBackground(isSelected, () => GUILayout.Button("Select", GUILayout.Width(70))))
+                        {
+                            if (isSelected)
+                            {
+                                _basedOnSomethingElseSelection.Remove(blendShapeProperty.Property);
+                            }
+                            else
+                            {
+                                _basedOnSomethingElseSelection.Add(blendShapeProperty.Property);
+                            }
+                        }
+                        EditorGUI.BeginDisabledGroup(isSelected || _basedOnSomethingElseSelection.Count == 0);
+                        if (GUILayout.Button("Assign"))
+                        {
+                            _animationEditor.AssignBased(blendShapeProperty.Property, _basedOnSomethingElseSelection.ToList());
+                            _basedOnSomethingElseMode = false;
+                            _basedOnSomethingElseSelection.Clear();
+                        }
                         EditorGUI.EndDisabledGroup();
                     }
                 }
