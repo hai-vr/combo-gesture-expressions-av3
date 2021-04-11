@@ -10,24 +10,62 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Modules
 {
     public class CgeRenderingCommands
     {
-        private readonly List<Action> _queue = new List<Action>();
+        private readonly Dictionary<CgePriority, List<Action>> _priorityQueues = new Dictionary<CgePriority, List<Action>>();
         private bool _isProcessing;
+        private Action _queueEmptied;
 
-        public void GenerateSpecific(List<AnimationPreview> animationsPreviews, Action<AnimationPreview> onClipRendered, ComboGesturePreviewSetup previewSetup)
+        public enum CgeDummyAutoHide
         {
-            _queue.Add(() => new CgeRenderingJob(previewSetup, animationsPreviews, onClipRendered, true, OnQueueTaskComplete).Capture());
+            Default, DoNotHide
+        }
+
+        public enum CgePriority
+        {
+            High, Normal, Low
+        }
+
+        public CgeRenderingCommands()
+        {
+            _priorityQueues[CgePriority.High] = new List<Action>();
+            _priorityQueues[CgePriority.Normal] = new List<Action>();
+            _priorityQueues[CgePriority.Low] = new List<Action>();
+        }
+
+        public void SetQueueEmptiedAction(Action action)
+        {
+            // FIXME: bad pattern
+            _queueEmptied = action;
+        }
+
+        public void GenerateSpecific(
+            List<AnimationPreview> animationsPreviews,
+            Action<AnimationPreview> onClipRendered,
+            ComboGesturePreviewSetup previewSetup,
+            CgeDummyAutoHide autoHide = CgeDummyAutoHide.Default,
+            CgePriority priority = CgePriority.Normal)
+        {
+            _priorityQueues[priority].Add(() => new CgeRenderingJob(previewSetup, animationsPreviews, onClipRendered, true, OnQueueTaskComplete, autoHide).Capture());
             WakeQueue();
         }
 
-        public void GenerateSpecificFastMode(List<AnimationPreview> animationsPreviews, Action<AnimationPreview> onClipRendered, ComboGesturePreviewSetup previewSetup)
+        public void GenerateSpecificFastMode(
+            List<AnimationPreview> animationsPreviews,
+            Action<AnimationPreview> onClipRendered,
+            ComboGesturePreviewSetup previewSetup,
+            CgeDummyAutoHide autoHide = CgeDummyAutoHide.Default,
+            CgePriority priority = CgePriority.Normal)
         {
-            _queue.Add(() => new CgeRenderingJob(previewSetup, animationsPreviews, onClipRendered, false, OnQueueTaskComplete).Capture());
+            for (int startIndex = 0; startIndex < animationsPreviews.Count; startIndex += 15)
+            {
+                var finalIndex = startIndex;
+                _priorityQueues[priority].Add(() => new CgeRenderingJob(previewSetup, animationsPreviews.GetRange(finalIndex, Math.Min(15, animationsPreviews.Count - finalIndex)), onClipRendered, false, OnQueueTaskComplete, autoHide).Capture());
+            }
             WakeQueue();
         }
 
         private void WakeQueue()
         {
-            if (_isProcessing || _queue.Count == 0)
+            if (_isProcessing || QueueIsEmpty())
             {
                 return;
             }
@@ -38,15 +76,28 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Modules
 
         private void ExecuteNextInQueue()
         {
-            var first = _queue[0];
-            _queue.RemoveAt(0);
+            if (QueueIsEmpty()) return;
+
+            var queue = new[] {_priorityQueues[CgePriority.High], _priorityQueues[CgePriority.Normal], _priorityQueues[CgePriority.Low]}
+                .First(list => list.Count > 0);
+
+            var first = queue[0];
+            queue.RemoveAt(0);
             first.Invoke();
+        }
+
+        private bool QueueIsEmpty()
+        {
+            return new[] {_priorityQueues[CgePriority.High], _priorityQueues[CgePriority.Normal], _priorityQueues[CgePriority.Low]}
+                .SelectMany(list => list)
+                .FirstOrDefault() == null;
         }
 
         private void OnQueueTaskComplete()
         {
-            if (_queue.Count == 0)
+            if (QueueIsEmpty())
             {
+                _queueEmptied();
                 _isProcessing = false;
             }
             else
@@ -73,11 +124,14 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Modules
         {
             var width = mutableTexture.width;
             var height = mutableTexture.height;
-            var mutableDiff = new bool[width * height];
-            var mutableDiffMajor = new bool[width * height];
-            MutateGetComputeDifference(mutableDiff, shapekeys, noShapekeys, 0.0015f);
-            var hasAnyMajorDifference = MutateGetComputeDifference(mutableDiffMajor, shapekeys, noShapekeys, 0.05f);
-            var boundaries = hasAnyMajorDifference ? DifferenceAsBoundaries(mutableDiffMajor, width, height) : DifferenceAsBoundaries(mutableDiff, width, height);
+
+            var major = new bool[width * height];
+            var hasAnyMajorDifference = MutateGetComputeDifference(major, shapekeys, noShapekeys, 0.05f);
+
+            var minor = new bool[width * height];
+            MutateGetComputeDifference(minor, shapekeys, noShapekeys, 0.0015f);
+
+            var boundaries = hasAnyMajorDifference ? DifferenceAsBoundaries(major, width, height) : DifferenceAsBoundaries(minor, width, height);
             if (boundaries.IsEmpty())
             {
                 for (var y = 0; y < height; y++)
@@ -104,38 +158,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Modules
             }
 
             mutaTexture.Apply(false);
-        }
-
-        private static void MutateExpand(bool[] mutableDiff, int width, int height)
-        {
-            var copy = mutableDiff.ToArray();
-
-            for (var y = 0; y < height; y++)
-            for (var x = 0; x < width; x++)
-            {
-                mutableDiff[x + y * width] =
-                    GetPixelClamped(copy, x, y, width, height)
-                    || GetPixelClamped(copy, x - 1, y - 1, width, height)
-                    || GetPixelClamped(copy, x - 1, y, width, height)
-                    || GetPixelClamped(copy, x - 1, y + 1, width, height)
-                    || GetPixelClamped(copy, x, y - 1, width, height)
-                    || GetPixelClamped(copy, x, y + 1, width, height)
-                    || GetPixelClamped(copy, x + 1, y - 1, width, height)
-                    || GetPixelClamped(copy, x + 1, y, width, height)
-                    || GetPixelClamped(copy, x + 1, y + 1, width, height);
-            }
-        }
-
-        private static bool GetPixelClamped(bool[] diff, int x, int y, int width, int height)
-        {
-            return diff[Clamp(x, width) + Clamp(y, height) * width];
-        }
-
-        private static int Clamp(int source, int maxExclusive)
-        {
-            if (source < 0) { return 0; }
-            if (source >= maxExclusive) { source = maxExclusive - 1; }
-            return source;
         }
 
         private static bool MutateGetComputeDifference(bool[] mutated, Texture2D shapekeys, Texture2D noShapekeys, float threshold)
@@ -261,15 +283,17 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Modules
         private readonly Action _onQueueTaskComplete;
         private RenderTexture _renderTexture;
         private readonly bool _includeTransformsMode;
+        private readonly CgeRenderingCommands.CgeDummyAutoHide _autoHide;
 
         private static bool StopGenerating { get; set; }
 
-        public CgeRenderingJob(ComboGesturePreviewSetup previewSetup, List<AnimationPreview> animationPreviews, Action<AnimationPreview> onClipRendered, bool includeTransformsMode, Action onQueueTaskComplete = null)
+        public CgeRenderingJob(ComboGesturePreviewSetup previewSetup, List<AnimationPreview> animationPreviews, Action<AnimationPreview> onClipRendered, bool includeTransformsMode, Action onQueueTaskComplete = null, CgeRenderingCommands.CgeDummyAutoHide autoHide = CgeRenderingCommands.CgeDummyAutoHide.Default)
         {
             _previewSetup = previewSetup;
             _animationPreviews = animationPreviews;
             _onClipRendered = onClipRendered;
             _includeTransformsMode = includeTransformsMode;
+            _autoHide = autoHide;
             _onQueueTaskComplete = onQueueTaskComplete ?? (() => {});
         }
 
@@ -439,7 +463,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Modules
             AnimationMode.StopAnimationMode();
             Object.DestroyImmediate(generatedCamera.gameObject);
 
-            if (_previewSetup.autoHide) {
+            if (_autoHide != CgeRenderingCommands.CgeDummyAutoHide.DoNotHide && _previewSetup.autoHide) {
                 _previewSetup.previewDummy.gameObject.SetActive(false);
             }
         }

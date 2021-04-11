@@ -6,5 +6,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Modules
     {
         public static readonly CgeMemoization Memoization = new CgeMemoization();
         public static readonly CgeRenderingCommands RenderingCommands = new CgeRenderingCommands();
+        public static readonly CgeAnimationEditor AnimationEditor = new CgeAnimationEditor();
     }
 }
