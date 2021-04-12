@@ -452,6 +452,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
             {
                 _metadataAsset.PutBasedBlendshape(basedBlendshape);
             }
+
+            EnsureBasedInitialized();
+            _basedOnSomething[based] = NewTexture2D();
             GeneratePreviewsFromSubjectNamesAssignments(DummyNullable(), subjects);
         }
 

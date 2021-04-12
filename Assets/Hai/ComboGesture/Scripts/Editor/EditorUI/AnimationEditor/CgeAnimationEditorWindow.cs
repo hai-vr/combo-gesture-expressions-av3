@@ -64,8 +64,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.AnimationEditor
 
         public void OnNewClipSelected(AnimationClip active)
         {
-            // _currentClip = active;
-            // _currentClipAssetRename = _currentClip.name;
+            _currentClipAssetRename = active.name;
 
             Repaint();
         }
