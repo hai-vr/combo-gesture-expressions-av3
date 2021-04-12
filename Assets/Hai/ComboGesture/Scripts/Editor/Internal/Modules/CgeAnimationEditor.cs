@@ -453,18 +453,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
                 .Select(subject => new CgeAnimationEditorMetadataBasedBlendshape { based = based, subject = subject }))
             {
                 _metadataAsset.PutBasedBlendshape(basedBlendshape);
-                // if (!_basedOnSomething.ContainsKey(based))
-                // {
-                    // _basedOnSomething[based] = NewTexture2D();
-                // }
-
-                // var smr = DummyNullable().avatarDescriptor.VisemeSkinnedMesh;
-                // var clip = CreateBlendShapeClipForBinding(new EditorCurveBinding
-                // {
-                    // path = SharedLayerUtils.ResolveRelativePath(DummyNullable().avatarDescriptor.transform, smr.transform)
-                    // propertyName = basedBlendshape.based,
-                    // type = typeof(SkinnedMeshRenderer)
-                // });
             }
             GeneratePreviewsFromSubjectNamesAssignments(DummyNullable(), subjects);
         }
@@ -491,10 +479,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
             EnsureMetadataAssetInitialized();
             EditorUtility.SetDirty(_metadataAsset);
 
-            // var basedShape = _metadataAsset.GetBased(subject);
             _metadataAsset.RemoveBasedBlendshape(subject);
-            // var clip = _smrBlendShapeProperties.First(info => info.Property == subject).Preview.Clip;
-            // AnimationUtility.SetEditorCurve(clip, AnimationUtility.GetCurveBindings(clip).First(binding => binding.propertyName == basedShape), null);
             GeneratePreviewsFromSubjectNamesAssignments(DummyNullable(), new [] { subject }.ToList());
         }
 
