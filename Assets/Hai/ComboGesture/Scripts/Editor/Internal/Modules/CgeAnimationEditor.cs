@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using Hai.ComboGesture.Scripts.Components;
+using Hai.ComboGesture.Scripts.Editor.EditorUI;
 using Hai.ComboGesture.Scripts.Editor.EditorUI.AnimationEditor;
-using Hai.ComboGesture.Scripts.Editor.Internal;
 using Hai.ComboGesture.Scripts.ScriptableObjects;
 using UnityEditor;
 using UnityEngine;
 
-namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Modules
+namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
 {
     public class CgeAnimationEditor
     {

@@ -2,7 +2,7 @@
 using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors;
 using Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts;
-using Hai.ComboGesture.Scripts.Editor.EditorUI.Modules;
+using Hai.ComboGesture.Scripts.Editor.Internal.Modules;
 using UnityEditor;
 using UnityEngine;
 using static UnityEditor.EditorGUIUtility;

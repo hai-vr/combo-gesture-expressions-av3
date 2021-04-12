@@ -4,7 +4,7 @@ using System.Linq;
 using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.EditorUI;
 using Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors;
-using Hai.ComboGesture.Scripts.Editor.EditorUI.Modules;
+using Hai.ComboGesture.Scripts.Editor.Internal.Modules;
 using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal

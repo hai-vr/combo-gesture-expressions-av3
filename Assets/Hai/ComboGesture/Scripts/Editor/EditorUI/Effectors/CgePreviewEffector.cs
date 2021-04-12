@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts;
-using Hai.ComboGesture.Scripts.Editor.EditorUI.Modules;
 using Hai.ComboGesture.Scripts.Editor.Internal;
+using Hai.ComboGesture.Scripts.Editor.Internal.Modules;
 using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors

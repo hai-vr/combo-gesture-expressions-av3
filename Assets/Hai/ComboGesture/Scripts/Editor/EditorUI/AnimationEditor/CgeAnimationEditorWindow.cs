@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using Hai.ComboGesture.Scripts.Editor.EditorUI.Modules;
+using Hai.ComboGesture.Scripts.Editor.Internal.Modules;
 using UnityEditor;
 using UnityEngine;
 

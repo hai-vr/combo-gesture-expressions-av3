@@ -1,6 +1,6 @@
 ﻿using Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors;
 
-namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Modules
+namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
 {
     public static class Cge
     {
