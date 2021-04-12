@@ -99,6 +99,15 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.AnimationEditor
             {
                 _animationEditor.MaintainPreviewToggled();
             }
+
+            EditorGUI.BeginDisabledGroup(!_animationEditor.IsMaintaining());
+            var forcePreviewGeneration = EditorGUILayout.Toggle("Force previews", _animationEditor.IsForcePreviewGeneration());
+            if (forcePreviewGeneration != _animationEditor.IsForcePreviewGeneration())
+            {
+                _animationEditor.SetForcePreviewGeneration(forcePreviewGeneration);
+            }
+            EditorGUI.EndDisabledGroup();
+
             if (GUILayout.Button("Delete 0-values"))
             {
                 _animationEditor.Delete0Values();

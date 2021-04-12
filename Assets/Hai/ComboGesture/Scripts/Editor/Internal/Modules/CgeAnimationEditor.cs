@@ -31,6 +31,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
         private bool _maintain;
         private CgeAnimationEditorMetadata _metadataAsset;
         private Action _generatePreviewsFromPropertyExplorer__DropPrevious;
+        private bool _forcePreviewGeneration;
 
         public CgeAnimationEditor(CgeRenderingCommands renderingCommands)
         {
@@ -168,19 +169,20 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
                 .Select(binding => SubInfoFromActive(_currentClip, binding)).ToList();
 
             if (_editableProperties.Count == 0) return;
+            GenerateEditables(_editableProperties);
         }
 
         private AnimationClip CreateAnimationClipForBinding(AnimationClip active, EditorCurveBinding binding)
         {
             var clip = new AnimationClip();
             AnimationUtility.SetEditorCurve(clip, binding, AnimationUtility.GetEditorCurve(active, binding));
-            var basedShape = _metadataAsset.GetBased(binding.propertyName);
-            if (basedShape != null)
+            var onWhat = _metadataAsset.GetBased(binding.propertyName);
+            if (onWhat != null)
             {
                 AnimationUtility.SetEditorCurve(clip, new EditorCurveBinding
                 {
                     path = binding.path,
-                    propertyName = basedShape,
+                    propertyName = onWhat,
                     type = typeof(SkinnedMeshRenderer)
                 }, AnimationCurve.Constant(0f, 1 / 60f, 100f));
             }
@@ -209,8 +211,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
 
         private Texture2D BasedTexture(string property)
         {
-            var basedShape = _metadataAsset.GetBased(property);
-            return basedShape != null ? _basedOnSomething[basedShape] : _based;
+            var onWhat = _metadataAsset.GetBased(property);
+            return onWhat != null ? _basedOnSomething[onWhat] : _based;
         }
 
         private CgeAnimationEditorSubInfo SubInfoFromActive(AnimationClip active, EditorCurveBinding binding)
@@ -312,7 +314,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
                 );
             };
 
-            if (!_isCalling)
+            if (_maintain && !_forcePreviewGeneration)
+            {
+                Maintain();
+            }
+            else if (!_isCalling)
             {
                 EditorApplication.delayCall += () =>
                 {
@@ -393,13 +399,13 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
         private AnimationClip CreateBlendShapeClipForBinding(EditorCurveBinding binding)
         {
             var blendShapeClip = BlendShapeClip(binding);
-            var basedShape = _metadataAsset.GetBased(binding.propertyName);
-            if (basedShape != null)
+            var onWhat = _metadataAsset.GetBased(binding.propertyName);
+            if (onWhat != null)
             {
                 AnimationUtility.SetEditorCurve(blendShapeClip, new EditorCurveBinding
                 {
                     path = binding.path,
-                    propertyName = basedShape,
+                    propertyName = onWhat,
                     type = typeof(SkinnedMeshRenderer)
                 }, AnimationCurve.Constant(0f, 1 / 60f, 100f));
             }
@@ -419,6 +425,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
             if (!_maintain)
             {
                 AnimationMode.StopAnimationMode();
+                GeneratePreviewsFromCurrentClip(DummyNullable());
             }
             else
             {
@@ -508,12 +515,23 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
         {
             EnsureMetadataAssetInitialized();
 
-            return _metadataAsset.GetBased(subject);
+            var onWhat = _metadataAsset.GetBased(subject);
+            return onWhat;
         }
 
         public AnimationClip ActiveClip()
         {
             return _currentClip;
+        }
+
+        public void SetForcePreviewGeneration(bool forcePreviewGeneration)
+        {
+            _forcePreviewGeneration = forcePreviewGeneration;
+        }
+
+        public bool IsForcePreviewGeneration()
+        {
+            return _forcePreviewGeneration;
         }
     }
 }

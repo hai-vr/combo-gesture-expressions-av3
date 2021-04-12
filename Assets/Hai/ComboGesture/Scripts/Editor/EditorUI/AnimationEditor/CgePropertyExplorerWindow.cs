@@ -99,7 +99,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.AnimationEditor
             GUILayout.BeginHorizontal();
 
             int widthRun = HalfWidth + TempBorder;
-            var smrBlendShapeProperties = _animationEditor.SmrBlendShapeProperties();
+            var smrBlendShapeProperties = _animationEditor.SmrBlendShapeProperties() ?? new List<CgePropertyExplorerSubInfo>();
             foreach (var info in smrBlendShapeProperties)
             {
                 GUILayout.BeginVertical();
@@ -107,7 +107,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.AnimationEditor
                 GUILayout.Label(info.Property.StartsWith(BlendshapePrefix) ? info.Property.Substring(BlendshapePrefix.Length) : info.Property, GUILayout.Width(HalfWidth));
 
                 GUILayout.BeginHorizontal();
-                var basedOnWhat = _animationEditor.GetBased(info.Property);
+                var onWhat = _animationEditor.GetBased(info.Property);
                 if (!IsInBasedOnSomethingElseMode())
                 {
                     EditorGUI.BeginDisabledGroup(!_animationEditor.HasActiveClip());
@@ -126,7 +126,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.AnimationEditor
                     EditorGUI.EndDisabledGroup();
                     EditorGUI.EndDisabledGroup();
 
-                    if (basedOnWhat != null)
+                    if (onWhat != null)
                     {
                         EditorGUI.BeginDisabledGroup(true);
                         GUILayout.Label("Based", GUILayout.Width(40));
@@ -135,10 +135,10 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.AnimationEditor
                 }
                 else
                 {
-                    if (basedOnWhat != null)
+                    if (onWhat != null)
                     {
                         EditorGUI.BeginDisabledGroup(true);
-                        GUILayout.TextField(basedOnWhat.Substring(BlendshapePrefix.Length), GUILayout.ExpandWidth(true));
+                        GUILayout.TextField(onWhat.Substring(BlendshapePrefix.Length), GUILayout.ExpandWidth(true));
                         EditorGUI.EndDisabledGroup();
                         if (RedBackground(true, () => GUILayout.Button("Forget", GUILayout.Width(70))))
                         {
