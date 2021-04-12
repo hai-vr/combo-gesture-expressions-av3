@@ -7,7 +7,6 @@ using Hai.ComboGesture.Scripts.Editor.EditorUI.AnimationEditor;
 using Hai.ComboGesture.Scripts.ScriptableObjects;
 using UnityEditor;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
 {
@@ -113,11 +112,10 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
         {
             EnsureActivePreviewInitialized();
             _renderingCommands.GenerateSpecificFastMode(
-                new List<AnimationPreview> {new AnimationPreview(AnimationUtility.GetCurveBindings(active).Length == 0 ? NothingClip() : active, _activePreview)},
-                preview =>
+                new List<RenderingSample> {new RenderingSample(AnimationUtility.GetCurveBindings(active).Length == 0 ? NothingClip() : active, _activePreview, preview =>
                 {
                     CgeAnimationEditorWindow.Obtain().Repaint();
-                },
+                })},
                 previewSetup,
                 CgeRenderingCommands.CgeDummyAutoHide.DoNotHide,
                 CgeRenderingCommands.CgePriority.High
@@ -130,16 +128,16 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
 
             var smr = previewSetup.avatarDescriptor.VisemeSkinnedMesh;
             _renderingCommands.GenerateSpecificFastMode(
-                new List<AnimationPreview>
+                new List<RenderingSample>
                 {
-                    new AnimationPreview(NothingClip(), _based)
-                }.Concat(_basedOnSomething.Select(basedToTexture => new AnimationPreview(BlendShapeClip(new EditorCurveBinding()
+                    new RenderingSample(NothingClip(), _based, preview => { })
+                }.Concat(_basedOnSomething.Select(basedToTexture => new RenderingSample(BlendShapeClip(new EditorCurveBinding()
                 {
                     path = SharedLayerUtils.ResolveRelativePath(previewSetup.avatarDescriptor.transform, smr.transform),
                     propertyName = basedToTexture.Key,
                     type = typeof(SkinnedMeshRenderer)
-                }), basedToTexture.Value))).ToList(),
-                preview => { },
+                }), basedToTexture.Value,
+                    preview => { }))).ToList(),
                 previewSetup,
                 CgeRenderingCommands.CgeDummyAutoHide.DoNotHide
             );
@@ -165,21 +163,45 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
                 .Select(binding => SubInfoFromActive(active, binding)).ToList();
 
             if (_editableProperties.Count == 0) return;
-            GenerateEditables(previewSetup, _editableProperties.Select(info => info.Preview).ToList());
+            GenerateEditables(previewSetup, _editableProperties.Select(info =>
+            {
+                var binding = info.Binding;
+                var clip = CreateAnimationClipForBinding(active, binding);
+                return new RenderingSample(
+                    clip,
+                    new Texture2D(HalfWidth, HalfHeight, TextureFormat.ARGB32, false),
+                    preview =>
+                    {
+                        EnsureBasedInitialized();
+                        CgeRenderingSupport.MutateMultilevelHighlightDifferences(info.BoundaryTexture, preview.RenderTexture, BasedTexture(info.Property));
+                        CgeAnimationEditorWindow.Obtain().Repaint();
+                    }
+                );
+            }).ToList());
         }
 
-        private void GenerateEditables(ComboGesturePreviewSetup previewSetup, List<AnimationPreview> toRender)
+        private AnimationClip CreateAnimationClipForBinding(AnimationClip active, EditorCurveBinding binding)
+        {
+            var clip = new AnimationClip();
+            AnimationUtility.SetEditorCurve(clip, binding, AnimationUtility.GetEditorCurve(active, binding));
+            var basedShape = _metadataAsset.GetBased(binding.propertyName);
+            if (basedShape != null)
+            {
+                AnimationUtility.SetEditorCurve(clip, new EditorCurveBinding
+                {
+                    path = binding.path,
+                    propertyName = basedShape,
+                    type = typeof(SkinnedMeshRenderer)
+                }, AnimationCurve.Constant(0f, 1 / 60f, 100f));
+            }
+
+            return clip;
+        }
+
+        private void GenerateEditables(ComboGesturePreviewSetup previewSetup, List<RenderingSample> toRender)
         {
             _renderingCommands.GenerateSpecificFastMode(
                 toRender,
-                preview =>
-                {
-                    var editable = _editableProperties
-                        .First(info => info.Preview == preview);
-                    EnsureBasedInitialized();
-                    CgeRenderingSupport.MutateMultilevelHighlightDifferences(editable.BoundaryTexture, preview.RenderTexture, BasedTexture(editable.Property));
-                    CgeAnimationEditorWindow.Obtain().Repaint();
-                },
                 previewSetup,
                 CgeRenderingCommands.CgeDummyAutoHide.DoNotHide
             );
@@ -193,26 +215,13 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
 
         private CgeAnimationEditorSubInfo SubInfoFromActive(AnimationClip active, EditorCurveBinding binding)
         {
-            var clip = new AnimationClip();
-            AnimationUtility.SetEditorCurve(clip, binding, AnimationUtility.GetEditorCurve(active, binding));
-            var basedShape = _metadataAsset.GetBased(binding.propertyName);
-            if (basedShape != null)
-            {
-                AnimationUtility.SetEditorCurve(clip, new EditorCurveBinding
-                {
-                    path = binding.path,
-                    propertyName = basedShape,
-                    type = typeof(SkinnedMeshRenderer)
-                }, AnimationCurve.Constant(0f, 1/60f, 100f));
-            }
-            var preview = new AnimationPreview(clip, new Texture2D(HalfWidth, HalfHeight, TextureFormat.ARGB32, false));
             return new CgeAnimationEditorSubInfo
             {
-                Preview = preview,
                 Property = binding.propertyName,
                 Value = AnimationUtility.GetEditorCurve(active, binding).keys.Select(keyframe => keyframe.value).Min(),
                 Binding = binding,
-                BoundaryTexture = new Texture2D(HalfWidth, HalfHeight, TextureFormat.ARGB32, false)
+                BoundaryTexture = new Texture2D(HalfWidth, HalfHeight, TextureFormat.ARGB32, false),
+                Path = binding.path
             };
         }
 
@@ -227,15 +236,16 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
         private void RenderBlendshapes(ComboGesturePreviewSetup previewSetup, Func<CgePropertyExplorerSubInfo, bool> predicate)
         {
             _renderingCommands.GenerateSpecificFastMode(
-                _smrBlendShapeProperties.Where(predicate).Select(info => info.Preview).ToList(),
-                preview =>
-                {
-                    var editable = _smrBlendShapeProperties
-                        .First(info => info.Preview == preview);
-                    CgeRenderingSupport.MutateHighlightHotspots(editable.HotspotTexture, preview.RenderTexture, BasedTexture(editable.Property));
-                    CgeRenderingSupport.MutateMultilevelHighlightDifferences(editable.BoundaryTexture, preview.RenderTexture, BasedTexture(editable.Property));
-                    CgePropertyExplorerWindow.Obtain().Repaint();
-                },
+                _smrBlendShapeProperties.Where(predicate).Select(info => new RenderingSample(
+                    CreateBlendShapeClipForBinding(info.Binding),
+                    NewTexture2D(),
+                    preview =>
+                    {
+                        CgeRenderingSupport.MutateHighlightHotspots(info.HotspotTexture, preview.RenderTexture, BasedTexture(info.Property));
+                        CgeRenderingSupport.MutateMultilevelHighlightDifferences(info.BoundaryTexture, preview.RenderTexture, BasedTexture(info.Property));
+                        CgePropertyExplorerWindow.Obtain().Repaint();
+                    }
+                )).ToList(),
                 previewSetup,
                 CgeRenderingCommands.CgeDummyAutoHide.DoNotHide,
                 CgeRenderingCommands.CgePriority.Low
@@ -270,33 +280,33 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
             return new Texture2D(HalfWidth * PreviewResolutionMultiplier, HalfHeight * PreviewResolutionMultiplier, TextureFormat.ARGB32, false);
         }
 
-        public void UpdateEditable(CgeAnimationEditorSubInfo editableProperty, int index, float newValue)
+        public void UpdateEditable(CgeAnimationEditorSubInfo info, int index, float newValue)
         {
             Undo.RecordObject(_currentClip, "Value modified");
-            var oldCurve = AnimationUtility.GetEditorCurve(_currentClip, editableProperty.Binding);
+            var oldCurve = AnimationUtility.GetEditorCurve(_currentClip, info.Binding);
             var newCurve = new AnimationCurve(oldCurve.keys.Select(keyframe =>
             {
                 keyframe.value = newValue;
                 return keyframe;
             }).ToArray());
-            editableProperty.Value = newValue;
-            _editableProperties[index] = editableProperty;
-            AnimationUtility.SetEditorCurve(_currentClip, editableProperty.Binding, newCurve);
-            AnimationUtility.SetEditorCurve(editableProperty.Preview.Clip, editableProperty.Binding, newCurve);
+            info.Value = newValue;
+            _editableProperties[index] = info;
+            AnimationUtility.SetEditorCurve(_currentClip, info.Binding, newCurve);
 
             _action = () =>
             {
                 RenderMain(_currentClip, DummyNullable());
                 _renderingCommands.GenerateSpecificFastMode(
-                    new List<AnimationPreview> {_editableProperties[index].Preview},
-                    preview =>
-                    {
-                        var editable = _editableProperties
-                            .First(info => info.Preview == preview);
-                        EnsureBasedInitialized();
-                        CgeRenderingSupport.MutateMultilevelHighlightDifferences(editable.BoundaryTexture, preview.RenderTexture, BasedTexture(editable.Property));
-                        CgeAnimationEditorWindow.Obtain().Repaint();
-                    },
+                    new List<RenderingSample> { new RenderingSample(
+                        CreateAnimationClipForBinding(_currentClip, info.Binding),
+                        NewTexture2D(),
+                        preview =>
+                        {
+                            EnsureBasedInitialized();
+                            CgeRenderingSupport.MutateMultilevelHighlightDifferences(info.BoundaryTexture, preview.RenderTexture, BasedTexture(info.Property));
+                            CgeAnimationEditorWindow.Obtain().Repaint();
+                        }
+                    ) },
                     DummyNullable(),
                     CgeRenderingCommands.CgeDummyAutoHide.DoNotHide
                 );
@@ -348,7 +358,16 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
 
             var current = SubInfoFromActive(_currentClip, binding);
             _editableProperties.Add(current);
-            GenerateEditables(DummyNullable(), new [] { current.Preview }.ToList());
+            GenerateEditables(DummyNullable(), new [] { new RenderingSample(
+                CreateAnimationClipForBinding(_currentClip, binding),
+                NewTexture2D(),
+                preview =>
+                {
+                    EnsureBasedInitialized();
+                    CgeRenderingSupport.MutateMultilevelHighlightDifferences(current.BoundaryTexture, preview.RenderTexture, BasedTexture(current.Property));
+                    CgeAnimationEditorWindow.Obtain().Repaint();
+                }
+            ) }.ToList());
             RenderMain(_currentClip, DummyNullable());
         }
 
@@ -364,12 +383,23 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
             };
             AnimationUtility.SetEditorCurve(_currentClip, binding, null);
 
-            // FIXME: Multi SMRs
-            _editableProperties = _editableProperties.Where(info => info.Property != property).ToList();
+            _editableProperties = _editableProperties.Where(info => info.Property != property && info.Path == path).ToList();
             RenderMain(_currentClip, DummyNullable());
         }
 
         private CgePropertyExplorerSubInfo SubInfoFromBinding(string smrPath, EditorCurveBinding binding)
+        {
+            return new CgePropertyExplorerSubInfo
+            {
+                Property = binding.propertyName,
+                Binding = binding,
+                Path = smrPath,
+                BoundaryTexture = NewTexture2D(),
+                HotspotTexture = NewTexture2D()
+            };
+        }
+
+        private AnimationClip CreateBlendShapeClipForBinding(EditorCurveBinding binding)
         {
             var blendShapeClip = BlendShapeClip(binding);
             var basedShape = _metadataAsset.GetBased(binding.propertyName);
@@ -380,18 +410,10 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
                     path = binding.path,
                     propertyName = basedShape,
                     type = typeof(SkinnedMeshRenderer)
-                }, AnimationCurve.Constant(0f, 1/60f, 100f));
+                }, AnimationCurve.Constant(0f, 1 / 60f, 100f));
             }
 
-            var preview = new AnimationPreview(blendShapeClip, NewTexture2D());
-            return new CgePropertyExplorerSubInfo
-            {
-                Preview = preview,
-                Property = binding.propertyName,
-                Path = smrPath,
-                BoundaryTexture = NewTexture2D(),
-                HotspotTexture = NewTexture2D()
-            };
+            return blendShapeClip;
         }
 
         public bool IsMaintaining()
@@ -431,18 +453,18 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
                 .Select(subject => new CgeAnimationEditorMetadataBasedBlendshape { based = based, subject = subject }))
             {
                 _metadataAsset.PutBasedBlendshape(basedBlendshape);
-                if (!_basedOnSomething.ContainsKey(based))
-                {
-                    _basedOnSomething[based] = NewTexture2D();
-                }
+                // if (!_basedOnSomething.ContainsKey(based))
+                // {
+                    // _basedOnSomething[based] = NewTexture2D();
+                // }
 
-                var clip = _smrBlendShapeProperties.First(info => info.Property == basedBlendshape.subject).Preview.Clip;
-                AnimationUtility.SetEditorCurve(clip, new EditorCurveBinding
-                {
-                    path = AnimationUtility.GetCurveBindings(clip).First(/*binding => binding.propertyName == basedBlendshape.subject*/).path,
-                    propertyName = basedBlendshape.based,
-                    type = typeof(SkinnedMeshRenderer)
-                }, AnimationCurve.Constant(0f, 1/60f, 100f));
+                // var smr = DummyNullable().avatarDescriptor.VisemeSkinnedMesh;
+                // var clip = CreateBlendShapeClipForBinding(new EditorCurveBinding
+                // {
+                    // path = SharedLayerUtils.ResolveRelativePath(DummyNullable().avatarDescriptor.transform, smr.transform)
+                    // propertyName = basedBlendshape.based,
+                    // type = typeof(SkinnedMeshRenderer)
+                // });
             }
             GeneratePreviewsFromSubjectNamesAssignments(DummyNullable(), subjects);
         }
@@ -469,10 +491,10 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
             EnsureMetadataAssetInitialized();
             EditorUtility.SetDirty(_metadataAsset);
 
-            var basedShape = _metadataAsset.GetBased(subject);
+            // var basedShape = _metadataAsset.GetBased(subject);
             _metadataAsset.RemoveBasedBlendshape(subject);
-            var clip = _smrBlendShapeProperties.First(info => info.Property == subject).Preview.Clip;
-            AnimationUtility.SetEditorCurve(clip, AnimationUtility.GetCurveBindings(clip).First(binding => binding.propertyName == basedShape), null);
+            // var clip = _smrBlendShapeProperties.First(info => info.Property == subject).Preview.Clip;
+            // AnimationUtility.SetEditorCurve(clip, AnimationUtility.GetCurveBindings(clip).First(binding => binding.propertyName == basedShape), null);
             GeneratePreviewsFromSubjectNamesAssignments(DummyNullable(), new [] { subject }.ToList());
         }
 

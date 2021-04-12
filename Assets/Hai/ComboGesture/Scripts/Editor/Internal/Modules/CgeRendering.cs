@@ -39,19 +39,17 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
         }
 
         public void GenerateSpecific(
-            List<AnimationPreview> animationsPreviews,
-            Action<AnimationPreview> onClipRendered,
+            List<RenderingSample> animationsPreviews,
             ComboGesturePreviewSetup previewSetup,
             CgeDummyAutoHide autoHide = CgeDummyAutoHide.Default,
             CgePriority priority = CgePriority.Normal)
         {
-            _priorityQueues[priority].Add(() => new CgeRenderingJob(previewSetup, animationsPreviews, onClipRendered, true, OnQueueTaskComplete, autoHide).Capture());
+            _priorityQueues[priority].Add(() => new CgeRenderingJob(previewSetup, animationsPreviews, true, OnQueueTaskComplete, autoHide).Capture());
             WakeQueue();
         }
 
         public void GenerateSpecificFastMode(
-            List<AnimationPreview> animationsPreviews,
-            Action<AnimationPreview> onClipRendered,
+            List<RenderingSample> animationsPreviews,
             ComboGesturePreviewSetup previewSetup,
             CgeDummyAutoHide autoHide = CgeDummyAutoHide.Default,
             CgePriority priority = CgePriority.Normal)
@@ -59,7 +57,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
             for (int startIndex = 0; startIndex < animationsPreviews.Count; startIndex += 15)
             {
                 var finalIndex = startIndex;
-                _priorityQueues[priority].Add(() => new CgeRenderingJob(previewSetup, animationsPreviews.GetRange(finalIndex, Math.Min(15, animationsPreviews.Count - finalIndex)), onClipRendered, false, OnQueueTaskComplete, autoHide).Capture());
+                _priorityQueues[priority].Add(() => new CgeRenderingJob(previewSetup, animationsPreviews.GetRange(finalIndex, Math.Min(15, animationsPreviews.Count - finalIndex)), false, OnQueueTaskComplete, autoHide).Capture());
             }
             WakeQueue();
         }
@@ -279,8 +277,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
     internal class CgeRenderingJob
     {
         private readonly ComboGesturePreviewSetup _previewSetup;
-        private readonly List<AnimationPreview> _animationPreviews;
-        private readonly Action<AnimationPreview> _onClipRendered;
+        private readonly List<RenderingSample> _renderingSamples;
         private readonly Action _onQueueTaskComplete;
         private RenderTexture _renderTexture;
         private readonly bool _includeTransformsMode;
@@ -288,11 +285,10 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
 
         private static bool StopGenerating { get; set; }
 
-        public CgeRenderingJob(ComboGesturePreviewSetup previewSetup, List<AnimationPreview> animationPreviews, Action<AnimationPreview> onClipRendered, bool includeTransformsMode, Action onQueueTaskComplete = null, CgeRenderingCommands.CgeDummyAutoHide autoHide = CgeRenderingCommands.CgeDummyAutoHide.Default)
+        public CgeRenderingJob(ComboGesturePreviewSetup previewSetup, List<RenderingSample> renderingSamples, bool includeTransformsMode, Action onQueueTaskComplete = null, CgeRenderingCommands.CgeDummyAutoHide autoHide = CgeRenderingCommands.CgeDummyAutoHide.Default)
         {
             _previewSetup = previewSetup;
-            _animationPreviews = animationPreviews;
-            _onClipRendered = onClipRendered;
+            _renderingSamples = renderingSamples;
             _includeTransformsMode = includeTransformsMode;
             _autoHide = autoHide;
             _onQueueTaskComplete = onQueueTaskComplete ?? (() => {});
@@ -315,10 +311,10 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
         {
             var queue = new List<Action<int>>();
 
-            for (var index = 0; index < _animationPreviews.Count; index++)
+            for (var index = 0; index < _renderingSamples.Count; index++)
             {
-                var currentPreview = _animationPreviews[index];
-                if (_includeTransformsMode || _animationPreviews.Count <= 1)
+                var currentPreview = _renderingSamples[index];
+                if (_includeTransformsMode || _renderingSamples.Count <= 1)
                 {
                     queue.Add(i => { SampleClip(currentPreview); });
                     queue.Add(i => { RenderToTexture(generatedCamera, currentPreview); });
@@ -327,9 +323,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
                 {
                     queue.Add(i => { SampleClip(currentPreview); });
                 }
-                else if (index == _animationPreviews.Count - 1)
+                else if (index == _renderingSamples.Count - 1)
                 {
-                    var previousPreview = _animationPreviews[index - 1];
+                    var previousPreview = _renderingSamples[index - 1];
                     queue.Add(i =>
                     {
                         RenderToTexture(generatedCamera, previousPreview);
@@ -339,7 +335,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
                 }
                 else
                 {
-                    var previousPreview = _animationPreviews[index - 1];
+                    var previousPreview = _renderingSamples[index - 1];
                     queue.Add(i =>
                     {
                         RenderToTexture(generatedCamera, previousPreview);
@@ -352,18 +348,18 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
             CgeRenderingProcessorUnityCycle.AddToQueue(() => RunAsync(queue, cleanupQueue));
         }
 
-        private void SampleClip(AnimationPreview animationPreview)
+        private void SampleClip(RenderingSample renderingSample)
         {
             AnimationMode.BeginSampling();
-            PoseDummyUsing(animationPreview.Clip);
+            PoseDummyUsing(renderingSample.Clip);
             AnimationMode.EndSampling();
         }
 
-        private void RenderToTexture(Camera generatedCamera, AnimationPreview animationPreview)
+        private void RenderToTexture(Camera generatedCamera, RenderingSample renderingSample)
         {
-            CaptureDummy(animationPreview.RenderTexture, generatedCamera);
+            CaptureDummy(renderingSample.RenderTexture, generatedCamera);
 
-            _onClipRendered.Invoke(animationPreview);
+            renderingSample.Callback.Invoke(renderingSample);
         }
 
         private static void RunAsync(List<Action<int>> actions, List<Action<int>> cleanupActions)

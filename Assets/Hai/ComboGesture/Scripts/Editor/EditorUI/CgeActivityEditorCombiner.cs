@@ -66,9 +66,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public const int CombinerPreviewCenterWidth = (int) (CombinerPreviewWidth * CombinerPreviewCenterScale);
         public const int CombinerPreviewCenterHeight = (int) (CombinerPreviewHeight * CombinerPreviewCenterScale);
 
-        private readonly AnimationPreview _leftPreview;
-        private readonly AnimationPreview _rightPreview;
-        private AnimationPreview _combinedPreview;
+        private readonly RenderingSample _leftPreview;
+        private readonly RenderingSample _rightPreview;
+        private RenderingSample _combinedPreview;
         private readonly Action _onClipRenderedFn;
         private readonly CgeEditorEffector _editorEffector;
         private readonly CgeRenderingCommands _previewController;
@@ -76,9 +76,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         public CgeActivityEditorCombiner(AnimationClip leftAnim, AnimationClip rightAnim, Action onClipRenderedFn, CgeEditorEffector editorEffector, CgeRenderingCommands previewController)
         {
-            _leftPreview = new AnimationPreview(leftAnim, CgeMemoryQuery.NewPreviewTexture2D(CombinerPreviewWidth, CombinerPreviewHeight));
-            _rightPreview = new AnimationPreview(rightAnim, CgeMemoryQuery.NewPreviewTexture2D(CombinerPreviewWidth, CombinerPreviewHeight));
-            _combinedPreview = new AnimationPreview(new AnimationClip(), CgeMemoryQuery.NewPreviewTexture2D(CombinerPreviewCenterWidth, CombinerPreviewCenterHeight));
+            _leftPreview = new RenderingSample(leftAnim, CgeMemoryQuery.NewPreviewTexture2D(CombinerPreviewWidth, CombinerPreviewHeight), OnClipRendered);
+            _rightPreview = new RenderingSample(rightAnim, CgeMemoryQuery.NewPreviewTexture2D(CombinerPreviewWidth, CombinerPreviewHeight), OnClipRendered);
+            _combinedPreview = new RenderingSample(new AnimationClip(), CgeMemoryQuery.NewPreviewTexture2D(CombinerPreviewCenterWidth, CombinerPreviewCenterHeight), OnClipRendered);
             _onClipRenderedFn = onClipRenderedFn;
             _editorEffector = editorEffector;
             _previewController = previewController;
@@ -91,7 +91,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             _cgeDecider = CreateDeciders(leftCurves, rightCurves);
 
-            _combinedPreview = new AnimationPreview(GenerateCombinedClip(), _combinedPreview.RenderTexture);
+            _combinedPreview = new RenderingSample(GenerateCombinedClip(), _combinedPreview.RenderTexture, OnClipRendered);
 
             CreatePreviews();
         }
@@ -247,21 +247,21 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             var animationsPreviews = new[] {_leftPreview, _rightPreview, _combinedPreview}.ToList();
 
-            _previewController.GenerateSpecific(animationsPreviews, OnClipRendered, _editorEffector.PreviewSetup());
+            _previewController.GenerateSpecific(animationsPreviews, _editorEffector.PreviewSetup());
         }
 
         private void RegenerateCombinedPreview()
         {
             if (!_editorEffector.IsPreviewSetupValid()) return;
 
-            _combinedPreview = new AnimationPreview(GenerateCombinedClip(), _combinedPreview.RenderTexture);
+            _combinedPreview = new RenderingSample(GenerateCombinedClip(), _combinedPreview.RenderTexture, OnClipRendered);
 
             var animationsPreviews = new[] {_combinedPreview}.ToList();
 
-            _previewController.GenerateSpecific(animationsPreviews, OnClipRendered, _editorEffector.PreviewSetup());
+            _previewController.GenerateSpecific(animationsPreviews, _editorEffector.PreviewSetup());
         }
 
-        private void OnClipRendered(AnimationPreview obj)
+        private void OnClipRendered(RenderingSample obj)
         {
             _onClipRenderedFn.Invoke();
         }

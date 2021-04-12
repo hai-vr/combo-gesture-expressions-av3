@@ -10,7 +10,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.AnimationEditor
     public struct CgePropertyExplorerSubInfo
     {
         public string Property;
-        public AnimationPreview Preview;
+        public EditorCurveBinding Binding;
         public Texture2D BoundaryTexture;
         public Texture2D HotspotTexture;
         public string Path;
@@ -50,10 +50,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.AnimationEditor
         private void OnDestroy()
         {
             _disabledUndo = true;
-        }
-
-        private void OnInspectorUpdate()
-        {
         }
 
         private void OnUndoRedoPerformed()

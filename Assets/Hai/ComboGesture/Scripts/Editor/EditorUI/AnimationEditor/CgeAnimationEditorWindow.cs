@@ -9,10 +9,10 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.AnimationEditor
     public struct CgeAnimationEditorSubInfo
     {
         public string Property;
-        public AnimationPreview Preview;
         public float Value;
         public EditorCurveBinding Binding;
         public Texture2D BoundaryTexture;
+        public string Path;
     }
 
     public class CgeAnimationEditorWindow : EditorWindow

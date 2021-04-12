@@ -48,10 +48,10 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             var clipDictionary = GatherAnimations(processMode);
             var animationPreviews = ToPrioritizedList(clipDictionary, prioritize);
 
-            _cgeRenderingCommands.GenerateSpecific(animationPreviews, OnClipRendered, previewSetup);
+            _cgeRenderingCommands.GenerateSpecific(animationPreviews, previewSetup);
         }
 
-        private void OnClipRendered(AnimationPreview animationPreview)
+        private void OnClipRendered(RenderingSample animationPreview)
         {
             _memoization.AssignRegular(animationPreview.Clip, animationPreview.RenderTexture);
             _memoization.AssignGrayscale(animationPreview.Clip, GrayscaleCopyOf(animationPreview.RenderTexture));
@@ -78,20 +78,20 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             return texture;
         }
 
-        private static List<AnimationPreview> ToPrioritizedList(Dictionary<AnimationClip, Texture2D> clipDictionary, AnimationClip prioritize)
+        private List<RenderingSample> ToPrioritizedList(Dictionary<AnimationClip, Texture2D> clipDictionary, AnimationClip prioritize)
         {
             if (prioritize != null && clipDictionary.ContainsKey(prioritize))
             {
                 var animationPreviews = clipDictionary.Where(pair => pair.Key != prioritize)
-                    .Select(pair => new AnimationPreview(pair.Key, pair.Value))
+                    .Select(pair => new RenderingSample(pair.Key, pair.Value, OnClipRendered))
                     .ToList();
-                animationPreviews.Insert(0, new AnimationPreview(prioritize, clipDictionary[prioritize]));
+                animationPreviews.Insert(0, new RenderingSample(prioritize, clipDictionary[prioritize], OnClipRendered));
 
                 return animationPreviews;
             }
 
             return clipDictionary
-                .Select(pair => new AnimationPreview(pair.Key, pair.Value))
+                .Select(pair => new RenderingSample(pair.Key, pair.Value, OnClipRendered))
                 .ToList();
         }
 

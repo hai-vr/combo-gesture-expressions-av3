@@ -1,50 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
-using Hai.ComboGesture.Scripts.Components;
 using UnityEditor;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 {
-    public struct AnimationPreview
+    public struct RenderingSample
     {
-        public AnimationPreview(AnimationClip clip, Texture2D renderTexture)
+        public readonly AnimationClip Clip;
+        public readonly Texture2D RenderTexture;
+        public readonly Action<RenderingSample> Callback;
+
+        public RenderingSample(AnimationClip clip, Texture2D renderTexture, Action<RenderingSample> callback)
         {
             Clip = clip;
             RenderTexture = renderTexture;
+            Callback = callback;
         }
-
-        private bool Equals(AnimationPreview other)
-        {
-            return Equals(Clip, other.Clip) && Equals(RenderTexture, other.RenderTexture);
-        }
-
-        public override bool Equals(object obj)
-        {
-            return obj is AnimationPreview other && Equals(other);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return ((Clip != null ? Clip.GetHashCode() : 0) * 397) ^ (RenderTexture != null ? RenderTexture.GetHashCode() : 0);
-            }
-        }
-
-        public static bool operator ==(AnimationPreview left, AnimationPreview right)
-        {
-            return left.Equals(right);
-        }
-
-        public static bool operator !=(AnimationPreview left, AnimationPreview right)
-        {
-            return !left.Equals(right);
-        }
-
-        public AnimationClip Clip { get; }
-        public Texture2D RenderTexture { get; }
     }
 
     internal static class CgeRenderingProcessorUnityCycle
