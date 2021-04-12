@@ -95,7 +95,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.AnimationEditor
             GUILayout.EndVertical();
             GUILayout.EndHorizontal();
 
-            _scrollPos = GUILayout.BeginScrollView(_scrollPos, GUILayout.Height(Screen.height - EditorGUIUtility.singleLineHeight * 5));
+            _scrollPos = GUILayout.BeginScrollView(_scrollPos, GUILayout.Height(Screen.height - EditorGUIUtility.singleLineHeight * 6));
             GUILayout.BeginHorizontal();
 
             int widthRun = HalfWidth + TempBorder;

@@ -48,18 +48,30 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
             WakeQueue();
         }
 
-        public void GenerateSpecificFastMode(
+        public Action GenerateSpecificFastMode(
             List<RenderingSample> animationsPreviews,
             ComboGesturePreviewSetup previewSetup,
             CgeDummyAutoHide autoHide = CgeDummyAutoHide.Default,
             CgePriority priority = CgePriority.Normal)
         {
+            List<CgeRenderingJob> jobs = new List<CgeRenderingJob>();
             for (int startIndex = 0; startIndex < animationsPreviews.Count; startIndex += 15)
             {
                 var finalIndex = startIndex;
-                _priorityQueues[priority].Add(() => new CgeRenderingJob(previewSetup, animationsPreviews.GetRange(finalIndex, Math.Min(15, animationsPreviews.Count - finalIndex)), false, OnQueueTaskComplete, autoHide).Capture());
+                var job = new CgeRenderingJob(previewSetup, animationsPreviews.GetRange(finalIndex, Math.Min(15, animationsPreviews.Count - finalIndex)), false, OnQueueTaskComplete, autoHide);
+                jobs.Add(job);
+                _priorityQueues[priority].Add(() => job.Capture());
             }
             WakeQueue();
+
+            // FIXME: Obscure drop callback
+            return () =>
+            {
+                foreach (var job in jobs)
+                {
+                    job.Drop();
+                }
+            };
         }
 
         private void WakeQueue()
@@ -283,7 +295,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
         private readonly bool _includeTransformsMode;
         private readonly CgeRenderingCommands.CgeDummyAutoHide _autoHide;
 
-        private static bool StopGenerating { get; set; }
+        private bool StopGenerating { get; set; }
 
         public CgeRenderingJob(ComboGesturePreviewSetup previewSetup, List<RenderingSample> renderingSamples, bool includeTransformsMode, Action onQueueTaskComplete = null, CgeRenderingCommands.CgeDummyAutoHide autoHide = CgeRenderingCommands.CgeDummyAutoHide.Default)
         {
@@ -305,6 +317,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
             _previewSetup.previewDummy.gameObject.SetActive(true);
 
             DoGenerationProcess(generatedCamera);
+        }
+
+        public void Drop()
+        {
+            StopGenerating = true;
         }
 
         private void DoGenerationProcess(Camera generatedCamera)
@@ -362,7 +379,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
             renderingSample.Callback.Invoke(renderingSample);
         }
 
-        private static void RunAsync(List<Action<int>> actions, List<Action<int>> cleanupActions)
+        private void RunAsync(List<Action<int>> actions, List<Action<int>> cleanupActions)
         {
             try
             {
@@ -384,19 +401,15 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
             }
         }
 
-        private static void StartCleanupActions(List<Action<int>> cleanupActions)
+        private void StartCleanupActions(List<Action<int>> cleanupActions)
         {
             if (cleanupActions.Count > 0)
             {
                 CgeRenderingProcessorUnityCycle.AddToQueue(() => Cleanup(cleanupActions));
             }
-            else
-            {
-                StopGenerating = false;
-            }
         }
 
-        private static void Cleanup(List<Action<int>> cleanupActions)
+        private void Cleanup(List<Action<int>> cleanupActions)
         {
             try
             {
@@ -409,10 +422,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
                 if (cleanupActions.Count > 0)
                 {
                     CgeRenderingProcessorUnityCycle.AddToQueue(() => Cleanup(cleanupActions));
-                }
-                else
-                {
-                    StopGenerating = false;
                 }
             }
         }

@@ -30,6 +30,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
         private bool _isCalling;
         private bool _maintain;
         private CgeAnimationEditorMetadata _metadataAsset;
+        private Action _generatePreviewsFromPropertyExplorer__DropPrevious;
 
         public CgeAnimationEditor(CgeRenderingCommands renderingCommands)
         {
@@ -98,8 +99,12 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
 
         private void GeneratePreviewsFromPropertyExplorer(ComboGesturePreviewSetup previewSetup)
         {
+            if (_generatePreviewsFromPropertyExplorer__DropPrevious != null)
+            {
+                _generatePreviewsFromPropertyExplorer__DropPrevious.Invoke();
+            }
             RenderBased(previewSetup);
-            CalculateAndRenderBlendshapes(previewSetup);
+            _generatePreviewsFromPropertyExplorer__DropPrevious = CalculateAndRenderBlendshapes(previewSetup);
         }
 
         private void GeneratePreviewsFromSubjectNamesAssignments(ComboGesturePreviewSetup previewSetup, List<string> subjects)
@@ -220,17 +225,17 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
             };
         }
 
-        private void CalculateAndRenderBlendshapes(ComboGesturePreviewSetup previewSetup)
+        private Action CalculateAndRenderBlendshapes(ComboGesturePreviewSetup previewSetup)
         {
             var smr = previewSetup.avatarDescriptor.VisemeSkinnedMesh;
             var mesh = smr.sharedMesh;
             _smrBlendShapeProperties = AllBlendshapes(mesh, SharedLayerUtils.ResolveRelativePath(previewSetup.avatarDescriptor.transform, smr.transform));
-            RenderBlendshapes(previewSetup, info => true);
+            return RenderBlendshapes(previewSetup, info => true);
         }
 
-        private void RenderBlendshapes(ComboGesturePreviewSetup previewSetup, Func<CgePropertyExplorerSubInfo, bool> predicate)
+        private Action RenderBlendshapes(ComboGesturePreviewSetup previewSetup, Func<CgePropertyExplorerSubInfo, bool> predicate)
         {
-            _renderingCommands.GenerateSpecificFastMode(
+            return _renderingCommands.GenerateSpecificFastMode(
                 _smrBlendShapeProperties.Where(predicate).Select(info => new RenderingSample(
                     CreateBlendShapeClipForBinding(info.Binding),
                     NewTexture2D(),
