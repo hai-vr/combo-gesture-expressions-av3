@@ -25,6 +25,11 @@ namespace Hai.ComboGesture.Scripts.ScriptableObjects
             return onWhat;
         }
 
+        public bool IsBased(string based)
+        {
+            return basedBlendshapes.Any(it => it.based == based);
+        }
+
         public List<string> AllBased()
         {
             return basedBlendshapes.Select(blendshape => blendshape.based).Distinct().ToList();

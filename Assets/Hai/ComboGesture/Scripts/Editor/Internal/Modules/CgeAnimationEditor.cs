@@ -7,6 +7,7 @@ using Hai.ComboGesture.Scripts.Editor.EditorUI.AnimationEditor;
 using Hai.ComboGesture.Scripts.ScriptableObjects;
 using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
 {
@@ -451,13 +452,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
             _metadataAsset = GetOrCreateMetadataAsset();
         }
 
-        public string GetBased(string blendshape)
-        {
-            EnsureMetadataAssetInitialized();
-
-            return _metadataAsset.GetBased(blendshape);
-        }
-
         private static CgeAnimationEditorMetadata GetOrCreateMetadataAsset()
         {
             var asset = AssetDatabase.LoadAssetAtPath<CgeAnimationEditorMetadata>(CgeAnimationEditorMetadataAssetPath);
@@ -505,6 +499,23 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
         public bool HasActiveClip()
         {
             return _currentClip != null;
+        }
+
+        public bool IsBased(string potentiallyBased)
+        {
+            return _metadataAsset.IsBased(potentiallyBased);
+        }
+
+        public string GetBased(string subject)
+        {
+            EnsureMetadataAssetInitialized();
+
+            return _metadataAsset.GetBased(subject);
+        }
+
+        public AnimationClip ActiveClip()
+        {
+            return _currentClip;
         }
     }
 }

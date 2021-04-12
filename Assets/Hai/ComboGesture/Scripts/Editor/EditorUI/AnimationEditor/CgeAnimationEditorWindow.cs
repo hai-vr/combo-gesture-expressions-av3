@@ -25,7 +25,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.AnimationEditor
 
         private CgeAnimationEditor _animationEditor;
 
-        private AnimationClip _currentClip;
+        // private AnimationClip _currentClip;
         private string _currentClipAssetRename;
         private Vector2 _scrollPos;
         private bool _disabledUndo;
@@ -57,36 +57,38 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.AnimationEditor
 
         private void OnUndoRedoPerformed()
         {
-            if (_currentClip == null) return;
+            // if (_currentClip == null) return;
 
-            OnNewClipSelected(_currentClip);
+            // OnNewClipSelected(_currentClip);
         }
 
         public void OnNewClipSelected(AnimationClip active)
         {
-            _currentClip = active;
-            _currentClipAssetRename = _currentClip.name;
+            // _currentClip = active;
+            // _currentClipAssetRename = _currentClip.name;
 
             Repaint();
         }
 
         private void OnGUI()
         {
-            if (_currentClip == null)
+            if (!_animationEditor.HasActiveClip())
             {
                 GUILayout.Label("No animation selected.");
                 return;
             }
+
+            var currentClip = _animationEditor.ActiveClip();
 
             GUILayout.BeginHorizontal();
             GUILayout.Box(_animationEditor.ActivePreview(), GUILayout.Width(StandardWidth), GUILayout.Height(StandardHeight));
             GUILayout.BeginVertical();
             GUILayout.BeginHorizontal();
             _currentClipAssetRename = EditorGUILayout.TextField(_currentClipAssetRename, GUILayout.ExpandWidth(true));
-            EditorGUI.BeginDisabledGroup(_currentClipAssetRename == _currentClip.name || File.Exists(NewPath()));
+            EditorGUI.BeginDisabledGroup(_currentClipAssetRename == currentClip.name || File.Exists(NewPath(currentClip)));
             if (GUILayout.Button("Rename", GUILayout.Width(70)))
             {
-                AssetDatabase.MoveAsset(AssetDatabase.GetAssetPath(_currentClip), NewPath());
+                AssetDatabase.MoveAsset(AssetDatabase.GetAssetPath(currentClip), NewPath(currentClip));
             }
             EditorGUI.EndDisabledGroup();
             GUILayout.EndHorizontal();
@@ -150,14 +152,14 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.AnimationEditor
             GUILayout.EndScrollView();
         }
 
-        private string NewPath()
+        private string NewPath(AnimationClip currentClip)
         {
-            return $"{FolderOfClip()}{_currentClipAssetRename}.anim";
+            return $"{FolderOfClip(currentClip)}{_currentClipAssetRename}.anim";
         }
 
-        private string FolderOfClip()
+        private string FolderOfClip(AnimationClip currentClip)
         {
-            var assetPath = AssetDatabase.GetAssetPath(_currentClip);
+            var assetPath = AssetDatabase.GetAssetPath(currentClip);
             return assetPath.Replace(Path.GetFileName(assetPath), "");
         }
 

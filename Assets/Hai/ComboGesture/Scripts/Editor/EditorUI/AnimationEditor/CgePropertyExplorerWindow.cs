@@ -104,28 +104,28 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.AnimationEditor
 
             int widthRun = HalfWidth + TempBorder;
             var smrBlendShapeProperties = _animationEditor.SmrBlendShapeProperties();
-            foreach (var blendShapeProperty in smrBlendShapeProperties)
+            foreach (var info in smrBlendShapeProperties)
             {
                 GUILayout.BeginVertical();
-                GUILayout.Box(_hotspotMode ? blendShapeProperty.HotspotTexture : blendShapeProperty.BoundaryTexture, GUIStyle.none, GUILayout.Width(HalfWidth), GUILayout.Height(HalfHeight));
-                GUILayout.Label(blendShapeProperty.Property.StartsWith(BlendshapePrefix) ? blendShapeProperty.Property.Substring(BlendshapePrefix.Length) : blendShapeProperty.Property, GUILayout.Width(HalfWidth));
+                GUILayout.Box(_hotspotMode ? info.HotspotTexture : info.BoundaryTexture, GUIStyle.none, GUILayout.Width(HalfWidth), GUILayout.Height(HalfHeight));
+                GUILayout.Label(info.Property.StartsWith(BlendshapePrefix) ? info.Property.Substring(BlendshapePrefix.Length) : info.Property, GUILayout.Width(HalfWidth));
 
                 GUILayout.BeginHorizontal();
-                var basedOnWhat = _animationEditor.GetBased(blendShapeProperty.Property);
+                var basedOnWhat = _animationEditor.GetBased(info.Property);
                 if (!IsInBasedOnSomethingElseMode())
                 {
                     EditorGUI.BeginDisabledGroup(!_animationEditor.HasActiveClip());
-                    var blendshapeExistsInAnimation = _animationEditor.ActiveHas(blendShapeProperty.Path, blendShapeProperty.Property);
+                    var blendshapeExistsInAnimation = _animationEditor.ActiveHas(info.Path, info.Property);
                     EditorGUI.BeginDisabledGroup(blendshapeExistsInAnimation);
                     if (GUILayout.Button("+", GUILayout.ExpandWidth(true)))
                     {
-                        _animationEditor.AddBlendShape(blendShapeProperty.Path, blendShapeProperty.Property);
+                        _animationEditor.AddBlendShape(info.Path, info.Property);
                     }
                     EditorGUI.EndDisabledGroup();
                     EditorGUI.BeginDisabledGroup(!blendshapeExistsInAnimation);
-                    if (RedBackground(blendshapeExistsInAnimation, () => GUILayout.Button("-", GUILayout.Width(StandardWidth / 5))))
+                    if (RedBackground(blendshapeExistsInAnimation, () => GUILayout.Button("-", GUILayout.ExpandWidth(true))))
                     {
-                        _animationEditor.RemoveBlendShape(blendShapeProperty.Path, blendShapeProperty.Property);
+                        _animationEditor.RemoveBlendShape(info.Path, info.Property);
                     }
                     EditorGUI.EndDisabledGroup();
                     EditorGUI.EndDisabledGroup();
@@ -133,7 +133,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.AnimationEditor
                     if (basedOnWhat != null)
                     {
                         EditorGUI.BeginDisabledGroup(true);
-                        GUILayout.Label("Based", GUILayout.Width(70));
+                        GUILayout.Label("Based", GUILayout.Width(40));
                         EditorGUI.EndDisabledGroup();
                     }
                 }
@@ -144,29 +144,31 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.AnimationEditor
                         EditorGUI.BeginDisabledGroup(true);
                         GUILayout.TextField(basedOnWhat.Substring(BlendshapePrefix.Length), GUILayout.ExpandWidth(true));
                         EditorGUI.EndDisabledGroup();
-                        if (GUILayout.Button("Remove", GUILayout.Width(70)))
+                        if (RedBackground(true, () => GUILayout.Button("Forget", GUILayout.Width(70))))
                         {
-                            _animationEditor.RemoveBasedSubject(blendShapeProperty.Property);
+                            _animationEditor.RemoveBasedSubject(info.Property);
                         }
                     }
                     else
                     {
-                        var isSelected = _basedOnSomethingElseSelection.Contains(blendShapeProperty.Property);
+                        var isSelected = _basedOnSomethingElseSelection.Contains(info.Property);
+                        EditorGUI.BeginDisabledGroup(_animationEditor.IsBased(info.Property));
                         if (GreenBackground(isSelected, () => GUILayout.Button("Select", GUILayout.Width(70))))
                         {
                             if (isSelected)
                             {
-                                _basedOnSomethingElseSelection.Remove(blendShapeProperty.Property);
+                                _basedOnSomethingElseSelection.Remove(info.Property);
                             }
                             else
                             {
-                                _basedOnSomethingElseSelection.Add(blendShapeProperty.Property);
+                                _basedOnSomethingElseSelection.Add(info.Property);
                             }
                         }
+                        EditorGUI.EndDisabledGroup();
                         EditorGUI.BeginDisabledGroup(isSelected || _basedOnSomethingElseSelection.Count == 0);
                         if (GUILayout.Button("Assign"))
                         {
-                            _animationEditor.AssignBased(blendShapeProperty.Property, _basedOnSomethingElseSelection.ToList());
+                            _animationEditor.AssignBased(info.Property, _basedOnSomethingElseSelection.ToList());
                             _basedOnSomethingElseSelection.Clear();
                             _basedOnSomethingElseMode = false;
                         }
