@@ -33,23 +33,18 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.AnimationEditor
 
         private bool _hotspotMode;
         private readonly HashSet<string> _basedOnSomethingElseSelection = new HashSet<string>();
-        private readonly CgeAnimationEditor _animationEditor;
+        private CgeAnimationEditor _animationEditor;
         private bool _basedOnSomethingElseMode;
-
-        public CgePropertyExplorerWindow()
-        {
-            _animationEditor = Cge.AnimationEditor;
-        }
 
         private void OnEnable()
         {
+            _animationEditor = Cge.Get().AnimationEditor;
             titleContent = new GUIContent("CGE Property Explorer");
             Undo.undoRedoPerformed += () =>
             {
                 if (_disabledUndo) return;
                 OnUndoRedoPerformed();
             };
-            OnNewScanRequested();
         }
 
         private void OnDestroy()
@@ -119,6 +114,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.AnimationEditor
                 var basedOnWhat = _animationEditor.GetBased(blendShapeProperty.Property);
                 if (!IsInBasedOnSomethingElseMode())
                 {
+                    EditorGUI.BeginDisabledGroup(!_animationEditor.HasActiveClip());
                     var blendshapeExistsInAnimation = _animationEditor.ActiveHas(blendShapeProperty.Path, blendShapeProperty.Property);
                     EditorGUI.BeginDisabledGroup(blendshapeExistsInAnimation);
                     if (GUILayout.Button("+", GUILayout.ExpandWidth(true)))
@@ -132,10 +128,12 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.AnimationEditor
                         _animationEditor.RemoveBlendShape(blendShapeProperty.Path, blendShapeProperty.Property);
                     }
                     EditorGUI.EndDisabledGroup();
+                    EditorGUI.EndDisabledGroup();
+
                     if (basedOnWhat != null)
                     {
                         EditorGUI.BeginDisabledGroup(true);
-                        GUILayout.Button("∗", GUILayout.Width(20));
+                        GUILayout.Label("Based", GUILayout.Width(70));
                         EditorGUI.EndDisabledGroup();
                     }
                 }

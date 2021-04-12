@@ -35,25 +35,25 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
     public class CgeEditorWindow : EditorWindow
     {
-        private readonly CgeLayoutCommon _common;
-        private readonly CgeEditorEffector _editorEffector;
-        private readonly CgeLayoutPreventEyesBlinking _layoutPreventEyesBlinking;
-        private readonly CgeLayoutMakeLipsyncMovementsSubtle _layoutMakeLipsyncMovementsSubtle;
-        private readonly CgeLayoutFaceExpressionCombiner _layoutFaceExpressionCombiner;
-        private readonly CgeLayoutOtherOptions _layoutOtherOptions;
-        private readonly CgeLayoutSetFaceExpressions _layoutSetFaceExpressions;
-        private readonly CgeLayoutManipulateTrees _layoutManipulateTrees;
+        private CgeLayoutCommon _common;
+        private CgeEditorEffector _editorEffector;
+        private CgeLayoutPreventEyesBlinking _layoutPreventEyesBlinking;
+        private CgeLayoutMakeLipsyncMovementsSubtle _layoutMakeLipsyncMovementsSubtle;
+        private CgeLayoutFaceExpressionCombiner _layoutFaceExpressionCombiner;
+        private CgeLayoutOtherOptions _layoutOtherOptions;
+        private CgeLayoutSetFaceExpressions _layoutSetFaceExpressions;
+        private CgeLayoutManipulateTrees _layoutManipulateTrees;
 
         private Vector2 _scrollPos;
         private Texture _helpIcon16;
-        public CgeWindowHandler WindowHandler { get; }
+        public CgeWindowHandler WindowHandler { get; private set; }
 
-        public CgeEditorWindow()
+        private void Awake()
         {
             _editorEffector = new CgeEditorEffector(new CgeEditorState());
             var blendTreeEffector = new CgeBlendTreeEffector();
-            var memoization = Cge.Memoization;
-            var renderingCommands = Cge.RenderingCommands;
+            var memoization = Cge.Get().Memoization;
+            var renderingCommands = Cge.Get().RenderingCommands;
             var activityPreviewQueryAggregator = new CgeActivityPreviewQueryAggregator(memoization, _editorEffector, blendTreeEffector, renderingCommands);
             var cgeMemoryQuery = new CgeMemoryQuery(memoization);
             _common = new CgeLayoutCommon(Repaint, _editorEffector, activityPreviewQueryAggregator, cgeMemoryQuery);
@@ -66,10 +66,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             _layoutManipulateTrees = new CgeLayoutManipulateTrees(_common, _editorEffector, blendTreeEffector);
 
             WindowHandler = new CgeWindowHandler(this, _editorEffector);
-        }
 
-        private void OnEnable()
-        {
             _common.GuiInit();
             _helpIcon16 = AssetDatabase.LoadAssetAtPath<Texture>("Assets/Hai/ComboGesture/Icons/help-16.png");
         }

@@ -31,9 +31,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
         private bool _maintain;
         private CgeAnimationEditorMetadata _metadataAsset;
 
-        public CgeAnimationEditor()
+        public CgeAnimationEditor(CgeRenderingCommands renderingCommands)
         {
-            _renderingCommands = Cge.RenderingCommands;
+            _renderingCommands = renderingCommands;
             _renderingCommands.SetQueueEmptiedAction(() =>
             {
                 if (!_maintain) return;
@@ -78,7 +78,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
 
             _currentClip = activeNonNull;
 
-            CgeAnimationWindow2.Obtain().OnNewClipSelected(_currentClip);
+            CgeAnimationEditorWindow.Obtain().OnNewClipSelected(_currentClip);
             CgePropertyExplorerWindow.Obtain().OnNewClipSelected(_currentClip);
 
             GeneratePreviewsFromCurrentClip(_currentClip, DummyNullable());
@@ -115,7 +115,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
                 new List<AnimationPreview> {new AnimationPreview(AnimationUtility.GetCurveBindings(active).Length == 0 ? NothingClip() : active, _activePreview)},
                 preview =>
                 {
-                    CgeAnimationWindow2.Obtain().Repaint();
+                    CgeAnimationEditorWindow.Obtain().Repaint();
                 },
                 previewSetup,
                 CgeRenderingCommands.CgeDummyAutoHide.DoNotHide,
@@ -177,7 +177,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
                         .First(info => info.Preview == preview);
                     EnsureBasedInitialized();
                     CgeRenderingSupport.MutateMultilevelHighlightDifferences(editable.BoundaryTexture, preview.RenderTexture, BasedTexture(editable.Property));
-                    CgeAnimationWindow2.Obtain().Repaint();
+                    CgeAnimationEditorWindow.Obtain().Repaint();
                 },
                 previewSetup,
                 CgeRenderingCommands.CgeDummyAutoHide.DoNotHide
@@ -294,7 +294,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
                             .First(info => info.Preview == preview);
                         EnsureBasedInitialized();
                         CgeRenderingSupport.MutateMultilevelHighlightDifferences(editable.BoundaryTexture, preview.RenderTexture, BasedTexture(editable.Property));
-                        CgeAnimationWindow2.Obtain().Repaint();
+                        CgeAnimationEditorWindow.Obtain().Repaint();
                     },
                     DummyNullable(),
                     CgeRenderingCommands.CgeDummyAutoHide.DoNotHide
@@ -484,6 +484,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
 
         public bool ActiveHas(string path, string property)
         {
+            if (_currentClip == null) return true;
+
             // FIXME: handle animations with value 0 (or equal to skinned mesh)
             return AnimationUtility.GetCurveBindings(_currentClip).Any(binding => binding.propertyName == property && binding.path == path && binding.type == typeof(SkinnedMeshRenderer));
         }
@@ -498,6 +500,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
             {
                 AnimationUtility.SetEditorCurve(_currentClip, binding, null);
             }
+        }
+
+        public bool HasActiveClip()
+        {
+            return _currentClip != null;
         }
     }
 }

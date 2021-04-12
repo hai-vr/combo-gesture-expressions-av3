@@ -15,27 +15,24 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.AnimationEditor
         public Texture2D BoundaryTexture;
     }
 
-    public class CgeAnimationWindow2 : EditorWindow
+    public class CgeAnimationEditorWindow : EditorWindow
     {
         private const int StandardWidth = 300;
         private const int StandardHeight = 200;
         private const int TempBorder = 10;
         private const int HalfWidth = StandardWidth / 2;
         private const int HalfHeight = StandardHeight / 2;
-        private readonly CgeAnimationEditor _animationEditor;
+
+        private CgeAnimationEditor _animationEditor;
 
         private AnimationClip _currentClip;
         private string _currentClipAssetRename;
         private Vector2 _scrollPos;
         private bool _disabledUndo;
 
-        public CgeAnimationWindow2()
-        {
-            _animationEditor = Cge.AnimationEditor;
-        }
-
         private void OnEnable()
         {
+            _animationEditor = Cge.Get().AnimationEditor;
             titleContent = new GUIContent("CGE Animation Editor");
             Undo.undoRedoPerformed += () =>
             {
@@ -126,7 +123,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.AnimationEditor
                 }
 
                 GUILayout.BeginHorizontal();
-                GUILayout.Button("Swap...", GUILayout.ExpandWidth(true));
+                GUILayout.Label("", GUILayout.ExpandWidth(true));
                 if (GUILayout.Button("Delete", GUILayout.Width(StandardWidth / 5)))
                 {
                     _animationEditor.DeleteEditable(index);
@@ -164,9 +161,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.AnimationEditor
             return assetPath.Replace(Path.GetFileName(assetPath), "");
         }
 
-        public static CgeAnimationWindow2 Obtain()
+        public static CgeAnimationEditorWindow Obtain()
         {
-            var editor = GetWindow<CgeAnimationWindow2>(false, null, false);
+            var editor = GetWindow<CgeAnimationEditorWindow>(false, null, false);
             return editor;
         }
 

@@ -2,10 +2,26 @@
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal.Modules
 {
-    public static class Cge
+    public class Cge
     {
-        public static readonly CgeMemoization Memoization = new CgeMemoization();
-        public static readonly CgeRenderingCommands RenderingCommands = new CgeRenderingCommands();
-        public static readonly CgeAnimationEditor AnimationEditor = new CgeAnimationEditor();
+        public readonly CgeMemoization Memoization;
+        public readonly CgeRenderingCommands RenderingCommands;
+        public readonly CgeAnimationEditor AnimationEditor;
+
+        private static Cge _cge;
+        public static Cge Get()
+        {
+            if (_cge != null) return _cge;
+
+            _cge = new Cge();
+            return _cge;
+        }
+
+        private Cge()
+        {
+            Memoization = new CgeMemoization();
+            RenderingCommands = new CgeRenderingCommands();
+            AnimationEditor = new CgeAnimationEditor(RenderingCommands);
+        }
     }
 }
