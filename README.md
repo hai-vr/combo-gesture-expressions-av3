@@ -1,8 +1,18 @@
+This repository hosts two projects:
+
+# Expressions Editor (EE)
+
+### [> Download latest version...](https://github.com/hai-vr/combo-gesture-expressions-av3/releases)
+
+*Expressions Editor* is an Unity Editor tool that facilitates the creation of face expressions animation clips from existing blendshapes. These animation clips are used for face expressions of virtual avatars.
+
+Expressions Editor does not require VRChat SDK to be installed.
+
 # ComboGestureExpressions (CGE) for Avatars 3.0
 
 ### [> Download latest version...](https://github.com/hai-vr/combo-gesture-expressions-av3/releases)
 
-*ComboGestureExpressions* is an Unity Editor tool that lets you attach face expressions to hand gestures and take as much advantage of *Avatars 3.0*'s quality of life features.
+*ComboGestureExpressions* is an Unity Editor tool that lets you attach face expressions to *VRChat* hand gestures and take as much advantage of *Avatars 3.0*'s features. It requires *Expressions Editor* to run.
 
 ![](https://github.com/hai-vr/combo-gesture-expressions-av3/raw/z-res-pictures/Documentation/illustration-1.gif)
 
