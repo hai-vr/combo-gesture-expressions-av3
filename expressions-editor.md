@@ -33,3 +33,5 @@ In order to generate more relevant previews, you need to make this blenshape gen
 - Click *Select* on all the blendshapes of the same category that have incorrect previews.
 - When done selecting, click *Assign* on the blendshape that you want be **based** on. For instance, to fix teeth blendshapes, click *Assign* on a blendshape that has an open mouth with teeth showing.
 - The selected blendshapes now have the word **Based** on them, indicating that the preview only reflects what that blendshape is doing based on something else.
+
+Based blendshapes are stored in the `Assets/Hai/EeMetadata.asset` file.
