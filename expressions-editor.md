@@ -21,3 +21,15 @@ Reset blendshapes are not shown in the EE even if they are present in the animat
 If you want to edit those anyways, you need to add them through the *Property Explorer* window.
 
 Note: If you use *ComboGestureExpressions*, your animations do not need *Reset blendshapes*, as they are automatically generated.
+
+## Based blendshapes
+
+Some blendshapes will have a preview that is either completely gray, or barely changes anything. These blendshapes are likely changing meshes that are not currently visible. For instance, it could be teeth variations such as fangs, tongue variations, tears positions, etc.
+
+In order to generate more relevant previews, you need to make this blenshape generate a preview **based** on another blendshape. To do this:
+
+- In *Property Explorer*, open Other tools.
+- Click *Fix Tooth and oher hidden blendshapes*.
+- Click *Select* on all the blendshapes of the same category that have incorrect previews.
+- When done selecting, click *Assign* on the blendshape that you want be **based** on. For instance, to fix teeth blendshapes, click *Assign* on a blendshape that has an open mouth with teeth showing.
+- The selected blendshapes now have the word **Based** on them, indicating that the preview only reflects what that blendshape is doing based on something else.
