@@ -26,7 +26,7 @@ Note: If you use *ComboGestureExpressions*, your animations do not need *Reset b
 
 Some blendshapes will have a preview that is either completely gray, or barely changes anything. These blendshapes are likely changing meshes that are not currently visible. For instance, it could be teeth variations such as fangs, tongue variations, tears positions, etc.
 
-In order to generate more relevant previews, you need to make this blenshape generate a preview **based** on another blendshape. To do this:
+In order to generate more relevant previews, you need to make this blenshape generate a preview **based** on what another blendshape is animating. To do this:
 
 - In *Property Explorer*, open Other tools.
 - Click *Fix Tooth and oher hidden blendshapes*.
