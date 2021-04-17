@@ -5,6 +5,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 {
     public class CgeLocaleDefaults
     {
+        // 1.4
         internal static string OfficialDocumentationUrlAsPrefix = "https://hai-vr.github.io/combo-gesture-expressions-av3/";
         internal static string CGE_Documentation_URL = OfficialDocumentationUrlAsPrefix;
         internal static string CGE_PermutationsDocumentation_URL = OfficialDocumentationUrlAsPrefix + "#permutations";
@@ -140,5 +141,7 @@ You need one ComboGestureIntegrator per animator layer that depends on it (Gestu
 You usually need to synchronize only once.";
         internal static string CGEI_Synchronize_Animator_layers = @"Synchronize Animator layers";
         internal static string CGEI_Documentation = @"Integrator Documentation";
+        // 1.5
+        internal static string CGEE_EyesAreClosed = "Eyes are closed";
     }
 }

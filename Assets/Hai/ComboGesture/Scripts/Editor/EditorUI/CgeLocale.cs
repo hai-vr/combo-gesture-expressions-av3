@@ -13,7 +13,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         private static string CGE_Documentation_URL => LocalizeOrElse("CGE_Documentation_URL", CgeLocaleDefaults.CGE_Documentation_URL);
         private static string CGE_PermutationsDocumentation_URL => LocalizeOrElse("CGE_PermutationsDocumentation_URL", CgeLocaleDefaults.CGE_PermutationsDocumentation_URL);
         private static string CGE_IntegratorDocumentation_URL => LocalizeOrElse("CGE_IntegratorDocumentation_URL", CgeLocaleDefaults.CGE_IntegratorDocumentation_URL);
-        //
+        // 1.4
         internal static string CGEE_Open_editor => LocalizeOrElse("CGEE_Open_editor", CgeLocaleDefaults.CGEE_Open_editor);
         internal static string CGEE_Additional_editors => LocalizeOrElse("CGEE_Additional_editors", CgeLocaleDefaults.CGEE_Additional_editors);
         internal static string CGEE_All_combos => LocalizeOrElse("CGEE_All_combos", CgeLocaleDefaults.CGEE_All_combos);
@@ -119,6 +119,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         internal static string CGEI_Animator_Controller => LocalizeOrElse("CGEI_Animator_Controller", CgeLocaleDefaults.CGEI_Animator_Controller);
         internal static string CGEI_Info => LocalizeOrElse("CGEI_Info", CgeLocaleDefaults.CGEI_Info);
         internal static string CGEI_Synchronize_Animator_layers => LocalizeOrElse("CGEI_Synchronize_Animator_layers", CgeLocaleDefaults.CGEI_Synchronize_Animator_layers);
+        // 1.5
+        internal static string CGEE_EyesAreClosed => LocalizeOrElse("CGEE_EyesAreClosed", CgeLocaleDefaults.CGEE_EyesAreClosed);
 
         private static string LocalizeOrElse(string key, string defaultCultureLocalization)
         {

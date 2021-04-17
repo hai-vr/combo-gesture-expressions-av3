@@ -58,7 +58,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             EditorGUI.BeginDisabledGroup(true);
             EditorGUILayout.ObjectField(element, typeof(AnimationClip), true);
             EditorGUI.EndDisabledGroup();
-            if (GUILayout.Button(isRegisteredAsBlinking ? CgeLocale.CGEE_Blinking : ""))
+            if (GUILayout.Button(isRegisteredAsBlinking ? CgeLocale.CGEE_EyesAreClosed : ""))
             {
                 if (isRegisteredAsBlinking)
                 {
