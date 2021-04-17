@@ -216,7 +216,30 @@ namespace Hai.ExpressionsEditor.Scripts.Editor.Internal
 #endif
 
             avatarCopyGo.GetComponent<Animator>().runtimeAnimatorController = null;
+
+            MutateWorkaroundSkinnedMeshesEmptyArrayAnimationModeSamplingBug(avatarCopyGo);
+
             return avatarCopyGo;
+        }
+
+        private static void MutateWorkaroundSkinnedMeshesEmptyArrayAnimationModeSamplingBug(GameObject avatarCopyGo)
+        {
+            // https://github.com/hai-vr/combo-gesture-expressions-av3/issues/253
+            // SMRs that have blendshapes which have not been modified will cause issues when sampling animations for the first time,
+            // causing the dummy to be permanently mangled by having unexpected blend shape values on subsequent executions.
+            // The workaround is to force-set the blendshape values
+            var allSmrsHavingBlendshapes = avatarCopyGo.transform.GetComponentsInChildren<SkinnedMeshRenderer>()
+                .Where(renderer => renderer.sharedMesh != null)
+                .Where(renderer => renderer.sharedMesh.blendShapeCount > 0)
+                .ToList();
+            foreach (var smr in allSmrsHavingBlendshapes)
+            {
+                var blendShapeCount = smr.sharedMesh.blendShapeCount;
+                for (var index = 0; index < blendShapeCount; index++)
+                {
+                    smr.SetBlendShapeWeight(index, smr.GetBlendShapeWeight(index));
+                }
+            }
         }
     }
 }
