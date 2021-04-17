@@ -1,4 +1,8 @@
-*ExpressionsEditor* does not require any SDK of any platform to be installed. In particular, VRChat is not required for the standalone version of *ExpressionsEditor* to run; it can be used along with other applications, social platforms, or your own games and applications.
+# ExpressionsEditor
+
+*ExpressionsEditor* an animation editor that lets you create face expressions with the help of previews.
+
+It does not require any SDK of any platform to be installed. In particular, VRChat is not required for the standalone version of *ExpressionsEditor* to run; it can be used along with other applications, social platforms, or your own games and applications.
 
 ## Opening the editor
 
@@ -55,3 +59,13 @@ Based blendshapes are stored in the `Assets/Hai/EeMetadata.asset` file.
 ## Other animation options
 
 If you need to edit the animation by hand, you can click <span class="hai-btn">Select animator to edit animation</span>. This will select the preview dummy which has an automatically generated animator controller, so that you can hit the 🔴 record button on the Unity's usual animation editor.
+
+## Installing without VRChat SDK
+
+In order to install without VRChat SDK, download *ComboGestureExpressions*. When installing the `.unitypackage` file, uncheck the `Hai/ComboGesture` folder, so that only `Hai/ExpressionsEditor` folder is installed.
+
+When not using VRChat SDK, the avatar is detected by finding the last humanoid animator in the hierarchy that has blendshapes.
+
+---
+
+- [Back to main page](index.md)
