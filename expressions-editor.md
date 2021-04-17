@@ -58,6 +58,14 @@ In order to generate more relevant previews, you need to make this blenshape gen
 
 Based blendshapes are stored in the `Assets/Hai/EeMetadata.asset` file.
 
+## Cameras
+
+When the dummy is generated, three cameras are generated inside the dummy in order to preview the avatar with different angles.
+
+You are free to change the position of these cameras within the hierarchy of the dummy.
+
+If you need more than three cameras, you can edit the dummy configuration.
+
 ## Other animation options
 
 If you need to edit the animation by hand, you can click <span class="hai-btn">Select animator to edit animation</span>. This will select the preview dummy which has an automatically generated animator controller, so that you can hit the 🔴 record button on the Unity's usual animation editor.
