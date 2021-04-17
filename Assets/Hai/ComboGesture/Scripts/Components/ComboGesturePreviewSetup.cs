@@ -14,7 +14,7 @@ namespace Hai.ComboGesture.Scripts.Components
 
         public override bool IsValid()
         {
-            return camera != null && previewDummy != null && avatarDescriptor != null;
+            return false;
         }
 
         public override EePreviewAvatar AsEePreviewAvatar()
