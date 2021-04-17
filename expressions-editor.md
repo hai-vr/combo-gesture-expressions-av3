@@ -68,7 +68,7 @@ If you need more than three cameras, you can edit the dummy configuration.
 
 ## Other animation options
 
-If you need to edit the animation by hand, you can click <span class="hai-btn">Select animator to edit animation</span>. This will select the preview dummy which has an automatically generated animator controller, so that you can hit the 🔴 record button on the Unity's usual animation editor.
+If you need to edit the animation by hand, you can click <span class="hai-btn">Select animator to edit animation</span> button. This will select the preview dummy which has an automatically generated animator controller, so that you can hit the 🔴 record button on Unity's usual animation editor.
 
 ## Installing without VRChat SDK
 
