@@ -36,7 +36,7 @@ You can then click the <span class="hai-btn">+</span> under a preview to add the
 
 ## What are Reset blendshapes?
 
-Depending on the platform you're working on, the animations may need to reset the unused blendshape values to the default values in order to prevent conflicts between animations. They are referred to as *Reset blendshapes* in EE.
+Depending on the platform you're working on, the animations may need to **reset** the unused blendshape values to the default values in order to prevent conflicts between animations. They are referred to as *Reset blendshapes* in EE.
 
 Reset blendshapes are not shown in the EE even if they are present in the animation.
 
