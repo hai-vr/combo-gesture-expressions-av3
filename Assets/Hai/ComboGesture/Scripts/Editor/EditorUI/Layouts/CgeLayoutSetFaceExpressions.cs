@@ -114,6 +114,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                 case 0:
                     BeginPermutationLayoutUsing(position);
                     LayoutPermutationMatrixProjection(true);
+                    CgeLayoutCommon.EndLayout();
                     break;
                 case 2:
                     LayoutAllPermutationTogglePage();
@@ -122,9 +123,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                 default:
                     BeginPermutationLayoutUsing(position);
                     LayoutPermutationMatrixProjection();
+                    CgeLayoutCommon.EndLayout();
                     break;
             }
-            CgeLayoutCommon.EndLayout();
         }
 
         private void BeginLayoutUsing(int totalHeight, Rect position)
