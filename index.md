@@ -51,7 +51,7 @@ Afterwards, you will be able to click <span class="hai-btn">Generate preview</sp
 
 *(All illustrations in this documentation use [Saneko avatar (さねこ) by ひゅうがなつ](https://booth.pm/en/items/2322146))*
 
-# Create face expressions
+# Edit or create animations
 
 <iframe src="https://streamable.com/e/8ysn22?loop=0" width="816" height="512" frameborder="0" allowfullscreen></iframe>
 
