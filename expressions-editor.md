@@ -4,6 +4,8 @@
 
 It does not require any SDK of any platform to be installed. In particular, VRChat is not required for the standalone version of *ExpressionsEditor* to run; it can be used along with other applications, social platforms, or your own games and applications.
 
+<iframe src="https://streamable.com/e/8ysn22?loop=0" width="816" height="512" frameborder="0" allowfullscreen></iframe>
+
 ## Opening the editor
 
 On the Unity Editor window menu at the top, click <span class="hai-btn">Window | Haï | EE Animation Editor</span>.
