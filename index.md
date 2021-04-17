@@ -1,5 +1,7 @@
 *ComboGestureExpressions* is an Unity Editor tool that lets you attach face expressions to hand gestures and take as much advantage of *Avatars 3.0*'s features.
 
+It also includes *ExpressionsEditor*, an animation editor that lets you create face expressions with the help of previews.
+
 # [> Download latest version...](https://github.com/hai-vr/combo-gesture-expressions-av3/releases)
 
 - *([Download on github.com](https://github.com/hai-vr/combo-gesture-expressions-av3/releases))*
@@ -7,7 +9,7 @@
 
 <iframe src="https://streamable.com/e/t19nkm?loop=0" width="408" height="256" frameborder="0" allowfullscreen></iframe> <iframe src="https://streamable.com/e/bg1uoj?loop=0" width="408" height="256" frameborder="0" allowfullscreen></iframe>
 
-(**Full introduction video to be done**)
+<iframe src="https://streamable.com/e/8ysn22?loop=0" width="408" height="256" frameborder="0" allowfullscreen></iframe>
 
 A common issue with classic avatars are face expressions that conflict when both hands are combined.
 For instance, if a face expression closes the eyes on the left hand, but lowers the eyelids on the other hand, the face will look wrong.
@@ -48,6 +50,16 @@ Afterwards, you will be able to click <span class="hai-btn">Generate preview</sp
 </div>
 
 *(All illustrations in this documentation use [Saneko avatar (さねこ) by ひゅうがなつ](https://booth.pm/en/items/2322146))*
+
+# Create face expressions
+
+<iframe src="https://streamable.com/e/8ysn22?loop=0" width="816" height="512" frameborder="0" allowfullscreen></iframe>
+
+A tool is included to create and edit face expressions quickly with the help of previews. It is accessible by clicking <span class="hai-btn">ExpressionsEditor</span> on the top right, or on the Unity Editor window menu at the top, click <span class="hai-btn">Window | Haï | EE Animation Editor</span>.
+
+You can now select an animation file to preview it, and click the <span class="hai-btn">+</span> and the <span class="hai-btn">Generate previews</span> button to quickly view all the blendshapes of the avatar.
+
+For more information, head over to the [ExpressionsEditor documentation](expressions-editor.md).
 
 # Combining hands
 
