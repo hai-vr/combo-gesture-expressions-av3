@@ -34,7 +34,7 @@ Then click <span class="hai-btn">Generate previews</span>.
 
 You can then click the <span class="hai-btn">+</span> under a preview to add the blendshape to the current animation.
 
-## Reset blendshapes
+## What are Reset blendshapes?
 
 Depending on the platform you're working on, the animations may need to reset the unused blendshape values to the default values in order to prevent conflicts between animations. They are referred to as *Reset blendshapes* in EE.
 
@@ -44,7 +44,7 @@ If you want to edit those anyways, you need to add them through the *Property Ex
 
 Note: If you use *ComboGestureExpressions*, your animations do not need *Reset blendshapes*, as they are automatically generated.
 
-## Based blendshapes
+## What are Based blendshapes?
 
 Some blendshapes will have a preview that is either completely gray, or barely changes anything. These blendshapes are likely changing meshes that are not currently visible. For instance, it could be teeth variations such as fangs, tongue variations, tears positions, etc.
 
