@@ -50,6 +50,7 @@ namespace Hai.ComboGesture.Scripts.Components
         public AnimationClip anim11_R;
 
         public bool enablePermutations;
+        public CgeOneHandMode oneHandMode;
         public Motion anim10;
         public Motion anim20;
         public Motion anim21;
@@ -98,6 +99,14 @@ namespace Hai.ComboGesture.Scripts.Components
         public enum LipsyncLimitation
         {
             WideOpenMouth
+        }
+
+        [System.Serializable]
+        public enum CgeOneHandMode
+        {
+            Disabled,
+            LeftHandOnly,
+            RightHandOnly,
         }
 
         public Motion[] AllMotions()

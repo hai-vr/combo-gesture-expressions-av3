@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors;
 using Hai.ExpressionsEditor.Scripts.Editor.EditorUI.EditorWindows;
 using UnityEditor;
@@ -29,7 +30,11 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
 
         public void Layout(Rect position)
         {
-            if (_editorEffector.GetActivity().enablePermutations)
+            if (_editorEffector.GetActivity().oneHandMode != ComboGestureActivity.CgeOneHandMode.Disabled)
+            {
+                LayoutOneHandEditor(position);
+            }
+            else if (_editorEffector.GetActivity().enablePermutations)
             {
                 LayoutPermutationEditor(position);
             }
@@ -37,6 +42,31 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             {
                 LayoutActivityEditor(position);
             }
+        }
+
+        private void LayoutOneHandEditor(Rect position)
+        {
+            BeginLayoutUsing(CgeLayoutCommon.GuiSquareHeight * 4, position);
+            LayoutOneHandMode();
+            CgeLayoutCommon.EndLayout();
+        }
+
+        private void LayoutOneHandMode()
+        {
+            LayoutAllOneHandModePage();
+
+            for (var side = 0; side < 8; side++)
+            {
+                // if (side == 1) continue;
+
+                GUILayout.BeginArea(RectAt(side, 1));
+                DrawInner("anim0" + side);
+                GUILayout.EndArea();
+            }
+
+            GUILayout.BeginArea(RectAt(0, 2));
+            DrawTransitionEdit();
+            GUILayout.EndArea();
         }
 
         private void LayoutActivityEditor(Rect position)
@@ -60,6 +90,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                     break;
                 case 4:
                     LayoutAllPermutationTogglePage();
+                    break;
+                case 5:
+                    LayoutAllOneHandModePage();
                     break;
                 default:
                     BeginLayoutUsing(CgeLayoutCommon.GuiSquareHeight * 8, position);
@@ -105,6 +138,41 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             GUILayout.EndVertical();
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
+        }
+
+        private void LayoutAllOneHandModePage()
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+            GUILayout.BeginVertical(GUILayout.Width(800));
+            GUILayout.Label("<b>" + CgeLocale.CGEE_OneHandMode + "</b>", _common.LargeFont);
+            GUILayout.Label(CgeLocale.CGEE_OneHandModeIntro);
+
+            GUILayout.Space(15);
+            DrawOneHandModeSwitcher();
+
+            GUILayout.EndVertical();
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
+        }
+
+        private void DrawOneHandModeSwitcher()
+        {
+            var previousValue = _editorEffector.SpOneHandMode().intValue;
+            EditorGUILayout.PropertyField(_editorEffector.SpOneHandMode(), GUILayout.Width(800));
+            var newValue = _editorEffector.SpOneHandMode().intValue;
+            if (previousValue != newValue)
+            {
+                if (previousValue == 0 && newValue != 0)
+                {
+                    _editorEffector.SpEditorTool().intValue = 0;
+                }
+
+                if (previousValue != 0 && newValue == 0)
+                {
+                    _editorEffector.SpEditorTool().intValue = 5;
+                }
+            }
         }
 
         private void LayoutPermutationEditor(Rect position)

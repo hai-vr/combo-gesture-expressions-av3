@@ -105,5 +105,7 @@
   "CGEI_Info": "ComboGestureIntegrator は、Combo Gesture Expressions のシステムを使用しない場合でも、 Weight 補正レイヤーを Animator Controller に統合するためのモジュールです。\r\n\r\n同期した後、Normalized Time またはブレンドツリーのパラメーターを手動で編集する必要があります。 \r\n- GestureLeftWeight を _Hai_GestureLWSmoothing に置換します。\r\n\r\n 置換するには、それに依存するAnimator レイヤー ( Gesture, FX...) に 1 つの ComboGestureIntegrator を使用する必要があります。通常、同期する必要があるのは 1 回のみです。",
   "CGEI_Synchronize_Animator_layers": "Animator レイヤーを同期する",
   "CGEI_Documentation": "Integrator のドキュメント",
-  "CGEE_EyesAreClosed": "両目が閉じている"
+  "CGEE_EyesAreClosed": "両目が閉じている",
+  "CGEE_OneHandMode" : "ワンハンドモード",
+  "CGEE_OneHandModeIntro" : "ワンハンドモードでは、コンボは一切使用しません。片方の手だけを使い、もう片方の手は何も操作しません。\nこれは連続入力モードの機能を非常に簡略化したものです。"
 }

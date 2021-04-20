@@ -97,6 +97,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
         public SerializedProperty SpEditorArbitraryAnimations() => _state.SerializedObject.FindProperty("editorArbitraryAnimations");
         public SerializedProperty SpPreviewSetup() => _state.SerializedObject.FindProperty("previewSetup");
         public SerializedProperty SpEnablePermutations() => _state.SerializedObject.FindProperty("enablePermutations");
+        public SerializedProperty SpOneHandMode() => _state.SerializedObject.FindProperty("oneHandMode");
 
         public void NowEditingActivity(ComboGestureActivity selectedActivity)
         {

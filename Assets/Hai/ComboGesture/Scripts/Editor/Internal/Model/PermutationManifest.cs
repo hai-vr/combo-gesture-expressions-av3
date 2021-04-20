@@ -130,6 +130,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
         Puppet,
         PuppetToAnalog,
         PuppetToDualAnalog,
+        DualAnalogOneHanded,
+        PuppetToDualAnalogOneHanded
     }
 
     class SingleAnimatedBehavior : IAnimatedBehavior
@@ -687,6 +689,182 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
         }
 
         public static bool operator !=(Permutation left, Permutation right)
+        {
+            return !Equals(left, right);
+        }
+    }
+
+    class DualAnalogOneHandedAnimatedBehavior : IAnimatedBehavior
+    {
+        public QualifiedAnimation Resting { get; }
+        public QualifiedAnimation Squeezing { get; }
+        public bool IsLeftActive { get; }
+
+        private DualAnalogOneHandedAnimatedBehavior(QualifiedAnimation resting, QualifiedAnimation squeezing, bool isLeftActive)
+        {
+            if (resting == squeezing)
+            {
+                throw new ArgumentException("SidedAnalogAnimatedBehavior must not have both identical qualified animations");
+            }
+
+            Resting = resting;
+            Squeezing = squeezing;
+            IsLeftActive = isLeftActive;
+        }
+
+        AnimatedBehaviorNature IAnimatedBehavior.Nature()
+        {
+            return AnimatedBehaviorNature.DualAnalogOneHanded;
+        }
+
+        public IEnumerable<QualifiedAnimation> QualifiedAnimations()
+        {
+            return new[] {Resting, Squeezing};
+        }
+
+        public IEnumerable<BlendTree> AllBlendTreesFoundRecursively()
+        {
+            return new List<BlendTree>();
+        }
+
+        public IAnimatedBehavior Remapping(Dictionary<QualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)
+        {
+            return Maybe(
+                SingleAnimatedBehavior.Remap(remapping, Resting),
+                SingleAnimatedBehavior.Remap(remapping, Squeezing),
+                IsLeftActive
+            );
+        }
+
+        public static DualAnalogOneHandedAnimatedBehavior Of(QualifiedAnimation resting, QualifiedAnimation squeezing, bool isLeftActive)
+        {
+            return new DualAnalogOneHandedAnimatedBehavior(resting, squeezing, isLeftActive);
+        }
+
+        public static IAnimatedBehavior Maybe(QualifiedAnimation resting, QualifiedAnimation squeezing, bool isLeftActive)
+        {
+            if (resting == squeezing)
+            {
+                return SingleAnimatedBehavior.Of(squeezing);
+            }
+
+            return DualAnalogOneHandedAnimatedBehavior.Of(resting, squeezing, isLeftActive);
+        }
+
+        protected bool Equals(DualAnalogOneHandedAnimatedBehavior other)
+        {
+            return Resting.Equals(other.Resting) && Squeezing.Equals(other.Squeezing) && IsLeftActive == other.IsLeftActive;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((DualAnalogOneHandedAnimatedBehavior) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = Resting.GetHashCode();
+                hashCode = (hashCode * 397) ^ Squeezing.GetHashCode();
+                hashCode = (hashCode * 397) ^ IsLeftActive.GetHashCode();
+                return hashCode;
+            }
+        }
+
+        public static bool operator ==(DualAnalogOneHandedAnimatedBehavior left, DualAnalogOneHandedAnimatedBehavior right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(DualAnalogOneHandedAnimatedBehavior left, DualAnalogOneHandedAnimatedBehavior right)
+        {
+            return !Equals(left, right);
+        }
+    }
+
+    class PuppetToDualAnalogOneHandedAnimatedBehavior : IAnimatedBehavior
+    {
+        public BlendTree Resting { get; }
+        public QualifiedAnimation Squeezing { get; }
+        public List<QualifiedAnimation> QualificationsOfTree { get; }
+        public bool IsLeftActive { get; }
+
+        private PuppetToDualAnalogOneHandedAnimatedBehavior(BlendTree resting, QualifiedAnimation squeezing, List<QualifiedAnimation> qualificationsOfTreeOfTree, bool isLeftActive)
+        {
+            Resting = resting;
+            Squeezing = squeezing;
+            QualificationsOfTree = qualificationsOfTreeOfTree;
+            IsLeftActive = isLeftActive;
+        }
+
+        public AnimatedBehaviorNature Nature()
+        {
+            return AnimatedBehaviorNature.PuppetToDualAnalogOneHanded;
+        }
+
+        public IEnumerable<QualifiedAnimation> QualifiedAnimations()
+        {
+            return new [] {Squeezing}.Concat(QualificationsOfTree).ToList();
+        }
+
+        public IEnumerable<BlendTree> AllBlendTreesFoundRecursively()
+        {
+            return PuppetManifest.FindAllBlendTreesIncludingItself(Resting);
+        }
+
+        public IAnimatedBehavior Remapping(Dictionary<QualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)
+        {
+            var newQualificationsOfTree = QualificationsOfTree
+                .Select(qualification => remapping.ContainsKey(qualification)
+                    ? qualification.NewInstanceWithClip(remapping[qualification])
+                    : qualification)
+                .ToList();
+            var newSqueezing = remapping.ContainsKey(Squeezing) ? Squeezing.NewInstanceWithClip(remapping[Squeezing]) : Squeezing;
+            var newBlendRemapping = blendRemapping.ContainsKey(Resting) ? blendRemapping[Resting] : Resting;
+
+            return Of(newBlendRemapping, newSqueezing, newQualificationsOfTree, IsLeftActive);
+        }
+
+        public static PuppetToDualAnalogOneHandedAnimatedBehavior Of(BlendTree resting, QualifiedAnimation squeezing, List<QualifiedAnimation> qualificationsOfTree, bool isLeftActive)
+        {
+            return new PuppetToDualAnalogOneHandedAnimatedBehavior(resting, squeezing, qualificationsOfTree, isLeftActive);
+        }
+
+        protected bool Equals(PuppetToDualAnalogOneHandedAnimatedBehavior other)
+        {
+            return Equals(Resting, other.Resting) && Squeezing.Equals(other.Squeezing) && Equals(QualificationsOfTree, other.QualificationsOfTree) && IsLeftActive == other.IsLeftActive;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((PuppetToDualAnalogOneHandedAnimatedBehavior) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = (Resting != null ? Resting.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ Squeezing.GetHashCode();
+                hashCode = (hashCode * 397) ^ (QualificationsOfTree != null ? QualificationsOfTree.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ IsLeftActive.GetHashCode();
+                return hashCode;
+            }
+        }
+
+        public static bool operator ==(PuppetToDualAnalogOneHandedAnimatedBehavior left, PuppetToDualAnalogOneHandedAnimatedBehavior right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(PuppetToDualAnalogOneHandedAnimatedBehavior left, PuppetToDualAnalogOneHandedAnimatedBehavior right)
         {
             return !Equals(left, right);
         }

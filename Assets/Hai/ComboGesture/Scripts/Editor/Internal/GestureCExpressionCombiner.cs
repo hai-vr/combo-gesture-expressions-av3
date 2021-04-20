@@ -58,8 +58,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                         ForAnalog(transitionConditions, pta.Squeezing.Clip, pta.Resting);
                         break;
                     case AnimatedBehaviorNature.DualAnalog:
-                        DualAnalogAnimatedBehavior intermediateAnimationGroup2 = (DualAnalogAnimatedBehavior)behavior;
-                        ForDualAnalog(transitionConditions, intermediateAnimationGroup2.BothSqueezing.Clip, intermediateAnimationGroup2.Resting.Clip, intermediateAnimationGroup2.LeftSqueezing.Clip, intermediateAnimationGroup2.RightSqueezing.Clip);
+                        DualAnalogAnimatedBehavior da = (DualAnalogAnimatedBehavior)behavior;
+                        ForDualAnalog(transitionConditions, da.BothSqueezing.Clip, da.Resting.Clip, da.LeftSqueezing.Clip, da.RightSqueezing.Clip);
                         break;
                     case AnimatedBehaviorNature.PuppetToDualAnalog:
                         PuppetToDualAnalogAnimatedBehavior ptda = (PuppetToDualAnalogAnimatedBehavior)behavior;
@@ -67,6 +67,14 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                         break;
                     case AnimatedBehaviorNature.Puppet:
                         ForPuppet(transitionConditions, (PuppetAnimatedBehavior)behavior);
+                        break;
+                    case AnimatedBehaviorNature.DualAnalogOneHanded:
+                        DualAnalogOneHandedAnimatedBehavior analogOneHanded = (DualAnalogOneHandedAnimatedBehavior)behavior;
+                        ForDualAnalogOneHanded(transitionConditions, analogOneHanded.Squeezing.Clip, analogOneHanded.Resting.Clip, analogOneHanded.IsLeftActive);
+                        break;
+                    case AnimatedBehaviorNature.PuppetToDualAnalogOneHanded:
+                        PuppetToDualAnalogOneHandedAnimatedBehavior ptaoh = (PuppetToDualAnalogOneHandedAnimatedBehavior)behavior;
+                        ForDualAnalogOneHanded(transitionConditions, ptaoh.Squeezing.Clip, ptaoh.Resting, ptaoh.IsLeftActive);
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -106,12 +114,33 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 var nullableTransition = GetNullableStageValue(transitionCondition);
                 if (blendState == null)
                 {
-                    blendState = CreateSidedBlendState(squeezing,
-                        ToPotentialGridPosition(transitionCondition), resting,
-                        Vector3.zero, transitionCondition.Permutation);
+                    Vector3 offset = ToPotentialGridPosition(transitionCondition);
+
+                    var isLeftSide = transitionCondition.Permutation.Left == HandPose.H1;
+                    blendState = CreateSidedBlendState(squeezing, offset, resting, Vector3.zero, isLeftSide);
                 }
 
                 CreateTransition(nullableTransition, transitionCondition.Permutation, blendState, transitionCondition.TransitionDuration);
+            }
+        }
+
+        private void ForDualAnalogOneHanded(List<TransitionCondition> transitionConditions, Motion squeezing, Motion resting, bool isLeftActive)
+        {
+            AnimatorState blendState = null;
+            foreach (var transitionCondition in transitionConditions)
+            {
+                var nullableTransition = GetNullableStageValue(transitionCondition);
+                if (blendState == null)
+                {
+                    blendState = CreateSidedBlendState(squeezing,
+                        ToPotentialGridPosition(transitionCondition),
+                        resting,
+                        Vector3.zero,
+                        isLeftActive);
+                }
+
+                CreateTransition(nullableTransition, transitionCondition.Permutation, blendState,
+                    transitionCondition.TransitionDuration);
             }
         }
 
@@ -177,11 +206,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
         }
 
-        private AnimatorState CreateSidedBlendState(Motion squeezing, Vector3 offset,
-            Motion resting, Vector3 gridPosition, Permutation transitionConditionPermutation)
+        private AnimatorState CreateSidedBlendState(Motion squeezing, Vector3 offset, Motion resting, Vector3 gridPosition, bool isLeftSide)
         {
-            var isLeftSide = transitionConditionPermutation.Left == HandPose.H1;
-
             var clipName = UnshimName(squeezing.name) + " " + (isLeftSide ? "BlendLeft" : "BlendRight") + " " + UnshimName(resting.name);
             var newState = _machine.AddState(SanitizeName(clipName), offset + gridPosition);
             newState.motion = CreateBlendTree(

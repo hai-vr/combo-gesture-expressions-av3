@@ -143,5 +143,9 @@ You usually need to synchronize only once.";
         internal static string CGEI_Documentation = @"Integrator Documentation";
         // 1.5
         internal static string CGEE_EyesAreClosed = "Eyes are closed";
+        // 1.5.2
+        internal static string CGEE_OneHandMode = "One Hand Mode";
+        internal static string CGEE_OneHandModeIntro = @"When using One Hand Mode, you will not use combos at all. Only one hand will be used, and the other hand will control nothing.
+This is a very simplified version of the Permutations feature.";
     }
 }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Hai.ExpressionsEditor.Scripts.Editor.Internal;
+using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 {
@@ -121,6 +122,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         internal static string CGEI_Synchronize_Animator_layers => LocalizeOrElse("CGEI_Synchronize_Animator_layers", CgeLocaleDefaults.CGEI_Synchronize_Animator_layers);
         // 1.5
         internal static string CGEE_EyesAreClosed => LocalizeOrElse("CGEE_EyesAreClosed", CgeLocaleDefaults.CGEE_EyesAreClosed);
+        // 1.5.2
+        internal static string CGEE_OneHandMode => LocalizeOrElse("CGEE_OneHandMode", CgeLocaleDefaults.CGEE_OneHandMode);
+        internal static string CGEE_OneHandModeIntro => LocalizeOrElse("CGEE_OneHandModeIntro", CgeLocaleDefaults.CGEE_OneHandModeIntro);
 
         private static string LocalizeOrElse(string key, string defaultCultureLocalization)
         {

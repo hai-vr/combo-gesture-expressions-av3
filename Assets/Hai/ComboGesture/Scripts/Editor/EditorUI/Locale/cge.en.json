@@ -105,5 +105,7 @@
   "CGEI_Info": "ComboGestureIntegrator is a module that lets you integrate the Weight Correction layers onto your Animator controller even if you don't use ComboGesture face expression system.\r\n\r\nAfter synchronizing, you will need to edit your Normalized Time or Blend Tree parameters manually:\r\n- Replace GestureLeftWeight with _Hai_GestureLWSmoothing\r\n- Replace GestureRightWeight with _Hai_GestureRWSmoothing\r\n\r\nYou need one ComboGestureIntegrator per animator layer that depends on it (Gesture, FX...).\r\nYou usually need to synchronize only once.",
   "CGEI_Synchronize_Animator_layers": "Synchronize Animator layers",
   "CGEI_Documentation": "Integrator Documentation",
-  "CGEE_EyesAreClosed": "Eyes are closed"
+  "CGEE_EyesAreClosed": "Eyes are closed",
+  "CGEE_OneHandMode" : "One Hand Mode",
+  "CGEE_OneHandModeIntro" : "When using One Hand Mode, you will not use combos at all. Only one hand will be used, and the other hand will control nothing.\r\nThis is a very simplified version of the Permutations feature."
 }

@@ -80,6 +80,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public SerializedProperty anim75;
         public SerializedProperty anim76;
         public SerializedProperty enablePermutations;
+        public SerializedProperty oneHandMode;
 
         public SerializedProperty transitionDuration;
 
@@ -161,6 +162,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             anim75 = serializedObject.FindProperty("anim75");
             anim76 = serializedObject.FindProperty("anim76");
             enablePermutations = serializedObject.FindProperty("enablePermutations");
+            oneHandMode = serializedObject.FindProperty("oneHandMode");
 
             // reference: https://blog.terresquall.com/2020/03/creating-reorderable-lists-in-the-unity-inspector/
             blinkingReorderableList = new ReorderableList(
@@ -331,6 +333,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 WhenFoldoutAll("ThumbsUp");
             }
 
+            EditorGUILayout.PropertyField(oneHandMode, new GUIContent("One hand mode (overrides permutations)"));
             EditorGUILayout.PropertyField(enablePermutations, new GUIContent("Enable permutations"));
             _foldoutPermutations = EditorGUILayout.Foldout(_foldoutPermutations, "Show permutations");
             if (_foldoutPermutations)
