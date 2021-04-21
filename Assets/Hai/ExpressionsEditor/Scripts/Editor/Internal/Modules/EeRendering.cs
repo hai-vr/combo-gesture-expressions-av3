@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Hai.ExpressionsEditor.Scripts.Components;
@@ -401,8 +401,20 @@ namespace Hai.ExpressionsEditor.Scripts.Editor.Internal.Modules
 
         private void SampleClip(EeRenderingSample eeRenderingSample)
         {
+            WorkaroundAnimatedMaterialPropertiesIgnoredOnThirdSampling();
+
             AnimationMode.BeginSampling();
             PoseDummyUsing(eeRenderingSample.Clip);
+            AnimationMode.EndSampling();
+        }
+
+        private static void WorkaroundAnimatedMaterialPropertiesIgnoredOnThirdSampling()
+        {
+            // https://github.com/hai-vr/combo-gesture-expressions-av3/issues/268
+            // When in animation mode, for some reason the 3rd sampling will fail to apply any animated material properties
+            // Waiting a for a certain number of frames will not help.
+            // The workaround is to sample nothing in the same frame (why does that work?!)
+            AnimationMode.BeginSampling();
             AnimationMode.EndSampling();
         }
 
