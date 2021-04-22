@@ -188,8 +188,52 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             {"anim76", new MergePair("anim60", "anim70")}
         };
 
-        private static readonly Dictionary<string, MergePair> ParameterToMergePermutations = new Dictionary<string, MergePair>
+        private static readonly Dictionary<string, MergePair> ParameterToMergeDiagonally = new Dictionary<string, MergePair>
         {
+            {"anim12", new MergePair("anim10", "anim02")},
+            {"anim13", new MergePair("anim10", "anim03")},
+            {"anim14", new MergePair("anim10", "anim04")},
+            {"anim15", new MergePair("anim10", "anim05")},
+            {"anim16", new MergePair("anim10", "anim06")},
+            {"anim17", new MergePair("anim10", "anim07")},
+            {"anim23", new MergePair("anim20", "anim03")},
+            {"anim24", new MergePair("anim20", "anim04")},
+            {"anim25", new MergePair("anim20", "anim05")},
+            {"anim26", new MergePair("anim20", "anim06")},
+            {"anim27", new MergePair("anim20", "anim07")},
+            {"anim34", new MergePair("anim30", "anim04")},
+            {"anim35", new MergePair("anim30", "anim05")},
+            {"anim36", new MergePair("anim30", "anim06")},
+            {"anim37", new MergePair("anim30", "anim07")},
+            {"anim45", new MergePair("anim40", "anim05")},
+            {"anim46", new MergePair("anim40", "anim06")},
+            {"anim47", new MergePair("anim40", "anim07")},
+            {"anim56", new MergePair("anim50", "anim06")},
+            {"anim57", new MergePair("anim50", "anim07")},
+            {"anim67", new MergePair("anim60", "anim07")},
+
+            {"anim21", new MergePair("anim20", "anim01")},
+            {"anim31", new MergePair("anim30", "anim01")},
+            {"anim41", new MergePair("anim40", "anim01")},
+            {"anim51", new MergePair("anim50", "anim01")},
+            {"anim61", new MergePair("anim60", "anim01")},
+            {"anim71", new MergePair("anim70", "anim01")},
+            {"anim32", new MergePair("anim30", "anim02")},
+            {"anim42", new MergePair("anim40", "anim02")},
+            {"anim52", new MergePair("anim50", "anim02")},
+            {"anim62", new MergePair("anim60", "anim02")},
+            {"anim72", new MergePair("anim70", "anim02")},
+            {"anim43", new MergePair("anim40", "anim03")},
+            {"anim53", new MergePair("anim50", "anim03")},
+            {"anim63", new MergePair("anim60", "anim03")},
+            {"anim73", new MergePair("anim70", "anim03")},
+            {"anim54", new MergePair("anim50", "anim04")},
+            {"anim64", new MergePair("anim60", "anim04")},
+            {"anim74", new MergePair("anim70", "anim04")},
+            {"anim65", new MergePair("anim60", "anim05")},
+            {"anim75", new MergePair("anim70", "anim05")},
+            {"anim76", new MergePair("anim70", "anim06")},
+
             {"anim11", new MergePair("anim01", "anim10")},
             {"anim22", new MergePair("anim02", "anim20")},
             {"anim33", new MergePair("anim03", "anim30")},
@@ -249,7 +293,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         public bool IsAPropertyThatCanBeCombined(string propertyPath, bool usePermutations = false)
         {
-            return ParameterToMerge.ContainsKey(propertyPath) || usePermutations && ParameterToMergePermutations.ContainsKey(propertyPath);
+            return ParameterToMerge.ContainsKey(propertyPath);
         }
 
         public bool AreCombinationSourcesDefinedAndCompatible(string propertyPath, bool usePermutations = false)
@@ -259,9 +303,26 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 return false;
             }
 
-            var mergePair = !usePermutations
-                ? ParameterToMerge[propertyPath]
-                : (ParameterToMerge.ContainsKey(propertyPath) ? ParameterToMerge[propertyPath] : ParameterToMergePermutations[propertyPath]);
+            var mergePair = ParameterToMerge[propertyPath];
+            var left = _editorEffector.SpProperty(mergePair.Left).objectReferenceValue;
+            var right = _editorEffector.SpProperty(mergePair.Right).objectReferenceValue;
+
+            return left is AnimationClip && right is AnimationClip && left != right;
+        }
+
+        public bool IsAPropertyThatCanBeCombinedDiagonally(string propertyPath, bool usePermutations = false)
+        {
+            return usePermutations && ParameterToMergeDiagonally.ContainsKey(propertyPath);
+        }
+
+        public bool AreDiagonalCombinationSourcesDefinedAndCompatible(string propertyPath, bool usePermutations = false)
+        {
+            if (!IsAPropertyThatCanBeCombinedDiagonally(propertyPath, usePermutations))
+            {
+                return false;
+            }
+
+            var mergePair = ParameterToMergeDiagonally[propertyPath];
             var left = _editorEffector.SpProperty(mergePair.Left).objectReferenceValue;
             var right = _editorEffector.SpProperty(mergePair.Right).objectReferenceValue;
 
@@ -289,7 +350,17 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 throw new ArgumentException();
             }
 
-            return ParameterToMerge.ContainsKey(propertyPath) ? ParameterToMerge[propertyPath] : ParameterToMergePermutations[propertyPath];
+            return ParameterToMerge[propertyPath];
+        }
+
+        public MergePair ProvideDiagonalCombinationPropertySources(string propertyPath, bool usePermutations = false)
+        {
+            if (!IsAPropertyThatCanBeCombinedDiagonally(propertyPath, usePermutations))
+            {
+                throw new ArgumentException();
+            }
+
+            return ParameterToMergeDiagonally[propertyPath];
         }
 
         public bool IsAutoSettable(string propertyPath)

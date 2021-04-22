@@ -457,7 +457,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                 var areSourcesCompatible = _driver.AreCombinationSourcesDefinedAndCompatible(propertyPath, usePermutations);
                 EditorGUI.BeginDisabledGroup(!areSourcesCompatible);
                 GUILayout.BeginArea(rect);
-                if (GUILayout.Button((element != null ? "+" : "+ Combine")))
+                if (ColoredBackground(usePermutations, isLeftHand ? CgeLayoutCommon.LeftSideBg : CgeLayoutCommon.RightSideBg, () => GUILayout.Button((element != null ? "+" : "+ Combine"))))
                 {
                     var merge = _driver.ProvideCombinationPropertySources(propertyPath, usePermutations);
                     OpenMergeWindowFor(merge.Left, merge.Right, propertyPath, usePermutations);
@@ -483,6 +483,24 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                 BeginInvisibleRankPreservingArea();
                 CgeLayoutCommon.InvisibleRankPreservingButton();
                 EndInvisibleRankPreservingArea();
+            }
+
+            if (_driver.IsAPropertyThatCanBeCombinedDiagonally(propertyPath, usePermutations) && !(element is BlendTree))
+            {
+                var rect = !_driver.IsSymmetrical(propertyPath) || element != null
+                    ? new Rect(0, CgeLayoutCommon.PictureHeight - CgeLayoutCommon.SingleLineHeight * 0.5f, CgeLayoutCommon.SingleLineHeight * 2, CgeLayoutCommon.SingleLineHeight * 1.5f)
+                    : new Rect(0, CgeLayoutCommon.PictureHeight - CgeLayoutCommon.SingleLineHeight * 0.5f, 120, CgeLayoutCommon.SingleLineHeight * 1.5f);
+
+                var areSourcesCompatible = _driver.AreDiagonalCombinationSourcesDefinedAndCompatible(propertyPath, usePermutations);
+                EditorGUI.BeginDisabledGroup(!areSourcesCompatible);
+                GUILayout.BeginArea(rect);
+                if (ColoredBackground(!isSymmetrical, !isLeftHand ? CgeLayoutCommon.LeftSideBg : CgeLayoutCommon.RightSideBg, () => GUILayout.Button(!_driver.IsSymmetrical(propertyPath) || element != null ? "⅃" : "⅃ Combine Across")))
+                {
+                    var merge = _driver.ProvideDiagonalCombinationPropertySources(propertyPath, usePermutations);
+                    OpenMergeWindowFor(merge.Left, merge.Right, propertyPath, usePermutations);
+                }
+                GUILayout.EndArea();
+                EditorGUI.EndDisabledGroup();
             }
 
             if (element == null && !_driver.IsAPropertyThatCanBeCombined(propertyPath, usePermutations))
@@ -663,6 +681,20 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
         {
             _editorEffector.SpProperty(pathToClear).objectReferenceValue = null;
             _editorEffector.ApplyModifiedProperties();
+        }
+
+        private static T ColoredBackground<T>(bool isActive, Color bgColor, Func<T> inside)
+        {
+            var col = GUI.color;
+            try
+            {
+                if (isActive) GUI.color = bgColor;
+                return inside();
+            }
+            finally
+            {
+                GUI.color = col;
+            }
         }
     }
 }
