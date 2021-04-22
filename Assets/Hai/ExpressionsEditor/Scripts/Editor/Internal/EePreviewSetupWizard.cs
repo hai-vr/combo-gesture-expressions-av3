@@ -61,7 +61,7 @@ namespace Hai.ExpressionsEditor.Scripts.Editor.Internal
             previewSetup.dummy = avatarCopyGo.GetComponent<Animator>();
             previewSetup.autoHide = false;
             previewSetup.tempCxSmr = FindFirstSmr(avatarCopyGo);
-            previewSetup.optionalOriginalAvatarGeneratedFrom = avatarCopyGo;
+            previewSetup.optionalOriginalAvatarGeneratedFrom = maybeExistingAvatar.gameObject;
 
             return new EeSetup(SetupResult.CreatedNew, previewSetup);
         }
