@@ -265,11 +265,26 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         {
             return _comboLayers
                 .Select((mapper, layerOrdinal) => new ManifestBinding(
-                    _parameterGeneration == ParameterGeneration.VirtualActivity ? mapper.internalVirtualStageValue : mapper.stageValue,
+                    ToParameterGeneration(mapper),
                     SharedLayerUtils.FromMapper(mapper, emptyClip),
                     layerOrdinal
                 ))
                 .ToList();
+        }
+
+        private int ToParameterGeneration(GestureComboStageMapper mapper)
+        {
+            switch (_parameterGeneration)
+            {
+                case ParameterGeneration.VirtualActivity:
+                    return mapper.internalVirtualStageValue;
+                case ParameterGeneration.Unique:
+                    return 0;
+                case ParameterGeneration.UserDefinedActivity:
+                    return mapper.stageValue;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
         private static void ReapAnimator(AnimatorController animatorController)

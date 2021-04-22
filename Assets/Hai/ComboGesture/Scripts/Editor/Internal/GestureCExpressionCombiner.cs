@@ -8,11 +8,6 @@ using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
-    internal enum ComboNature
-    {
-        BlendLeft, BlendRight
-    }
-
     internal class GestureCExpressionCombiner
     {
         private readonly AnimatorController _animatorController;
@@ -47,39 +42,166 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 switch (behavior.Nature())
                 {
                     case AnimatedBehaviorNature.Single:
-                        ForSingle((SingleAnimatedBehavior)behavior, transitionConditions);
+                        var sab = (SingleAnimatedBehavior)behavior;
+                        ForSingle(sab, transitionConditions);
                         break;
                     case AnimatedBehaviorNature.Analog:
-                        AnalogAnimatedBehavior intermediateAnimationGroup1 = (AnalogAnimatedBehavior)behavior;
-                        ForAnalog(transitionConditions, intermediateAnimationGroup1.Squeezing.Clip, intermediateAnimationGroup1.Resting.Clip);
+                        AnalogAnimatedBehavior aab = (AnalogAnimatedBehavior)behavior;
+                        ForAnalog(transitionConditions, aab.Squeezing.Clip, aab.Resting.Clip, aab.HandSide);
                         break;
                     case AnimatedBehaviorNature.PuppetToAnalog:
-                        PuppetToAnalogAnimatedBehavior pta = (PuppetToAnalogAnimatedBehavior)behavior;
-                        ForAnalog(transitionConditions, pta.Squeezing.Clip, pta.Resting);
+                        PuppetToAnalogAnimatedBehavior ptaab = (PuppetToAnalogAnimatedBehavior)behavior;
+                        ForAnalog(transitionConditions, ptaab.Squeezing.Clip, ptaab.Resting, ptaab.HandSide);
                         break;
                     case AnimatedBehaviorNature.DualAnalog:
-                        DualAnalogAnimatedBehavior da = (DualAnalogAnimatedBehavior)behavior;
-                        ForDualAnalog(transitionConditions, da.BothSqueezing.Clip, da.Resting.Clip, da.LeftSqueezing.Clip, da.RightSqueezing.Clip);
+                        DualAnalogAnimatedBehavior daab = (DualAnalogAnimatedBehavior)behavior;
+                        ForDualAnalog(transitionConditions, daab.BothSqueezing.Clip, daab.Resting.Clip, daab.LeftSqueezing.Clip, daab.RightSqueezing.Clip);
                         break;
                     case AnimatedBehaviorNature.PuppetToDualAnalog:
-                        PuppetToDualAnalogAnimatedBehavior ptda = (PuppetToDualAnalogAnimatedBehavior)behavior;
-                        ForDualAnalog(transitionConditions, ptda.BothSqueezing.Clip, ptda.Resting, ptda.LeftSqueezing.Clip, ptda.RightSqueezing.Clip);
+                        PuppetToDualAnalogAnimatedBehavior ptdaab = (PuppetToDualAnalogAnimatedBehavior)behavior;
+                        ForDualAnalog(transitionConditions, ptdaab.BothSqueezing.Clip, ptdaab.Resting, ptdaab.LeftSqueezing.Clip, ptdaab.RightSqueezing.Clip);
                         break;
                     case AnimatedBehaviorNature.Puppet:
-                        ForPuppet(transitionConditions, (PuppetAnimatedBehavior)behavior);
+                        var pab = (PuppetAnimatedBehavior)behavior;
+                        ForPuppet(transitionConditions, pab);
                         break;
-                    case AnimatedBehaviorNature.DualAnalogOneHanded:
-                        DualAnalogOneHandedAnimatedBehavior analogOneHanded = (DualAnalogOneHandedAnimatedBehavior)behavior;
-                        ForDualAnalogOneHanded(transitionConditions, analogOneHanded.Squeezing.Clip, analogOneHanded.Resting.Clip, analogOneHanded.IsLeftActive);
+                    case AnimatedBehaviorNature.SimpleMassiveBlend:
+                        SimpleMassiveBlendAnimatedBehavior smbab = (SimpleMassiveBlendAnimatedBehavior)behavior;
+                        ForSimpleMassiveBlend(transitionConditions, smbab.Zero, smbab.One, smbab.ParameterName);
                         break;
-                    case AnimatedBehaviorNature.PuppetToDualAnalogOneHanded:
-                        PuppetToDualAnalogOneHandedAnimatedBehavior ptaoh = (PuppetToDualAnalogOneHandedAnimatedBehavior)behavior;
-                        ForDualAnalogOneHanded(transitionConditions, ptaoh.Squeezing.Clip, ptaoh.Resting, ptaoh.IsLeftActive);
+                    case AnimatedBehaviorNature.TwoDirectionsMassiveBlend:
+                        TwoDirectionsMassiveBlendAnimatedBehavior tdmb = (TwoDirectionsMassiveBlendAnimatedBehavior)behavior;
+                        ForTwoDirectionsMassiveBlend(transitionConditions, tdmb.Zero, tdmb.One, tdmb.MinusOne, tdmb.ParameterName);
+                        break;
+                    case AnimatedBehaviorNature.ComplexMassiveBlend:
+                        ComplexMassiveBlendAnimatedBehavior cbtmbab = (ComplexMassiveBlendAnimatedBehavior)behavior;
+                        ForComplexMassiveBlend(transitionConditions, cbtmbab.Behaviors, cbtmbab.OriginalBlendTreeTemplate);
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
             }
+        }
+
+        private Motion Derive(IAnimatedBehavior behavior)
+        {
+            switch (behavior.Nature())
+            {
+                case AnimatedBehaviorNature.Single:
+                    return ((SingleAnimatedBehavior)behavior).Posing.Clip;
+                case AnimatedBehaviorNature.Analog:
+                    AnalogAnimatedBehavior aab = (AnalogAnimatedBehavior)behavior;
+                    return CreateBlendTree(
+                        aab.Resting.Clip,
+                        aab.Squeezing.Clip,
+                        aab.HandSide == HandSide.LeftHand
+                            ? LeftParam(_useGestureWeightCorrection, _useSmoothing)
+                            : RightParam(_useGestureWeightCorrection, _useSmoothing),
+                        SanitizeName(UnshimName(aab.Resting.Clip.name) + " MB " + UnshimName((aab.Squeezing.Clip.name))),
+                        _animatorController);
+                case AnimatedBehaviorNature.PuppetToAnalog:
+                    PuppetToAnalogAnimatedBehavior pta = (PuppetToAnalogAnimatedBehavior)behavior;
+                    return CreateBlendTree(
+                        pta.Resting,
+                        pta.Squeezing.Clip,
+                        pta.HandSide == HandSide.LeftHand
+                            ? LeftParam(_useGestureWeightCorrection, _useSmoothing)
+                            : RightParam(_useGestureWeightCorrection, _useSmoothing),
+                        SanitizeName(UnshimName(pta.Resting.name) + " MB " + UnshimName((pta.Squeezing.Clip.name))),
+                        _animatorController);
+                case AnimatedBehaviorNature.DualAnalog:
+                    DualAnalogAnimatedBehavior da = (DualAnalogAnimatedBehavior)behavior;
+                    return CreateDualBlendTree(da.Resting.Clip, da.BothSqueezing.Clip, da.LeftSqueezing.Clip, da.LeftSqueezing.Clip, SanitizeName(UnshimName(da.BothSqueezing.Clip.name)), _animatorController, _useGestureWeightCorrection, _useSmoothing);
+                case AnimatedBehaviorNature.PuppetToDualAnalog:
+                    PuppetToDualAnalogAnimatedBehavior ptda = (PuppetToDualAnalogAnimatedBehavior)behavior;
+                    return CreateDualBlendTree(ptda.Resting, ptda.BothSqueezing.Clip, ptda.LeftSqueezing.Clip, ptda.LeftSqueezing.Clip, SanitizeName(UnshimName(ptda.BothSqueezing.Clip.name)), _animatorController, _useGestureWeightCorrection, _useSmoothing);
+                case AnimatedBehaviorNature.Puppet:
+                    return ((PuppetAnimatedBehavior)behavior).Tree;
+                case AnimatedBehaviorNature.SimpleMassiveBlend:
+                case AnimatedBehaviorNature.TwoDirectionsMassiveBlend:
+                case AnimatedBehaviorNature.ComplexMassiveBlend:
+                    throw new ArgumentOutOfRangeException();
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        private void ForSimpleMassiveBlend(List<TransitionCondition> transitionConditions, IAnimatedBehavior zero, IAnimatedBehavior one, string parameterName)
+        {
+            var zeroMotion = Derive(zero);
+            var oneMotion = Derive(one);
+            var state = CreateSimpleMassiveBlendState(zeroMotion, oneMotion, parameterName, ToPotentialGridPosition(transitionConditions[0]));
+            foreach (var transitionCondition in transitionConditions)
+            {
+                CreateTransition(GetNullableStageValue(transitionCondition),
+                    transitionCondition.Permutation,
+                    state, transitionCondition.TransitionDuration);
+            }
+        }
+
+        private void ForTwoDirectionsMassiveBlend(List<TransitionCondition> transitionConditions, IAnimatedBehavior zero, IAnimatedBehavior one, IAnimatedBehavior minusOne, string parameterName)
+        {
+            var zeroMotion = Derive(zero);
+            var oneMotion = Derive(one);
+            var minusOneMotion = Derive(minusOne);
+            var state = CreateTwoDirectionsMassiveBlendState(zeroMotion, oneMotion, minusOneMotion, parameterName, ToPotentialGridPosition(transitionConditions[0]));
+            foreach (var transitionCondition in transitionConditions)
+            {
+                CreateTransition(GetNullableStageValue(transitionCondition),
+                    transitionCondition.Permutation,
+                    state, transitionCondition.TransitionDuration);
+            }
+        }
+
+        private void ForComplexMassiveBlend(List<TransitionCondition> transitionConditions, List<IAnimatedBehavior> behaviors, BlendTree originalBlendTreeTemplate)
+        {
+            foreach (var transitionCondition in transitionConditions)
+            {
+                var motions = behaviors.Select(Derive).ToList();
+                var state = CreateComplexMassiveBlendState(motions, originalBlendTreeTemplate, ToPotentialGridPosition(transitionCondition));
+
+                CreateTransition(GetNullableStageValue(transitionCondition),
+                    transitionCondition.Permutation,
+                    state, transitionCondition.TransitionDuration);
+            }
+        }
+
+        private AnimatorState CreateSimpleMassiveBlendState(Motion zero, Motion one, string parameterName, Vector3 gridPosition)
+        {
+            var clipName = UnshimName(zero.name) + " massive " + UnshimName(one.name);
+            var newState = _machine.AddState(SanitizeName(clipName), gridPosition);
+            newState.motion = CreateBlendTree(
+                zero,
+                one,
+                parameterName,
+                clipName,
+                _animatorController);
+            newState.writeDefaultValues = _writeDefaultsForFaceExpressions;
+            return newState;
+        }
+
+        private AnimatorState CreateTwoDirectionsMassiveBlendState(Motion zero, Motion one, Motion minusOne, string parameterName, Vector3 gridPosition)
+        {
+            var clipName = UnshimName(zero.name) + " - " + UnshimName(one.name) + " - " + UnshimName(minusOne.name);
+            var newState = _machine.AddState(SanitizeName(clipName), gridPosition);
+            var blendTree = new BlendTree
+            {
+                name = "autoBT_" + clipName,
+                blendParameter = parameterName,
+                blendType = BlendTreeType.Simple1D,
+                minThreshold = -1,
+                maxThreshold = 1,
+                useAutomaticThresholds = true,
+                children = new[]
+                    { new ChildMotion {motion = minusOne, timeScale = 1}, new ChildMotion {motion = zero, timeScale = 1}, new ChildMotion {motion = one, timeScale = 1}},
+                hideFlags = HideFlags.HideInHierarchy
+            };
+
+            RegisterBlendTreeAsAsset(_animatorController, blendTree);
+
+            newState.motion = blendTree;
+            newState.writeDefaultValues = _writeDefaultsForFaceExpressions;
+            return newState;
         }
 
         private void ForSingle(SingleAnimatedBehavior intermediateAnimationGroup, List<TransitionCondition> transitionConditions)
@@ -94,19 +216,70 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
         }
 
+        private AnimatorState CreateComplexMassiveBlendState(List<Motion> motions, BlendTree originalBlendTreeTemplate, Vector3 gridPosition)
+        {
+            var clipName = UnshimName(originalBlendTreeTemplate.name) + " complex";
+            var newState = _machine.AddState(SanitizeName(clipName), gridPosition);
+
+            var newBlendTree = CopyTreeIdentically(originalBlendTreeTemplate);
+            newBlendTree.children = newBlendTree.children
+                .Select((childMotion, index) =>
+                {
+                    var copy = childMotion;
+                    copy.motion = motions[index];
+                    return copy;
+                })
+                .ToArray();
+
+            RegisterBlendTreeAsAsset(_animatorController, newBlendTree);
+
+            newState.motion = newBlendTree;
+            newState.writeDefaultValues = _writeDefaultsForFaceExpressions;
+            return newState;
+        }
+
+        private BlendTree CopyTreeIdentically(BlendTree originalTree)
+        {
+            var newTree = new BlendTree();
+
+            // Object.Instantiate(...) is triggering some weird issues about assertions failures.
+            // Copy the blend tree manually
+            newTree.name = "autoBT_" + originalTree.name;
+            newTree.blendType = originalTree.blendType;
+            newTree.blendParameter = originalTree.blendParameter;
+            newTree.blendParameterY = originalTree.blendParameterY;
+            newTree.minThreshold = originalTree.minThreshold;
+            newTree.maxThreshold = originalTree.maxThreshold;
+            newTree.useAutomaticThresholds = originalTree.useAutomaticThresholds;
+
+            var copyOfChildren = originalTree.children;
+            while (newTree.children.Length > 0) {
+                newTree.RemoveChild(0);
+            }
+
+            newTree.children = copyOfChildren
+                .Select(childMotion => new ChildMotion
+                {
+                    motion = childMotion.motion,
+                    threshold = childMotion.threshold,
+                    position = childMotion.position,
+                    timeScale = childMotion.timeScale,
+                    cycleOffset = childMotion.cycleOffset,
+                    directBlendParameter = childMotion.directBlendParameter,
+                    mirror = childMotion.mirror
+                })
+                .ToArray();
+
+            return newTree;
+        }
+
         private static Vector3 ToPotentialGridPosition(TransitionCondition transitionCondition)
         {
             var positionInList = transitionCondition.LayerOrdinal;
             return GridPosition((int)transitionCondition.Permutation.Right, positionInList * 8 + (int)transitionCondition.Permutation.Left);
         }
 
-        private void ForAnalog(List<TransitionCondition> transitionConditions, Motion squeezing, Motion resting)
-        {
-            AllOfSide(transitionConditions.Where(condition => condition.Permutation.Left == HandPose.H1).ToList(), squeezing, resting);
-            AllOfSide(transitionConditions.Where(condition => condition.Permutation.Right == HandPose.H1).ToList(), squeezing, resting);
-        }
-
-        private void AllOfSide(List<TransitionCondition> transitionConditions, Motion squeezing, Motion resting)
+        private void ForAnalog(List<TransitionCondition> transitionConditions, Motion squeezing, Motion resting, HandSide handSide)
         {
             AnimatorState blendState = null;
             foreach (var transitionCondition in transitionConditions)
@@ -116,8 +289,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 {
                     Vector3 offset = ToPotentialGridPosition(transitionCondition);
 
-                    var isLeftSide = transitionCondition.Permutation.Left == HandPose.H1;
-                    blendState = CreateSidedBlendState(squeezing, offset, resting, Vector3.zero, isLeftSide);
+                    blendState = CreateSidedBlendState(squeezing, offset, resting, Vector3.zero, handSide == HandSide.LeftHand);
                 }
 
                 CreateTransition(nullableTransition, transitionCondition.Permutation, blendState, transitionCondition.TransitionDuration);
@@ -195,7 +367,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 transition.AddCondition(IsEqualTo, (float) permutation.Left, SharedLayerUtils.GestureLeft);
                 transition.AddCondition(IsEqualTo, (float) permutation.Right, SharedLayerUtils.GestureRight);
             }
-            if (stageValue != null)
+            if (_activityStageName != null && stageValue != null)
             {
                 transition.AddCondition(IsEqualTo, (int) stageValue, _activityStageName);
             }
@@ -262,7 +434,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             return newState;
         }
 
-        private static Motion CreateBlendTree(Motion atZero, Motion atOne, string weight, string clipName,
+        public static Motion CreateBlendTree(Motion atZero, Motion atOne, string weight, string clipName,
             AnimatorController animatorController)
         {
             var blendTree = new BlendTree

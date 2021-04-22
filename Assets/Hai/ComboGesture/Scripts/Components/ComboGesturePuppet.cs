@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Components
 {
-    public class ComboGesturePuppet : MonoBehaviour
+    public class ComboGesturePuppet : ComboGestureMoodSet
     {
         public float transitionDuration = 0.1f;
 

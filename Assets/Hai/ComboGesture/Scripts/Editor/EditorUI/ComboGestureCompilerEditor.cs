@@ -204,11 +204,37 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                     .Any(mapper => !(mapper.puppet.mainTree is BlendTree));
             }
 
-            bool ThereIsANullActivityOrPuppet()
+            bool ThereIsAMassiveBlendWithIncorrectConfiguration()
+            {
+                return compiler.comboLayers != null && compiler.comboLayers
+                    .Where(mapper => mapper.kind == GestureComboStageKind.Massive)
+                    .Where(mapper => mapper.massiveBlend != null)
+                    .Any(mapper =>
+                    {
+                        var massiveBlend = mapper.massiveBlend;
+                        switch (massiveBlend.mode)
+                        {
+                            case CgeMassiveBlendMode.Simple:
+                                return massiveBlend.simpleZero == null || massiveBlend.simpleOne == null;
+                            case CgeMassiveBlendMode.TwoDirections:
+                                return massiveBlend.simpleZero == null || massiveBlend.simpleOne == null || massiveBlend.simpleMinusOne == null;
+                            case CgeMassiveBlendMode.ComplexBlendTree:
+                                return massiveBlend.blendTreeMoods.Count == 0
+                                       || massiveBlend.blendTree == null
+                                       || !(massiveBlend.blendTree is BlendTree)
+                                       || ((BlendTree) massiveBlend.blendTree).children.Length != massiveBlend.blendTreeMoods.Count;
+                            default:
+                                throw new ArgumentOutOfRangeException();
+                        }
+                    });
+            }
+
+            bool ThereIsANullMapper()
             {
                 return compiler.comboLayers != null && compiler.comboLayers.Any(mapper =>
                     mapper.kind == GestureComboStageKind.Activity && mapper.activity == null
                     || mapper.kind == GestureComboStageKind.Puppet && mapper.puppet == null
+                    || mapper.kind == GestureComboStageKind.Massive && mapper.massiveBlend == null
                 );
             }
 
@@ -232,11 +258,15 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             {
                 EditorGUILayout.HelpBox(CgeLocale.CGEC_WarnNoBlendTree, MessageType.Error);
             }
+            else if (ThereIsAMassiveBlendWithIncorrectConfiguration())
+            {
+                EditorGUILayout.HelpBox(CgeLocale.CGEC_WarnNoMassiveBlend, MessageType.Error);
+            }
             else if (ThereIsNoActivityNameForMultipleActivities())
             {
                 EditorGUILayout.HelpBox(CgeLocale.CGEC_WarnNoActivityName, MessageType.Error);
             }
-            else if (ThereIsANullActivityOrPuppet())
+            else if (ThereIsANullMapper())
             {
                 EditorGUILayout.HelpBox(CgeLocale.CGEC_WarnNoActivity, MessageType.Warning);
             }
@@ -247,17 +277,16 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 {
                     if (MultipleBooleanNoDefault())
                     {
-                        EditorGUILayout.HelpBox(string.Format(CgeLocale.CGEC_HelpWhenAllParameterNamesDefined, compiler.comboLayers.First().activity.name, compiler.comboLayers.First().booleanParameterName), MessageType.Info);
+                        EditorGUILayout.HelpBox(string.Format(CgeLocale.CGEC_HelpWhenAllParameterNamesDefined, compiler.comboLayers.First().SimpleName(), compiler.comboLayers.First().booleanParameterName), MessageType.Info);
                     }
 
                     var defaultMapper = compiler.comboLayers.FirstOrDefault(mapper => mapper.booleanParameterName == "");
-                    if (compiler.parameterMode == ParameterMode.MultipleBools && defaultMapper.kind == GestureComboStageKind.Activity && defaultMapper.activity != null)
+                    if (compiler.parameterMode == ParameterMode.MultipleBools &&
+                        (defaultMapper.kind == GestureComboStageKind.Activity && defaultMapper.activity != null
+                        || defaultMapper.kind == GestureComboStageKind.Puppet && defaultMapper.puppet != null
+                        || defaultMapper.kind == GestureComboStageKind.Massive && defaultMapper.massiveBlend != null))
                     {
-                        EditorGUILayout.HelpBox(string.Format(CgeLocale.CGEC_HintDefaultMood, defaultMapper.activity.name), MessageType.Info);
-                    }
-                    if (compiler.parameterMode == ParameterMode.MultipleBools && defaultMapper.kind == GestureComboStageKind.Puppet && defaultMapper.puppet != null)
-                    {
-                        EditorGUILayout.HelpBox(string.Format(CgeLocale.CGEC_HintDefaultMood, defaultMapper.puppet.name), MessageType.Info);
+                        EditorGUILayout.HelpBox(string.Format(CgeLocale.CGEC_HintDefaultMood, defaultMapper.SimpleName()), MessageType.Info);
                     }
                 }
             }
@@ -325,7 +354,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 ThereIsNoActivity() ||
                 ThereIsAnOverlap() ||
                 ThereIsAPuppetWithNoBlendTree() ||
-                ThereIsANullActivityOrPuppet() ||
+                ThereIsAMassiveBlendWithIncorrectConfiguration() ||
+                ThereIsANullMapper() ||
                 ThereIsNoActivityNameForMultipleActivities() ||
                 ThereIsNoAvatarDescriptor() ||
                 LipsyncIsIntegratedButThereIsNoCorrection()
@@ -666,9 +696,7 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
             var trailingWidth = onlyOneLayer ? 0 : singleInt ? 50 : 140;
             EditorGUI.PropertyField(
                 new Rect(rect.x + 70, rect.y, rect.width - 70 - 20 - trailingWidth, EditorGUIUtility.singleLineHeight),
-                kind != GestureComboStageKind.Puppet
-                    ? element.FindPropertyRelative("activity")
-                    : element.FindPropertyRelative("puppet"),
+                PropertyForKind(kind, element),
                 GUIContent.none
             );
 
@@ -679,6 +707,21 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
                     singleInt ? element.FindPropertyRelative("stageValue") : element.FindPropertyRelative("booleanParameterName"),
                     GUIContent.none
                 );
+            }
+        }
+
+        private static SerializedProperty PropertyForKind(GestureComboStageKind kind, SerializedProperty element)
+        {
+            switch (kind)
+            {
+                case GestureComboStageKind.Puppet:
+                    return element.FindPropertyRelative("puppet");
+                case GestureComboStageKind.Activity:
+                    return element.FindPropertyRelative("activity");
+                case GestureComboStageKind.Massive:
+                    return element.FindPropertyRelative("massiveBlend");
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(kind), kind, null);
             }
         }
 

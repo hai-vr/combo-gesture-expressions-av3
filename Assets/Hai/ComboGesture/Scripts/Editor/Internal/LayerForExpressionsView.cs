@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Hai.ComboGesture.Scripts.Components;
+using Hai.ComboGesture.Scripts.Editor.Internal.Model;
 using Hai.ComboGesture.Scripts.Editor.Internal.Reused;
 using UnityEditor;
 using UnityEditor.Animations;
@@ -102,7 +103,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             activityManifests = new CgeBlendTreeAutoWeightCorrector(activityManifests, _useGestureWeightCorrection, _useSmoothing, _assetContainer)
                 .MutateAndCorrectExistingBlendTrees();
 
-            foreach (var parameter in AllParametersUsedByBlendTrees(activityManifests))
+            foreach (var parameter in AllParametersUsedByManifests(activityManifests))
             {
                 SharedLayerUtils.CreateParamIfNotExists(_animatorController, parameter, AnimatorControllerParameterType.Float);
             }
@@ -120,30 +121,61 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             ).Populate();
         }
 
+        private static List<string> AllParametersUsedByManifests(List<ManifestBinding> activityManifests)
+        {
+            return AllParametersUsedByBlendTrees(activityManifests)
+                .Concat(AllParametersUsedByMassiveBlends(activityManifests))
+                .ToList();
+        }
+
         private static List<string> AllParametersUsedByBlendTrees(List<ManifestBinding> activityManifests)
         {
             return activityManifests
                 .SelectMany(binding => binding.Manifest.AllBlendTreesFoundRecursively())
-                .SelectMany(tree =>
+                .SelectMany(FindParametersOfBlendTree)
+                .Distinct()
+                .ToList();
+        }
+
+        private static List<string> AllParametersUsedByMassiveBlends(List<ManifestBinding> activityManifests)
+        {
+            return activityManifests
+                .Where(binding => binding.Manifest.Kind() == ManifestKind.Massive)
+                .SelectMany(binding =>
                 {
-                    switch (tree.blendType)
+                    var manifest = (MassiveBlendManifest)binding.Manifest;
+                    switch (manifest.Mode)
                     {
-                        case BlendTreeType.Simple1D:
-                            return new List<string> {tree.blendParameter};
-                        case BlendTreeType.SimpleDirectional2D:
-                            return new List<string> {tree.blendParameter, tree.blendParameterY};
-                        case BlendTreeType.FreeformDirectional2D:
-                            return new List<string> {tree.blendParameter, tree.blendParameterY};
-                        case BlendTreeType.FreeformCartesian2D:
-                            return new List<string> {tree.blendParameter, tree.blendParameterY};
-                        case BlendTreeType.Direct:
-                            return tree.children.Select(motion => motion.directBlendParameter).ToList();
+                        case CgeMassiveBlendMode.Simple:
+                        case CgeMassiveBlendMode.TwoDirections:
+                            return new List<string> { manifest.SimpleParameterName };
+                        case CgeMassiveBlendMode.ComplexBlendTree:
+                            return FindParametersOfBlendTree(manifest.BlendTree);
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
                 })
                 .Distinct()
                 .ToList();
+        }
+
+        private static IEnumerable<string> FindParametersOfBlendTree(BlendTree tree)
+        {
+            switch (tree.blendType)
+            {
+                case BlendTreeType.Simple1D:
+                    return new List<string> {tree.blendParameter};
+                case BlendTreeType.SimpleDirectional2D:
+                    return new List<string> {tree.blendParameter, tree.blendParameterY};
+                case BlendTreeType.FreeformDirectional2D:
+                    return new List<string> {tree.blendParameter, tree.blendParameterY};
+                case BlendTreeType.FreeformCartesian2D:
+                    return new List<string> {tree.blendParameter, tree.blendParameterY};
+                case BlendTreeType.Direct:
+                    return tree.children.Select(motion => motion.directBlendParameter).ToList();
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
         private void CreateTransitionWhenActivityIsOutOfBounds(AnimatorStateMachine machine, AnimatorState defaultState)

@@ -16,6 +16,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
         IEnumerable<BlendTree> AllBlendTreesFoundRecursively();
         IManifest NewFromRemappedAnimations(Dictionary<QualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendToRemappedBlend);
         IManifest UsingRemappedWeights(Dictionary<BlendTree,AutoWeightTreeMapping> autoWeightRemapping);
+        PermutationManifest ToEquatedPermutation();
     }
 
     public readonly struct AutoWeightTreeMapping
@@ -34,7 +35,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
 
     public enum ManifestKind
     {
-        Permutation, Puppet
+        Permutation, Puppet, Massive
     }
 
     public class PermutationManifest : IManifest
@@ -112,6 +113,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
 
             return new PermutationManifest(newPoses, _transitionDuration);
         }
+
+        public PermutationManifest ToEquatedPermutation()
+        {
+            return this;
+        }
     }
 
     public interface IAnimatedBehavior
@@ -130,8 +136,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
         Puppet,
         PuppetToAnalog,
         PuppetToDualAnalog,
-        DualAnalogOneHanded,
-        PuppetToDualAnalogOneHanded
+        SimpleMassiveBlend,
+        TwoDirectionsMassiveBlend,
+        ComplexMassiveBlend
     }
 
     class SingleAnimatedBehavior : IAnimatedBehavior
@@ -206,8 +213,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
     {
         public QualifiedAnimation Resting { get; }
         public QualifiedAnimation Squeezing { get; }
+        public HandSide HandSide { get; }
 
-        private AnalogAnimatedBehavior(QualifiedAnimation resting, QualifiedAnimation squeezing)
+        private AnalogAnimatedBehavior(QualifiedAnimation resting, QualifiedAnimation squeezing, HandSide handSide)
         {
             if (resting == squeezing)
             {
@@ -216,6 +224,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
 
             Resting = resting;
             Squeezing = squeezing;
+            HandSide = handSide;
         }
 
         AnimatedBehaviorNature IAnimatedBehavior.Nature()
@@ -237,28 +246,29 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
         {
             return Maybe(
                 SingleAnimatedBehavior.Remap(remapping, Resting),
-                SingleAnimatedBehavior.Remap(remapping, Squeezing)
+                SingleAnimatedBehavior.Remap(remapping, Squeezing),
+                HandSide
             );
         }
 
-        public static AnalogAnimatedBehavior Of(QualifiedAnimation resting, QualifiedAnimation squeezing)
+        public static AnalogAnimatedBehavior Of(QualifiedAnimation resting, QualifiedAnimation squeezing, HandSide handSide)
         {
-            return new AnalogAnimatedBehavior(resting, squeezing);
+            return new AnalogAnimatedBehavior(resting, squeezing, handSide);
         }
 
-        public static IAnimatedBehavior Maybe(QualifiedAnimation resting, QualifiedAnimation squeezing)
+        public static IAnimatedBehavior Maybe(QualifiedAnimation resting, QualifiedAnimation squeezing, HandSide handSide)
         {
             if (resting == squeezing)
             {
                 return SingleAnimatedBehavior.Of(squeezing);
             }
 
-            return AnalogAnimatedBehavior.Of(resting, squeezing);
+            return AnalogAnimatedBehavior.Of(resting, squeezing, handSide);
         }
 
         protected bool Equals(AnalogAnimatedBehavior other)
         {
-            return Resting.Equals(other.Resting) && Squeezing.Equals(other.Squeezing);
+            return Resting.Equals(other.Resting) && Squeezing.Equals(other.Squeezing) && HandSide == other.HandSide;
         }
 
         public override bool Equals(object obj)
@@ -273,7 +283,10 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
         {
             unchecked
             {
-                return (Resting.GetHashCode() * 397) ^ Squeezing.GetHashCode();
+                var hashCode = Resting.GetHashCode();
+                hashCode = (hashCode * 397) ^ Squeezing.GetHashCode();
+                hashCode = (hashCode * 397) ^ (int) HandSide;
+                return hashCode;
             }
         }
 
@@ -468,12 +481,14 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
         public BlendTree Resting { get; }
         public QualifiedAnimation Squeezing { get; }
         public List<QualifiedAnimation> QualificationsOfTree { get; }
+        public HandSide HandSide { get; }
 
-        private PuppetToAnalogAnimatedBehavior(BlendTree resting, QualifiedAnimation squeezing, List<QualifiedAnimation> qualificationsOfTreeOfTree)
+        private PuppetToAnalogAnimatedBehavior(BlendTree resting, QualifiedAnimation squeezing, List<QualifiedAnimation> qualificationsOfTreeOfTree, HandSide handSide)
         {
             Resting = resting;
             Squeezing = squeezing;
             QualificationsOfTree = qualificationsOfTreeOfTree;
+            HandSide = handSide;
         }
 
         public AnimatedBehaviorNature Nature()
@@ -501,17 +516,17 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
             var newSqueezing = remapping.ContainsKey(Squeezing) ? Squeezing.NewInstanceWithClip(remapping[Squeezing]) : Squeezing;
             var newBlendRemapping = blendRemapping.ContainsKey(Resting) ? blendRemapping[Resting] : Resting;
 
-            return Of(newBlendRemapping, newSqueezing, newQualificationsOfTree);
+            return Of(newBlendRemapping, newSqueezing, newQualificationsOfTree, HandSide);
         }
 
-        public static PuppetToAnalogAnimatedBehavior Of(BlendTree resting, QualifiedAnimation squeezing, List<QualifiedAnimation> qualificationsOfTree)
+        public static PuppetToAnalogAnimatedBehavior Of(BlendTree resting, QualifiedAnimation squeezing, List<QualifiedAnimation> qualificationsOfTree, HandSide handSide)
         {
-            return new PuppetToAnalogAnimatedBehavior(resting, squeezing, qualificationsOfTree);
+            return new PuppetToAnalogAnimatedBehavior(resting, squeezing, qualificationsOfTree, handSide);
         }
 
         protected bool Equals(PuppetToAnalogAnimatedBehavior other)
         {
-            return Equals(Resting, other.Resting) && Squeezing.Equals(other.Squeezing) && QualificationsOfTree.SequenceEqual(other.QualificationsOfTree);
+            return Equals(Resting, other.Resting) && Squeezing.Equals(other.Squeezing) && Equals(QualificationsOfTree, other.QualificationsOfTree) && HandSide == other.HandSide;
         }
 
         public override bool Equals(object obj)
@@ -528,7 +543,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
             {
                 var hashCode = (Resting != null ? Resting.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ Squeezing.GetHashCode();
-                // FIXME: this is a bad hashcode, qualifications list is ignored due to list hashcode
+                hashCode = (hashCode * 397) ^ (QualificationsOfTree != null ? QualificationsOfTree.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (int) HandSide;
                 return hashCode;
             }
         }
@@ -657,9 +673,28 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
             return new Permutation(pose, pose);
         }
 
+        public static List<Permutation> All()
+        {
+            var poses = new List<Permutation>();
+            for (var left = HandPose.H0; left <= HandPose.H7; left++)
+            {
+                for (var right = HandPose.H0; right <= HandPose.H7; right++)
+                {
+                    poses.Add(LeftRight(left, right));
+                }
+            }
+
+            return poses;
+        }
+
         public bool IsSymmetrical()
         {
             return Left == Right;
+        }
+
+        public bool HasAnyFist()
+        {
+            return Left == HandPose.H1 || Right == HandPose.H1;
         }
 
         protected bool Equals(Permutation other)
@@ -694,66 +729,57 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
         }
     }
 
-    class DualAnalogOneHandedAnimatedBehavior : IAnimatedBehavior
+    class SimpleMassiveBlendAnimatedBehavior : IAnimatedBehavior
     {
-        public QualifiedAnimation Resting { get; }
-        public QualifiedAnimation Squeezing { get; }
-        public bool IsLeftActive { get; }
+        public IAnimatedBehavior Zero { get; }
+        public IAnimatedBehavior One { get; }
+        public string ParameterName { get; }
 
-        private DualAnalogOneHandedAnimatedBehavior(QualifiedAnimation resting, QualifiedAnimation squeezing, bool isLeftActive)
+        private SimpleMassiveBlendAnimatedBehavior(IAnimatedBehavior zero, IAnimatedBehavior one, string parameterName)
         {
-            if (resting == squeezing)
-            {
-                throw new ArgumentException("SidedAnalogAnimatedBehavior must not have both identical qualified animations");
-            }
-
-            Resting = resting;
-            Squeezing = squeezing;
-            IsLeftActive = isLeftActive;
+            Zero = zero;
+            One = one;
+            ParameterName = parameterName;
         }
 
-        AnimatedBehaviorNature IAnimatedBehavior.Nature()
+        private List<IAnimatedBehavior> InternalBehaviors()
         {
-            return AnimatedBehaviorNature.DualAnalogOneHanded;
+            return new List<IAnimatedBehavior> { Zero, One };
+        }
+
+        public AnimatedBehaviorNature Nature()
+        {
+            return AnimatedBehaviorNature.SimpleMassiveBlend;
         }
 
         public IEnumerable<QualifiedAnimation> QualifiedAnimations()
         {
-            return new[] {Resting, Squeezing};
+            return InternalBehaviors().SelectMany(behavior => behavior.QualifiedAnimations()).Distinct();
         }
 
         public IEnumerable<BlendTree> AllBlendTreesFoundRecursively()
         {
-            return new List<BlendTree>();
+            return InternalBehaviors().SelectMany(behavior => behavior.AllBlendTreesFoundRecursively()).Distinct();
         }
 
         public IAnimatedBehavior Remapping(Dictionary<QualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)
         {
-            return Maybe(
-                SingleAnimatedBehavior.Remap(remapping, Resting),
-                SingleAnimatedBehavior.Remap(remapping, Squeezing),
-                IsLeftActive
-            );
+            return new SimpleMassiveBlendAnimatedBehavior(Zero.Remapping(remapping, blendRemapping), One.Remapping(remapping, blendRemapping), ParameterName);
         }
 
-        public static DualAnalogOneHandedAnimatedBehavior Of(QualifiedAnimation resting, QualifiedAnimation squeezing, bool isLeftActive)
+        private static SimpleMassiveBlendAnimatedBehavior Of(IAnimatedBehavior zero, IAnimatedBehavior one, string parameterName)
         {
-            return new DualAnalogOneHandedAnimatedBehavior(resting, squeezing, isLeftActive);
+            return new SimpleMassiveBlendAnimatedBehavior(zero, one, parameterName);
         }
 
-        public static IAnimatedBehavior Maybe(QualifiedAnimation resting, QualifiedAnimation squeezing, bool isLeftActive)
+        public static IAnimatedBehavior Maybe(IAnimatedBehavior zero, IAnimatedBehavior one, string parameterName)
         {
-            if (resting == squeezing)
-            {
-                return SingleAnimatedBehavior.Of(squeezing);
-            }
-
-            return DualAnalogOneHandedAnimatedBehavior.Of(resting, squeezing, isLeftActive);
+            return zero.Equals(one) ? zero : SimpleMassiveBlendAnimatedBehavior.Of(zero, one, parameterName);
         }
 
-        protected bool Equals(DualAnalogOneHandedAnimatedBehavior other)
+        protected bool Equals(SimpleMassiveBlendAnimatedBehavior other)
         {
-            return Resting.Equals(other.Resting) && Squeezing.Equals(other.Squeezing) && IsLeftActive == other.IsLeftActive;
+            return Equals(Zero, other.Zero) && Equals(One, other.One) && ParameterName == other.ParameterName;
         }
 
         public override bool Equals(object obj)
@@ -761,82 +787,84 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((DualAnalogOneHandedAnimatedBehavior) obj);
+            return Equals((SimpleMassiveBlendAnimatedBehavior) obj);
         }
 
         public override int GetHashCode()
         {
             unchecked
             {
-                var hashCode = Resting.GetHashCode();
-                hashCode = (hashCode * 397) ^ Squeezing.GetHashCode();
-                hashCode = (hashCode * 397) ^ IsLeftActive.GetHashCode();
+                var hashCode = (Zero != null ? Zero.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (One != null ? One.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (ParameterName != null ? ParameterName.GetHashCode() : 0);
                 return hashCode;
             }
         }
 
-        public static bool operator ==(DualAnalogOneHandedAnimatedBehavior left, DualAnalogOneHandedAnimatedBehavior right)
+        public static bool operator ==(SimpleMassiveBlendAnimatedBehavior left, SimpleMassiveBlendAnimatedBehavior right)
         {
             return Equals(left, right);
         }
 
-        public static bool operator !=(DualAnalogOneHandedAnimatedBehavior left, DualAnalogOneHandedAnimatedBehavior right)
+        public static bool operator !=(SimpleMassiveBlendAnimatedBehavior left, SimpleMassiveBlendAnimatedBehavior right)
         {
             return !Equals(left, right);
         }
     }
 
-    class PuppetToDualAnalogOneHandedAnimatedBehavior : IAnimatedBehavior
+    class TwoDirectionsMassiveBlendAnimatedBehavior : IAnimatedBehavior
     {
-        public BlendTree Resting { get; }
-        public QualifiedAnimation Squeezing { get; }
-        public List<QualifiedAnimation> QualificationsOfTree { get; }
-        public bool IsLeftActive { get; }
+        public IAnimatedBehavior Zero { get; }
+        public IAnimatedBehavior One { get; }
+        public IAnimatedBehavior MinusOne { get; }
+        public string ParameterName { get; }
 
-        private PuppetToDualAnalogOneHandedAnimatedBehavior(BlendTree resting, QualifiedAnimation squeezing, List<QualifiedAnimation> qualificationsOfTreeOfTree, bool isLeftActive)
+        private TwoDirectionsMassiveBlendAnimatedBehavior(IAnimatedBehavior zero, IAnimatedBehavior one, IAnimatedBehavior minusOne, string parameterName)
         {
-            Resting = resting;
-            Squeezing = squeezing;
-            QualificationsOfTree = qualificationsOfTreeOfTree;
-            IsLeftActive = isLeftActive;
+            Zero = zero;
+            One = one;
+            MinusOne = minusOne;
+            ParameterName = parameterName;
+        }
+
+        private List<IAnimatedBehavior> InternalBehaviors()
+        {
+            return new List<IAnimatedBehavior> { Zero, One };
         }
 
         public AnimatedBehaviorNature Nature()
         {
-            return AnimatedBehaviorNature.PuppetToDualAnalogOneHanded;
+            return AnimatedBehaviorNature.TwoDirectionsMassiveBlend;
         }
 
         public IEnumerable<QualifiedAnimation> QualifiedAnimations()
         {
-            return new [] {Squeezing}.Concat(QualificationsOfTree).ToList();
+            return InternalBehaviors().SelectMany(behavior => behavior.QualifiedAnimations()).Distinct();
         }
 
         public IEnumerable<BlendTree> AllBlendTreesFoundRecursively()
         {
-            return PuppetManifest.FindAllBlendTreesIncludingItself(Resting);
+            return InternalBehaviors().SelectMany(behavior => behavior.AllBlendTreesFoundRecursively()).Distinct();
         }
 
         public IAnimatedBehavior Remapping(Dictionary<QualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)
         {
-            var newQualificationsOfTree = QualificationsOfTree
-                .Select(qualification => remapping.ContainsKey(qualification)
-                    ? qualification.NewInstanceWithClip(remapping[qualification])
-                    : qualification)
-                .ToList();
-            var newSqueezing = remapping.ContainsKey(Squeezing) ? Squeezing.NewInstanceWithClip(remapping[Squeezing]) : Squeezing;
-            var newBlendRemapping = blendRemapping.ContainsKey(Resting) ? blendRemapping[Resting] : Resting;
-
-            return Of(newBlendRemapping, newSqueezing, newQualificationsOfTree, IsLeftActive);
+            return new TwoDirectionsMassiveBlendAnimatedBehavior(Zero.Remapping(remapping, blendRemapping), One.Remapping(remapping, blendRemapping), MinusOne.Remapping(remapping, blendRemapping), ParameterName);
         }
 
-        public static PuppetToDualAnalogOneHandedAnimatedBehavior Of(BlendTree resting, QualifiedAnimation squeezing, List<QualifiedAnimation> qualificationsOfTree, bool isLeftActive)
+        private static TwoDirectionsMassiveBlendAnimatedBehavior Of(IAnimatedBehavior zero, IAnimatedBehavior one, IAnimatedBehavior minusOne, string parameterName)
         {
-            return new PuppetToDualAnalogOneHandedAnimatedBehavior(resting, squeezing, qualificationsOfTree, isLeftActive);
+            return new TwoDirectionsMassiveBlendAnimatedBehavior(zero, one, minusOne, parameterName);
         }
 
-        protected bool Equals(PuppetToDualAnalogOneHandedAnimatedBehavior other)
+        public static IAnimatedBehavior Maybe(IAnimatedBehavior zero, IAnimatedBehavior one, IAnimatedBehavior minusOne, string parameterName)
         {
-            return Equals(Resting, other.Resting) && Squeezing.Equals(other.Squeezing) && Equals(QualificationsOfTree, other.QualificationsOfTree) && IsLeftActive == other.IsLeftActive;
+            return zero.Equals(one) && one.Equals(minusOne) ? zero : TwoDirectionsMassiveBlendAnimatedBehavior.Of(zero, one, minusOne, parameterName);
+        }
+
+        protected bool Equals(TwoDirectionsMassiveBlendAnimatedBehavior other)
+        {
+            return Equals(Zero, other.Zero) && Equals(One, other.One) && Equals(MinusOne, other.MinusOne) && ParameterName == other.ParameterName;
         }
 
         public override bool Equals(object obj)
@@ -844,27 +872,100 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((PuppetToDualAnalogOneHandedAnimatedBehavior) obj);
+            return Equals((TwoDirectionsMassiveBlendAnimatedBehavior) obj);
         }
 
         public override int GetHashCode()
         {
             unchecked
             {
-                var hashCode = (Resting != null ? Resting.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ Squeezing.GetHashCode();
-                hashCode = (hashCode * 397) ^ (QualificationsOfTree != null ? QualificationsOfTree.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ IsLeftActive.GetHashCode();
+                var hashCode = (Zero != null ? Zero.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (One != null ? One.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (MinusOne != null ? MinusOne.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (ParameterName != null ? ParameterName.GetHashCode() : 0);
                 return hashCode;
             }
         }
 
-        public static bool operator ==(PuppetToDualAnalogOneHandedAnimatedBehavior left, PuppetToDualAnalogOneHandedAnimatedBehavior right)
+        public static bool operator ==(TwoDirectionsMassiveBlendAnimatedBehavior left, TwoDirectionsMassiveBlendAnimatedBehavior right)
         {
             return Equals(left, right);
         }
 
-        public static bool operator !=(PuppetToDualAnalogOneHandedAnimatedBehavior left, PuppetToDualAnalogOneHandedAnimatedBehavior right)
+        public static bool operator !=(TwoDirectionsMassiveBlendAnimatedBehavior left, TwoDirectionsMassiveBlendAnimatedBehavior right)
+        {
+            return !Equals(left, right);
+        }
+    }
+
+    class ComplexMassiveBlendAnimatedBehavior : IAnimatedBehavior
+    {
+        public List<IAnimatedBehavior> Behaviors { get; }
+        public BlendTree OriginalBlendTreeTemplate { get; }
+
+        private ComplexMassiveBlendAnimatedBehavior(List<IAnimatedBehavior> behaviors, BlendTree originalBlendTreeTemplate)
+        {
+            Behaviors = behaviors;
+            OriginalBlendTreeTemplate = originalBlendTreeTemplate;
+        }
+
+        private List<IAnimatedBehavior> InternalBehaviors()
+        {
+            return Behaviors.ToList();
+        }
+
+        public AnimatedBehaviorNature Nature()
+        {
+            return AnimatedBehaviorNature.ComplexMassiveBlend;
+        }
+
+        public IEnumerable<QualifiedAnimation> QualifiedAnimations()
+        {
+            return InternalBehaviors().SelectMany(behavior => behavior.QualifiedAnimations()).Distinct();
+        }
+
+        public IEnumerable<BlendTree> AllBlendTreesFoundRecursively()
+        {
+            return InternalBehaviors().SelectMany(behavior => behavior.AllBlendTreesFoundRecursively()).Distinct();
+        }
+
+        public IAnimatedBehavior Remapping(Dictionary<QualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)
+        {
+            return new ComplexMassiveBlendAnimatedBehavior(Behaviors.Select(behavior => behavior.Remapping(remapping, blendRemapping)).ToList(), OriginalBlendTreeTemplate);
+        }
+
+        public static ComplexMassiveBlendAnimatedBehavior Of(List<IAnimatedBehavior> behaviors, BlendTree originalBlendTreeTemplate)
+        {
+            return new ComplexMassiveBlendAnimatedBehavior(behaviors, originalBlendTreeTemplate);
+        }
+
+        protected bool Equals(ComplexMassiveBlendAnimatedBehavior other)
+        {
+            return Equals(Behaviors, other.Behaviors) && Equals(OriginalBlendTreeTemplate, other.OriginalBlendTreeTemplate);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((ComplexMassiveBlendAnimatedBehavior) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return ((Behaviors != null ? Behaviors.GetHashCode() : 0) * 397) ^ (OriginalBlendTreeTemplate != null ? OriginalBlendTreeTemplate.GetHashCode() : 0);
+            }
+        }
+
+        public static bool operator ==(ComplexMassiveBlendAnimatedBehavior left, ComplexMassiveBlendAnimatedBehavior right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(ComplexMassiveBlendAnimatedBehavior left, ComplexMassiveBlendAnimatedBehavior right)
         {
             return !Equals(left, right);
         }
@@ -880,5 +981,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
         H5,
         H6,
         H7,
+    }
+
+    public enum HandSide
+    {
+        LeftHand,
+        RightHand
     }
 }

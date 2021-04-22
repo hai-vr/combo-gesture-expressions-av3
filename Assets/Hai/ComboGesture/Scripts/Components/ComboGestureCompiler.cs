@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using VRC.SDK3.Avatars.Components;
 
@@ -71,15 +72,31 @@ namespace Hai.ComboGesture.Scripts.Components
         public GestureComboStageKind kind;
         public ComboGestureActivity activity; // This can be null even when the kind is an Activity
         public ComboGesturePuppet puppet; // This can be null
+        public ComboGestureMassiveBlend massiveBlend; // This can be null
         public int stageValue;
         public string booleanParameterName;
         public int internalVirtualStageValue; // This is overwritten by the compiler process
+
+        public string SimpleName()
+        {
+            switch (kind)
+            {
+                case GestureComboStageKind.Activity:
+                    return activity != null ? activity.name : "";
+                case GestureComboStageKind.Puppet:
+                    return puppet != null ? puppet.name : "";
+                case GestureComboStageKind.Massive:
+                    return massiveBlend != null ? massiveBlend.name : "";
+                default:
+                    return "";
+            }
+        }
     }
 
     [System.Serializable]
     public enum GestureComboStageKind
     {
-        Activity, Puppet
+        Activity, Puppet, Massive
     }
 
     [System.Serializable]

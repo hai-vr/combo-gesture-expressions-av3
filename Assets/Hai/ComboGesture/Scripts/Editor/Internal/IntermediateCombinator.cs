@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.Internal.Model;
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal
@@ -12,11 +14,78 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         {
             var permutationRepresentation = OptimizeCollapsableConditions(DecomposePermutationsIntoBehaviors(activityManifests), activityManifests.Count);
             var puppetRepresentation = DecomposePuppetsIntoBehaviors(activityManifests);
+            var massiveRepresentation = DecomposeMassiveIntoBehaviors(activityManifests);
 
             IntermediateToTransition = permutationRepresentation
                 .Concat(puppetRepresentation)
+                .Concat(massiveRepresentation)
                 .GroupBy(pair => pair.Key, pair => pair.Value)
                 .ToDictionary(pair => pair.Key, grouping => grouping.SelectMany(list => list).ToList());
+        }
+
+        private static Dictionary<IAnimatedBehavior, List<TransitionCondition>> DecomposeMassiveIntoBehaviors(List<ManifestBinding> activityManifests)
+        {
+            Dictionary<IAnimatedBehavior, List<TransitionCondition>> representation = activityManifests
+                .Where(binding => binding.Manifest.Kind() == ManifestKind.Massive)
+                .SelectMany(binding =>
+                {
+                    MassiveBlendManifest manifest = (MassiveBlendManifest) binding.Manifest;
+
+                    return Permutation.All().Select(currentPermutation =>
+                    {
+                        var animatedBehavior = MassiveBlendToAnimatedBehavior(manifest, currentPermutation);
+                        return new KeyValuePair<IAnimatedBehavior, TransitionCondition.ActivityBoundTransitionCondition>(
+                            animatedBehavior,
+                            new TransitionCondition.ActivityBoundTransitionCondition(
+                                binding.StageValue,
+                                manifest.TransitionDuration(),
+                                currentPermutation,
+                                binding.LayerOrdinal
+                            )
+                        );
+
+                    }).ToList();
+                })
+                .GroupBy(pair => pair.Key, pair => pair.Value)
+                .ToDictionary(x => (IAnimatedBehavior)x.Key, x => x.Cast<TransitionCondition>().ToList());
+
+            return representation;
+        }
+
+        private static IAnimatedBehavior MassiveBlendToAnimatedBehavior(MassiveBlendManifest manifest, Permutation currentPermutation)
+        {
+            switch (manifest.Mode)
+            {
+                case CgeMassiveBlendMode.Simple:
+                    return OfSimple(manifest, currentPermutation);
+                case CgeMassiveBlendMode.TwoDirections:
+                    return OfTwoDirections(manifest, currentPermutation);
+                case CgeMassiveBlendMode.ComplexBlendTree:
+                    return OfComplexBlendTree(manifest, currentPermutation);
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        private static IAnimatedBehavior OfSimple(MassiveBlendManifest manifest, Permutation currentPermutation)
+        {
+            var zero = manifest.EquatedManifests[0].Poses[currentPermutation];
+            var one = manifest.EquatedManifests[1].Poses[currentPermutation];
+            return SimpleMassiveBlendAnimatedBehavior.Maybe(zero, one, manifest.SimpleParameterName);
+        }
+
+        private static IAnimatedBehavior OfTwoDirections(MassiveBlendManifest manifest, Permutation currentPermutation)
+        {
+            var zero = manifest.EquatedManifests[0].Poses[currentPermutation];
+            var one = manifest.EquatedManifests[1].Poses[currentPermutation];
+            var minusOne = manifest.EquatedManifests[2].Poses[currentPermutation];
+            return TwoDirectionsMassiveBlendAnimatedBehavior.Maybe(zero, one, minusOne, manifest.SimpleParameterName);
+        }
+
+        private static IAnimatedBehavior OfComplexBlendTree(MassiveBlendManifest manifest, Permutation currentPermutation)
+        {
+            var poses = manifest.EquatedManifests.Select(permutationManifest => permutationManifest.Poses[currentPermutation]).ToList();
+            return ComplexMassiveBlendAnimatedBehavior.Of(poses, manifest.BlendTree);
         }
 
         private static Dictionary<IAnimatedBehavior, List<TransitionCondition>> DecomposePuppetsIntoBehaviors(List<ManifestBinding> activityManifests)

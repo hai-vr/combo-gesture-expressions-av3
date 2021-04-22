@@ -58,6 +58,25 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                         : ManifestFromActivity.FromActivity(mapper.activity, fallbackWhenAnyClipIsNull);
                 case GestureComboStageKind.Puppet:
                     return ManifestFromPuppet.FromPuppet(mapper.puppet);
+                case GestureComboStageKind.Massive:
+                    return ManifestFromMassiveBlend.FromMassiveBlend(mapper.massiveBlend, fallbackWhenAnyClipIsNull);
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        public static IManifest FromMoodSet(ComboGestureMoodSet moodSet, AnimationClip fallbackWhenAnyClipIsNull)
+        {
+            switch (moodSet)
+            {
+                case ComboGestureActivity activity:
+                    return activity == null
+                        ? ManifestFromActivity.FromNothing(fallbackWhenAnyClipIsNull) // TODO: It may be possible to create a specific manifest for that
+                        : ManifestFromActivity.FromActivity(activity, fallbackWhenAnyClipIsNull);
+                case ComboGesturePuppet puppet:
+                    return ManifestFromPuppet.FromPuppet(puppet);
+                case ComboGestureMassiveBlend massive:
+                    return ManifestFromMassiveBlend.FromMassiveBlend(massive, fallbackWhenAnyClipIsNull);
                 default:
                     throw new ArgumentOutOfRangeException();
             }

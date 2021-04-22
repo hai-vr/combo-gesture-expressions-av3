@@ -86,5 +86,15 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
         {
             return this;
         }
+
+        public PermutationManifest ToEquatedPermutation()
+        {
+            var poses = Permutation.All().ToDictionary(
+                permutation => permutation,
+                permutation => (IAnimatedBehavior)Behavior
+            );
+
+            return new PermutationManifest(poses, _transitionDuration);
+        }
     }
 }
