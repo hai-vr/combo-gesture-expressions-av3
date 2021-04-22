@@ -98,6 +98,8 @@ namespace Hai.ExpressionsEditor.Scripts.Editor.Internal.Modules
 
         public HashSet<EditorCurveBinding> AllCurveBindingsCache()
         {
+            if (_state.CurrentClip == null) return new HashSet<EditorCurveBinding>();
+
             return new HashSet<EditorCurveBinding>(AnimationUtility.GetCurveBindings(_state.CurrentClip).ToList());
         }
 
