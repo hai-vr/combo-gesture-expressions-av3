@@ -123,9 +123,27 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         // 1.5
         internal static string CGEE_EyesAreClosed => LocalizeOrElse("CGEE_EyesAreClosed", CgeLocaleDefaults.CGEE_EyesAreClosed);
         // 1.6.0
+        internal static string CGEC_WarnNoMassiveBlend => LocalizeOrElse("CGEC_WarnNoMassiveBlend", CgeLocaleDefaults.CGEC_WarnNoMassiveBlend);
+        //
         internal static string CGEE_OneHandMode => LocalizeOrElse("CGEE_OneHandMode", CgeLocaleDefaults.CGEE_OneHandMode);
         internal static string CGEE_OneHandModeIntro => LocalizeOrElse("CGEE_OneHandModeIntro", CgeLocaleDefaults.CGEE_OneHandModeIntro);
-        internal static string CGEC_WarnNoMassiveBlend => LocalizeOrElse("CGEC_WarnNoMassiveBlend", CgeLocaleDefaults.CGEC_WarnNoMassiveBlend);
+        internal static string CGEE_Combine => LocalizeOrElse("CGEE_Combine", CgeLocaleDefaults.CGEE_Combine);
+        internal static string CGEE_CombineAcross => LocalizeOrElse("CGEE_CombineAcross", CgeLocaleDefaults.CGEE_CombineAcross);
+        internal static string CGEE_Create => LocalizeOrElse("CGEE_Create", CgeLocaleDefaults.CGEE_Create);
+        internal static string CGEE_Simplify => LocalizeOrElse("CGEE_Simplify", CgeLocaleDefaults.CGEE_Simplify);
+        internal static string CGEE_SwapToFix => LocalizeOrElse("CGEE_SwapToFix", CgeLocaleDefaults.CGEE_SwapToFix);
+        internal static string CGEE_AutoSet => LocalizeOrElse("CGEE_AutoSet", CgeLocaleDefaults.CGEE_AutoSet);
+        internal static string CGEE_EnablePermutations => LocalizeOrElse("CGEE_EnablePermutations", CgeLocaleDefaults.CGEE_EnablePermutations);
+        internal static string CGEE_CombinerShowHidden => LocalizeOrElse("CGEE_CombinerShowHidden", CgeLocaleDefaults.CGEE_CombinerShowHidden);
+        internal static string CGEE_CombinerShowFullPaths => LocalizeOrElse("CGEE_CombinerShowFullPaths", CgeLocaleDefaults.CGEE_CombinerShowFullPaths);
+        internal static string CGEE_TreeAnimationAtRest => LocalizeOrElse("CGEE_TreeAnimationAtRest", CgeLocaleDefaults.CGEE_TreeAnimationAtRest);
+        internal static string CGEE_TreeJoystickCenterAnimation => LocalizeOrElse("CGEE_TreeJoystickCenterAnimation", CgeLocaleDefaults.CGEE_TreeJoystickCenterAnimation);
+        internal static string CGEE_TreeFixJoystickSnapping => LocalizeOrElse("CGEE_TreeFixJoystickSnapping", CgeLocaleDefaults.CGEE_TreeFixJoystickSnapping);
+        internal static string CGEE_TreeJoystickMaximumTilt => LocalizeOrElse("CGEE_TreeJoystickMaximumTilt", CgeLocaleDefaults.CGEE_TreeJoystickMaximumTilt);
+        internal static string CGEE_TreeCreateAsset => LocalizeOrElse("CGEE_TreeCreateAsset", CgeLocaleDefaults.CGEE_TreeCreateAsset);
+        internal static string CGEE_TreeFileCreate => LocalizeOrElse("CGEE_TreeFileCreate", CgeLocaleDefaults.CGEE_TreeFileCreate);
+        internal static string CGEE_TreeFileInvalidSavePath => LocalizeOrElse("CGEE_TreeFileInvalidSavePath", CgeLocaleDefaults.CGEE_TreeFileInvalidSavePath);
+        internal static string CGEE_TreeFileInvalidSavePathMessage => LocalizeOrElse("CGEE_TreeFileInvalidSavePathMessage", CgeLocaleDefaults.CGEE_TreeFileInvalidSavePathMessage);
 
         private static string LocalizeOrElse(string key, string defaultCultureLocalization)
         {

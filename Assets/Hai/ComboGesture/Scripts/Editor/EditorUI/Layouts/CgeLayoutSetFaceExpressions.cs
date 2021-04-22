@@ -344,7 +344,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             GUILayout.BeginArea(RectAt(8, 8));
             DrawTransitionEdit();
 
-            if (!GUILayout.Toggle(true, "Enable permutations", GUILayout.ExpandWidth(true), GUILayout.Height(CgeLayoutCommon.SingleLineHeight * 2)))
+            if (!GUILayout.Toggle(true, CgeLocale.CGEE_EnablePermutations, GUILayout.ExpandWidth(true), GUILayout.Height(CgeLayoutCommon.SingleLineHeight * 2)))
             {
                 _editorEffector.SpEnablePermutations().boolValue = false;
                 _editorEffector.SpEditorTool().intValue = 4;
@@ -457,7 +457,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                 var areSourcesCompatible = _driver.AreCombinationSourcesDefinedAndCompatible(propertyPath, usePermutations);
                 EditorGUI.BeginDisabledGroup(!areSourcesCompatible);
                 GUILayout.BeginArea(rect);
-                if (ColoredBackground(usePermutations, isLeftHand ? CgeLayoutCommon.LeftSideBg : CgeLayoutCommon.RightSideBg, () => GUILayout.Button((element != null ? "+" : "+ Combine"))))
+                if (ColoredBackground(usePermutations, isLeftHand ? CgeLayoutCommon.LeftSideBg : CgeLayoutCommon.RightSideBg, () => GUILayout.Button((element != null ? "+" : "+ " + CgeLocale.CGEE_Combine))))
                 {
                     var merge = _driver.ProvideCombinationPropertySources(propertyPath, usePermutations);
                     OpenMergeWindowFor(merge.Left, merge.Right, propertyPath, usePermutations);
@@ -494,7 +494,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                 var areSourcesCompatible = _driver.AreDiagonalCombinationSourcesDefinedAndCompatible(propertyPath, usePermutations);
                 EditorGUI.BeginDisabledGroup(!areSourcesCompatible);
                 GUILayout.BeginArea(rect);
-                if (ColoredBackground(!isSymmetrical, !isLeftHand ? CgeLayoutCommon.LeftSideBg : CgeLayoutCommon.RightSideBg, () => GUILayout.Button(!_driver.IsSymmetrical(propertyPath) || element != null ? "⅃" : "⅃ Combine Across")))
+                if (ColoredBackground(!isSymmetrical, !isLeftHand ? CgeLayoutCommon.LeftSideBg : CgeLayoutCommon.RightSideBg, () => GUILayout.Button(!_driver.IsSymmetrical(propertyPath) || element != null ? "⅃" : "⅃ " + CgeLocale.CGEE_CombineAcross)))
                 {
                     var merge = _driver.ProvideDiagonalCombinationPropertySources(propertyPath, usePermutations);
                     OpenMergeWindowFor(merge.Left, merge.Right, propertyPath, usePermutations);
@@ -507,7 +507,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             {
                 EditorGUI.BeginDisabledGroup(false);
                 GUILayout.BeginArea(new Rect(-3 + 10, CgeLayoutCommon.PictureHeight - CgeLayoutCommon.SingleLineHeight * 3f, CgeLayoutCommon.GuiSquareWidth - 20, CgeLayoutCommon.SingleLineHeight * 1.5f));
-                if (GUILayout.Button("❈ Create"))
+                if (GUILayout.Button("❈ " + CgeLocale.CGEE_Create))
                 {
                     CreateNewAnimation(propertyPath);
                 }
@@ -519,7 +519,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             {
                 EditorGUI.BeginDisabledGroup(false);
                 GUILayout.BeginArea(new Rect(-3 + 10, CgeLayoutCommon.PictureHeight - CgeLayoutCommon.SingleLineHeight * 1.75f, CgeLayoutCommon.GuiSquareWidth - 10, CgeLayoutCommon.SingleLineHeight * 1.5f));
-                if (GUILayout.Button("↗↗ Simplify"))
+                if (GUILayout.Button("↗↗ " + CgeLocale.CGEE_Simplify))
                 {
                     Simplify(isLeftHand ? propertyPath : oppositePath);
                 }
@@ -530,7 +530,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             {
                 EditorGUI.BeginDisabledGroup(false);
                 GUILayout.BeginArea(new Rect(-3 + 10, CgeLayoutCommon.PictureHeight - CgeLayoutCommon.SingleLineHeight * 1.75f, CgeLayoutCommon.GuiSquareWidth - 10, CgeLayoutCommon.SingleLineHeight * 1.5f));
-                if (GUILayout.Button("↗↙ Swap to Fix"))
+                if (GUILayout.Button("↗↙ " + CgeLocale.CGEE_SwapToFix))
                 {
                     Swap(propertyPath, oppositePath);
                 }
@@ -555,7 +555,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
 
                 EditorGUI.BeginDisabledGroup(animationToBeCopied == null);
                 GUILayout.BeginArea(new Rect(-3 + CgeLayoutCommon.GuiSquareWidth - 100, CgeLayoutCommon.PictureHeight - CgeLayoutCommon.SingleLineHeight * 1.75f, 100, CgeLayoutCommon.SingleLineHeight * 1.5f));
-                if (GUILayout.Button("Auto-set"))
+                if (GUILayout.Button(CgeLocale.CGEE_AutoSet))
                 {
                     AutoSet(propertyPath, propertyPathToCopyFrom);
                 }
@@ -569,7 +569,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
 
                 EditorGUI.BeginDisabledGroup(animationToBeCopied == null);
                 GUILayout.BeginArea(new Rect(-3 + CgeLayoutCommon.GuiSquareWidth - 100, CgeLayoutCommon.PictureHeight - CgeLayoutCommon.SingleLineHeight * 1.75f, 100, CgeLayoutCommon.SingleLineHeight * 1.5f));
-                if (GUILayout.Button("Auto-set"))
+                if (GUILayout.Button(CgeLocale.CGEE_AutoSet))
                 {
                     AutoSet(propertyPath, propertyPathToCopyFrom);
                 }

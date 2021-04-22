@@ -178,13 +178,13 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                                 || _blendTreeEffector.CurrentTemplate == PuppetTemplate.SingleAnalogFistAndTwoDirections
                                 || _blendTreeEffector.CurrentTemplate == PuppetTemplate.DualAnalogFist;
             _blendTreeEffector.MiddleClip = (AnimationClip) EditorGUILayout.ObjectField(
-                isFistRelated ? "Animation at rest" : "Joystick center animation", _blendTreeEffector.MiddleClip, typeof(AnimationClip), false);
+                isFistRelated ? CgeLocale.CGEE_TreeAnimationAtRest : CgeLocale.CGEE_TreeJoystickCenterAnimation, _blendTreeEffector.MiddleClip, typeof(AnimationClip), false);
             if (!isFistRelated) {
-                _blendTreeEffector.CenterSafety = EditorGUILayout.Toggle("Fix joystick snapping", _blendTreeEffector.CenterSafety);
-                _blendTreeEffector.Maximum = EditorGUILayout.Slider("Joystick maximum tilt", _blendTreeEffector.Maximum, 0.1f, 1.0f);
+                _blendTreeEffector.CenterSafety = EditorGUILayout.Toggle(CgeLocale.CGEE_TreeFixJoystickSnapping, _blendTreeEffector.CenterSafety);
+                _blendTreeEffector.Maximum = EditorGUILayout.Slider(CgeLocale.CGEE_TreeJoystickMaximumTilt, _blendTreeEffector.Maximum, 0.1f, 1.0f);
             }
 
-            if (GUILayout.Button("Create a new blend tree asset"))
+            if (GUILayout.Button(CgeLocale.CGEE_TreeCreateAsset))
             {
                 var createdTree = MaybeCreateNewBlendTreeAsset();
                 if (createdTree != null)
@@ -204,11 +204,11 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
 
         private BlendTree MaybeCreateNewBlendTreeAsset()
         {
-            var savePath = EditorUtility.SaveFilePanel("Create...", Application.dataPath, "", "asset");
+            var savePath = EditorUtility.SaveFilePanel(CgeLocale.CGEE_TreeFileCreate, Application.dataPath, "", "asset");
             if (savePath == null || savePath.Trim() == "") return null;
             if (!savePath.StartsWith(Application.dataPath))
             {
-                EditorUtility.DisplayDialog("Invalid save path", "Save path must be in the project's /Assets path.", "OK");
+                EditorUtility.DisplayDialog(CgeLocale.CGEE_TreeFileInvalidSavePath, CgeLocale.CGEE_TreeFileInvalidSavePathMessage, "OK");
                 return null;
             }
 

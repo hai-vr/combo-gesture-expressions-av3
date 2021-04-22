@@ -83,8 +83,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                 Save(repaintCallback);
             }
             GUILayout.Space(CgeLayoutCommon.SingleLineHeight * 2);
-            _combinerState.ComplexCombiner = EditorGUILayout.Toggle("Show hidden", _combinerState.ComplexCombiner);
-            _combinerState.ShowFullNames = EditorGUILayout.Toggle("Show full paths", _combinerState.ShowFullNames);
+            _combinerState.ComplexCombiner = EditorGUILayout.Toggle(CgeLocale.CGEE_CombinerShowHidden, _combinerState.ComplexCombiner);
+            _combinerState.ShowFullNames = EditorGUILayout.Toggle(CgeLocale.CGEE_CombinerShowFullPaths, _combinerState.ShowFullNames);
             GUILayout.Space(CgeLayoutCommon.SingleLineHeight * 2);
             GUILayout.EndVertical();
 

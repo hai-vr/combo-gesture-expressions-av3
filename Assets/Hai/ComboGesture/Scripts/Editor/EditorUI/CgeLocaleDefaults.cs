@@ -148,5 +148,22 @@ You usually need to synchronize only once.";
         internal static string CGEE_OneHandModeIntro = @"When using One Hand Mode, you will not use combos at all. Only one hand will be used, and the other hand will control nothing.
 This is a very simplified version of the Permutations feature.";
         internal static string CGEC_WarnNoMassiveBlend = @"One of the massive blends has an incorrect configuration.";
+        internal static string CGEE_Combine = "Combine";
+        internal static string CGEE_CombineAcross = "Combine Across";
+        internal static string CGEE_Create = "Create";
+        internal static string CGEE_Simplify = "Simplify";
+        internal static string CGEE_SwapToFix = "Swap to Fix";
+        internal static string CGEE_AutoSet = "Auto-set";
+        internal static string CGEE_EnablePermutations = "Enable permutations";
+        internal static string CGEE_CombinerShowHidden = "Show hidden";
+        internal static string CGEE_CombinerShowFullPaths = "Show full paths";
+        internal static string CGEE_TreeAnimationAtRest = "Animation at rest";
+        internal static string CGEE_TreeJoystickCenterAnimation = "Joystick center animation";
+        internal static string CGEE_TreeFixJoystickSnapping = "Fix joystick snapping";
+        internal static string CGEE_TreeJoystickMaximumTilt = "Joystick maximum tilt";
+        internal static string CGEE_TreeCreateAsset = "Create a new blend tree asset";
+        internal static string CGEE_TreeFileCreate = "Create...";
+        internal static string CGEE_TreeFileInvalidSavePath = "Invalid save path";
+        internal static string CGEE_TreeFileInvalidSavePathMessage = "Save path must be in the project's /Assets path.";
     }
 }
