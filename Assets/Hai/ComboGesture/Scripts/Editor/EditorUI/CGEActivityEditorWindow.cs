@@ -15,7 +15,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
     {
         SetFaceExpressions,
         PreventEyesBlinking,
-        MakeLipsyncMovementsSubtle,
         AdditionalEditors,
         OtherOptions
     }
@@ -24,7 +23,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
     {
         ManipulateTrees,
         PreventEyesBlinking,
-        MakeLipsyncMovementsSubtle,
         OtherOptions
     }
 
@@ -41,7 +39,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         private CgeLayoutCommon _common;
         private CgeEditorEffector _editorEffector;
         private CgeLayoutPreventEyesBlinking _layoutPreventEyesBlinking;
-        private CgeLayoutMakeLipsyncMovementsSubtle _layoutMakeLipsyncMovementsSubtle;
         private CgeLayoutFaceExpressionCombiner _layoutFaceExpressionCombiner;
         private CgeLayoutOtherOptions _layoutOtherOptions;
         private CgeLayoutSetFaceExpressions _layoutSetFaceExpressions;
@@ -62,7 +59,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             _common = new CgeLayoutCommon(Repaint, _editorEffector, activityPreviewQueryAggregator, cgeMemoryQuery);
             var driver = new CgeActivityEditorDriver(_editorEffector);
             _layoutPreventEyesBlinking = new CgeLayoutPreventEyesBlinking(_common, _editorEffector);
-            _layoutMakeLipsyncMovementsSubtle = new CgeLayoutMakeLipsyncMovementsSubtle(_common, driver, _editorEffector, renderingCommands);
             _layoutFaceExpressionCombiner = new CgeLayoutFaceExpressionCombiner(_common, driver, _editorEffector, renderingCommands, activityPreviewQueryAggregator);
             _layoutOtherOptions = new CgeLayoutOtherOptions(_common, _editorEffector, activityPreviewQueryAggregator);
             _layoutSetFaceExpressions = new CgeLayoutSetFaceExpressions(_common, driver, _layoutFaceExpressionCombiner /* FIXME it is not normal to inject the layout here */, _editorEffector, Repaint, blendTreeEffector);
@@ -86,7 +82,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             TryNowEditingAnActivity(active);
             TryNowEditingAPuppet(active);
-            TryAlsoEditingLipsync(active);
         }
 
         private void TryNowEditingAnActivity(GameObject active)
@@ -105,16 +100,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             if (selectedPuppet != null && selectedPuppet != _editorEffector.GetPuppet())
             {
                 WindowHandler.RetargetPuppet(selectedPuppet);
-                Repaint();
-            }
-        }
-
-        private void TryAlsoEditingLipsync(GameObject active)
-        {
-            var selectedLimitedLipsync = active.GetComponent<ComboGestureLimitedLipsync>();
-            if (selectedLimitedLipsync != null && !_layoutMakeLipsyncMovementsSubtle.IsLimitedLipsyncSameAs(selectedLimitedLipsync))
-            {
-                _layoutMakeLipsyncMovementsSubtle.SetLipsync(selectedLimitedLipsync, Repaint);
                 Repaint();
             }
         }
@@ -163,7 +148,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         private void EditingAnActivity()
         {
             _editorEffector.SpUpdate();
-            _layoutMakeLipsyncMovementsSubtle.TryUpdate();
 
             CreateActivityToolbarArea();
 
@@ -173,9 +157,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             {
                 case ActivityEditorMode.PreventEyesBlinking:
                     _layoutPreventEyesBlinking.Layout(position);
-                    break;
-                case ActivityEditorMode.MakeLipsyncMovementsSubtle:
-                    _layoutMakeLipsyncMovementsSubtle.Layout(position, Repaint);
                     break;
                 case ActivityEditorMode.AdditionalEditors:
                     switch (_editorEffector.GetAdditionalEditor())
@@ -205,7 +186,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             GUILayout.EndScrollView();
 
             _editorEffector.ApplyModifiedProperties();
-            _layoutMakeLipsyncMovementsSubtle.ApplyModifiedProperties();
         }
 
         private void CreateActivityToolbarArea()
@@ -213,7 +193,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             GUILayout.BeginArea(new Rect(0, singleLineHeight, position.width, singleLineHeight * 3));
             _editorEffector.SwitchTo((ActivityEditorMode) GUILayout.Toolbar((int) _editorEffector.CurrentActivityMode(), new[]
             {
-                CgeLocale.CGEE_Set_face_expressions, CgeLocale.CGEE_Prevent_eyes_blinking, CgeLocale.CGEE_Make_lipsync_movements_subtle, CgeLocale.CGEE_Additional_editors, CgeLocale.CGEE_Other_options
+                CgeLocale.CGEE_Set_face_expressions, CgeLocale.CGEE_Prevent_eyes_blinking, CgeLocale.CGEE_Additional_editors, CgeLocale.CGEE_Other_options
             }));
             if (_editorEffector.CurrentActivityMode() == ActivityEditorMode.SetFaceExpressions)
             {
@@ -242,10 +222,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 _editorEffector.SwitchCurrentEditorToolTo(_editorEffector.SpEditorTool().intValue);
             }
 
-            if (_editorEffector.CurrentActivityMode() == ActivityEditorMode.MakeLipsyncMovementsSubtle)
-            {
-                CreateLipsyncToolbar();
-            }
             else if (_editorEffector.CurrentActivityMode() == ActivityEditorMode.AdditionalEditors)
             {
                 CreateAdditionalEditorsToolbar();
@@ -257,7 +233,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         private void EditingAPuppet()
         {
             _editorEffector.SpUpdate();
-            _layoutMakeLipsyncMovementsSubtle.TryUpdate();
 
             CreatePuppetToolbarArea();
 
@@ -267,9 +242,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             {
                 case PuppetEditorMode.PreventEyesBlinking:
                     _layoutPreventEyesBlinking.Layout(position);
-                    break;
-                case PuppetEditorMode.MakeLipsyncMovementsSubtle:
-                    _layoutMakeLipsyncMovementsSubtle.Layout(position, Repaint);
                     break;
                 case PuppetEditorMode.OtherOptions:
                     _layoutOtherOptions.Layout(Repaint, position);
@@ -283,7 +255,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             GUILayout.EndScrollView();
 
             _editorEffector.ApplyModifiedProperties();
-            _layoutMakeLipsyncMovementsSubtle.ApplyModifiedProperties();
         }
 
         private void CreatePuppetToolbarArea()
@@ -291,25 +262,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             GUILayout.BeginArea(new Rect(0, singleLineHeight, position.width, singleLineHeight * 3));
             _editorEffector.SwitchTo((PuppetEditorMode) GUILayout.Toolbar((int) _editorEffector.CurrentPuppetMode(), new[]
             {
-                CgeLocale.CGEE_Manipulate_trees, CgeLocale.CGEE_Prevent_eyes_blinking, CgeLocale.CGEE_Make_lipsync_movements_subtle, CgeLocale.CGEE_Other_options
+                CgeLocale.CGEE_Manipulate_trees, CgeLocale.CGEE_Prevent_eyes_blinking, CgeLocale.CGEE_Other_options
             }));
-            if (_editorEffector.CurrentPuppetMode() == PuppetEditorMode.MakeLipsyncMovementsSubtle)
-            {
-                CreateLipsyncToolbar();
-            }
             GUILayout.EndArea();
-        }
-
-        private void CreateLipsyncToolbar()
-        {
-            GUILayout.BeginHorizontal();
-            GUILayout.Space(30);
-            _layoutMakeLipsyncMovementsSubtle.SetEditorLipsync(GUILayout.Toolbar(_layoutMakeLipsyncMovementsSubtle.GetEditorLipsync(), new[]
-            {
-                CgeLocale.CGEE_Select_wide_open_mouth, CgeLocale.CGEE_Edit_lipsync_settings
-            }, GUILayout.ExpandWidth(true)));
-            GUILayout.Space(RightSpace);
-            GUILayout.EndHorizontal();
         }
 
         private void CreateAdditionalEditorsToolbar()

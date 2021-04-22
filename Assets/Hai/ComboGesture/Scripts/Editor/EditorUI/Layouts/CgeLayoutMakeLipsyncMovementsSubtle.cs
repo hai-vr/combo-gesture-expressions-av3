@@ -194,7 +194,7 @@ At the time this version has been published, generating the layer will break you
             {
                 if (GUILayout.Button("Select an animation..."))
                 {
-                    _editorEffector.SwitchTo(ActivityEditorMode.MakeLipsyncMovementsSubtle);
+                    // _editorEffector.SwitchTo(ActivityEditorMode.MakeLipsyncMovementsSubtle);
                     _lipsyncState.EditorLipsyncTool = 0;
                 }
             }
