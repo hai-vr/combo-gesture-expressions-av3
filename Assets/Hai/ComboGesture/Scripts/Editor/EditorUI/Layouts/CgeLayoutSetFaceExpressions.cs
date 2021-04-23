@@ -30,11 +30,11 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
 
         public void Layout(Rect position)
         {
-            if (_editorEffector.GetActivity().oneHandMode != ComboGestureActivity.CgeOneHandMode.Disabled)
+            if ((ComboGestureActivity.CgeOneHandMode)_editorEffector.SpOneHandMode().intValue != ComboGestureActivity.CgeOneHandMode.Disabled)
             {
                 LayoutOneHandEditor(position);
             }
-            else if (_editorEffector.GetActivity().enablePermutations)
+            else if (_editorEffector.SpEnablePermutations().boolValue)
             {
                 LayoutPermutationEditor(position);
             }
@@ -46,9 +46,17 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
 
         private void LayoutOneHandEditor(Rect position)
         {
-            BeginLayoutUsing(CgeLayoutCommon.GuiSquareHeight * 4, position);
-            LayoutOneHandMode();
-            CgeLayoutCommon.EndLayout();
+            switch (_editorEffector.SpEditorTool().intValue)
+            {
+                case 1:
+                    BeginLayoutUsing(CgeLayoutCommon.GuiSquareHeight * 4, position);
+                    LayoutOneHandMode();
+                    CgeLayoutCommon.EndLayout();
+                    break;
+                default:
+                    LayoutAllModesPage(position);
+                    break;
+            }
         }
 
         private void LayoutOneHandMode()
@@ -74,70 +82,125 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             switch (_editorEffector.SpEditorTool().intValue)
             {
                 case 1:
-                    BeginLayoutUsing(CgeLayoutCommon.GuiSquareHeight * 2, position);
-                    LayoutSinglesDoublesMatrixProjection();
-                    CgeLayoutCommon.EndLayout();
-                    break;
-                case 2:
-                    BeginLayoutUsing(CgeLayoutCommon.GuiSquareHeight * 5, position);
-                    LayoutFistMatrixProjection();
-                    CgeLayoutCommon.EndLayout();
-                    break;
-                case 3:
-                    BeginLayoutUsing(CgeLayoutCommon.GuiSquareHeight * 8, position);
-                    LayoutComboMatrixProjection();
-                    CgeLayoutCommon.EndLayout();
-                    break;
-                case 4:
-                    LayoutAllPermutationTogglePage();
-                    break;
-                case 5:
-                    LayoutAllOneHandModePage();
-                    break;
-                default:
                     BeginLayoutUsing(CgeLayoutCommon.GuiSquareHeight * 8, position);
                     LayoutFullMatrixProjection();
                     CgeLayoutCommon.EndLayout();
                     break;
+                case 2:
+                    BeginLayoutUsing(CgeLayoutCommon.GuiSquareHeight * 2, position);
+                    LayoutSinglesDoublesMatrixProjection();
+                    CgeLayoutCommon.EndLayout();
+                    break;
+                case 3:
+                    BeginLayoutUsing(CgeLayoutCommon.GuiSquareHeight * 5, position);
+                    LayoutFistMatrixProjection();
+                    CgeLayoutCommon.EndLayout();
+                    break;
+                case 4:
+                    BeginLayoutUsing(CgeLayoutCommon.GuiSquareHeight * 8, position);
+                    LayoutComboMatrixProjection();
+                    CgeLayoutCommon.EndLayout();
+                    break;
+                default:
+                    LayoutAllModesPage(position);
+                    break;
             }
         }
 
-        private void LayoutAllPermutationTogglePage()
+        private void DrawSeparator()
         {
-            GUILayout.BeginHorizontal();
-            GUILayout.FlexibleSpace();
-            GUILayout.BeginVertical(GUILayout.Width(800));
-            GUILayout.Label("<b>" + CgeLocale.CGEE_Permutations + "</b>", _common.LargeFont);
+            EditorGUI.DrawRect(EditorGUILayout.GetControlRect(false, 2), Color.gray);
+        }
+
+        private void LayoutAllModesPage(Rect position)
+        {
+            BeginLayoutUsing(CgeLayoutCommon.GuiSquareHeight * 6, position);
+            // GUILayout.BeginArea(NewRect(0));
+            GUILayout.Label(CgeLocale.CGEE_Combos, _common.LargeFont);
+            GUILayout.Label(CgeLocale.CGEE_CombosIntro);
+            //GUILayout.FlexibleSpace();
+            {
+                var prev = !_editorEffector.SpEnablePermutations().boolValue && !_editorEffector.SpOneHandMode().boolValue;
+                var current = GUILayout.Toggle(prev, "Use Combos", GUILayout.Width(300));
+                if (current != prev)
+                {
+                    if (current)
+                    {
+                        _editorEffector.SpEnablePermutations().boolValue = false;
+                        _editorEffector.SpOneHandMode().boolValue = false;
+                    }
+                }
+            }
+            // GUILayout.EndArea();
+
+            // GUILayout.BeginArea(NewRect(1));
+            DrawSeparator();
+            GUILayout.Label(CgeLocale.CGEE_Permutations, _common.LargeFont);
             GUILayout.Label(CgeLocale.CGEE_PermutationsIntro);
-
-            if (GUILayout.Button(new GUIContent(CgeLocale.CGEE_Open_Documentation_and_tutorials, CgeLayoutCommon.GuideIcon32)))
+            //GUILayout.FlexibleSpace();
             {
-                Application.OpenURL(CgeLocale.PermutationsDocumentationUrl());
-            }
-
-            GUILayout.Space(15);
-            GUILayout.Label(CgeLocale.CGEE_ConfirmUsePermutations, _common.LargeFont);
-            var prev = _editorEffector.SpEnablePermutations().boolValue;
-            var current = GUILayout.Toggle(prev, CgeLocale.CGEE_Enable_permutations_for_this_Activity, GUILayout.Width(300));
-            if (current != prev)
-            {
-                if (current)
+                var prev = _editorEffector.SpEnablePermutations().boolValue;
+                var current = GUILayout.Toggle(prev, "Use Permutations", GUILayout.Width(300));
+                if (current != prev)
                 {
-                    _editorEffector.SpEnablePermutations().boolValue = true;
-                    _editorEffector.SpEditorTool().intValue = 2;
-                }
-                else
-                {
-                    _editorEffector.SpEnablePermutations().boolValue = false;
-                    _editorEffector.SpEditorTool().intValue = 4;
+                    if (current)
+                    {
+                        _editorEffector.SpEnablePermutations().boolValue = true;
+                        _editorEffector.SpOneHandMode().boolValue = false;
+                    }
                 }
             }
+            // GUILayout.EndArea();
 
-            GUILayout.Label(CgeLocale.CGEE_PermutationsFootnote);
+            // GUILayout.BeginArea(NewRect(2));
+            DrawSeparator();
+            GUILayout.Label(CgeLocale.CGEE_OneHandMode, _common.LargeFont);
+            GUILayout.Label(CgeLocale.CGEE_OneHandModeIntro);
+            //GUILayout.FlexibleSpace();
+            {
+                var prev = !_editorEffector.SpEnablePermutations().boolValue && _editorEffector.SpOneHandMode().boolValue;
+                var current = GUILayout.Toggle(prev, "Use One Hand", GUILayout.Width(300));
+                if (current != prev)
+                {
+                    if (current)
+                    {
+                        _editorEffector.SpEnablePermutations().boolValue = false;
+                        _editorEffector.SpOneHandMode().boolValue = true;
+                    }
+                }
+            }
+            // GUILayout.EndArea();
 
-            GUILayout.EndVertical();
-            GUILayout.FlexibleSpace();
-            GUILayout.EndHorizontal();
+            // GUILayout.BeginArea(NewRect(3));
+            DrawSeparator();
+            EditorGUI.BeginDisabledGroup(true);
+            GUILayout.Label("Puppet", _common.LargeFont);
+            GUILayout.Label("Puppets can be controlled using the Expression Menu.");
+            //GUILayout.FlexibleSpace();
+            GUILayout.Toggle(false, "Use Puppet", GUILayout.Width(300));
+            EditorGUI.EndDisabledGroup();
+            // GUILayout.EndArea();
+
+            // GUILayout.BeginArea(NewRect(4));
+            DrawSeparator();
+            EditorGUI.BeginDisabledGroup(true);
+            GUILayout.Label("Massive Blend", _common.LargeFont);
+            GUILayout.Label(@"Massive Blend is a special Mode that lets you blend halfway between two Combos or Permutations.
+This lets you use hand gestures alongside puppets.");
+
+            //GUILayout.FlexibleSpace();
+            GUILayout.Toggle(false, "Use Massive Blend", GUILayout.Width(300));
+            EditorGUI.EndDisabledGroup();
+            // GUILayout.EndArea();
+
+            //
+            CgeLayoutCommon.EndLayout();
+        }
+
+        private Rect NewRect(int elementIndex)
+        {
+            var height = 100;
+            return new Rect(20, (height + 15) * elementIndex, 600, height);
         }
 
         private void LayoutAllOneHandModePage()
@@ -170,7 +233,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
 
                 if (previousValue != 0 && newValue == 0)
                 {
-                    _editorEffector.SpEditorTool().intValue = 5;
+                    _editorEffector.SpEditorTool().intValue = 0;
                 }
             }
         }
@@ -179,19 +242,18 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
         {
             switch (_editorEffector.SpEditorTool().intValue)
             {
-                case 0:
+                case 1:
                     BeginPermutationLayoutUsing(position);
                     LayoutPermutationMatrixProjection(true);
                     CgeLayoutCommon.EndLayout();
                     break;
                 case 2:
-                    LayoutAllPermutationTogglePage();
-                    break;
-                case 1:
-                default:
                     BeginPermutationLayoutUsing(position);
                     LayoutPermutationMatrixProjection();
                     CgeLayoutCommon.EndLayout();
+                    break;
+                default:
+                    LayoutAllModesPage(position);
                     break;
             }
         }
@@ -205,8 +267,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
 
         private void BeginPermutationLayoutUsing(Rect position)
         {
-            var totalHeight = CgeLayoutCommon.GuiSquareHeight * 9;
-            var totalWidth = CgeLayoutCommon.GuiSquareWidth * 9;
+            var totalHeight = CgeLayoutCommon.GuiSquareHeight * 9 + 40;
+            var totalWidth = CgeLayoutCommon.GuiSquareWidth * 9 + 40;
             GUILayout.Box("", GUIStyle.none, GUILayout.Width(totalWidth), GUILayout.Height(totalHeight));
             GUILayout.BeginArea(new Rect(Math.Max((position.width - totalWidth) / 2, 0), 0, totalWidth, totalHeight));
         }
@@ -323,11 +385,11 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             }
             for (var side = 1; side < 8; side++)
             {
-                GUILayout.BeginArea(RectAt(8, side));
+                GUILayout.BeginArea(RectAtNudge(8, side, 25, 0));
                 DrawInner("anim0" + side, "anim" + side + "0", partial);
                 GUILayout.EndArea();
 
-                GUILayout.BeginArea(RectAt(side, 8));
+                GUILayout.BeginArea(RectAtNudge(side, 8, 0, 25));
                 DrawInner("anim" + side + "0", "anim0" + side, partial);
                 GUILayout.EndArea();
             }
@@ -347,7 +409,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             if (!GUILayout.Toggle(true, CgeLocale.CGEE_EnablePermutations, GUILayout.ExpandWidth(true), GUILayout.Height(CgeLayoutCommon.SingleLineHeight * 2)))
             {
                 _editorEffector.SpEnablePermutations().boolValue = false;
-                _editorEffector.SpEditorTool().intValue = 4;
+                _editorEffector.SpEditorTool().intValue = 0;
             }
             GUILayout.EndArea();
         }
@@ -380,6 +442,11 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
         private static Rect RectAt(int xGrid, int yGrid)
         {
             return new Rect(xGrid * CgeLayoutCommon.GuiSquareWidth, yGrid * CgeLayoutCommon.GuiSquareHeight, CgeLayoutCommon.GuiSquareWidth - 3, CgeLayoutCommon.GuiSquareHeight - 3);
+        }
+
+        private static Rect RectAtNudge(int xGrid, int yGrid, int xNudge, int yNudge)
+        {
+            return new Rect(xGrid * CgeLayoutCommon.GuiSquareWidth + xNudge, yGrid * CgeLayoutCommon.GuiSquareHeight + yNudge, CgeLayoutCommon.GuiSquareWidth - 3, CgeLayoutCommon.GuiSquareHeight - 3);
         }
 
         private void DrawInner(string propertyPath, string oppositePath = null, bool partial = false)

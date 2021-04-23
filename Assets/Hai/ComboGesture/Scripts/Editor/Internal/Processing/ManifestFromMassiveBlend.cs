@@ -10,9 +10,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Processing
 {
     public static class ManifestFromMassiveBlend
     {
-        public static IManifest FromMassiveBlend(ComboGestureMassiveBlend massiveBlend, AnimationClip fallbackWhenAnyClipIsNull, bool universalAnalogSupport)
+        public static IManifest FromMassiveBlend(ComboGestureMoodSet massiveBlend, AnimationClip fallbackWhenAnyClipIsNull, bool universalAnalogSupport)
         {
-            switch (massiveBlend.mode)
+            switch (massiveBlend.massive.mode)
             {
                 case CgeMassiveBlendMode.Simple:
                     return OfSimple(massiveBlend, fallbackWhenAnyClipIsNull, universalAnalogSupport);
@@ -25,43 +25,43 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Processing
             }
         }
 
-        private static IManifest OfSimple(ComboGestureMassiveBlend massiveBlend, AnimationClip fallbackWhenAnyClipIsNull, bool universalAnalogSupport)
+        private static IManifest OfSimple(ComboGestureMoodSet massiveBlend, AnimationClip fallbackWhenAnyClipIsNull, bool universalAnalogSupport)
         {
             return MassiveBlendManifest.OfParameterBased(
-                massiveBlend.mode,
+                massiveBlend.massive.mode,
                 new List<IManifest>
                 {
-                    SharedLayerUtils.FromMoodSet(massiveBlend.simpleZero, fallbackWhenAnyClipIsNull, universalAnalogSupport),
-                    SharedLayerUtils.FromMoodSet(massiveBlend.simpleOne, fallbackWhenAnyClipIsNull, universalAnalogSupport),
+                    SharedLayerUtils.FromMoodSet(massiveBlend.massive.simpleZero, fallbackWhenAnyClipIsNull, universalAnalogSupport),
+                    SharedLayerUtils.FromMoodSet(massiveBlend.massive.simpleOne, fallbackWhenAnyClipIsNull, universalAnalogSupport),
                 },
-                massiveBlend.simpleParameterName,
+                massiveBlend.massive.simpleParameterName,
                 massiveBlend.transitionDuration
             );
         }
 
-        private static IManifest OfTwoDirections(ComboGestureMassiveBlend massiveBlend, AnimationClip fallbackWhenAnyClipIsNull, bool universalAnalogSupport)
+        private static IManifest OfTwoDirections(ComboGestureMoodSet massiveBlend, AnimationClip fallbackWhenAnyClipIsNull, bool universalAnalogSupport)
         {
             return MassiveBlendManifest.OfParameterBased(
-                massiveBlend.mode,
+                massiveBlend.massive.mode,
                 new List<IManifest>
                 {
-                    SharedLayerUtils.FromMoodSet(massiveBlend.simpleZero, fallbackWhenAnyClipIsNull, universalAnalogSupport),
-                    SharedLayerUtils.FromMoodSet(massiveBlend.simpleOne, fallbackWhenAnyClipIsNull, universalAnalogSupport),
-                    SharedLayerUtils.FromMoodSet(massiveBlend.simpleMinusOne, fallbackWhenAnyClipIsNull, universalAnalogSupport),
+                    SharedLayerUtils.FromMoodSet(massiveBlend.massive.simpleZero, fallbackWhenAnyClipIsNull, universalAnalogSupport),
+                    SharedLayerUtils.FromMoodSet(massiveBlend.massive.simpleOne, fallbackWhenAnyClipIsNull, universalAnalogSupport),
+                    SharedLayerUtils.FromMoodSet(massiveBlend.massive.simpleMinusOne, fallbackWhenAnyClipIsNull, universalAnalogSupport),
                 },
-                massiveBlend.simpleParameterName,
+                massiveBlend.massive.simpleParameterName,
                 massiveBlend.transitionDuration
             );
         }
 
-        private static IManifest OfComplexBlendTreeBased(ComboGestureMassiveBlend massiveBlend, AnimationClip fallbackWhenAnyClipIsNull, bool universalAnalogSupport)
+        private static IManifest OfComplexBlendTreeBased(ComboGestureMoodSet massiveBlend, AnimationClip fallbackWhenAnyClipIsNull, bool universalAnalogSupport)
         {
             return MassiveBlendManifest.OfComplex(
-                massiveBlend.mode,
-                massiveBlend.blendTreeMoods
+                massiveBlend.massive.mode,
+                massiveBlend.massive.massiveBlendTreeMoods
                     .Select(mood => SharedLayerUtils.FromMoodSet(mood, fallbackWhenAnyClipIsNull, universalAnalogSupport))
                     .ToList(),
-                (BlendTree)massiveBlend.blendTree,
+                (BlendTree)massiveBlend.massive.massiveBlendTree,
                 massiveBlend.transitionDuration
             );
         }

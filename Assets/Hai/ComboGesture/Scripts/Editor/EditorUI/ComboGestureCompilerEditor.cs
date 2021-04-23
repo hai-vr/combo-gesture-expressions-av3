@@ -216,17 +216,17 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                     .Any(mapper =>
                     {
                         var massiveBlend = mapper.massiveBlend;
-                        switch (massiveBlend.mode)
+                        switch (massiveBlend.massive.mode)
                         {
                             case CgeMassiveBlendMode.Simple:
-                                return massiveBlend.simpleZero == null || massiveBlend.simpleOne == null;
+                                return massiveBlend.massive.simpleZero == null || massiveBlend.massive.simpleOne == null;
                             case CgeMassiveBlendMode.TwoDirections:
-                                return massiveBlend.simpleZero == null || massiveBlend.simpleOne == null || massiveBlend.simpleMinusOne == null;
+                                return massiveBlend.massive.simpleZero == null || massiveBlend.massive.simpleOne == null || massiveBlend.massive.simpleMinusOne == null;
                             case CgeMassiveBlendMode.ComplexBlendTree:
-                                return massiveBlend.blendTreeMoods.Count == 0
-                                       || massiveBlend.blendTree == null
-                                       || !(massiveBlend.blendTree is BlendTree)
-                                       || ((BlendTree) massiveBlend.blendTree).children.Length != massiveBlend.blendTreeMoods.Count;
+                                return massiveBlend.massive.massiveBlendTreeMoods.Length == 0
+                                       || massiveBlend.massive.massiveBlendTree == null
+                                       || !(massiveBlend.massive.massiveBlendTree is BlendTree)
+                                       || ((BlendTree) massiveBlend.massive.massiveBlendTree).children.Length != massiveBlend.massive.massiveBlendTreeMoods.Length;
                             default:
                                 throw new ArgumentOutOfRangeException();
                         }
