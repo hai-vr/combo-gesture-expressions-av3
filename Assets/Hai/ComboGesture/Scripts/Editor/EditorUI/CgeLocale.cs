@@ -127,6 +127,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         //
         internal static string CGEE_OneHandMode => LocalizeOrElse("CGEE_OneHandMode", CgeLocaleDefaults.CGEE_OneHandMode);
         internal static string CGEE_OneHandModeIntro => LocalizeOrElse("CGEE_OneHandModeIntro", CgeLocaleDefaults.CGEE_OneHandModeIntro);
+        internal static string CGEE_CombosIntro => LocalizeOrElse("CGEE_CombosIntro", CgeLocaleDefaults.CGEE_CombosIntro);
         internal static string CGEE_Combine => LocalizeOrElse("CGEE_Combine", CgeLocaleDefaults.CGEE_Combine);
         internal static string CGEE_CombineAcross => LocalizeOrElse("CGEE_CombineAcross", CgeLocaleDefaults.CGEE_CombineAcross);
         internal static string CGEE_Create => LocalizeOrElse("CGEE_Create", CgeLocaleDefaults.CGEE_Create);
@@ -144,6 +145,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         internal static string CGEE_TreeFileCreate => LocalizeOrElse("CGEE_TreeFileCreate", CgeLocaleDefaults.CGEE_TreeFileCreate);
         internal static string CGEE_TreeFileInvalidSavePath => LocalizeOrElse("CGEE_TreeFileInvalidSavePath", CgeLocaleDefaults.CGEE_TreeFileInvalidSavePath);
         internal static string CGEE_TreeFileInvalidSavePathMessage => LocalizeOrElse("CGEE_TreeFileInvalidSavePathMessage", CgeLocaleDefaults.CGEE_TreeFileInvalidSavePathMessage);
+        internal static string CGEE_Mode => LocalizeOrElse("CGEE_Mode", CgeLocaleDefaults.CGEE_Mode);
 
         private static string LocalizeOrElse(string key, string defaultCultureLocalization)
         {

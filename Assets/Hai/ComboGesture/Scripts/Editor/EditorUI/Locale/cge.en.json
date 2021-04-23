@@ -107,7 +107,7 @@
   "CGEI_Documentation": "Integrator Documentation",
   "CGEE_EyesAreClosed": "Eyes are closed",
   "CGEE_OneHandMode": "One Hand Mode",
-  "CGEE_OneHandModeIntro": "When using One Hand Mode, you will not use combos at all. Only one hand will be used, and the other hand will control nothing.\r\nThis is a very simplified version of the Permutations feature.",
+  "CGEE_OneHandModeIntro": "When using One Hand Mode, you will not use combos at all.\r\nOnly one hand will be used, and the other hand will control nothing.\r\nThis is a very simplified version of the Permutations feature.",
   "CGEC_WarnNoMassiveBlend": "One of the massive blends has an incorrect configuration.",
   "CGEE_Combine": "Combine",
   "CGEE_CombineAcross": "Combine Across",
@@ -125,5 +125,7 @@
   "CGEE_TreeCreateAsset": "Create a new blend tree asset",
   "CGEE_TreeFileCreate": "Create...",
   "CGEE_TreeFileInvalidSavePath": "Invalid save path",
-  "CGEE_TreeFileInvalidSavePathMessage": "Save path must be in the project's /Assets path."
+  "CGEE_TreeFileInvalidSavePathMessage": "Save path must be in the project's /Assets path.",
+  "CGEE_Mode": "Mode",
+  "CGEE_CombosIntro": "Combos is the recommended balanced setting for ComboGestureExpressions.\r\nCombining both hands results in a unique face expression, but the hand sides do not matter."
 }

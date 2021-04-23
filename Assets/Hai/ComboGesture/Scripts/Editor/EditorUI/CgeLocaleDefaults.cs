@@ -145,7 +145,8 @@ You usually need to synchronize only once.";
         internal static string CGEE_EyesAreClosed = "Eyes are closed";
         // 1.6.0
         internal static string CGEE_OneHandMode = "One Hand Mode";
-        internal static string CGEE_OneHandModeIntro = @"When using One Hand Mode, you will not use combos at all. Only one hand will be used, and the other hand will control nothing.
+        internal static string CGEE_OneHandModeIntro = @"When using One Hand Mode, you will not use combos at all.
+Only one hand will be used, and the other hand will control nothing.
 This is a very simplified version of the Permutations feature.";
         internal static string CGEC_WarnNoMassiveBlend = @"One of the massive blends has an incorrect configuration.";
         internal static string CGEE_Combine = "Combine";
@@ -165,5 +166,8 @@ This is a very simplified version of the Permutations feature.";
         internal static string CGEE_TreeFileCreate = "Create...";
         internal static string CGEE_TreeFileInvalidSavePath = "Invalid save path";
         internal static string CGEE_TreeFileInvalidSavePathMessage = "Save path must be in the project's /Assets path.";
+        internal static string CGEE_Mode = "Mode";
+        internal static string CGEE_CombosIntro = @"Combos is the recommended balanced setting for ComboGestureExpressions.
+Combining both hands results in a unique face expression, but the hand sides do not matter.";
     }
 }
