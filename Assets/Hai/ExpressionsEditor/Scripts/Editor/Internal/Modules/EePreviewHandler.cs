@@ -91,7 +91,7 @@ namespace Hai.ExpressionsEditor.Scripts.Editor.Internal.Modules
         {
             if (_state.ActivePreview != null) return;
 
-            _bufferActive = new Texture2D(EeMetadata.StandardWidth, EeMetadata.StandardHeight, TextureFormat.ARGB32, false);
+            _bufferActive = new Texture2D(EeMetadata.StandardWidth, EeMetadata.StandardHeight, TextureFormat.RGB24, false);
 
             _state.Altered(this).TEMP_ActivePreviewEnsured();
         }
@@ -103,7 +103,7 @@ namespace Hai.ExpressionsEditor.Scripts.Editor.Internal.Modules
 
         private Texture2D BufferTexture2D()
         {
-            if (_bufferTexture == null) _bufferTexture = new Texture2D(EeMetadata.HalfWidth * EeMetadata.PreviewResolutionMultiplier, EeMetadata.HalfHeight * EeMetadata.PreviewResolutionMultiplier, TextureFormat.ARGB32, false);
+            if (_bufferTexture == null) _bufferTexture = new Texture2D(EeMetadata.HalfWidth * EeMetadata.PreviewResolutionMultiplier, EeMetadata.HalfHeight * EeMetadata.PreviewResolutionMultiplier, TextureFormat.RGB24, false);
             return _bufferTexture;
         }
 
