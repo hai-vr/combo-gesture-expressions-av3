@@ -652,6 +652,143 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
         }
     }
 
+    class UniversalAnalogAnimatedBehavior : IAnimatedBehavior
+    {
+        public UniversalQualifier Resting { get; }
+        public UniversalQualifier LeftSqueezing { get; }
+        public UniversalQualifier RightSqueezing { get; }
+        public QualifiedAnimation BothSqueezing { get; }
+
+        public struct UniversalQualifier
+        {
+            public bool isBlendTree;
+            public BlendTree blendTree;
+            public QualifiedAnimation? qualification;
+            public List<QualifiedAnimation> qualificationsOfTree;
+
+            public List<QualifiedAnimation> AllQualifications()
+            {
+                return isBlendTree ? qualificationsOfTree : new List<QualifiedAnimation> {qualification.Value};
+            }
+
+            public UniversalQualifier Remapping(Dictionary<QualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)
+            {
+                var newQualificationsOfTree = qualificationsOfTree
+                    .Select(qualification => remapping.ContainsKey(qualification)
+                        ? qualification.NewInstanceWithClip(remapping[qualification])
+                        : qualification)
+                    .ToList();
+
+                return new UniversalQualifier
+                {
+                    isBlendTree = isBlendTree,
+                    blendTree = isBlendTree ? blendRemapping[blendTree] : null,
+                    qualification = isBlendTree ? null : remapping.ContainsKey(qualification.Value) ? qualification.Value.NewInstanceWithClip(remapping[qualification.Value]) : qualification,
+                    qualificationsOfTree = newQualificationsOfTree
+                };
+            }
+
+            public static UniversalQualifier OfBlend(BlendTree tree, List<QualifiedAnimation> qualificationsOfTree)
+            {
+                return new UniversalQualifier
+                {
+                    qualification = null,
+                    blendTree = tree,
+                    isBlendTree = true,
+                    qualificationsOfTree = qualificationsOfTree
+                };
+            }
+
+            public static UniversalQualifier OfQualification(QualifiedAnimation qualification)
+            {
+                return new UniversalQualifier
+                {
+                    qualification = qualification,
+                    blendTree = null,
+                    isBlendTree = false,
+                    qualificationsOfTree = null
+                };
+            }
+        }
+
+        private UniversalAnalogAnimatedBehavior(UniversalQualifier resting, UniversalQualifier leftSqueezing, UniversalQualifier rightSqueezing, QualifiedAnimation bothSqueezing)
+        {
+            Resting = resting;
+            LeftSqueezing = leftSqueezing;
+            RightSqueezing = rightSqueezing;
+            BothSqueezing = bothSqueezing;
+        }
+
+        AnimatedBehaviorNature IAnimatedBehavior.Nature()
+        {
+            return AnimatedBehaviorNature.PuppetToDualAnalog;
+        }
+
+        public IEnumerable<QualifiedAnimation> QualifiedAnimations()
+        {
+            return Resting.AllQualifications()
+                .Concat(LeftSqueezing.AllQualifications())
+                .Concat(RightSqueezing.AllQualifications())
+                .Concat(new List<QualifiedAnimation>() {BothSqueezing})
+                .ToList();
+        }
+
+        public IEnumerable<BlendTree> AllBlendTreesFoundRecursively()
+        {
+            return new List<BlendTree>();
+        }
+
+        public IAnimatedBehavior Remapping(Dictionary<QualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)
+        {
+            return Of(
+                Resting.Remapping(remapping, blendRemapping),
+                LeftSqueezing.Remapping(remapping, blendRemapping),
+                RightSqueezing.Remapping(remapping, blendRemapping),
+                remapping.ContainsKey(BothSqueezing) ? BothSqueezing.NewInstanceWithClip(remapping[BothSqueezing]) : BothSqueezing
+            );
+        }
+
+        public static UniversalAnalogAnimatedBehavior Of(UniversalQualifier resting, UniversalQualifier leftSqueezing, UniversalQualifier rightSqueezing, QualifiedAnimation bothSqueezing)
+        {
+            return new UniversalAnalogAnimatedBehavior(resting, leftSqueezing, rightSqueezing, bothSqueezing);
+        }
+
+        protected bool Equals(UniversalAnalogAnimatedBehavior other)
+        {
+            return Resting.Equals(other.Resting) && LeftSqueezing.Equals(other.LeftSqueezing) && RightSqueezing.Equals(other.RightSqueezing) && BothSqueezing.Equals(other.BothSqueezing);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((UniversalAnalogAnimatedBehavior) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = Resting.GetHashCode();
+                hashCode = (hashCode * 397) ^ LeftSqueezing.GetHashCode();
+                hashCode = (hashCode * 397) ^ RightSqueezing.GetHashCode();
+                hashCode = (hashCode * 397) ^ BothSqueezing.GetHashCode();
+                return hashCode;
+            }
+        }
+
+        public static bool operator ==(UniversalAnalogAnimatedBehavior left, UniversalAnalogAnimatedBehavior right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(UniversalAnalogAnimatedBehavior left, UniversalAnalogAnimatedBehavior right)
+        {
+            return !Equals(left, right);
+        }
+    }
+
     public class Permutation
     {
         public HandPose Left { get; }
@@ -695,6 +832,31 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
         public bool HasAnyFist()
         {
             return Left == HandPose.H1 || Right == HandPose.H1;
+        }
+
+        public bool HasAnyPose(HandPose pose)
+        {
+            return Left == pose || Right == pose;
+        }
+
+        public bool AreBoth(HandPose pose)
+        {
+            return Left == pose && Right == pose;
+        }
+
+        public bool IsBlueSide()
+        {
+            return Left < Right;
+        }
+
+        public bool IsOrangeSide()
+        {
+            return Left > Right;
+        }
+
+        public Permutation ToOppositeSide()
+        {
+            return Permutation.LeftRight(Right, Left);
         }
 
         protected bool Equals(Permutation other)

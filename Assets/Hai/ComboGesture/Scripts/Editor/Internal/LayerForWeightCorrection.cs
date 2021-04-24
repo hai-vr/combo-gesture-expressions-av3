@@ -15,12 +15,14 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly AnimatorGenerator _animatorGenerator;
         private readonly AvatarMask _weightCorrectionAvatarMask;
         private readonly bool _writeDefaultsForAnimatedAnimatorParameterStates;
+        private readonly bool _universalAnalogSupport;
 
-        public LayerForWeightCorrection(AnimatorGenerator animatorGenerator, AvatarMask weightCorrectionAvatarMask, bool writeDefaults)
+        public LayerForWeightCorrection(AnimatorGenerator animatorGenerator, AvatarMask weightCorrectionAvatarMask, bool writeDefaults, bool universalAnalogSupport)
         {
             _animatorGenerator = animatorGenerator;
             _weightCorrectionAvatarMask = weightCorrectionAvatarMask;
             _writeDefaultsForAnimatedAnimatorParameterStates = writeDefaults;
+            _universalAnalogSupport = universalAnalogSupport;
         }
 
         internal void Create()
@@ -44,6 +46,14 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         private void InitializeMachineFor(AnimatorStateMachine machine, string proxyParam, string liveParam, string handParam, string clipPath)
         {
+            if (_universalAnalogSupport)
+            {
+                // The order in which the states are created matters (initial state).
+                // Move CreateListeningState as the first state has some implications.
+                CreateListeningState(machine, liveParam, clipPath);
+                return;
+            }
+
             var waiting = machine.AddState("Waiting", SharedLayerUtils.GridPosition(1, 1));
             waiting.timeParameter = proxyParam;
             waiting.timeParameterActive = true;
@@ -51,12 +61,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             waiting.speed = 1;
             waiting.writeDefaultValues = _writeDefaultsForAnimatedAnimatorParameterStates;
 
-            var listening = machine.AddState("Listening", SharedLayerUtils.GridPosition(1, 2));
-            listening.timeParameter = liveParam;
-            listening.timeParameterActive = true;
-            listening.motion = AssetDatabase.LoadAssetAtPath<AnimationClip>(clipPath);
-            listening.speed = 1;
-            listening.writeDefaultValues = _writeDefaultsForAnimatedAnimatorParameterStates;
+            var listening = CreateListeningState(machine, liveParam, clipPath);
 
             var toListening = waiting.AddTransition(listening);
             SetupTransition(toListening);
@@ -65,6 +70,17 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             var toWaiting = listening.AddTransition(waiting);
             SetupTransition(toWaiting);
             toWaiting.AddCondition(AnimatorConditionMode.NotEqual, 1, handParam);
+        }
+
+        private AnimatorState CreateListeningState(AnimatorStateMachine machine, string liveParam, string clipPath)
+        {
+            var listening = machine.AddState("Listening", SharedLayerUtils.GridPosition(1, 2));
+            listening.timeParameter = liveParam;
+            listening.timeParameterActive = true;
+            listening.motion = AssetDatabase.LoadAssetAtPath<AnimationClip>(clipPath);
+            listening.speed = 1;
+            listening.writeDefaultValues = _writeDefaultsForAnimatedAnimatorParameterStates;
+            return listening;
         }
 
         private static void SetupTransition(AnimatorStateTransition toListening)

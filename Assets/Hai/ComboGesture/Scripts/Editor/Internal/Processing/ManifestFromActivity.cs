@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Amazon.Runtime.Internal.Transform;
 using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.Internal.Model;
 using UnityEditor.Animations;
@@ -36,8 +37,10 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Processing
 
         private PermutationManifest Resolve()
         {
-            var isOneHandMode = _activity.oneHandMode == ComboGestureActivity.CgeOneHandMode.Disabled;
-            return isOneHandMode ? Regular() : OneHand();
+            var isOneHandMode = _activity.oneHandMode != ComboGestureActivity.CgeOneHandMode.Disabled;
+            if (isOneHandMode) return OneHand();
+            if (_universalAnalogSupport) return UniversalAnalog();
+            return Regular();
         }
 
         Motion Just(Motion anim)
@@ -90,6 +93,33 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Processing
             }
         }
 
+        IAnimatedBehavior MaybeUniversalAnalog(Motion resting, Motion leftSqueezing, Motion rightSqueezing, Motion bothSqueezing)
+        {
+            switch (bothSqueezing)
+            {
+                case AnimationClip dualClip:
+                {
+                    return UniversalAnalogAnimatedBehavior.Of(
+                        Universal(resting),
+                        Universal(leftSqueezing),
+                        Universal(rightSqueezing),
+                        Qualify(_activity, dualClip)
+                    );
+                }
+                case BlendTree tree:
+                    return PuppetAnimatedBehavior.Of(tree, QualifyAll(_activity, tree));
+                default:
+                    throw new ArgumentException();
+            }
+        }
+
+        private UniversalAnalogAnimatedBehavior.UniversalQualifier Universal(Motion resting)
+        {
+            return resting is BlendTree b
+                ? UniversalAnalogAnimatedBehavior.UniversalQualifier.OfBlend(b, QualifyAll(_activity, b))
+                : UniversalAnalogAnimatedBehavior.UniversalQualifier.OfQualification(Qualify(_activity, (AnimationClip)resting));
+        }
+
         IAnimatedBehavior InterpretSingle(Motion motion)
         {
             switch (motion)
@@ -124,6 +154,39 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Processing
                 default:
                     throw new ArgumentException();
             }
+        }
+
+        private PermutationManifest UniversalAnalog()
+        {
+            var permutationToNullableMotions = PermutationToNullableMotions();
+            var permutationToMotions = NormalizeComboLike(permutationToNullableMotions, _defaultClip);
+            var neutral = Permutation.LeftRight(HandPose.H0, HandPose.H0);
+            var behaviors = Permutation.All()
+                .ToDictionary(permutation => permutation, current =>
+                {
+                    if (current.AreBoth(HandPose.H0))
+                    {
+                        return InterpretSingle(permutationToMotions[current]);
+                    }
+
+                    if (current.HasAnyPose(HandPose.H0))
+                    {
+                        return InterpretAnalog(
+                            permutationToMotions[neutral],
+                            permutationToMotions[current],
+                            current.Left == HandPose.H0 ? HandSide.RightHand : HandSide.LeftHand
+                        );
+                    }
+
+                    return MaybeUniversalAnalog(
+                        permutationToMotions[neutral],
+                        permutationToMotions[Permutation.LeftRight(current.Left, HandPose.H0)],
+                        permutationToMotions[Permutation.LeftRight(HandPose.H0, current.Right)],
+                        permutationToMotions[current]
+                    );
+                });
+
+            return new PermutationManifest(behaviors, _activity.transitionDuration);
         }
 
         private PermutationManifest Regular()
@@ -223,15 +286,19 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Processing
         private PermutationManifest OneHand()
         {
             var poses = new Dictionary<Permutation, IAnimatedBehavior>();
-            var isLeftActive = _activity.oneHandMode == ComboGestureActivity.CgeOneHandMode.LeftHandOnly;
+            var handSide = _activity.oneHandMode == ComboGestureActivity.CgeOneHandMode.LeftHandOnly ? HandSide.LeftHand : HandSide.RightHand;
             for (var activeHand = HandPose.H0; activeHand <= HandPose.H7; activeHand++)
             {
                 for (var ignoredHand = HandPose.H0; ignoredHand <= HandPose.H7; ignoredHand++)
                 {
-                    var permutation = isLeftActive ? Permutation.LeftRight(activeHand, ignoredHand) : Permutation.LeftRight(ignoredHand, activeHand);
-                    if (activeHand == HandPose.H1)
+                    var permutation = handSide == HandSide.LeftHand ? Permutation.LeftRight(activeHand, ignoredHand) : Permutation.LeftRight(ignoredHand, activeHand);
+                    if (_universalAnalogSupport)
                     {
-                        poses.Add(permutation, InterpretAnalog(Just(_activity.anim00), Just(_activity.anim01), isLeftActive ? HandSide.LeftHand : HandSide.RightHand));
+                        poses.Add(permutation, InterpretAnalog(Just(_activity.anim00), Just(OneHandMotionOf(_activity, activeHand)), handSide));
+                    }
+                    else if (activeHand == HandPose.H1)
+                    {
+                        poses.Add(permutation, InterpretAnalog(Just(_activity.anim00), Just(_activity.anim01), handSide));
                     }
                     else
                     {
@@ -291,6 +358,140 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Processing
         private static bool LimitedLipsyncHasWideOpenMouth(ComboGestureActivity activity, AnimationClip clip)
         {
             return activity.limitedLipsync.Contains(new ComboGestureActivity.LimitedLipsyncAnimation{clip = clip, limitation = ComboGestureActivity.LipsyncLimitation.WideOpenMouth});
+        }
+
+        private Dictionary<Permutation, Motion> NormalizeComboLike(Dictionary<Permutation,Motion> permutationToNullableMotions, bool explicitMode = false)
+        {
+            var nonNullableFallback = permutationToNullableMotions[Permutation.LeftRight(HandPose.H0, HandPose.H0)]
+                                      ?? _defaultClip;
+            return Permutation.All()
+                .ToDictionary(permutation => permutation, permutation =>
+                {
+                    if (permutation.IsSymmetrical())
+                    {
+                        if (!explicitMode)
+                        {
+                            return permutationToNullableMotions[permutation]
+                                   ?? permutationToNullableMotions[Permutation.LeftRight(HandPose.H0, permutation.Right)]
+                                   ?? nonNullableFallback;
+                        }
+                        else
+                        {
+                            return permutationToNullableMotions[permutation]
+                                   ?? nonNullableFallback;
+                        }
+                    }
+                    if (permutation.IsBlueSide())
+                    {
+                        if (!explicitMode && permutation.HasAnyFist())
+                        {
+                            return permutationToNullableMotions[permutation]
+                                   ?? permutationToNullableMotions[Permutation.LeftRight(HandPose.H0, permutation.Right)]
+                                   ?? nonNullableFallback;
+                        }
+                        else
+                        {
+                            return permutationToNullableMotions[permutation]
+                                   ?? nonNullableFallback;
+                        }
+                    }
+                    else
+                    {
+                        if (!explicitMode && permutation.HasAnyFist())
+                        {
+                            return permutationToNullableMotions[permutation]
+                                   ?? permutationToNullableMotions[permutation.ToOppositeSide()]
+                                   ?? permutationToNullableMotions[Permutation.LeftRight(permutation.Left, HandPose.H0)]
+                                   ?? permutationToNullableMotions[Permutation.LeftRight(HandPose.H0, permutation.Left)]
+                                   ?? nonNullableFallback;
+                        }
+                        else
+                        {
+                            return permutationToNullableMotions[permutation]
+                                   ?? permutationToNullableMotions[permutation.ToOppositeSide()]
+                                   ?? nonNullableFallback;
+                        }
+                    }
+                });
+        }
+
+        private Dictionary<Permutation, Motion> PermutationToNullableMotions()
+        {
+            var motions = new Dictionary<Permutation, Motion>();
+
+            motions.Add(Permutation.LeftRight(HandPose.H0, HandPose.H0), _activity.anim00);
+            motions.Add(Permutation.LeftRight(HandPose.H0, HandPose.H1), _activity.anim01);
+            motions.Add(Permutation.LeftRight(HandPose.H0, HandPose.H2), _activity.anim02);
+            motions.Add(Permutation.LeftRight(HandPose.H0, HandPose.H3), _activity.anim03);
+            motions.Add(Permutation.LeftRight(HandPose.H0, HandPose.H4), _activity.anim04);
+            motions.Add(Permutation.LeftRight(HandPose.H0, HandPose.H5), _activity.anim05);
+            motions.Add(Permutation.LeftRight(HandPose.H0, HandPose.H6), _activity.anim06);
+            motions.Add(Permutation.LeftRight(HandPose.H0, HandPose.H7), _activity.anim07);
+
+            motions.Add(Permutation.LeftRight(HandPose.H1, HandPose.H0), _activity.anim10);
+            motions.Add(Permutation.LeftRight(HandPose.H1, HandPose.H1), _activity.anim11);
+            motions.Add(Permutation.LeftRight(HandPose.H1, HandPose.H2), _activity.anim12);
+            motions.Add(Permutation.LeftRight(HandPose.H1, HandPose.H3), _activity.anim13);
+            motions.Add(Permutation.LeftRight(HandPose.H1, HandPose.H4), _activity.anim14);
+            motions.Add(Permutation.LeftRight(HandPose.H1, HandPose.H5), _activity.anim15);
+            motions.Add(Permutation.LeftRight(HandPose.H1, HandPose.H6), _activity.anim16);
+            motions.Add(Permutation.LeftRight(HandPose.H1, HandPose.H7), _activity.anim17);
+
+            motions.Add(Permutation.LeftRight(HandPose.H2, HandPose.H0), _activity.anim20);
+            motions.Add(Permutation.LeftRight(HandPose.H2, HandPose.H1), _activity.anim21);
+            motions.Add(Permutation.LeftRight(HandPose.H2, HandPose.H2), _activity.anim22);
+            motions.Add(Permutation.LeftRight(HandPose.H2, HandPose.H3), _activity.anim23);
+            motions.Add(Permutation.LeftRight(HandPose.H2, HandPose.H4), _activity.anim24);
+            motions.Add(Permutation.LeftRight(HandPose.H2, HandPose.H5), _activity.anim25);
+            motions.Add(Permutation.LeftRight(HandPose.H2, HandPose.H6), _activity.anim26);
+            motions.Add(Permutation.LeftRight(HandPose.H2, HandPose.H7), _activity.anim27);
+
+            motions.Add(Permutation.LeftRight(HandPose.H3, HandPose.H0), _activity.anim30);
+            motions.Add(Permutation.LeftRight(HandPose.H3, HandPose.H1), _activity.anim31);
+            motions.Add(Permutation.LeftRight(HandPose.H3, HandPose.H2), _activity.anim32);
+            motions.Add(Permutation.LeftRight(HandPose.H3, HandPose.H3), _activity.anim33);
+            motions.Add(Permutation.LeftRight(HandPose.H3, HandPose.H4), _activity.anim34);
+            motions.Add(Permutation.LeftRight(HandPose.H3, HandPose.H5), _activity.anim35);
+            motions.Add(Permutation.LeftRight(HandPose.H3, HandPose.H6), _activity.anim36);
+            motions.Add(Permutation.LeftRight(HandPose.H3, HandPose.H7), _activity.anim37);
+
+            motions.Add(Permutation.LeftRight(HandPose.H4, HandPose.H0), _activity.anim40);
+            motions.Add(Permutation.LeftRight(HandPose.H4, HandPose.H1), _activity.anim41);
+            motions.Add(Permutation.LeftRight(HandPose.H4, HandPose.H2), _activity.anim42);
+            motions.Add(Permutation.LeftRight(HandPose.H4, HandPose.H3), _activity.anim43);
+            motions.Add(Permutation.LeftRight(HandPose.H4, HandPose.H4), _activity.anim44);
+            motions.Add(Permutation.LeftRight(HandPose.H4, HandPose.H5), _activity.anim45);
+            motions.Add(Permutation.LeftRight(HandPose.H4, HandPose.H6), _activity.anim46);
+            motions.Add(Permutation.LeftRight(HandPose.H4, HandPose.H7), _activity.anim47);
+
+            motions.Add(Permutation.LeftRight(HandPose.H5, HandPose.H0), _activity.anim50);
+            motions.Add(Permutation.LeftRight(HandPose.H5, HandPose.H1), _activity.anim51);
+            motions.Add(Permutation.LeftRight(HandPose.H5, HandPose.H2), _activity.anim52);
+            motions.Add(Permutation.LeftRight(HandPose.H5, HandPose.H3), _activity.anim53);
+            motions.Add(Permutation.LeftRight(HandPose.H5, HandPose.H4), _activity.anim54);
+            motions.Add(Permutation.LeftRight(HandPose.H5, HandPose.H5), _activity.anim55);
+            motions.Add(Permutation.LeftRight(HandPose.H5, HandPose.H6), _activity.anim56);
+            motions.Add(Permutation.LeftRight(HandPose.H5, HandPose.H7), _activity.anim57);
+
+            motions.Add(Permutation.LeftRight(HandPose.H6, HandPose.H0), _activity.anim60);
+            motions.Add(Permutation.LeftRight(HandPose.H6, HandPose.H1), _activity.anim61);
+            motions.Add(Permutation.LeftRight(HandPose.H6, HandPose.H2), _activity.anim62);
+            motions.Add(Permutation.LeftRight(HandPose.H6, HandPose.H3), _activity.anim63);
+            motions.Add(Permutation.LeftRight(HandPose.H6, HandPose.H4), _activity.anim64);
+            motions.Add(Permutation.LeftRight(HandPose.H6, HandPose.H5), _activity.anim65);
+            motions.Add(Permutation.LeftRight(HandPose.H6, HandPose.H6), _activity.anim66);
+            motions.Add(Permutation.LeftRight(HandPose.H6, HandPose.H7), _activity.anim67);
+
+            motions.Add(Permutation.LeftRight(HandPose.H7, HandPose.H0), _activity.anim70);
+            motions.Add(Permutation.LeftRight(HandPose.H7, HandPose.H1), _activity.anim71);
+            motions.Add(Permutation.LeftRight(HandPose.H7, HandPose.H2), _activity.anim72);
+            motions.Add(Permutation.LeftRight(HandPose.H7, HandPose.H3), _activity.anim73);
+            motions.Add(Permutation.LeftRight(HandPose.H7, HandPose.H4), _activity.anim74);
+            motions.Add(Permutation.LeftRight(HandPose.H7, HandPose.H5), _activity.anim75);
+            motions.Add(Permutation.LeftRight(HandPose.H7, HandPose.H6), _activity.anim76);
+            motions.Add(Permutation.LeftRight(HandPose.H7, HandPose.H7), _activity.anim77);
+
+            return motions;
         }
     }
 }
