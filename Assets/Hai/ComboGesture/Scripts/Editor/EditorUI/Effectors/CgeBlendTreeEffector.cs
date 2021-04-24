@@ -26,8 +26,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
             blendTree.blendType = is2D ? BlendTreeType.FreeformDirectional2D : BlendTreeType.Simple1D;
             if (CurrentTemplate == PuppetTemplate.DualAnalogFist)
             {
-                blendTree.blendParameter = "GestureRightWeight";
-                blendTree.blendParameterY = "GestureLeftWeight";
+                blendTree.blendParameter = CgeBlendTreeAutoWeightCorrector.AutoGestureWeightParam_UniversalRight;
+                blendTree.blendParameterY = CgeBlendTreeAutoWeightCorrector.AutoGestureWeightParam_UniversalLeft;
             }
             else
             {

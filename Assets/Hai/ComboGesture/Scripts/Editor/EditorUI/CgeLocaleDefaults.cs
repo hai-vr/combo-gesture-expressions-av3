@@ -165,5 +165,9 @@ This is a very simplified version of the Permutations feature.";
         internal static string CGEE_TreeFileCreate = "Create...";
         internal static string CGEE_TreeFileInvalidSavePath = "Invalid save path";
         internal static string CGEE_TreeFileInvalidSavePathMessage = "Save path must be in the project's /Assets path.";
+        internal static string CGEC_ViveAdvancedControlsWarning = @"Vive Advanced Controls Analog is enabled, which will significantly change the way the Animator is generated.
+The animations may look different when you are not using Vive controllers (such as Index controllers or Oculus controllers).
+
+You should disable Vive Advanced Controls Analog if you are not sure of what you're doing.";
     }
 }

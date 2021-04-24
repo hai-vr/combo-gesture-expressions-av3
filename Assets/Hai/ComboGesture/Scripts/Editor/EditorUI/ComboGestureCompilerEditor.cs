@@ -55,6 +55,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         public SerializedProperty editorAdvancedFoldout;
 
+        public SerializedProperty useViveAdvancedControlsForNonFistAnalog;
+
         private void OnEnable()
         {
             animatorController = serializedObject.FindProperty("animatorController");
@@ -94,6 +96,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             assetContainer = serializedObject.FindProperty("assetContainer");
             generateNewContainerEveryTime = serializedObject.FindProperty("generateNewContainerEveryTime");
+
+            useViveAdvancedControlsForNonFistAnalog = serializedObject.FindProperty("useViveAdvancedControlsForNonFistAnalog");
 
             // reference: https://blog.terresquall.com/2020/03/creating-reorderable-lists-in-the-unity-inspector/
             comboLayersReorderableList = new ReorderableList(
@@ -348,6 +352,12 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             EditorGUILayout.LabelField(CgeLocale.CGEC_Synchronization, EditorStyles.boldLabel);
 
+            if (useViveAdvancedControlsForNonFistAnalog.boolValue)
+            {
+                EditorGUILayout.HelpBox(CgeLocale.CGEC_ViveAdvancedControlsWarning, MessageType.Error);
+                EditorGUILayout.PropertyField(useViveAdvancedControlsForNonFistAnalog, new GUIContent("Use Vive Advanced Controls Analog"));
+            }
+
             EditorGUI.BeginDisabledGroup(
                 ThereIsNoAnimatorController() ||
                 ThereIsNoGestureAnimatorController() ||
@@ -482,6 +492,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 EditorGUILayout.PropertyField(fallbackParamList, new GUIContent("Fallback values"));
                 EditorGUILayout.PropertyField(doNotFixSingleKeyframes, new GUIContent("Do not fix single keyframes"));
                 EditorGUILayout.PropertyField(bypassMandatoryAvatarDescriptor, new GUIContent("Bypass mandatory avatar descriptor"));
+
+                EditorGUILayout.LabelField("Special cases", EditorStyles.boldLabel);
+                EditorGUILayout.PropertyField(useViveAdvancedControlsForNonFistAnalog, new GUIContent("Support non-Fist expression saving in Vive Advanced Controls"));
 
                 EditorGUILayout.LabelField("Translations", EditorStyles.boldLabel);
                 if (GUILayout.Button("(Debug) Print default translation file to console"))

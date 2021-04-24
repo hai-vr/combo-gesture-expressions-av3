@@ -42,6 +42,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly AvatarMask _gesturePlayableLayerTechnicalAvatarMask;
         private readonly ParameterGeneration _parameterGeneration;
         private readonly bool _useSmoothing;
+        private readonly bool _universalAnalogSupport;
 
         public ComboGestureCompilerInternal(
             ComboGestureCompiler compiler,
@@ -87,6 +88,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _assetContainer = assetContainer;
             _useGestureWeightCorrection = compiler.WillUseGestureWeightCorrection();
             _useSmoothing = _useGestureWeightCorrection;
+            _universalAnalogSupport = compiler.useViveAdvancedControlsForNonFistAnalog;
         }
 
         public ComboGestureCompilerInternal(
@@ -117,6 +119,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _assetContainer = null;
             _useGestureWeightCorrection = false;
             _useSmoothing = _useGestureWeightCorrection;
+            _universalAnalogSupport = false;
         }
 
         enum ParameterGeneration
@@ -133,7 +136,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 avatarMaskPath,
                 _animatorGenerator,
                 _animatorController,
-                _conflictPrevention
+                _conflictPrevention,
+                _universalAnalogSupport
             );
             CreateOrReplaceSmoothing(avatarMaskPath, _animatorGenerator, _animatorController, _conflictPrevention);
 
@@ -168,7 +172,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             {
                 if (_useGestureWeightCorrection)
                 {
-                    CreateOrReplaceWeightCorrection(_weightCorrectionAvatarMask, _animatorGenerator, _animatorController, _conflictPrevention);
+                    CreateOrReplaceWeightCorrection(_weightCorrectionAvatarMask, _animatorGenerator, _animatorController, _conflictPrevention, _universalAnalogSupport);
                     if (_useSmoothing)
                     {
                         CreateOrReplaceSmoothing(_weightCorrectionAvatarMask, _animatorGenerator, _animatorController, _conflictPrevention);
@@ -234,7 +238,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             {
                 if (_useGestureWeightCorrection)
                 {
-                    CreateOrReplaceWeightCorrection(_gesturePlayableLayerTechnicalAvatarMask, _animatorGenerator, _gesturePlayableLayerController, _conflictPreventionTempGestureLayer);
+                    CreateOrReplaceWeightCorrection(_gesturePlayableLayerTechnicalAvatarMask, _animatorGenerator, _gesturePlayableLayerController, _conflictPreventionTempGestureLayer, _universalAnalogSupport);
                     if (_useSmoothing)
                     {
                         CreateOrReplaceSmoothing(_weightCorrectionAvatarMask, _animatorGenerator, _gesturePlayableLayerController, _conflictPreventionTempGestureLayer);
@@ -266,7 +270,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             return _comboLayers
                 .Select((mapper, layerOrdinal) => new ManifestBinding(
                     ToParameterGeneration(mapper),
-                    SharedLayerUtils.FromMapper(mapper, emptyClip),
+                    SharedLayerUtils.FromMapper(mapper, emptyClip, _universalAnalogSupport),
                     layerOrdinal
                 ))
                 .ToList();
@@ -369,7 +373,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             LayerForBooleansToVirtualActivity.Delete(_animatorGenerator);
         }
 
-        private static void CreateOrReplaceWeightCorrection(AvatarMask weightCorrectionAvatarMask, AnimatorGenerator animatorGenerator, AnimatorController animatorController, ConflictPrevention conflictPrevention)
+        private static void CreateOrReplaceWeightCorrection(AvatarMask weightCorrectionAvatarMask, AnimatorGenerator animatorGenerator, AnimatorController animatorController, ConflictPrevention conflictPrevention, bool universalAnalogSupport)
         {
             SharedLayerUtils.CreateParamIfNotExists(animatorController, "GestureLeft", AnimatorControllerParameterType.Int);
             SharedLayerUtils.CreateParamIfNotExists(animatorController, "GestureRight", AnimatorControllerParameterType.Int);
@@ -377,7 +381,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             SharedLayerUtils.CreateParamIfNotExists(animatorController, "GestureRightWeight", AnimatorControllerParameterType.Float);
             SharedLayerUtils.CreateParamIfNotExists(animatorController, SharedLayerUtils.HaiGestureComboLeftWeightProxy, AnimatorControllerParameterType.Float);
             SharedLayerUtils.CreateParamIfNotExists(animatorController, SharedLayerUtils.HaiGestureComboRightWeightProxy, AnimatorControllerParameterType.Float);
-            new LayerForWeightCorrection(animatorGenerator, weightCorrectionAvatarMask, conflictPrevention.ShouldWriteDefaults).Create();
+            new LayerForWeightCorrection(animatorGenerator, weightCorrectionAvatarMask, conflictPrevention.ShouldWriteDefaults, universalAnalogSupport).Create();
         }
 
         private void CreateOrReplaceExpressionsView(AnimationClip emptyClip, List<ManifestBinding> manifestBindings)

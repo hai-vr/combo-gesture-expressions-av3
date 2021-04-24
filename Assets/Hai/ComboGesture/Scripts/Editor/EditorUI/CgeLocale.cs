@@ -144,6 +144,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         internal static string CGEE_TreeFileCreate => LocalizeOrElse("CGEE_TreeFileCreate", CgeLocaleDefaults.CGEE_TreeFileCreate);
         internal static string CGEE_TreeFileInvalidSavePath => LocalizeOrElse("CGEE_TreeFileInvalidSavePath", CgeLocaleDefaults.CGEE_TreeFileInvalidSavePath);
         internal static string CGEE_TreeFileInvalidSavePathMessage => LocalizeOrElse("CGEE_TreeFileInvalidSavePathMessage", CgeLocaleDefaults.CGEE_TreeFileInvalidSavePathMessage);
+        //
+        internal static string CGEC_ViveAdvancedControlsWarning => LocalizeOrElse("CGEC_ViveAdvancedControlsWarning", CgeLocaleDefaults.CGEC_ViveAdvancedControlsWarning);
 
         private static string LocalizeOrElse(string key, string defaultCultureLocalization)
         {

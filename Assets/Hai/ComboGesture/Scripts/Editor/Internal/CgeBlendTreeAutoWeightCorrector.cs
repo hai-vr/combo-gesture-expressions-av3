@@ -9,6 +9,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
     internal class CgeBlendTreeAutoWeightCorrector : List<ManifestBinding>
     {
         public const string AutoGestureWeightParam = "_AutoGestureWeight";
+        public const string AutoGestureWeightParam_UniversalLeft = "_AutoGestureLeftWeight";
+        public const string AutoGestureWeightParam_UniversalRight = "_AutoGestureRightWeight";
         private readonly List<ManifestBinding> _activityManifests;
         private readonly bool _useGestureWeightCorrection;
         private readonly bool _useSmoothing;
@@ -114,12 +116,17 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         private static string RemapAutoWeightOrElse(Side side, string originalParameterName)
         {
-            if (originalParameterName == AutoGestureWeightParam)
+            switch (originalParameterName)
             {
-                return side == Side.Left ? "GestureLeftWeight" : "GestureRightWeight";
+                case AutoGestureWeightParam:
+                    return side == Side.Left ? "GestureLeftWeight" : "GestureRightWeight";
+                case AutoGestureWeightParam_UniversalLeft:
+                    return "GestureLeftWeight";
+                case AutoGestureWeightParam_UniversalRight:
+                    return "GestureRightWeight";
+                default:
+                    return originalParameterName;
             }
-
-            return originalParameterName;
         }
 
         private string HandleWeightCorrection(string originalTreeBlendParameter)
