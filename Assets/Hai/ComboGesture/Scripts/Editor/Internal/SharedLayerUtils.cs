@@ -48,35 +48,35 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         internal const string HaiGestureComboRightWeightSmoothing = "_Hai_GestureRWSmoothing";
         internal const string HaiGestureComboSmoothingFactor = "_Hai_GestureSmoothingFactor";
 
-        public static IManifest FromMapper(GestureComboStageMapper mapper, AnimationClip fallbackWhenAnyClipIsNull)
+        public static IManifest FromMapper(GestureComboStageMapper mapper, AnimationClip fallbackWhenAnyClipIsNull, bool universalAnalogSupport)
         {
             switch (mapper.kind)
             {
                 case GestureComboStageKind.Activity:
                     return mapper.activity == null
                         ? ManifestFromActivity.FromNothing(fallbackWhenAnyClipIsNull) // TODO: It may be possible to create a specific manifest for that
-                        : ManifestFromActivity.FromActivity(mapper.activity, fallbackWhenAnyClipIsNull);
+                        : ManifestFromActivity.FromActivity(mapper.activity, fallbackWhenAnyClipIsNull, universalAnalogSupport);
                 case GestureComboStageKind.Puppet:
                     return ManifestFromPuppet.FromPuppet(mapper.puppet);
                 case GestureComboStageKind.Massive:
-                    return ManifestFromMassiveBlend.FromMassiveBlend(mapper.massiveBlend, fallbackWhenAnyClipIsNull);
+                    return ManifestFromMassiveBlend.FromMassiveBlend(mapper.massiveBlend, fallbackWhenAnyClipIsNull, universalAnalogSupport);
                 default:
                     throw new ArgumentOutOfRangeException();
             }
         }
 
-        public static IManifest FromMoodSet(ComboGestureMoodSet moodSet, AnimationClip fallbackWhenAnyClipIsNull)
+        public static IManifest FromMoodSet(ComboGestureMoodSet moodSet, AnimationClip fallbackWhenAnyClipIsNull, bool universalAnalogSupport)
         {
             switch (moodSet)
             {
                 case ComboGestureActivity activity:
                     return activity == null
                         ? ManifestFromActivity.FromNothing(fallbackWhenAnyClipIsNull) // TODO: It may be possible to create a specific manifest for that
-                        : ManifestFromActivity.FromActivity(activity, fallbackWhenAnyClipIsNull);
+                        : ManifestFromActivity.FromActivity(activity, fallbackWhenAnyClipIsNull, universalAnalogSupport);
                 case ComboGesturePuppet puppet:
                     return ManifestFromPuppet.FromPuppet(puppet);
                 case ComboGestureMassiveBlend massive:
-                    return ManifestFromMassiveBlend.FromMassiveBlend(massive, fallbackWhenAnyClipIsNull);
+                    return ManifestFromMassiveBlend.FromMassiveBlend(massive, fallbackWhenAnyClipIsNull, universalAnalogSupport);
                 default:
                     throw new ArgumentOutOfRangeException();
             }

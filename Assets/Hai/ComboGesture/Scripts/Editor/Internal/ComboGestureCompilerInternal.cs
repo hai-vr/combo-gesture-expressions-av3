@@ -42,6 +42,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly AvatarMask _gesturePlayableLayerTechnicalAvatarMask;
         private readonly ParameterGeneration _parameterGeneration;
         private readonly bool _useSmoothing;
+        private readonly bool _universalAnalogSupport;
 
         public ComboGestureCompilerInternal(
             ComboGestureCompiler compiler,
@@ -87,6 +88,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _assetContainer = assetContainer;
             _useGestureWeightCorrection = compiler.WillUseGestureWeightCorrection();
             _useSmoothing = _useGestureWeightCorrection;
+            _universalAnalogSupport = compiler.useViveAdvancedControlsForNonFistAnalog;
         }
 
         public ComboGestureCompilerInternal(
@@ -266,7 +268,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             return _comboLayers
                 .Select((mapper, layerOrdinal) => new ManifestBinding(
                     ToParameterGeneration(mapper),
-                    SharedLayerUtils.FromMapper(mapper, emptyClip),
+                    SharedLayerUtils.FromMapper(mapper, emptyClip, _universalAnalogSupport),
                     layerOrdinal
                 ))
                 .ToList();
