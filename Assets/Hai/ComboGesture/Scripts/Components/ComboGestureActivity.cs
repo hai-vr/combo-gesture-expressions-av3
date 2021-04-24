@@ -109,6 +109,13 @@ namespace Hai.ComboGesture.Scripts.Components
             RightHandOnly,
         }
 
+        [System.Serializable]
+        public enum CgeHandSide
+        {
+            LeftHandOnly,
+            RightHandOnly,
+        }
+
         public Motion[] AllMotions()
         {
             return new[]
