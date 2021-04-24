@@ -138,7 +138,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
         PuppetToDualAnalog,
         SimpleMassiveBlend,
         TwoDirectionsMassiveBlend,
-        ComplexMassiveBlend
+        ComplexMassiveBlend,
+        UniversalAnalog
     }
 
     class SingleAnimatedBehavior : IAnimatedBehavior
@@ -671,20 +672,23 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
                 return isBlendTree ? qualificationsOfTree : new List<QualifiedAnimation> {qualification.Value};
             }
 
+            public Motion ToMotion()
+            {
+                return isBlendTree ? blendTree : (Motion)(qualification.Value.Clip);
+            }
+
             public UniversalQualifier Remapping(Dictionary<QualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)
             {
-                var newQualificationsOfTree = qualificationsOfTree
-                    .Select(qualification => remapping.ContainsKey(qualification)
-                        ? qualification.NewInstanceWithClip(remapping[qualification])
-                        : qualification)
-                    .ToList();
-
                 return new UniversalQualifier
                 {
                     isBlendTree = isBlendTree,
                     blendTree = isBlendTree ? blendRemapping[blendTree] : null,
                     qualification = isBlendTree ? null : remapping.ContainsKey(qualification.Value) ? qualification.Value.NewInstanceWithClip(remapping[qualification.Value]) : qualification,
-                    qualificationsOfTree = newQualificationsOfTree
+                    qualificationsOfTree = isBlendTree ? qualificationsOfTree
+                        .Select(qualification => remapping.ContainsKey(qualification)
+                            ? qualification.NewInstanceWithClip(remapping[qualification])
+                            : qualification)
+                        .ToList() : null
                 };
             }
 
@@ -721,7 +725,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
 
         AnimatedBehaviorNature IAnimatedBehavior.Nature()
         {
-            return AnimatedBehaviorNature.PuppetToDualAnalog;
+            return AnimatedBehaviorNature.UniversalAnalog;
         }
 
         public IEnumerable<QualifiedAnimation> QualifiedAnimations()

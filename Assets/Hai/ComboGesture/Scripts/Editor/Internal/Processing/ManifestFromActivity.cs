@@ -360,10 +360,36 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Processing
             return activity.limitedLipsync.Contains(new ComboGestureActivity.LimitedLipsyncAnimation{clip = clip, limitation = ComboGestureActivity.LipsyncLimitation.WideOpenMouth});
         }
 
+        private struct NullableMotion
+        {
+            private Motion _item;
+
+            private NullableMotion(Motion item)
+            {
+                // ReSharper disable once MergeConditionalExpression
+                _item = item == null ? default : item;
+            }
+
+            public static NullableMotion OfNullable(Motion item)
+            {
+                return new NullableMotion(item);
+            }
+
+            public NullableMotion Or(Func<Motion> other)
+            {
+                return _item == null ? OfNullable(other.Invoke()) : this;
+            }
+
+            public Motion Orels(Motion last)
+            {
+                return _item == null ? last : _item;
+            }
+        }
+
         private Dictionary<Permutation, Motion> NormalizeComboLike(Dictionary<Permutation,Motion> permutationToNullableMotions, bool explicitMode = false)
         {
-            var nonNullableFallback = permutationToNullableMotions[Permutation.LeftRight(HandPose.H0, HandPose.H0)]
-                                      ?? _defaultClip;
+            var nonNullableFallback = NullableMotion.OfNullable(permutationToNullableMotions[Permutation.LeftRight(HandPose.H0, HandPose.H0)])
+                                                               .Orels(_defaultClip);
             return Permutation.All()
                 .ToDictionary(permutation => permutation, permutation =>
                 {
@@ -371,45 +397,45 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Processing
                     {
                         if (!explicitMode)
                         {
-                            return permutationToNullableMotions[permutation]
-                                   ?? permutationToNullableMotions[Permutation.LeftRight(HandPose.H0, permutation.Right)]
-                                   ?? nonNullableFallback;
+                            return NullableMotion.OfNullable(permutationToNullableMotions[permutation])
+                                   .Or(() => permutationToNullableMotions[Permutation.LeftRight(HandPose.H0, permutation.Right)])
+                                   .Orels(nonNullableFallback);
                         }
                         else
                         {
-                            return permutationToNullableMotions[permutation]
-                                   ?? nonNullableFallback;
+                            return NullableMotion.OfNullable(permutationToNullableMotions[permutation])
+                                   .Orels(nonNullableFallback);
                         }
                     }
                     if (permutation.IsBlueSide())
                     {
                         if (!explicitMode && permutation.HasAnyFist())
                         {
-                            return permutationToNullableMotions[permutation]
-                                   ?? permutationToNullableMotions[Permutation.LeftRight(HandPose.H0, permutation.Right)]
-                                   ?? nonNullableFallback;
+                            return NullableMotion.OfNullable(permutationToNullableMotions[permutation])
+                                   .Or(() => permutationToNullableMotions[Permutation.LeftRight(HandPose.H0, permutation.Right)])
+                                   .Orels(nonNullableFallback);
                         }
                         else
                         {
-                            return permutationToNullableMotions[permutation]
-                                   ?? nonNullableFallback;
+                            return NullableMotion.OfNullable(permutationToNullableMotions[permutation])
+                                   .Orels(nonNullableFallback);
                         }
                     }
                     else
                     {
                         if (!explicitMode && permutation.HasAnyFist())
                         {
-                            return permutationToNullableMotions[permutation]
-                                   ?? permutationToNullableMotions[permutation.ToOppositeSide()]
-                                   ?? permutationToNullableMotions[Permutation.LeftRight(permutation.Left, HandPose.H0)]
-                                   ?? permutationToNullableMotions[Permutation.LeftRight(HandPose.H0, permutation.Left)]
-                                   ?? nonNullableFallback;
+                            return NullableMotion.OfNullable(permutationToNullableMotions[permutation])
+                                   .Or(() => permutationToNullableMotions[permutation.ToOppositeSide()])
+                                   .Or(() => permutationToNullableMotions[Permutation.LeftRight(permutation.Left, HandPose.H0)])
+                                   .Or(() => permutationToNullableMotions[Permutation.LeftRight(HandPose.H0, permutation.Left)])
+                                   .Orels(nonNullableFallback);
                         }
                         else
                         {
-                            return permutationToNullableMotions[permutation]
-                                   ?? permutationToNullableMotions[permutation.ToOppositeSide()]
-                                   ?? nonNullableFallback;
+                            return NullableMotion.OfNullable(permutationToNullableMotions[permutation])
+                                   .Or(() => permutationToNullableMotions[permutation.ToOppositeSide()])
+                                   .Orels(nonNullableFallback);
                         }
                     }
                 });

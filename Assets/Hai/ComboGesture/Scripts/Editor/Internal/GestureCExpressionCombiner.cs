@@ -77,6 +77,10 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                         ComplexMassiveBlendAnimatedBehavior cbtmbab = (ComplexMassiveBlendAnimatedBehavior)behavior;
                         ForComplexMassiveBlend(transitionConditions, cbtmbab.Behaviors, cbtmbab.OriginalBlendTreeTemplate);
                         break;
+                    case AnimatedBehaviorNature.UniversalAnalog:
+                        UniversalAnalogAnimatedBehavior uaab = (UniversalAnalogAnimatedBehavior)behavior;
+                        ForDualAnalog(transitionConditions, uaab.BothSqueezing.Clip, uaab.Resting.ToMotion(), uaab.LeftSqueezing.ToMotion(), uaab.RightSqueezing.ToMotion());
+                        break;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
@@ -117,6 +121,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                     return CreateDualBlendTree(ptda.Resting, ptda.BothSqueezing.Clip, ptda.LeftSqueezing.Clip, ptda.LeftSqueezing.Clip, SanitizeName(UnshimName(ptda.BothSqueezing.Clip.name)), _animatorController, _useGestureWeightCorrection, _useSmoothing);
                 case AnimatedBehaviorNature.Puppet:
                     return ((PuppetAnimatedBehavior)behavior).Tree;
+                case AnimatedBehaviorNature.UniversalAnalog:
+                    UniversalAnalogAnimatedBehavior uaab = (UniversalAnalogAnimatedBehavior)behavior;
+                    return CreateDualBlendTree(uaab.Resting.ToMotion(), uaab.BothSqueezing.Clip, uaab.LeftSqueezing.ToMotion(), uaab.LeftSqueezing.ToMotion(), SanitizeName(UnshimName(uaab.BothSqueezing.Clip.name)), _animatorController, _useGestureWeightCorrection, _useSmoothing);
                 case AnimatedBehaviorNature.SimpleMassiveBlend:
                 case AnimatedBehaviorNature.TwoDirectionsMassiveBlend:
                 case AnimatedBehaviorNature.ComplexMassiveBlend:
