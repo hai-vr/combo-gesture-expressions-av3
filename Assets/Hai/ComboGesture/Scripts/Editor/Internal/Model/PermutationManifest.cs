@@ -100,11 +100,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
             foreach (var pair in Poses)
             {
                 if (!pair.Key.IsSymmetrical()) {
-                    if (pair.Key.Left == HandPose.H1)
+                    if (pair.Key.IsOrangeSide())
                     {
                         newPoses[pair.Key] = pair.Value.Remapping(emptyDict, remappingLeft);
                     }
-                    if (pair.Key.Right == HandPose.H1)
+                    if (pair.Key.IsBlueSide())
                     {
                         newPoses[pair.Key] = pair.Value.Remapping(emptyDict, remappingRight);
                     }
