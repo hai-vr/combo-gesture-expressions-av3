@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Amazon.Runtime.Internal.Transform;
 using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.Internal.Model;
 using UnityEditor.Animations;
@@ -420,83 +419,81 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Processing
                 });
         }
 
+        private static Dictionary<Permutation, Func<ComboGestureActivity, Motion>> PermutationLookup;
+        static ManifestFromActivity() {
+            PermutationLookup = new Dictionary<Permutation, Func<ComboGestureActivity, Motion>>
+            {
+                { Permutation.LeftRight(HandPose.H0, HandPose.H0), activity => activity.anim00 },
+                { Permutation.LeftRight(HandPose.H0, HandPose.H1), activity => activity.anim01 },
+                { Permutation.LeftRight(HandPose.H0, HandPose.H2), activity => activity.anim02 },
+                { Permutation.LeftRight(HandPose.H0, HandPose.H3), activity => activity.anim03 },
+                { Permutation.LeftRight(HandPose.H0, HandPose.H4), activity => activity.anim04 },
+                { Permutation.LeftRight(HandPose.H0, HandPose.H5), activity => activity.anim05 },
+                { Permutation.LeftRight(HandPose.H0, HandPose.H6), activity => activity.anim06 },
+                { Permutation.LeftRight(HandPose.H0, HandPose.H7), activity => activity.anim07 },
+                { Permutation.LeftRight(HandPose.H1, HandPose.H0), activity => activity.anim10 },
+                { Permutation.LeftRight(HandPose.H1, HandPose.H1), activity => activity.anim11 },
+                { Permutation.LeftRight(HandPose.H1, HandPose.H2), activity => activity.anim12 },
+                { Permutation.LeftRight(HandPose.H1, HandPose.H3), activity => activity.anim13 },
+                { Permutation.LeftRight(HandPose.H1, HandPose.H4), activity => activity.anim14 },
+                { Permutation.LeftRight(HandPose.H1, HandPose.H5), activity => activity.anim15 },
+                { Permutation.LeftRight(HandPose.H1, HandPose.H6), activity => activity.anim16 },
+                { Permutation.LeftRight(HandPose.H1, HandPose.H7), activity => activity.anim17 },
+                { Permutation.LeftRight(HandPose.H2, HandPose.H0), activity => activity.anim20 },
+                { Permutation.LeftRight(HandPose.H2, HandPose.H1), activity => activity.anim21 },
+                { Permutation.LeftRight(HandPose.H2, HandPose.H2), activity => activity.anim22 },
+                { Permutation.LeftRight(HandPose.H2, HandPose.H3), activity => activity.anim23 },
+                { Permutation.LeftRight(HandPose.H2, HandPose.H4), activity => activity.anim24 },
+                { Permutation.LeftRight(HandPose.H2, HandPose.H5), activity => activity.anim25 },
+                { Permutation.LeftRight(HandPose.H2, HandPose.H6), activity => activity.anim26 },
+                { Permutation.LeftRight(HandPose.H2, HandPose.H7), activity => activity.anim27 },
+                { Permutation.LeftRight(HandPose.H3, HandPose.H0), activity => activity.anim30 },
+                { Permutation.LeftRight(HandPose.H3, HandPose.H1), activity => activity.anim31 },
+                { Permutation.LeftRight(HandPose.H3, HandPose.H2), activity => activity.anim32 },
+                { Permutation.LeftRight(HandPose.H3, HandPose.H3), activity => activity.anim33 },
+                { Permutation.LeftRight(HandPose.H3, HandPose.H4), activity => activity.anim34 },
+                { Permutation.LeftRight(HandPose.H3, HandPose.H5), activity => activity.anim35 },
+                { Permutation.LeftRight(HandPose.H3, HandPose.H6), activity => activity.anim36 },
+                { Permutation.LeftRight(HandPose.H3, HandPose.H7), activity => activity.anim37 },
+                { Permutation.LeftRight(HandPose.H4, HandPose.H0), activity => activity.anim40 },
+                { Permutation.LeftRight(HandPose.H4, HandPose.H1), activity => activity.anim41 },
+                { Permutation.LeftRight(HandPose.H4, HandPose.H2), activity => activity.anim42 },
+                { Permutation.LeftRight(HandPose.H4, HandPose.H3), activity => activity.anim43 },
+                { Permutation.LeftRight(HandPose.H4, HandPose.H4), activity => activity.anim44 },
+                { Permutation.LeftRight(HandPose.H4, HandPose.H5), activity => activity.anim45 },
+                { Permutation.LeftRight(HandPose.H4, HandPose.H6), activity => activity.anim46 },
+                { Permutation.LeftRight(HandPose.H4, HandPose.H7), activity => activity.anim47 },
+                { Permutation.LeftRight(HandPose.H5, HandPose.H0), activity => activity.anim50 },
+                { Permutation.LeftRight(HandPose.H5, HandPose.H1), activity => activity.anim51 },
+                { Permutation.LeftRight(HandPose.H5, HandPose.H2), activity => activity.anim52 },
+                { Permutation.LeftRight(HandPose.H5, HandPose.H3), activity => activity.anim53 },
+                { Permutation.LeftRight(HandPose.H5, HandPose.H4), activity => activity.anim54 },
+                { Permutation.LeftRight(HandPose.H5, HandPose.H5), activity => activity.anim55 },
+                { Permutation.LeftRight(HandPose.H5, HandPose.H6), activity => activity.anim56 },
+                { Permutation.LeftRight(HandPose.H5, HandPose.H7), activity => activity.anim57 },
+                { Permutation.LeftRight(HandPose.H6, HandPose.H0), activity => activity.anim60 },
+                { Permutation.LeftRight(HandPose.H6, HandPose.H1), activity => activity.anim61 },
+                { Permutation.LeftRight(HandPose.H6, HandPose.H2), activity => activity.anim62 },
+                { Permutation.LeftRight(HandPose.H6, HandPose.H3), activity => activity.anim63 },
+                { Permutation.LeftRight(HandPose.H6, HandPose.H4), activity => activity.anim64 },
+                { Permutation.LeftRight(HandPose.H6, HandPose.H5), activity => activity.anim65 },
+                { Permutation.LeftRight(HandPose.H6, HandPose.H6), activity => activity.anim66 },
+                { Permutation.LeftRight(HandPose.H6, HandPose.H7), activity => activity.anim67 },
+                { Permutation.LeftRight(HandPose.H7, HandPose.H0), activity => activity.anim70 },
+                { Permutation.LeftRight(HandPose.H7, HandPose.H1), activity => activity.anim71 },
+                { Permutation.LeftRight(HandPose.H7, HandPose.H2), activity => activity.anim72 },
+                { Permutation.LeftRight(HandPose.H7, HandPose.H3), activity => activity.anim73 },
+                { Permutation.LeftRight(HandPose.H7, HandPose.H4), activity => activity.anim74 },
+                { Permutation.LeftRight(HandPose.H7, HandPose.H5), activity => activity.anim75 },
+                { Permutation.LeftRight(HandPose.H7, HandPose.H6), activity => activity.anim76 },
+                { Permutation.LeftRight(HandPose.H7, HandPose.H7), activity => activity.anim77 },
+            };
+        }
+
         private Dictionary<Permutation, Motion> PermutationToNullableMotions()
         {
-            var motions = new Dictionary<Permutation, Motion>();
-
-            motions.Add(Permutation.LeftRight(HandPose.H0, HandPose.H0), _activity.anim00);
-            motions.Add(Permutation.LeftRight(HandPose.H0, HandPose.H1), _activity.anim01);
-            motions.Add(Permutation.LeftRight(HandPose.H0, HandPose.H2), _activity.anim02);
-            motions.Add(Permutation.LeftRight(HandPose.H0, HandPose.H3), _activity.anim03);
-            motions.Add(Permutation.LeftRight(HandPose.H0, HandPose.H4), _activity.anim04);
-            motions.Add(Permutation.LeftRight(HandPose.H0, HandPose.H5), _activity.anim05);
-            motions.Add(Permutation.LeftRight(HandPose.H0, HandPose.H6), _activity.anim06);
-            motions.Add(Permutation.LeftRight(HandPose.H0, HandPose.H7), _activity.anim07);
-
-            motions.Add(Permutation.LeftRight(HandPose.H1, HandPose.H0), _activity.anim10);
-            motions.Add(Permutation.LeftRight(HandPose.H1, HandPose.H1), _activity.anim11);
-            motions.Add(Permutation.LeftRight(HandPose.H1, HandPose.H2), _activity.anim12);
-            motions.Add(Permutation.LeftRight(HandPose.H1, HandPose.H3), _activity.anim13);
-            motions.Add(Permutation.LeftRight(HandPose.H1, HandPose.H4), _activity.anim14);
-            motions.Add(Permutation.LeftRight(HandPose.H1, HandPose.H5), _activity.anim15);
-            motions.Add(Permutation.LeftRight(HandPose.H1, HandPose.H6), _activity.anim16);
-            motions.Add(Permutation.LeftRight(HandPose.H1, HandPose.H7), _activity.anim17);
-
-            motions.Add(Permutation.LeftRight(HandPose.H2, HandPose.H0), _activity.anim20);
-            motions.Add(Permutation.LeftRight(HandPose.H2, HandPose.H1), _activity.anim21);
-            motions.Add(Permutation.LeftRight(HandPose.H2, HandPose.H2), _activity.anim22);
-            motions.Add(Permutation.LeftRight(HandPose.H2, HandPose.H3), _activity.anim23);
-            motions.Add(Permutation.LeftRight(HandPose.H2, HandPose.H4), _activity.anim24);
-            motions.Add(Permutation.LeftRight(HandPose.H2, HandPose.H5), _activity.anim25);
-            motions.Add(Permutation.LeftRight(HandPose.H2, HandPose.H6), _activity.anim26);
-            motions.Add(Permutation.LeftRight(HandPose.H2, HandPose.H7), _activity.anim27);
-
-            motions.Add(Permutation.LeftRight(HandPose.H3, HandPose.H0), _activity.anim30);
-            motions.Add(Permutation.LeftRight(HandPose.H3, HandPose.H1), _activity.anim31);
-            motions.Add(Permutation.LeftRight(HandPose.H3, HandPose.H2), _activity.anim32);
-            motions.Add(Permutation.LeftRight(HandPose.H3, HandPose.H3), _activity.anim33);
-            motions.Add(Permutation.LeftRight(HandPose.H3, HandPose.H4), _activity.anim34);
-            motions.Add(Permutation.LeftRight(HandPose.H3, HandPose.H5), _activity.anim35);
-            motions.Add(Permutation.LeftRight(HandPose.H3, HandPose.H6), _activity.anim36);
-            motions.Add(Permutation.LeftRight(HandPose.H3, HandPose.H7), _activity.anim37);
-
-            motions.Add(Permutation.LeftRight(HandPose.H4, HandPose.H0), _activity.anim40);
-            motions.Add(Permutation.LeftRight(HandPose.H4, HandPose.H1), _activity.anim41);
-            motions.Add(Permutation.LeftRight(HandPose.H4, HandPose.H2), _activity.anim42);
-            motions.Add(Permutation.LeftRight(HandPose.H4, HandPose.H3), _activity.anim43);
-            motions.Add(Permutation.LeftRight(HandPose.H4, HandPose.H4), _activity.anim44);
-            motions.Add(Permutation.LeftRight(HandPose.H4, HandPose.H5), _activity.anim45);
-            motions.Add(Permutation.LeftRight(HandPose.H4, HandPose.H6), _activity.anim46);
-            motions.Add(Permutation.LeftRight(HandPose.H4, HandPose.H7), _activity.anim47);
-
-            motions.Add(Permutation.LeftRight(HandPose.H5, HandPose.H0), _activity.anim50);
-            motions.Add(Permutation.LeftRight(HandPose.H5, HandPose.H1), _activity.anim51);
-            motions.Add(Permutation.LeftRight(HandPose.H5, HandPose.H2), _activity.anim52);
-            motions.Add(Permutation.LeftRight(HandPose.H5, HandPose.H3), _activity.anim53);
-            motions.Add(Permutation.LeftRight(HandPose.H5, HandPose.H4), _activity.anim54);
-            motions.Add(Permutation.LeftRight(HandPose.H5, HandPose.H5), _activity.anim55);
-            motions.Add(Permutation.LeftRight(HandPose.H5, HandPose.H6), _activity.anim56);
-            motions.Add(Permutation.LeftRight(HandPose.H5, HandPose.H7), _activity.anim57);
-
-            motions.Add(Permutation.LeftRight(HandPose.H6, HandPose.H0), _activity.anim60);
-            motions.Add(Permutation.LeftRight(HandPose.H6, HandPose.H1), _activity.anim61);
-            motions.Add(Permutation.LeftRight(HandPose.H6, HandPose.H2), _activity.anim62);
-            motions.Add(Permutation.LeftRight(HandPose.H6, HandPose.H3), _activity.anim63);
-            motions.Add(Permutation.LeftRight(HandPose.H6, HandPose.H4), _activity.anim64);
-            motions.Add(Permutation.LeftRight(HandPose.H6, HandPose.H5), _activity.anim65);
-            motions.Add(Permutation.LeftRight(HandPose.H6, HandPose.H6), _activity.anim66);
-            motions.Add(Permutation.LeftRight(HandPose.H6, HandPose.H7), _activity.anim67);
-
-            motions.Add(Permutation.LeftRight(HandPose.H7, HandPose.H0), _activity.anim70);
-            motions.Add(Permutation.LeftRight(HandPose.H7, HandPose.H1), _activity.anim71);
-            motions.Add(Permutation.LeftRight(HandPose.H7, HandPose.H2), _activity.anim72);
-            motions.Add(Permutation.LeftRight(HandPose.H7, HandPose.H3), _activity.anim73);
-            motions.Add(Permutation.LeftRight(HandPose.H7, HandPose.H4), _activity.anim74);
-            motions.Add(Permutation.LeftRight(HandPose.H7, HandPose.H5), _activity.anim75);
-            motions.Add(Permutation.LeftRight(HandPose.H7, HandPose.H6), _activity.anim76);
-            motions.Add(Permutation.LeftRight(HandPose.H7, HandPose.H7), _activity.anim77);
-
-            return motions;
+            return Permutation.All()
+                .ToDictionary(permutation => permutation, permutation => PermutationLookup[permutation](_activity));
         }
     }
 }
