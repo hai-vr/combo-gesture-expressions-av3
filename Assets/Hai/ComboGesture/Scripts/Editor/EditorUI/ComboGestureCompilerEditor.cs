@@ -352,6 +352,12 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             EditorGUILayout.LabelField(CgeLocale.CGEC_Synchronization, EditorStyles.boldLabel);
 
+            if (useViveAdvancedControlsForNonFistAnalog.boolValue)
+            {
+                EditorGUILayout.HelpBox(CgeLocale.CGEC_ViveAdvancedControlsWarning, MessageType.Error);
+                EditorGUILayout.PropertyField(useViveAdvancedControlsForNonFistAnalog, new GUIContent("Use Vive Advanced Controls Analog"));
+            }
+
             EditorGUI.BeginDisabledGroup(
                 ThereIsNoAnimatorController() ||
                 ThereIsNoGestureAnimatorController() ||
