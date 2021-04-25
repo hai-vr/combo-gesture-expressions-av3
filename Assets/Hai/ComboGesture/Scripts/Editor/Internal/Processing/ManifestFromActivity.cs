@@ -419,7 +419,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Processing
                 });
         }
 
-        private static Dictionary<Permutation, Func<ComboGestureActivity, Motion>> PermutationLookup;
+        private static readonly Dictionary<Permutation, Func<ComboGestureActivity, Motion>> PermutationLookup;
         static ManifestFromActivity() {
             PermutationLookup = new Dictionary<Permutation, Func<ComboGestureActivity, Motion>>
             {
