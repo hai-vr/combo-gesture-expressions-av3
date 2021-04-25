@@ -366,8 +366,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Processing
 
             private NullableMotion(Motion item)
             {
-                // ReSharper disable once MergeConditionalExpression
-                _item = item == null ? default : item;
+                _item = item == null ? null : item;
             }
 
             public static NullableMotion OfNullable(Motion item)
@@ -380,9 +379,14 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Processing
                 return _item == null ? OfNullable(other.Invoke()) : this;
             }
 
-            public Motion Orels(Motion last)
+            public NullableMotion OrWhen(bool predicateResult, Func<Motion> other)
             {
-                return _item == null ? last : _item;
+                return _item == null && predicateResult ? OfNullable(other.Invoke()) : this;
+            }
+
+            public Motion Orels(Motion nonNullableItem)
+            {
+                return _item == null ? nonNullableItem : _item;
             }
         }
 
@@ -395,49 +399,24 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Processing
                 {
                     if (permutation.IsSymmetrical())
                     {
-                        if (!explicitMode)
-                        {
-                            return NullableMotion.OfNullable(permutationToNullableMotions[permutation])
-                                   .Or(() => permutationToNullableMotions[Permutation.LeftRight(HandPose.H0, permutation.Right)])
-                                   .Orels(nonNullableFallback);
-                        }
-                        else
-                        {
-                            return NullableMotion.OfNullable(permutationToNullableMotions[permutation])
-                                   .Orels(nonNullableFallback);
-                        }
+                        return NullableMotion.OfNullable(permutationToNullableMotions[permutation])
+                               .OrWhen(!explicitMode, () => permutationToNullableMotions[Permutation.LeftRight(HandPose.H0, permutation.Right)])
+                               .Orels(nonNullableFallback);
                     }
-                    if (permutation.IsBlueSide())
+
+                    var implicitWithFist = !explicitMode && permutation.HasAnyFist();
+                    if (permutation.IsOrangeSide())
                     {
-                        if (!explicitMode && permutation.HasAnyFist())
-                        {
-                            return NullableMotion.OfNullable(permutationToNullableMotions[permutation])
-                                   .Or(() => permutationToNullableMotions[Permutation.LeftRight(HandPose.H0, permutation.Right)])
-                                   .Orels(nonNullableFallback);
-                        }
-                        else
-                        {
-                            return NullableMotion.OfNullable(permutationToNullableMotions[permutation])
-                                   .Orels(nonNullableFallback);
-                        }
+                        return NullableMotion.OfNullable(permutationToNullableMotions[permutation])
+                            .Or(() => permutationToNullableMotions[permutation.ToOppositeSide()])
+                            .OrWhen(implicitWithFist, () => permutationToNullableMotions[Permutation.LeftRight(permutation.Left, HandPose.H0)])
+                            .OrWhen(implicitWithFist, () => permutationToNullableMotions[Permutation.LeftRight(HandPose.H0, permutation.Left)])
+                            .Orels(nonNullableFallback);
                     }
-                    else
-                    {
-                        if (!explicitMode && permutation.HasAnyFist())
-                        {
-                            return NullableMotion.OfNullable(permutationToNullableMotions[permutation])
-                                   .Or(() => permutationToNullableMotions[permutation.ToOppositeSide()])
-                                   .Or(() => permutationToNullableMotions[Permutation.LeftRight(permutation.Left, HandPose.H0)])
-                                   .Or(() => permutationToNullableMotions[Permutation.LeftRight(HandPose.H0, permutation.Left)])
-                                   .Orels(nonNullableFallback);
-                        }
-                        else
-                        {
-                            return NullableMotion.OfNullable(permutationToNullableMotions[permutation])
-                                   .Or(() => permutationToNullableMotions[permutation.ToOppositeSide()])
-                                   .Orels(nonNullableFallback);
-                        }
-                    }
+
+                    return NullableMotion.OfNullable(permutationToNullableMotions[permutation])
+                        .OrWhen(implicitWithFist, () => permutationToNullableMotions[Permutation.LeftRight(HandPose.H0, permutation.Right)])
+                        .Orels(nonNullableFallback);
                 });
         }
 
