@@ -230,7 +230,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Processing
 
             if (_activity.enablePermutations)
             {
-                poses.Add(Permutation.LeftRight(HandPose.H1, HandPose.H0), InterpretAnalog(Just(_activity.anim00), Otherwise(_activity.anim01, _activity.anim10), HandSide.LeftHand));
+                poses.Add(Permutation.LeftRight(HandPose.H1, HandPose.H0), InterpretAnalog(Just(_activity.anim00), Otherwise(_activity.anim10, _activity.anim01), HandSide.LeftHand));
                 poses.Add(Permutation.LeftRight(HandPose.H2, HandPose.H0), InterpretSingle(Otherwise(_activity.anim20, _activity.anim02)));
                 poses.Add(Permutation.LeftRight(HandPose.H3, HandPose.H0), InterpretSingle(Otherwise(_activity.anim30, _activity.anim03)));
                 poses.Add(Permutation.LeftRight(HandPose.H4, HandPose.H0), InterpretSingle(Otherwise(_activity.anim40, _activity.anim04)));
