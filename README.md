@@ -2,9 +2,11 @@
 
 ### [> Download latest version...](https://github.com/hai-vr/combo-gesture-expressions-av3/releases)
 
-*ComboGestureExpressions* is an Unity Editor tool that lets you attach face expressions to hand gestures and take as much advantage of *Avatars 3.0*'s quality of life features.
+*ComboGestureExpressions* is an Unity Editor tool that lets you attach face expressions to hand gestures and take as much advantage of *Avatars 3.0*'s features.
 
-![](https://github.com/hai-vr/combo-gesture-expressions-av3/raw/z-res-pictures/Documentation/illustration-1.gif)
+It also includes *ExpressionsEditor*, an animation editor that lets you create face expressions with the help of previews.
+
+![](https://github.com/hai-vr/combo-gesture-expressions-av3/raw/z-res-pictures/Documentation/illustration-2.gif)
 
 A common issue with classic avatars are face expressions that conflict when both hands are combined.
 For instance, if a face expression closes the eyes on the left hand, but lowers the eyelids on the other hand, the face will look wrong. 
