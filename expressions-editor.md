@@ -20,10 +20,10 @@ Click <span class="hai-btn">Automatically setup previews!</span> to create a pre
 
 A preview dummy is a duplicate copy of your avatar that EE will use to generate previews of your animations. It ensures that EE will not modify the original avatar by accident. You are free to modify the preview dummy to make previews look nicer, including the camera positions.
 
-For best results, you should:
+The previews will highlight most likely area affected by the blendshape by comparing which pixels have changed. For best results, you should:
 
-- Make sure *Legacy Blendshape Normals* options is check in the import settings of your avatar mesh (on the VRChat platform, the upload process will force you to check this box).
-- If you use glitter or any sort of animated skin, remove them by creating a new material that does not have those.
+- Make sure *Legacy Blendshape Normals* options is checked in the import settings of your avatar mesh (on the VRChat platform, the upload process will force you to check this box).
+- If you use glitter, scrolling textures, pulsing emission, or any sort of animated skin, remove them by creating a new material that does not have those.
 - Disable or remove particle systems.
 
 ## Add or remove blendshapes
