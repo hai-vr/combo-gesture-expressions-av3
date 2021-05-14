@@ -30,11 +30,11 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
 
         public void Layout(Rect position)
         {
-            if (_editorEffector.GetActivity().oneHandMode != ComboGestureActivity.CgeOneHandMode.Disabled)
+            if ((ComboGestureActivity.CgeOneHandMode)_editorEffector.SpOneHandMode().intValue != ComboGestureActivity.CgeOneHandMode.Disabled)
             {
                 LayoutOneHandEditor(position);
             }
-            else if (_editorEffector.GetActivity().enablePermutations)
+            else if (_editorEffector.SpEnablePermutations().boolValue)
             {
                 LayoutPermutationEditor(position);
             }
@@ -146,6 +146,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                     if (current)
                     {
                         _editorEffector.SpEnablePermutations().boolValue = true;
+                        _editorEffector.SpOneHandMode().boolValue = false;
                     }
                 }
             }

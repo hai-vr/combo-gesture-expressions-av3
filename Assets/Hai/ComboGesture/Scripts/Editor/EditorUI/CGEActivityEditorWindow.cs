@@ -199,14 +199,14 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             {
                 GUILayout.BeginHorizontal();
                 GUILayout.Space(30);
-                if (_editorEffector.GetActivity().oneHandMode != ComboGestureActivity.CgeOneHandMode.Disabled)
+                if ((ComboGestureActivity.CgeOneHandMode)_editorEffector.SpOneHandMode().intValue != ComboGestureActivity.CgeOneHandMode.Disabled)
                 {
                     _editorEffector.SpEditorTool().intValue = GUILayout.Toolbar(_editorEffector.SpEditorTool().intValue, new[]
                     {
                         CgeLocale.CGEE_Mode, CgeLocale.CGEE_OneHandMode
                     }, GUILayout.ExpandWidth(true));
                 }
-                else if (!_editorEffector.GetActivity().enablePermutations)
+                else if (!_editorEffector.SpEnablePermutations().boolValue)
                 {
                     _editorEffector.SpEditorTool().intValue = GUILayout.Toolbar(_editorEffector.SpEditorTool().intValue, new[]
                     {
