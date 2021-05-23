@@ -475,7 +475,7 @@ namespace Hai.ExpressionsEditor.Scripts.Editor.Internal.Modules
 
         private void CaptureDummy(Texture2D element, Camera generatedCamera)
         {
-            _renderTexture = new RenderTexture(element.width, element.height, 0);
+            _renderTexture = new RenderTexture(element.width, element.height, 24);
             RenderCamera(_renderTexture, generatedCamera);
             RenderTextureTo(_renderTexture, element);
         }
