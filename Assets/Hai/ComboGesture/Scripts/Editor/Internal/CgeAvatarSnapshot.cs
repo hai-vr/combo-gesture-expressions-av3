@@ -109,6 +109,12 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             {
                 AnimationUtility.SetEditorCurve(snapshot, binding, AnimationUtility.GetEditorCurve(_compilerFallbackParamList, binding));
             }
+
+            var fallbackReferences = AnimationUtility.GetObjectReferenceCurveBindings(_compilerFallbackParamList);
+            foreach (var binding in fallbackReferences)
+            {
+                AnimationUtility.SetObjectReferenceCurve(snapshot, binding, AnimationUtility.GetObjectReferenceCurve(_compilerFallbackParamList, binding));
+            }
         }
     }
 }
