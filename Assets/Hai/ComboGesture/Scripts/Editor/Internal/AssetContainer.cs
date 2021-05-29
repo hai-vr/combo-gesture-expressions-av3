@@ -51,6 +51,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             AssetDatabase.AddObjectToAsset(blendTree, _holder);
         }
 
+        public void AddAvatarMask(AvatarMask mask)
+        {
+            AssetDatabase.AddObjectToAsset(mask, _holder);
+        }
+
         public void RemoveAssetsStartingWith(string prefix, Type typeOfAssets)
         {
             var allSubAssets = AssetDatabase.LoadAllAssetsAtPath(AssetDatabase.GetAssetPath(_holder));
