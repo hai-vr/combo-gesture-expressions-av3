@@ -122,6 +122,10 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         internal static string CGEI_Synchronize_Animator_layers => LocalizeOrElse("CGEI_Synchronize_Animator_layers", CgeLocaleDefaults.CGEI_Synchronize_Animator_layers);
         // 1.5
         internal static string CGEE_EyesAreClosed => LocalizeOrElse("CGEE_EyesAreClosed", CgeLocaleDefaults.CGEE_EyesAreClosed);
+        // 1.5.3
+        public static string CGEC_DanceWorldCompatibility => LocalizeOrElse("CGEC_DanceWorldCompatibility", CgeLocaleDefaults.CGEC_DanceWorldCompatibility);
+        public static string CGEC_DanceWorldCompatibilityIntro => LocalizeOrElse("CGEC_DanceWorldCompatibilityIntro", CgeLocaleDefaults.CGEC_DanceWorldCompatibilityIntro);
+        public static string CGEC_DanceWorldCompatibilityWriteDefaults => LocalizeOrElse("CGEC_DanceWorldCompatibilityWriteDefaults", CgeLocaleDefaults.CGEC_DanceWorldCompatibilityWriteDefaults);
         // 1.6.0
         internal static string CGEC_WarnNoMassiveBlend => LocalizeOrElse("CGEC_WarnNoMassiveBlend", CgeLocaleDefaults.CGEC_WarnNoMassiveBlend);
         //

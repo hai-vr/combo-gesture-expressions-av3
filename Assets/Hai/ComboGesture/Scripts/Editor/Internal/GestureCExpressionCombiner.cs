@@ -17,9 +17,10 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly bool _writeDefaultsForFaceExpressions;
         private readonly bool _useGestureWeightCorrection;
         private readonly bool _useSmoothing;
+        private readonly bool _isFxAndRequiresWorldStationAnimator;
 
         public GestureCExpressionCombiner(AnimatorController animatorController, AnimatorStateMachine machine,
-            Dictionary<IAnimatedBehavior, List<TransitionCondition>> intermediateToCombo, string activityStageName, bool writeDefaultsForFaceExpressions, bool useGestureWeightCorrection, bool useSmoothing)
+            Dictionary<IAnimatedBehavior, List<TransitionCondition>> intermediateToCombo, string activityStageName, bool writeDefaultsForFaceExpressions, bool useGestureWeightCorrection, bool useSmoothing, bool isFxAndRequiresWorldStationAnimator)
         {
             _animatorController = animatorController;
             _machine = machine;
@@ -27,6 +28,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _writeDefaultsForFaceExpressions = writeDefaultsForFaceExpressions;
             _useGestureWeightCorrection = useGestureWeightCorrection;
             _useSmoothing = useSmoothing;
+            _isFxAndRequiresWorldStationAnimator = isFxAndRequiresWorldStationAnimator;
             _intermediateToCombo = intermediateToCombo;
         }
 
@@ -375,6 +377,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             {
                 transition.hasExitTime = true;
                 transition.exitTime = 0f;
+            }
+
+            if (_isFxAndRequiresWorldStationAnimator)
+            {
+                transition.AddCondition(AnimatorConditionMode.IfNot, 0f, SharedLayerUtils.HaiInWorldAnimator);
             }
         }
 

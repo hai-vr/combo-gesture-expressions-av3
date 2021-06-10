@@ -30,6 +30,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly bool _useSmoothing;
         private readonly List<ManifestBinding> _manifestBindings;
         private readonly string _animInfix;
+        private readonly bool _isFxAndRequiresWorldStationAnimator;
 
         public LayerForExpressionsView(FeatureToggles featuresToggles,
             AnimatorGenerator animatorGenerator,
@@ -47,7 +48,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             bool useGestureWeightCorrection,
             bool useSmoothing,
             List<ManifestBinding> manifestBindings,
-            string animInfix)
+            string animInfix,
+            bool isFxAndRequiresWorldStationAnimator)
         {
             _featuresToggles = featuresToggles;
             _animatorGenerator = animatorGenerator;
@@ -66,6 +68,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _useSmoothing = useSmoothing;
             _manifestBindings = manifestBindings;
             _animInfix = animInfix;
+            _isFxAndRequiresWorldStationAnimator = isFxAndRequiresWorldStationAnimator;
         }
 
         public void Create()
@@ -117,8 +120,14 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 _activityStageName,
                 _conflictPrevention.ShouldWriteDefaults,
                 _useGestureWeightCorrection,
-                _useSmoothing
+                _useSmoothing,
+                _isFxAndRequiresWorldStationAnimator
             ).Populate();
+
+            if (_isFxAndRequiresWorldStationAnimator)
+            {
+
+            }
         }
 
         private static List<string> AllParametersUsedByManifests(List<ManifestBinding> activityManifests)

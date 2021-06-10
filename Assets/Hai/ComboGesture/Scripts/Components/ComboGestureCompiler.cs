@@ -60,6 +60,8 @@ namespace Hai.ComboGesture.Scripts.Components
 
         public ParameterMode parameterMode;
 
+        public bool worldStationAnimatorCompatibility;
+
         public bool WillUseGestureWeightCorrection()
         {
             return weightCorrectionMode != WeightCorrectionMode.UseNativeWeight;

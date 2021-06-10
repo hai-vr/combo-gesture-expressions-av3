@@ -165,5 +165,15 @@ This is a very simplified version of the Permutations feature.";
         internal static string CGEE_TreeFileCreate = "Create...";
         internal static string CGEE_TreeFileInvalidSavePath = "Invalid save path";
         internal static string CGEE_TreeFileInvalidSavePathMessage = "Save path must be in the project's /Assets path.";
+        internal static string CGEC_DanceWorldCompatibility = "Add compatibility with MMD Dance Stage";
+        internal static string CGEC_DanceWorldCompatibilityIntro = @"Compatibility with MMD Dance Stage is enabled. This has the following consequences:
+- Face expression animations will no longer play if you're inside some special stations (not chairs or beds).
+- You must enable Write Defaults ON, which is against VRChat recommendation.
+- Generally, CGE might break under certain conditions.
+
+It is not recommended to enable MMD Dance Stage compatibility if you never visit or use MMD Dance worlds often.";
+        internal static string CGEC_DanceWorldCompatibilityWriteDefaults = @"If you want MMD Dance Stage Compatibility, you must set Write Defaults to ON. Please note that this goes against VRChat recommendation.
+
+Disable MMD Dance Stage compatibility if you don't use MMD Dance worlds often.";
     }
 }

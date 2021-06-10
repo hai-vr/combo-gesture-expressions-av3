@@ -47,6 +47,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         internal const string HaiGestureComboLeftWeightSmoothing = "_Hai_GestureLWSmoothing";
         internal const string HaiGestureComboRightWeightSmoothing = "_Hai_GestureRWSmoothing";
         internal const string HaiGestureComboSmoothingFactor = "_Hai_GestureSmoothingFactor";
+        internal const string InStation = "InStation";
+        internal const string Seated = "Seated";
+        internal const string HaiInWorldAnimator = "_Hai_GestureInWorldAnimator";
 
         public static IManifest FromMapper(GestureComboStageMapper mapper, AnimationClip fallbackWhenAnyClipIsNull)
         {

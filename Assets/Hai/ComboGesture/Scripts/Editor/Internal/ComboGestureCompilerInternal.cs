@@ -42,6 +42,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly AvatarMask _gesturePlayableLayerTechnicalAvatarMask;
         private readonly ParameterGeneration _parameterGeneration;
         private readonly bool _useSmoothing;
+        private readonly bool _worldStationAnimatorCompatibility;
 
         public ComboGestureCompilerInternal(
             ComboGestureCompiler compiler,
@@ -87,6 +88,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _assetContainer = assetContainer;
             _useGestureWeightCorrection = compiler.WillUseGestureWeightCorrection();
             _useSmoothing = _useGestureWeightCorrection;
+            _worldStationAnimatorCompatibility = compiler.worldStationAnimatorCompatibility;
         }
 
         public ComboGestureCompilerInternal(
@@ -206,10 +208,27 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 }
             }
 
+            if (_worldStationAnimatorCompatibility)
+            {
+                CreateOrReplaceWorldAnimatorLayer();
+            }
+            else
+            {
+                DeleteWorldAnimatorLayer();
+            }
+
             ReapAnimator(_animatorController);
 
             AssetDatabase.Refresh();
             EditorUtility.ClearProgressBar();
+        }
+
+        private void CreateOrReplaceWorldAnimatorLayer()
+        {
+        }
+
+        private void DeleteWorldAnimatorLayer()
+        {
         }
 
         private static void CreateOrReplaceSmoothing(AvatarMask weightCorrectionAvatarMask, AnimatorGenerator animatorGenerator, AnimatorController animatorController, ConflictPrevention conflictPrevention)
@@ -386,6 +405,13 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             SharedLayerUtils.CreateParamIfNotExists(_animatorController, "_Hai_GestureAnimBlink", AnimatorControllerParameterType.Float);
             SharedLayerUtils.CreateParamIfNotExists(_animatorController, "_Hai_GestureAnimLSWide", AnimatorControllerParameterType.Float);
 
+            if (_worldStationAnimatorCompatibility)
+            {
+                SharedLayerUtils.CreateParamIfNotExists(_animatorController, "Seated", AnimatorControllerParameterType.Bool);
+                SharedLayerUtils.CreateParamIfNotExists(_animatorController, "InStation", AnimatorControllerParameterType.Bool);
+                SharedLayerUtils.CreateParamIfNotExists(_animatorController, "_Hai_GestureWorldStationBypass", AnimatorControllerParameterType.Bool);
+            }
+
             var avatarFallbacks = new CgeAvatarSnapshot(_avatarDescriptor, _compilerFallbackParamList).CaptureFallbacks();
             new LayerForExpressionsView(
                 _featuresToggles,
@@ -404,7 +430,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 _useGestureWeightCorrection,
                 _useSmoothing,
                 manifestBindings,
-                ""
+                "",
+                _worldStationAnimatorCompatibility
             ).Create();
         }
 
@@ -434,7 +461,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 _useGestureWeightCorrection,
                 _useSmoothing,
                 manifestBindings,
-                "GPL"
+                "GPL",
+                false
             ).Create();
         }
 

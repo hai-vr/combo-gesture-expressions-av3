@@ -53,6 +53,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public SerializedProperty assetContainer;
         public SerializedProperty generateNewContainerEveryTime;
 
+        public SerializedProperty worldStationAnimatorCompatibility;
+
         public SerializedProperty editorAdvancedFoldout;
 
         private void OnEnable()
@@ -94,6 +96,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             assetContainer = serializedObject.FindProperty("assetContainer");
             generateNewContainerEveryTime = serializedObject.FindProperty("generateNewContainerEveryTime");
+
+            worldStationAnimatorCompatibility = serializedObject.FindProperty("worldStationAnimatorCompatibility");
 
             // reference: https://blog.terresquall.com/2020/03/creating-reorderable-lists-in-the-unity-inspector/
             comboLayersReorderableList = new ReorderableList(
@@ -295,7 +299,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             EditorGUILayout.LabelField(CgeLocale.CGEC_BackupFX, italic);
             EditorGUILayout.PropertyField(animatorController, new GUIContent(CgeLocale.CGEC_FX_Animator_Controller));
             EditorGUILayout.PropertyField(writeDefaultsRecommendationMode, new GUIContent(CgeLocale.CGEC_FX_Playable_Mode));
-            WriteDefaultsSection(writeDefaultsRecommendationMode);
+            WriteDefaultsSection(writeDefaultsRecommendationMode, worldStationAnimatorCompatibility);
 
             EditorGUILayout.Separator();
 
@@ -310,7 +314,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
                 EditorGUILayout.PropertyField(writeDefaultsRecommendationModeGesture, new GUIContent(CgeLocale.CGEC_Gesture_Playable_Mode));
                 EditorGUILayout.PropertyField(gestureLayerTransformCapture, new GUIContent(CgeLocale.CGEC_Capture_Transforms_Mode));
-                WriteDefaultsSection(writeDefaultsRecommendationModeGesture);
+                WriteDefaultsSection(writeDefaultsRecommendationModeGesture, worldStationAnimatorCompatibility);
 
                 EditorGUI.BeginDisabledGroup(true);
                 EditorGUILayout.PropertyField(generatedAvatarMask, new GUIContent(CgeLocale.CGEC_Asset_container));
@@ -410,6 +414,11 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             EditorGUILayout.LabelField(CgeLocale.CGEC_Other_tweaks, EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(analogBlinkingUpperThreshold, new GUIContent(CgeLocale.CGEC_Analog_fist_blinking_threshold, CgeLocale.CGEC_AnalogFist_Popup));
+            EditorGUILayout.PropertyField(worldStationAnimatorCompatibility, new GUIContent(CgeLocale.CGEC_DanceWorldCompatibility));
+            if (worldStationAnimatorCompatibility.boolValue)
+            {
+                EditorGUILayout.HelpBox(CgeLocale.CGEC_DanceWorldCompatibilityIntro, MessageType.Warning);
+            }
 
             editorAdvancedFoldout.boolValue = EditorGUILayout.Foldout(editorAdvancedFoldout.boolValue, CgeLocale.CGEC_Advanced);
             if (editorAdvancedFoldout.boolValue)
@@ -551,11 +560,16 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             compiler.generatedAvatarMask = mask;
         }
 
-        private static void WriteDefaultsSection(SerializedProperty recommendationMode)
+        private static void WriteDefaultsSection(SerializedProperty recommendationMode, SerializedProperty stationAnimatorCompatibility)
         {
             if (recommendationMode.intValue == (int) WriteDefaultsRecommendationMode.UseUnsupportedWriteDefaultsOn)
             {
                 EditorGUILayout.HelpBox(CgeLocale.CGEC_WarnWriteDefaultsChosenOff, MessageType.Warning);
+            }
+
+            if (stationAnimatorCompatibility.boolValue && recommendationMode.intValue == (int) WriteDefaultsRecommendationMode.FollowVrChatRecommendationWriteDefaultsOff)
+            {
+                EditorGUILayout.HelpBox(CgeLocale.CGEC_DanceWorldCompatibilityWriteDefaults, MessageType.Error);
             }
         }
 
