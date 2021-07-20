@@ -7,6 +7,8 @@ if you blend at 30%, then the mouth will be 70% open, and your eye will be 30% c
 
 You will be able to control the amount of blending using Avatars 3.0.
 
+Massive blend mood set cannot be used within another massive blend.
+
 ## Simple Mode
 
 In Simple Mode, there is one parameter ranging between 0.0 and 1.0, and you can define two mood sets for these two positions.
