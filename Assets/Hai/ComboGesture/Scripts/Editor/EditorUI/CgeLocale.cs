@@ -11,6 +11,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 {
     public class CgeLocale
     {
+        internal static string CORE_Switch = "Switch language (English / 日本語)";
+        internal static string CORE_Inaccuracy = "一部の翻訳は正確ではありません。cge.jp.jsonを編集することができます。";
         private static string CGE_Documentation_URL => LocalizeOrElse("CGE_Documentation_URL", CgeLocaleDefaults.CGE_Documentation_URL);
         private static string CGE_PermutationsDocumentation_URL => LocalizeOrElse("CGE_PermutationsDocumentation_URL", CgeLocaleDefaults.CGE_PermutationsDocumentation_URL);
         private static string CGE_IntegratorDocumentation_URL => LocalizeOrElse("CGE_IntegratorDocumentation_URL", CgeLocaleDefaults.CGE_IntegratorDocumentation_URL);

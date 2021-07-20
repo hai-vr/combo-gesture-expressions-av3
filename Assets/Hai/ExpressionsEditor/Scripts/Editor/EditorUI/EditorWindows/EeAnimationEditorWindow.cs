@@ -85,19 +85,25 @@ namespace Hai.ExpressionsEditor.Scripts.Editor.EditorUI.EditorWindows
             GUILayout.BeginHorizontal();
             if (!_accessCommands.HasActiveClip())
             {
-                EditorGUILayout.TextField("No animation selected.", GUILayout.ExpandWidth(true));
+                EditorGUILayout.TextField(EeLocale.EEA_No_animation_selected, GUILayout.ExpandWidth(true));
             }
             else
             {
                 _currentClipAssetRename = EditorGUILayout.TextField(_currentClipAssetRename, GUILayout.ExpandWidth(true));
             }
             EditorGUI.BeginDisabledGroup(!_accessCommands.HasActiveClip() || _currentClipAssetRename == currentClip.name || File.Exists(NewPath(currentClip)));
-            if (GUILayout.Button("Rename", GUILayout.Width(70)))
+            if (GUILayout.Button(EeLocale.EEA_Rename, GUILayout.Width(70)))
             {
                 AssetDatabase.MoveAsset(AssetDatabase.GetAssetPath(currentClip), NewPath(currentClip));
             }
             EditorGUI.EndDisabledGroup();
             GUILayout.EndHorizontal();
+
+            if (GUILayout.Button(EeLocale.CORE_Switch))
+            {
+                EeLocalization.CycleLocale();
+            }
+            EditorGUILayout.LabelField(EeLocalization.IsEnglishLocaleActive() ? "" : EeLocale.CORE_Inaccuracy);
 
             UiPreviewSetup();
             UiPreviewCamera();
@@ -118,13 +124,13 @@ namespace Hai.ExpressionsEditor.Scripts.Editor.EditorUI.EditorWindows
 
             if (_accessCommands.AllPreviewSetups().Count > 0)
             {
-                if (ColoredBackground(_accessCommands.IsMaintaining(), Color.green, () => GUILayout.Button("Preview animation in Scene")))
+                if (ColoredBackground(_accessCommands.IsMaintaining(), Color.green, () => GUILayout.Button(EeLocale.EEA_Preview_animation_in_scene)))
                 {
                     _previewCommands.ToggleMaintainPreview();
                 }
 
                 EditorGUI.BeginDisabledGroup(!_accessCommands.IsMaintaining());
-                var scenePreviewMode = (EeAnimationEditorScenePreviewMode)EditorGUILayout.EnumPopup("Scene previews", _accessCommands.GetScenePreviewMode());
+                var scenePreviewMode = (EeAnimationEditorScenePreviewMode)EditorGUILayout.EnumPopup(EeLocale.EEA_Scene_previews, _accessCommands.GetScenePreviewMode());
                 if (scenePreviewMode != _accessCommands.GetScenePreviewMode())
                 {
                     _previewCommands.SetForcePreviewGeneration(scenePreviewMode);
@@ -133,13 +139,13 @@ namespace Hai.ExpressionsEditor.Scripts.Editor.EditorUI.EditorWindows
 
                 var dummy = _accessCommands.DummyNullable();
                 EditorGUI.BeginDisabledGroup(!dummy.HasValue);
-                if (GUILayout.Button("Select animator to edit Animation"))
+                if (GUILayout.Button(EeLocale.EEA_Select_animator_to_edit_animation))
                 {
                     Selection.SetActiveObjectWithContext(dummy.Value.Dummy.gameObject, null);
                 }
                 EditorGUI.EndDisabledGroup();
 
-                if (GUILayout.Button("Generate previews"))
+                if (GUILayout.Button(EeLocale.EEA_Generate_previews))
                 {
                     OnNewSweepRequested();
                 }
@@ -177,7 +183,7 @@ namespace Hai.ExpressionsEditor.Scripts.Editor.EditorUI.EditorWindows
                 GUILayout.BeginHorizontal();
                 GUILayout.Label("", GUILayout.ExpandWidth(true));
                 GUILayout.Label(_accessCommands.GetBasedOnWhat(editableProperty.Property) != null ? "Based" : "", GUILayout.Width(40));
-                if (GUILayout.Button("Delete", GUILayout.Width(StandardWidth / 5)))
+                if (GUILayout.Button(EeLocale.EEA_Delete, GUILayout.Width(StandardWidth / 5)))
                 {
                     _editCommands.DeleteBlendshape(editableProperty.Path, editableProperty.Property);
                 }
@@ -204,11 +210,11 @@ namespace Hai.ExpressionsEditor.Scripts.Editor.EditorUI.EditorWindows
             var stats = _accessCommands.NonEditableStats();
             if (stats.SmrMimicBlendshapes.Count > 0)
             {
-                GUILayout.Label($"{stats.SmrMimicBlendshapes.Count} reset blendshapes are not shown above.", EditorStyles.boldLabel);
-                _foldoutMassEdit = EditorGUILayout.Foldout(_foldoutMassEdit, "Show/Delete reset blendshapes");
+                GUILayout.Label(string.Format(EeLocale.EEA_Reset_blendshapes_are_not_shown_above, stats.SmrMimicBlendshapes.Count), EditorStyles.boldLabel);
+                _foldoutMassEdit = EditorGUILayout.Foldout(_foldoutMassEdit, EeLocale.EEA_Show_delete_reset_blendshapes);
                 if (_foldoutMassEdit)
                 {
-                    if (ColoredBackground(true, Color.red, () => GUILayout.Button("Delete 0-values")))
+                    if (ColoredBackground(true, Color.red, () => GUILayout.Button(EeLocale.EEA_Delete_zero_values)))
                     {
                         _editCommands.DeleteAllNeutralizedBlendshapes();
                     }
@@ -221,35 +227,36 @@ namespace Hai.ExpressionsEditor.Scripts.Editor.EditorUI.EditorWindows
             }
             if (stats.HasAnyOtherStats)
             {
-                GUILayout.Label("This animation has additional properties not shown here:");
-                LookupLabel(stats, EeNonEditableLookup.Transform, "transform-related");
-                LookupLabel(stats, EeNonEditableLookup.Animator, "finger posing, other muscles, or Animator-related");
-                LookupLabel(stats, EeNonEditableLookup.MaterialSwap, "material swaps");
-                LookupLabel(stats, EeNonEditableLookup.Shader, "shader properties");
-                LookupLabel(stats, EeNonEditableLookup.GameObjectToggle, "game object toggles");
-                LookupLabel(stats, EeNonEditableLookup.Other, "other properties not cited above");
+                GUILayout.Label(EeLocale.EEA_This_animation_has_additional_properties_not_shown_here);
+                LookupLabel(stats, EeNonEditableLookup.Transform, EeLocale.EEA_Transform_related);
+                LookupLabel(stats, EeNonEditableLookup.Animator, EeLocale.EEA_Finger_posing_other_muscles_or_animator_related);
+                LookupLabel(stats, EeNonEditableLookup.MaterialSwap, EeLocale.EEA_Material_swaps);
+                LookupLabel(stats, EeNonEditableLookup.Shader, EeLocale.EEA_Shader_properties);
+                LookupLabel(stats, EeNonEditableLookup.GameObjectToggle, EeLocale.EEA_Game_object_toggles);
+                LookupLabel(stats, EeNonEditableLookup.Other, EeLocale.EEA_Other_properties_not_cited_above);
             }
 
             if (_isCgeInstalled)
             {
                 if (stats.Quirk != EeQuirk.EmptyIssue && stats.Quirk != EeQuirk.FirstFrameIssue && stats.EffectiveFrameDuration > 1)
                 {
-                    GUILayout.Label($"This animation lasts {stats.EffectiveFrameDuration} keyframes.", EditorStyles.boldLabel);
+                    GUILayout.Label(string.Format(EeLocale.EEA_This_animation_lasts_keyframes, stats.EffectiveFrameDuration), EditorStyles.boldLabel);
                 }
             }
             else
             {
                 if (stats.Quirk != EeQuirk.EmptyIssue && stats.EffectiveFrameDuration > 1)
                 {
-                    GUILayout.Label($"This animation lasts {stats.EffectiveFrameDuration} keyframes.", EditorStyles.boldLabel);
+                    GUILayout.Label(string.Format(EeLocale.EEA_This_animation_lasts_keyframes, stats.EffectiveFrameDuration), EditorStyles.boldLabel);
                 }
                 switch (stats.Quirk)
                 {
                     case EeQuirk.EmptyIssue:
-                        EditorGUILayout.HelpBox($"This animation is empty. This will cause the animation to last {stats.EffectiveFrameDuration} keyframes.", MessageType.Warning);
+                        EditorGUILayout.HelpBox(string.Format(EeLocale.EEA_This_animation_is_empty, stats.EffectiveFrameDuration), MessageType.Warning);
                         break;
                     case EeQuirk.FirstFrameIssue:
-                        EditorGUILayout.HelpBox($"All of the keyframes are located on frame 0. This will cause the animation to last {stats.EffectiveFrameDuration} keyframes.", MessageType.Warning);
+
+                        EditorGUILayout.HelpBox(string.Format(EeLocale.EEA_All_of_the_keyframes_are_frame_zero, stats.EffectiveFrameDuration), MessageType.Warning);
                         break;
                     case EeQuirk.OneFrame:
                     case EeQuirk.MoreThanOneFrame:
@@ -261,23 +268,23 @@ namespace Hai.ExpressionsEditor.Scripts.Editor.EditorUI.EditorWindows
 
             if (editableProperties.Any(info => info.IsVaryingOverTime))
             {
-                EditorGUILayout.HelpBox("This animation contains blendshapes that are animated differently over time.\nThey cannot be edited in Expressions Editor. Preview may not be accurate.", MessageType.Info);
+                EditorGUILayout.HelpBox(EeLocale.EEA_BlendshapeVaryingOverTimeWarning, MessageType.Info);
             }
 
             var clipName = _accessCommands.ActiveClip().name;
             if (clipName.Contains("Autogenerated") || clipName.Contains("DO_NOT_EDIT"))
             {
-                EditorGUILayout.HelpBox("This animation is likely auto-generated and may be overwritten at any time. You should probably not edit it.", MessageType.Error);
+                EditorGUILayout.HelpBox(EeLocale.EEA_AutogeneratedAnimationWarning, MessageType.Error);
             }
 
             #if VRC_SDK_VRCSDK3
             if (editableProperties.Any(info => info.Property.ToLowerInvariant().StartsWith("blendshape.vrc.v_")))
             {
-                EditorGUILayout.HelpBox("This animation animates blendshapes that begin with vrc.v_, usually designed for Visemes.\nIf any animation contains those, the mouth may not animate properly.", MessageType.Warning);
+                EditorGUILayout.HelpBox(EeLocale.EEA_VrcVisemeBlendshapeWarning, MessageType.Warning);
             }
             if (editableProperties.Any(info => info.Property.ToLowerInvariant().Equals("blendshape.blink")))
             {
-                EditorGUILayout.HelpBox("This animation animates a blendshape called Blink, usually selected to make the avatar blink automatically.\nIf any animation contains it, the avatar may not blink properly.\nMany avatar bases have blendshapes to close each eye separately; they should be used instead.", MessageType.Warning);
+                EditorGUILayout.HelpBox(EeLocale.EEA_BlinkBlendshapeWarning, MessageType.Warning);
             }
             #endif
 
@@ -302,7 +309,7 @@ namespace Hai.ExpressionsEditor.Scripts.Editor.EditorUI.EditorWindows
 
             var previewSetups = available.Select(previewable => previewable.AsGameObject().name).ToArray();
             if (previewSetups.Length == 0) previewSetups = new[] { "None" };
-            var newSelectedPreviewSetup = EditorGUILayout.Popup("Preview dummy", _selectedPreviewSetup, previewSetups);
+            var newSelectedPreviewSetup = EditorGUILayout.Popup(EeLocale.EEA_PreviewDummy, _selectedPreviewSetup, previewSetups);
             if (newSelectedPreviewSetup != _selectedPreviewSetup)
             {
                 _selectedPreviewSetup = newSelectedPreviewSetup;
@@ -320,7 +327,7 @@ namespace Hai.ExpressionsEditor.Scripts.Editor.EditorUI.EditorWindows
 
             if (_accessCommands.AllPreviewSetups().Count == 0)
             {
-                if (GUILayout.Button("Automatically setup preview!", GUILayout.Height(50), GUILayout.Width(300)))
+                if (GUILayout.Button(EeLocale.EEA_Automatically_setup_preview, GUILayout.Height(50), GUILayout.Width(300)))
                 {
                     new EePreviewSetupWizard().AutoSetup();
                 }
@@ -339,7 +346,7 @@ namespace Hai.ExpressionsEditor.Scripts.Editor.EditorUI.EditorWindows
                 cameras = dummy.Value.Cameras.Select(camera => camera.name).ToArray();
             }
 
-            var newSelectedCamera = EditorGUILayout.Popup("Camera", _selectedPreviewCamera, cameras);
+            var newSelectedCamera = EditorGUILayout.Popup(EeLocale.EEA_Camera, _selectedPreviewCamera, cameras);
             if (newSelectedCamera != _selectedPreviewCamera)
             {
                 _selectedPreviewCamera = newSelectedCamera;
