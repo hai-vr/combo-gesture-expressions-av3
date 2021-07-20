@@ -103,6 +103,16 @@ namespace Hai.ExpressionsEditor.Scripts.Editor.EditorUI.EditorWindows
             UiPreviewCamera();
             if (!_accessCommands.HasActiveClip())
             {
+                GUILayout.EndVertical();
+                GUILayout.EndHorizontal();
+
+                GUILayout.BeginHorizontal();
+                if (GUILayout.Button("(+)", GUILayout.Width(HalfWidth / 2), GUILayout.Height(HalfHeight)))
+                {
+                    EePropertyExplorerWindow.OpenEditor();
+                }
+                GUILayout.EndHorizontal();
+
                 return;
             }
 
