@@ -229,19 +229,11 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         {
             serializedObject.Update();
 
-            if (GUILayout.Button("Switch language (English / 日本語)"))
+            if (GUILayout.Button(CgeLocale.CORE_Switch))
             {
                 CgeLocalization.CycleLocale();
             }
-
-            if (CgeLocalization.IsEnglishLocaleActive())
-            {
-                EditorGUILayout.LabelField("");
-            }
-            else
-            {
-                EditorGUILayout.LabelField("一部の翻訳は正確ではありません。cge.jp.jsonを編集することができます。");
-            }
+            EditorGUILayout.LabelField(CgeLocalization.IsEnglishLocaleActive() ? "" : CgeLocale.CORE_Inaccuracy);
 
             _foldoutHelp = EditorGUILayout.Foldout(_foldoutHelp, new GUIContent("Help", _guideIcon32));
             if (_foldoutHelp)

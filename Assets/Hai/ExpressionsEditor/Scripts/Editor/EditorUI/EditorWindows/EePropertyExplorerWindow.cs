@@ -71,19 +71,19 @@ namespace Hai.ExpressionsEditor.Scripts.Editor.EditorUI.EditorWindows
 
             GUILayout.BeginHorizontal();
             GUILayout.BeginVertical();
-            _hotspotMode = GUILayout.Toggle(_hotspotMode, "Show Hotspots (press SPACE key)");
+            _hotspotMode = GUILayout.Toggle(_hotspotMode, EeLocale.EEP_Show_hotspots);
 
-            if (GUILayout.Button("Generate previews"))
+            if (GUILayout.Button(EeLocale.EEP_Generate_previews))
             {
                 OnNewScanRequested();
             }
 
-            _foldoutMoreTools = EditorGUILayout.Foldout(_foldoutMoreTools, "Other tools");
+            _foldoutMoreTools = EditorGUILayout.Foldout(_foldoutMoreTools, EeLocale.EEP_Other_tools);
             if (_foldoutMoreTools)
             {
                 GUILayout.BeginHorizontal();
                 GUILayout.Space(20);
-                if (EeAnimationEditorWindow.ColoredBackground(_basedOnSomethingElseMode, Color.green, () => GUILayout.Button("Fix Tooth and other hidden blendshapes")))
+                if (EeAnimationEditorWindow.ColoredBackground(_basedOnSomethingElseMode, Color.green, () => GUILayout.Button(EeLocale.EEP_Fix_tooth_and_other_hidden_blendshapes)))
                 {
                     _basedOnSomethingElseMode = !_basedOnSomethingElseMode;
                 }
@@ -143,7 +143,7 @@ namespace Hai.ExpressionsEditor.Scripts.Editor.EditorUI.EditorWindows
                         EditorGUI.BeginDisabledGroup(true);
                         GUILayout.TextField(onWhat.Substring(BlendshapePrefix.Length), GUILayout.ExpandWidth(true));
                         EditorGUI.EndDisabledGroup();
-                        if (EeAnimationEditorWindow.ColoredBackground(true, Color.red, () => GUILayout.Button("Forget", GUILayout.Width(70))))
+                        if (EeAnimationEditorWindow.ColoredBackground(true, Color.red, () => GUILayout.Button(EeLocale.EEP_Forget, GUILayout.Width(70))))
                         {
                             _editCommands.DeleteBasedSubject(info.Property);
                         }
@@ -152,7 +152,7 @@ namespace Hai.ExpressionsEditor.Scripts.Editor.EditorUI.EditorWindows
                     {
                         var isSelected = _basedOnSomethingElseSelection.Contains(info.Property);
                         EditorGUI.BeginDisabledGroup(_accessCommands.IsOnWhat(info.Property));
-                        if (EeAnimationEditorWindow.ColoredBackground(isSelected, Color.green, () => GUILayout.Button("Select", GUILayout.Width(70))))
+                        if (EeAnimationEditorWindow.ColoredBackground(isSelected, Color.green, () => GUILayout.Button(EeLocale.EEP_Select, GUILayout.Width(70))))
                         {
                             if (isSelected)
                             {
@@ -165,7 +165,7 @@ namespace Hai.ExpressionsEditor.Scripts.Editor.EditorUI.EditorWindows
                         }
                         EditorGUI.EndDisabledGroup();
                         EditorGUI.BeginDisabledGroup(isSelected || _basedOnSomethingElseSelection.Count == 0);
-                        if (GUILayout.Button("Assign"))
+                        if (GUILayout.Button(EeLocale.EEP_Assign))
                         {
                             _editCommands.AssignBased(info.Property, _basedOnSomethingElseSelection.ToList());
                             _basedOnSomethingElseSelection.Clear();
