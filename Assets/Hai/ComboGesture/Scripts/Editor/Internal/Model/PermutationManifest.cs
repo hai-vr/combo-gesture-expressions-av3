@@ -180,34 +180,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
         {
             return remapping.ContainsKey(key) ? key.NewInstanceWithClip(remapping[key]) : key;
         }
-
-        protected bool Equals(SingleAnimatedBehavior other)
-        {
-            return Posing.Equals(other.Posing);
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((SingleAnimatedBehavior) obj);
-        }
-
-        public override int GetHashCode()
-        {
-            return Posing.GetHashCode();
-        }
-
-        public static bool operator ==(SingleAnimatedBehavior left, SingleAnimatedBehavior right)
-        {
-            return Equals(left, right);
-        }
-
-        public static bool operator !=(SingleAnimatedBehavior left, SingleAnimatedBehavior right)
-        {
-            return !Equals(left, right);
-        }
     }
 
     class AnalogAnimatedBehavior : IAnimatedBehavior
@@ -265,40 +237,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
             }
 
             return AnalogAnimatedBehavior.Of(resting, squeezing, handSide);
-        }
-
-        protected bool Equals(AnalogAnimatedBehavior other)
-        {
-            return Resting.Equals(other.Resting) && Squeezing.Equals(other.Squeezing) && HandSide == other.HandSide;
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((AnalogAnimatedBehavior) obj);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                var hashCode = Resting.GetHashCode();
-                hashCode = (hashCode * 397) ^ Squeezing.GetHashCode();
-                hashCode = (hashCode * 397) ^ (int) HandSide;
-                return hashCode;
-            }
-        }
-
-        public static bool operator ==(AnalogAnimatedBehavior left, AnalogAnimatedBehavior right)
-        {
-            return Equals(left, right);
-        }
-
-        public static bool operator !=(AnalogAnimatedBehavior left, AnalogAnimatedBehavior right)
-        {
-            return !Equals(left, right);
         }
     }
 
@@ -366,41 +304,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
         {
             return resting == bothSqueezing && leftSqueezing == bothSqueezing && rightSqueezing == bothSqueezing;
         }
-
-        protected bool Equals(DualAnalogAnimatedBehavior other)
-        {
-            return Resting.Equals(other.Resting) && LeftSqueezing.Equals(other.LeftSqueezing) && RightSqueezing.Equals(other.RightSqueezing) && BothSqueezing.Equals(other.BothSqueezing);
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((DualAnalogAnimatedBehavior) obj);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                var hashCode = Resting.GetHashCode();
-                hashCode = (hashCode * 397) ^ LeftSqueezing.GetHashCode();
-                hashCode = (hashCode * 397) ^ RightSqueezing.GetHashCode();
-                hashCode = (hashCode * 397) ^ BothSqueezing.GetHashCode();
-                return hashCode;
-            }
-        }
-
-        public static bool operator ==(DualAnalogAnimatedBehavior left, DualAnalogAnimatedBehavior right)
-        {
-            return Equals(left, right);
-        }
-
-        public static bool operator !=(DualAnalogAnimatedBehavior left, DualAnalogAnimatedBehavior right)
-        {
-            return !Equals(left, right);
-        }
     }
 
     public class PuppetAnimatedBehavior : IAnimatedBehavior
@@ -443,37 +346,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
                 .ToList();
 
             return Of(blendRemapping.ContainsKey(Tree) ? blendRemapping[Tree] : Tree, newQualifications);
-        }
-
-        protected bool Equals(PuppetAnimatedBehavior other)
-        {
-            return Equals(Tree, other.Tree) && _qualifications.SetEquals(other._qualifications);
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((PuppetAnimatedBehavior) obj);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return ((Tree != null ? Tree.GetHashCode() : 0) * 397); // FIXME: this is a bad hashcode, qualifications list is ignored due to list hashcode
-            }
-        }
-
-        public static bool operator ==(PuppetAnimatedBehavior left, PuppetAnimatedBehavior right)
-        {
-            return Equals(left, right);
-        }
-
-        public static bool operator !=(PuppetAnimatedBehavior left, PuppetAnimatedBehavior right)
-        {
-            return !Equals(left, right);
         }
     }
 
@@ -523,41 +395,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
         public static PuppetToAnalogAnimatedBehavior Of(BlendTree resting, QualifiedAnimation squeezing, List<QualifiedAnimation> qualificationsOfTree, HandSide handSide)
         {
             return new PuppetToAnalogAnimatedBehavior(resting, squeezing, qualificationsOfTree, handSide);
-        }
-
-        protected bool Equals(PuppetToAnalogAnimatedBehavior other)
-        {
-            return Equals(Resting, other.Resting) && Squeezing.Equals(other.Squeezing) && Equals(QualificationsOfTree, other.QualificationsOfTree) && HandSide == other.HandSide;
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((PuppetToAnalogAnimatedBehavior) obj);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                var hashCode = (Resting != null ? Resting.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ Squeezing.GetHashCode();
-                hashCode = (hashCode * 397) ^ (QualificationsOfTree != null ? QualificationsOfTree.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (int) HandSide;
-                return hashCode;
-            }
-        }
-
-        public static bool operator ==(PuppetToAnalogAnimatedBehavior left, PuppetToAnalogAnimatedBehavior right)
-        {
-            return Equals(left, right);
-        }
-
-        public static bool operator !=(PuppetToAnalogAnimatedBehavior left, PuppetToAnalogAnimatedBehavior right)
-        {
-            return !Equals(left, right);
         }
     }
 
@@ -614,42 +451,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
         public static PuppetToDualAnalogAnimatedBehavior Of(BlendTree resting, QualifiedAnimation leftSqueezing, QualifiedAnimation rightSqueezing, QualifiedAnimation bothSqueezing, List<QualifiedAnimation> qualificationsOfTree)
         {
             return new PuppetToDualAnalogAnimatedBehavior(resting, leftSqueezing, rightSqueezing, bothSqueezing, qualificationsOfTree);
-        }
-
-        protected bool Equals(PuppetToDualAnalogAnimatedBehavior other)
-        {
-            return Equals(Resting, other.Resting) && LeftSqueezing.Equals(other.LeftSqueezing) && RightSqueezing.Equals(other.RightSqueezing) && BothSqueezing.Equals(other.BothSqueezing) && QualificationsOfTree.SequenceEqual(other.QualificationsOfTree);
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((PuppetToDualAnalogAnimatedBehavior) obj);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                var hashCode = (Resting != null ? Resting.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ LeftSqueezing.GetHashCode();
-                hashCode = (hashCode * 397) ^ RightSqueezing.GetHashCode();
-                hashCode = (hashCode * 397) ^ BothSqueezing.GetHashCode();
-                // FIXME: this is a bad hashcode, qualifications list is ignored due to list hashcode
-                return hashCode;
-            }
-        }
-
-        public static bool operator ==(PuppetToDualAnalogAnimatedBehavior left, PuppetToDualAnalogAnimatedBehavior right)
-        {
-            return Equals(left, right);
-        }
-
-        public static bool operator !=(PuppetToDualAnalogAnimatedBehavior left, PuppetToDualAnalogAnimatedBehavior right)
-        {
-            return !Equals(left, right);
         }
     }
 
@@ -755,41 +556,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
         public static UniversalAnalogAnimatedBehavior Of(UniversalQualifier resting, UniversalQualifier leftSqueezing, UniversalQualifier rightSqueezing, QualifiedAnimation bothSqueezing)
         {
             return new UniversalAnalogAnimatedBehavior(resting, leftSqueezing, rightSqueezing, bothSqueezing);
-        }
-
-        protected bool Equals(UniversalAnalogAnimatedBehavior other)
-        {
-            return Resting.Equals(other.Resting) && LeftSqueezing.Equals(other.LeftSqueezing) && RightSqueezing.Equals(other.RightSqueezing) && BothSqueezing.Equals(other.BothSqueezing);
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((UniversalAnalogAnimatedBehavior) obj);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                var hashCode = Resting.GetHashCode();
-                hashCode = (hashCode * 397) ^ LeftSqueezing.GetHashCode();
-                hashCode = (hashCode * 397) ^ RightSqueezing.GetHashCode();
-                hashCode = (hashCode * 397) ^ BothSqueezing.GetHashCode();
-                return hashCode;
-            }
-        }
-
-        public static bool operator ==(UniversalAnalogAnimatedBehavior left, UniversalAnalogAnimatedBehavior right)
-        {
-            return Equals(left, right);
-        }
-
-        public static bool operator !=(UniversalAnalogAnimatedBehavior left, UniversalAnalogAnimatedBehavior right)
-        {
-            return !Equals(left, right);
         }
     }
 
@@ -946,40 +712,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
         {
             return zero.Equals(one) ? zero : SimpleMassiveBlendAnimatedBehavior.Of(zero, one, parameterName);
         }
-
-        protected bool Equals(SimpleMassiveBlendAnimatedBehavior other)
-        {
-            return Equals(Zero, other.Zero) && Equals(One, other.One) && ParameterName == other.ParameterName;
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((SimpleMassiveBlendAnimatedBehavior) obj);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                var hashCode = (Zero != null ? Zero.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (One != null ? One.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (ParameterName != null ? ParameterName.GetHashCode() : 0);
-                return hashCode;
-            }
-        }
-
-        public static bool operator ==(SimpleMassiveBlendAnimatedBehavior left, SimpleMassiveBlendAnimatedBehavior right)
-        {
-            return Equals(left, right);
-        }
-
-        public static bool operator !=(SimpleMassiveBlendAnimatedBehavior left, SimpleMassiveBlendAnimatedBehavior right)
-        {
-            return !Equals(left, right);
-        }
     }
 
     class TwoDirectionsMassiveBlendAnimatedBehavior : IAnimatedBehavior
@@ -1031,41 +763,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
         {
             return zero.Equals(one) && one.Equals(minusOne) ? zero : TwoDirectionsMassiveBlendAnimatedBehavior.Of(zero, one, minusOne, parameterName);
         }
-
-        protected bool Equals(TwoDirectionsMassiveBlendAnimatedBehavior other)
-        {
-            return Equals(Zero, other.Zero) && Equals(One, other.One) && Equals(MinusOne, other.MinusOne) && ParameterName == other.ParameterName;
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((TwoDirectionsMassiveBlendAnimatedBehavior) obj);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                var hashCode = (Zero != null ? Zero.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (One != null ? One.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (MinusOne != null ? MinusOne.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (ParameterName != null ? ParameterName.GetHashCode() : 0);
-                return hashCode;
-            }
-        }
-
-        public static bool operator ==(TwoDirectionsMassiveBlendAnimatedBehavior left, TwoDirectionsMassiveBlendAnimatedBehavior right)
-        {
-            return Equals(left, right);
-        }
-
-        public static bool operator !=(TwoDirectionsMassiveBlendAnimatedBehavior left, TwoDirectionsMassiveBlendAnimatedBehavior right)
-        {
-            return !Equals(left, right);
-        }
     }
 
     class ComplexMassiveBlendAnimatedBehavior : IAnimatedBehavior
@@ -1107,37 +804,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
         public static ComplexMassiveBlendAnimatedBehavior Of(List<IAnimatedBehavior> behaviors, BlendTree originalBlendTreeTemplate)
         {
             return new ComplexMassiveBlendAnimatedBehavior(behaviors, originalBlendTreeTemplate);
-        }
-
-        protected bool Equals(ComplexMassiveBlendAnimatedBehavior other)
-        {
-            return Equals(Behaviors, other.Behaviors) && Equals(OriginalBlendTreeTemplate, other.OriginalBlendTreeTemplate);
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((ComplexMassiveBlendAnimatedBehavior) obj);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return ((Behaviors != null ? Behaviors.GetHashCode() : 0) * 397) ^ (OriginalBlendTreeTemplate != null ? OriginalBlendTreeTemplate.GetHashCode() : 0);
-            }
-        }
-
-        public static bool operator ==(ComplexMassiveBlendAnimatedBehavior left, ComplexMassiveBlendAnimatedBehavior right)
-        {
-            return Equals(left, right);
-        }
-
-        public static bool operator !=(ComplexMassiveBlendAnimatedBehavior left, ComplexMassiveBlendAnimatedBehavior right)
-        {
-            return !Equals(left, right);
         }
     }
 

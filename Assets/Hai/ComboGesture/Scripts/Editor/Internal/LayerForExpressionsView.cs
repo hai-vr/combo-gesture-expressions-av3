@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Hai.ComboGesture.Scripts.Components;
+using Hai.ComboGesture.Scripts.Editor.Internal.CgeAac;
 using Hai.ComboGesture.Scripts.Editor.Internal.Model;
-using Hai.ComboGesture.Scripts.Editor.Internal.Reused;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
@@ -14,7 +14,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
     internal class LayerForExpressionsView
     {
         private readonly FeatureToggles _featuresToggles;
-        private readonly AnimatorGenerator _animatorGenerator;
         private readonly AvatarMask _expressionsAvatarMask;
         private readonly AnimationClip _emptyClip;
         private readonly string _activityStageName;
@@ -25,14 +24,12 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly AnimationClip _compilerFallbackParamList;
         private readonly List<CurveKey> _blinkBlendshapes;
         private readonly AnimatorController _animatorController;
-        private readonly List<GestureComboStageMapper> _comboLayers;
         private readonly bool _useGestureWeightCorrection;
         private readonly bool _useSmoothing;
         private readonly List<ManifestBinding> _manifestBindings;
         private readonly string _animInfix;
 
         public LayerForExpressionsView(FeatureToggles featuresToggles,
-            AnimatorGenerator animatorGenerator,
             AvatarMask expressionsAvatarMask,
             AnimationClip emptyClip,
             string activityStageName,
@@ -43,14 +40,12 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             AnimationClip compilerFallbackParamList,
             List<CurveKey> blinkBlendshapes,
             AnimatorController animatorController,
-            List<GestureComboStageMapper> comboLayers,
             bool useGestureWeightCorrection,
             bool useSmoothing,
             List<ManifestBinding> manifestBindings,
             string animInfix)
         {
             _featuresToggles = featuresToggles;
-            _animatorGenerator = animatorGenerator;
             _expressionsAvatarMask = expressionsAvatarMask;
             _emptyClip = emptyClip;
             _activityStageName = activityStageName;
@@ -61,7 +56,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _compilerFallbackParamList = compilerFallbackParamList;
             _blinkBlendshapes = blinkBlendshapes;
             _animatorController = animatorController;
-            _comboLayers = comboLayers;
             _useGestureWeightCorrection = useGestureWeightCorrection;
             _useSmoothing = useSmoothing;
             _manifestBindings = manifestBindings;
@@ -93,16 +87,10 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
             var avatarMaskNullable = animationNeutralizer.GenerateAvatarMaskInsideContainerIfApplicableOrNull();
 
-            var machine = ReinitializeLayer(avatarMaskNullable);
+            var layer = ReinitializeLayer(avatarMaskNullable);
 
-            var defaultState = machine.AddState("Default", SharedLayerUtils.GridPosition(-1, -1));
-            defaultState.motion = _emptyClip;
-            defaultState.writeDefaultValues = _conflictPrevention.ShouldWriteDefaults;
-
-            if (_activityStageName != null)
-            {
-                CreateTransitionWhenActivityIsOutOfBounds(machine, defaultState);
-            }
+            var defaultState = layer.NewState("Default")
+                .WithWriteDefaultsSetTo(_conflictPrevention.ShouldWriteDefaults);
 
             activityManifests = animationNeutralizer.NeutralizeManifestAnimationsInsideContainer();
 
@@ -120,14 +108,14 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
             var combinator = new IntermediateCombinator(activityManifests);
 
-            new GestureCExpressionCombiner(
-                _animatorController,
-                machine,
+            new GestureCExpressionCombiner(_assetContainer,
+                layer,
                 combinator.IntermediateToTransition,
                 _activityStageName,
                 _conflictPrevention.ShouldWriteDefaults,
                 _useGestureWeightCorrection,
-                _useSmoothing
+                _useSmoothing,
+                defaultState
             ).Populate();
         }
 
@@ -188,20 +176,10 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
         }
 
-        private void CreateTransitionWhenActivityIsOutOfBounds(AnimatorStateMachine machine, AnimatorState defaultState)
+        private AacFlLayer ReinitializeLayer(AvatarMask avatarMaskNullable)
         {
-            var transition = machine.AddAnyStateTransition(defaultState);
-            SharedLayerUtils.SetupDefaultTransition(transition);
-
-            foreach (var layer in _comboLayers)
-            {
-                transition.AddCondition(AnimatorConditionMode.NotEqual, layer.stageValue, _activityStageName);
-            }
-        }
-
-        private AnimatorStateMachine ReinitializeLayer(AvatarMask avatarMaskNullable)
-        {
-            return _animatorGenerator.CreateOrRemakeLayerAtSameIndex("Hai_GestureExp", 1f, avatarMaskNullable != null ? avatarMaskNullable : _expressionsAvatarMask).ExposeMachine();
+            return _assetContainer.ExposeAac().CreateSupportingArbitraryControllerLayer(_animatorController, "Hai_GestureExp")
+                .WithAvatarMask(avatarMaskNullable != null ? avatarMaskNullable : _expressionsAvatarMask);
         }
 
         private bool Feature(FeatureToggles feature)

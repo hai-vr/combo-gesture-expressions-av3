@@ -8,24 +8,23 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
     internal class IntermediateCombinator
     {
-        public Dictionary<IAnimatedBehavior, List<TransitionCondition>> IntermediateToTransition { get; }
+        public Dictionary<IAnimatedBehavior, TransitionCondition> IntermediateToTransition { get; }
 
         public IntermediateCombinator(List<ManifestBinding> activityManifests)
         {
-            var permutationRepresentation = OptimizeCollapsableConditions(DecomposePermutationsIntoBehaviors(activityManifests), activityManifests.Count);
+            var permutationRepresentation = DecomposePermutationsIntoBehaviors(activityManifests);
             var puppetRepresentation = DecomposePuppetsIntoBehaviors(activityManifests);
             var massiveRepresentation = DecomposeMassiveIntoBehaviors(activityManifests);
 
             IntermediateToTransition = permutationRepresentation
                 .Concat(puppetRepresentation)
                 .Concat(massiveRepresentation)
-                .GroupBy(pair => pair.Key, pair => pair.Value)
-                .ToDictionary(pair => pair.Key, grouping => grouping.SelectMany(list => list).ToList());
+                .ToDictionary(pair => pair.Key, pair => pair.Value);
         }
 
-        private static Dictionary<IAnimatedBehavior, List<TransitionCondition>> DecomposeMassiveIntoBehaviors(List<ManifestBinding> activityManifests)
+        private static Dictionary<IAnimatedBehavior, TransitionCondition> DecomposeMassiveIntoBehaviors(List<ManifestBinding> activityManifests)
         {
-            Dictionary<IAnimatedBehavior, List<TransitionCondition>> representation = activityManifests
+            var representation = activityManifests
                 .Where(binding => binding.Manifest.Kind() == ManifestKind.Massive)
                 .SelectMany(binding =>
                 {
@@ -46,8 +45,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
                     }).ToList();
                 })
-                .GroupBy(pair => pair.Key, pair => pair.Value)
-                .ToDictionary(x => (IAnimatedBehavior)x.Key, x => x.Cast<TransitionCondition>().ToList());
+                .ToDictionary(pair => pair.Key, pair => (TransitionCondition)pair.Value);
 
             return representation;
         }
@@ -88,9 +86,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             return ComplexMassiveBlendAnimatedBehavior.Of(poses, manifest.BlendTree);
         }
 
-        private static Dictionary<IAnimatedBehavior, List<TransitionCondition>> DecomposePuppetsIntoBehaviors(List<ManifestBinding> activityManifests)
+        private static Dictionary<IAnimatedBehavior, TransitionCondition> DecomposePuppetsIntoBehaviors(List<ManifestBinding> activityManifests)
         {
-            Dictionary<IAnimatedBehavior, List<TransitionCondition>> puppetRepresentation = new Dictionary<IAnimatedBehavior, List<TransitionCondition>>();
+            var puppetRepresentation = new Dictionary<IAnimatedBehavior, TransitionCondition>();
 
             var puppetManifests = activityManifests
                 .Where(binding => binding.Manifest.Kind() == ManifestKind.Puppet)
@@ -100,95 +98,22 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             {
                 var puppet = (PuppetManifest) binding.Manifest;
 
-                puppetRepresentation.Add(puppet.Behavior, new List<TransitionCondition>
-                {
-                    new TransitionCondition.PuppetBoundTransitionCondition(
-                        binding.StageValue,
-                        puppet.TransitionDuration(),
-                        binding.LayerOrdinal
-                    )
-                });
+                puppetRepresentation.Add(puppet.Behavior, new TransitionCondition.PuppetBoundTransitionCondition(
+                    binding.StageValue,
+                    puppet.TransitionDuration(),
+                    binding.LayerOrdinal
+                ));
             }
 
             return puppetRepresentation;
         }
 
-        readonly struct PermutationAndTransitionDuration
-        {
-            public PermutationAndTransitionDuration(Permutation permutation, float transitionDuration)
-            {
-                Permutation = permutation;
-                TransitionDuration = transitionDuration;
-            }
-
-            private Permutation Permutation { get; }
-            private float TransitionDuration { get; }
-
-            public bool Equals(PermutationAndTransitionDuration other)
-            {
-                return Equals(Permutation, other.Permutation) && TransitionDuration.Equals(other.TransitionDuration);
-            }
-
-            public override bool Equals(object obj)
-            {
-                return obj is PermutationAndTransitionDuration other && Equals(other);
-            }
-
-            public override int GetHashCode()
-            {
-                unchecked
-                {
-                    return ((Permutation != null ? Permutation.GetHashCode() : 0) * 397) ^ TransitionDuration.GetHashCode();
-                }
-            }
-
-            public static bool operator ==(PermutationAndTransitionDuration left, PermutationAndTransitionDuration right)
-            {
-                return left.Equals(right);
-            }
-
-            public static bool operator !=(PermutationAndTransitionDuration left, PermutationAndTransitionDuration right)
-            {
-                return !left.Equals(right);
-            }
-        }
-
-        private static Dictionary<IAnimatedBehavior, List<TransitionCondition>> OptimizeCollapsableConditions(Dictionary<IAnimatedBehavior, List<TransitionCondition>> exhaustive, int activityManifestsCount)
-        {
-            return exhaustive
-                .Select(pair =>
-                {
-                    var conditions = pair.Value
-                        .GroupBy(condition => new PermutationAndTransitionDuration(((TransitionCondition.ActivityBoundTransitionCondition) condition).Permutation, condition.TransitionDuration))
-                        .SelectMany(grouping =>
-                        {
-                            var groupingList = grouping.ToList();
-                            if (groupingList.Count != activityManifestsCount)
-                            {
-                                return groupingList;
-                            }
-
-                            var item = groupingList[0];
-                            return new List<TransitionCondition>
-                            {
-                                new TransitionCondition.AlwaysTransitionCondition(item.TransitionDuration, item.Permutation,
-                                    item.LayerOrdinal)
-                            };
-                        })
-                        .ToList();
-
-                    return new KeyValuePair<IAnimatedBehavior, List<TransitionCondition>>(pair.Key, conditions);
-                })
-                .ToDictionary(pair => pair.Key, pair => pair.Value);
-        }
-
-        private static Dictionary<IAnimatedBehavior, List<TransitionCondition>> DecomposePermutationsIntoBehaviors(List<ManifestBinding> activityManifests)
+        private static Dictionary<IAnimatedBehavior, TransitionCondition> DecomposePermutationsIntoBehaviors(List<ManifestBinding> activityManifests)
         {
             return activityManifests
                 .Where(binding => binding.Manifest.Kind() == ManifestKind.Permutation)
                 .SelectMany(DecomposePermutation)
-                .GroupBy(entry => entry.Behavior)
-                .ToDictionary(grouping => grouping.Key, grouping => grouping.Select(combosition => combosition.TransitionCondition).ToList());
+                .ToDictionary(entry => entry.Behavior, entry => entry.TransitionCondition);
         }
 
         private static List<AnimToTransitionEntry> DecomposePermutation(ManifestBinding manifestBinding)

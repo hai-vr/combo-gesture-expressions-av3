@@ -193,9 +193,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             return _animatorGenerator.CreateOrRemakeLayerAtSameIndex(LipsyncLayerName, 1f, _logicalAvatarMask).ExposeMachine();
         }
 
-        public static void Delete(AnimatorGenerator animatorGenerator)
+        public static void Delete(AssetContainer assetContainer, AnimatorController animatorController)
         {
-            animatorGenerator.RemoveLayerIfExists(LipsyncLayerName);
+            assetContainer.ExposeAac().CGE_RemoveSupportingArbitraryControllerLayer(animatorController, LipsyncLayerName);
         }
     }
 }

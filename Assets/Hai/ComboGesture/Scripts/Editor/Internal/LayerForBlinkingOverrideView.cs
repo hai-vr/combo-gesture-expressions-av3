@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Hai.ComboGesture.Scripts.Components;
-using Hai.ComboGesture.Scripts.Editor.Internal.Reused;
+using Hai.ComboGesture.Scripts.Editor.Internal.CgeAac;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
-using VRC.SDK3.Avatars.Components;
 using VRC.SDKBase;
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal
@@ -16,19 +15,19 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly List<GestureComboStageMapper> _comboLayers;
         private readonly float _analogBlinkingUpperThreshold;
         private readonly AvatarMask _logicalAvatarMask;
-        private readonly AnimatorGenerator _animatorGenerator;
-        private readonly AnimationClip _emptyClip;
+        private readonly AnimatorController _animatorController;
+        private readonly AssetContainer _assetContainer;
         private readonly List<ManifestBinding> _manifestBindings;
         private readonly bool _writeDefaultsForLogicalStates;
 
-        public LayerForBlinkingOverrideView(string activityStageName, List<GestureComboStageMapper> comboLayers, float analogBlinkingUpperThreshold, AvatarMask logicalAvatarMask, AnimatorGenerator animatorGenerator, AnimationClip emptyClip, List<ManifestBinding> manifestBindings, bool writeDefaults)
+        public LayerForBlinkingOverrideView(string activityStageName, List<GestureComboStageMapper> comboLayers, float analogBlinkingUpperThreshold, AvatarMask logicalAvatarMask, AnimatorController animatorController, AssetContainer assetContainer, List<ManifestBinding> manifestBindings, bool writeDefaults)
         {
             _activityStageName = activityStageName;
             _comboLayers = comboLayers;
             _analogBlinkingUpperThreshold = analogBlinkingUpperThreshold;
             _logicalAvatarMask = logicalAvatarMask;
-            _animatorGenerator = animatorGenerator;
-            _emptyClip = emptyClip;
+            _animatorController = animatorController;
+            _assetContainer = assetContainer;
             _manifestBindings = manifestBindings;
             _writeDefaultsForLogicalStates = writeDefaults;
         }
@@ -36,99 +35,64 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         public void Create()
         {
             EditorUtility.DisplayProgressBar("GestureCombo", "Clearing eyes blinking override layer", 0f);
-            var machine = ReinitializeLayer();
+            var layer = ReinitializeLayer();
 
             if (!_manifestBindings.Any(manifest => manifest.Manifest.RequiresBlinking()))
             {
                 return;
             }
 
-            var enableBlinking = CreateBlinkingState(machine, VRC_AnimatorTrackingControl.TrackingType.Tracking, _emptyClip);
-            var disableBlinking = CreateBlinkingState(machine, VRC_AnimatorTrackingControl.TrackingType.Animation, _emptyClip);
+            var enableBlinking = CreateBlinkingState(layer, VRC_AnimatorTrackingControl.TrackingType.Tracking);
+            var disableBlinking = CreateBlinkingState(layer, VRC_AnimatorTrackingControl.TrackingType.Animation);
 
-            var requireSuspension = _activityStageName != null;
-            if (requireSuspension)
+            if (_activityStageName != null)
             {
-                var suspend = CreateSuspendState(machine, _emptyClip);
+                var suspend = CreateSuspendState(layer);
 
-                if (_activityStageName != null)
-                {
-                    CreateTransitionWhenActivityIsOutOfBounds(enableBlinking, suspend);
-                    CreateTransitionWhenActivityIsOutOfBounds(disableBlinking, suspend);
-                }
+                CreateTransitionWhenActivityIsOutOfBounds(layer, enableBlinking, suspend);
+                CreateTransitionWhenActivityIsOutOfBounds(layer, disableBlinking, suspend);
 
-                foreach (var layer in _comboLayers)
+                foreach (var comboLayer in _comboLayers)
                 {
-                    var transition = suspend.AddTransition(enableBlinking);
-                    SharedLayerUtils.SetupDefaultTransition(transition);
-                    if (_activityStageName != null)
-                    {
-                        transition.AddCondition(AnimatorConditionMode.Equals, layer.stageValue, _activityStageName);
-                    }
+                    suspend.TransitionsTo(enableBlinking).When(layer.IntParameter(_activityStageName).IsEqualTo(comboLayer.stageValue));
                 }
             }
 
-            var toDisable = enableBlinking.AddTransition(disableBlinking);
-            SetupBlinkingTransition(toDisable);
-            toDisable.AddCondition(AnimatorConditionMode.Greater, _analogBlinkingUpperThreshold, "_Hai_GestureAnimBlink");
-
-            var toEnable = disableBlinking.AddTransition(enableBlinking);
-            SetupBlinkingTransition(toEnable);
-            toEnable.AddCondition(AnimatorConditionMode.Less, _analogBlinkingUpperThreshold, "_Hai_GestureAnimBlink");
+            enableBlinking.TransitionsTo(disableBlinking)
+                .When(layer.FloatParameter("_Hai_GestureAnimBlink").IsGreaterThan(_analogBlinkingUpperThreshold));
+            disableBlinking.TransitionsTo(enableBlinking)
+                .When(layer.FloatParameter("_Hai_GestureAnimBlink").IsLessThan(_analogBlinkingUpperThreshold));
         }
 
-        private AnimatorState CreateSuspendState(AnimatorStateMachine machine, AnimationClip emptyClip)
+        private AacFlState CreateSuspendState(AacFlLayer machine)
         {
-            var enableBlinking = machine.AddState("SuspendBlinking", SharedLayerUtils.GridPosition(1, 1));
-            enableBlinking.motion = emptyClip;
-            enableBlinking.writeDefaultValues = _writeDefaultsForLogicalStates;
-            return enableBlinking;
+            return machine.NewState("SuspendBlinking", 1, 1)
+                .WithWriteDefaultsSetTo(_writeDefaultsForLogicalStates);
         }
 
-        private AnimatorState CreateBlinkingState(AnimatorStateMachine machine, VRC_AnimatorTrackingControl.TrackingType type,
-            AnimationClip emptyClip)
+        private AacFlState CreateBlinkingState(AacFlLayer layer, VRC_AnimatorTrackingControl.TrackingType type)
         {
-            var enableBlinking = machine.AddState(type == VRC_AnimatorTrackingControl.TrackingType.Tracking ? "EnableBlinking" : "DisableBlinking", SharedLayerUtils.GridPosition(type == VRC_AnimatorTrackingControl.TrackingType.Tracking ? 0 : 2, 3));
-            enableBlinking.motion = emptyClip;
-            enableBlinking.writeDefaultValues = _writeDefaultsForLogicalStates;
-            var tracking = enableBlinking.AddStateMachineBehaviour<VRCAnimatorTrackingControl>();
-            tracking.trackingEyes = type;
-            return enableBlinking;
+            return layer.NewState(type == VRC_AnimatorTrackingControl.TrackingType.Tracking ? "EnableBlinking" : "DisableBlinking", type == VRC_AnimatorTrackingControl.TrackingType.Tracking ? 0 : 2, 3)
+                .WithWriteDefaultsSetTo(_writeDefaultsForLogicalStates)
+                .TrackingSets(AacFlState.TrackingElement.Eyes, type);
         }
 
-        private void CreateTransitionWhenActivityIsOutOfBounds(AnimatorState from, AnimatorState to)
+        private void CreateTransitionWhenActivityIsOutOfBounds(AacFlLayer layer, AacFlState from, AacFlState to)
         {
-            var transition = from.AddTransition(to);
-            SharedLayerUtils.SetupDefaultTransition(transition);
+            var conditions = from.TransitionsTo(to).WhenConditions();
 
-            foreach (var layer in _comboLayers)
+            foreach (var comboLayer in _comboLayers)
             {
-                transition.AddCondition(AnimatorConditionMode.NotEqual, layer.stageValue, _activityStageName);
+                conditions.And(layer.IntParameter(_activityStageName).IsNotEqualTo(comboLayer.stageValue));
             }
         }
 
 
-        private AnimatorStateMachine ReinitializeLayer()
+        private AacFlLayer ReinitializeLayer()
         {
-            return _animatorGenerator.CreateOrRemakeLayerAtSameIndex("Hai_GestureBlinking", 0f, _logicalAvatarMask).ExposeMachine();
-        }
-
-        private static void SetupBlinkingTransition(AnimatorStateTransition transition)
-        {
-            SetupSourceTransition(transition);
-
-            transition.duration = 0;
-        }
-
-        private static void SetupSourceTransition(AnimatorStateTransition transition)
-        {
-            transition.hasExitTime = false;
-            transition.exitTime = 0;
-            transition.hasFixedDuration = true;
-            transition.offset = 0;
-            transition.interruptionSource = TransitionInterruptionSource.None;
-            transition.canTransitionToSelf = false;
-            transition.orderedInterruption = true;
+            return _assetContainer.ExposeAac().CreateSupportingArbitraryControllerLayer(_animatorController, "Hai_GestureBlinking")
+                .WithAvatarMask(_logicalAvatarMask)
+                .CGE_WithLayerWeight(0f);
         }
     }
 }

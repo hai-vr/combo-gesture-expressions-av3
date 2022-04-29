@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
 using Hai.ComboGesture.Scripts.Components;
-using Hai.ComboGesture.Scripts.Editor.Internal.Reused;
+using Hai.ComboGesture.Scripts.Editor.Internal.CgeAac;
 using UnityEditor;
+using UnityEditor.Animations;
 using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal
@@ -10,14 +11,16 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
     {
         private const string VirtualActivityLayerName = "Hai_GestureVirtualActivity";
 
-        private readonly AnimatorGenerator _animatorGenerator;
+        private readonly AssetContainer _assetContainer;
+        private readonly AnimatorController _controller;
         private readonly AvatarMask _logicalAvatarMask;
         private readonly bool _writeDefaultsForLogicalStates;
         private readonly List<GestureComboStageMapper> _comboLayers;
 
-        public LayerForBooleansToVirtualActivity(AnimatorGenerator animatorGenerator, AvatarMask logicalAvatarMask, bool writeDefaults, List<GestureComboStageMapper> comboLayers)
+        public LayerForBooleansToVirtualActivity(AssetContainer assetContainer, AnimatorController controller, AvatarMask logicalAvatarMask, bool writeDefaults, List<GestureComboStageMapper> comboLayers)
         {
-            _animatorGenerator = animatorGenerator;
+            _assetContainer = assetContainer;
+            _controller = controller;
             _logicalAvatarMask = logicalAvatarMask;
             _writeDefaultsForLogicalStates = writeDefaults;
             _comboLayers = comboLayers;
@@ -26,28 +29,28 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         internal void Create()
         {
             EditorUtility.DisplayProgressBar("GestureCombo", "Clearing virtual activity layer", 0f);
-            var machine = ReinitializeLayerAsMachinist();
+            var layer = ReinitializeLayerAsMachinist();
 
             EditorUtility.DisplayProgressBar("GestureCombo", "Creating virtual activity layer", 0f);
 
-            var init = machine.NewState("Init", 3, 3)
+            var init = layer.NewState("Init", 3, 3)
                 .WithWriteDefaultsSetTo(_writeDefaultsForLogicalStates);
 
-            var virtualActivity = new IntParameterist(SharedLayerUtils.HaiVirtualActivity);
+            var virtualActivity = layer.IntParameter(SharedLayerUtils.HaiVirtualActivity);
 
-            Statist defaultState = null;
-            foreach (var layer in _comboLayers)
+            AacFlState defaultState = null;
+            foreach (var comboLayer in _comboLayers)
             {
-                var virtualStageValue = layer.internalVirtualStageValue;
-                var turnedOn = machine.NewState("Enter Virtual-" + virtualStageValue, 5, 3 + virtualStageValue * 2)
+                var virtualStageValue = comboLayer.internalVirtualStageValue;
+                var turnedOn = layer.NewState("Enter Virtual-" + virtualStageValue, 5, 3 + virtualStageValue * 2)
                     .WithWriteDefaultsSetTo(_writeDefaultsForLogicalStates)
-                    .Drives(virtualActivity, layer.internalVirtualStageValue);
-                var turnedOff = machine.NewState("Exit Virtual-" + virtualStageValue, 5, 3 + virtualStageValue * 2 + 1)
+                    .Drives(virtualActivity, comboLayer.internalVirtualStageValue);
+                var turnedOff = layer.NewState("Exit Virtual-" + virtualStageValue, 5, 3 + virtualStageValue * 2 + 1)
                     .WithWriteDefaultsSetTo(_writeDefaultsForLogicalStates);
 
-                if (!string.IsNullOrEmpty(layer.booleanParameterName))
+                if (!string.IsNullOrEmpty(comboLayer.booleanParameterName))
                 {
-                    turnedOff.Drives(new BoolParameterist(layer.booleanParameterName), false);
+                    turnedOff.Drives(layer.BoolParameter(comboLayer.booleanParameterName), false);
                 }
 
                 var turningOn = init.TransitionsTo(turnedOn);
@@ -55,14 +58,14 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 {
                     if (otherLayer.booleanParameterName != "")
                     {
-                        var otherLayerBool = new BoolParameterist(otherLayer.booleanParameterName);
-                        var isSameLayer = layer.booleanParameterName == otherLayer.booleanParameterName;
+                        var otherLayerBool = layer.BoolParameter(otherLayer.booleanParameterName);
+                        var isSameLayer = comboLayer.booleanParameterName == otherLayer.booleanParameterName;
 
                         turnedOn.Drives(otherLayerBool, isSameLayer);
-                        turningOn.When(otherLayerBool).Is(isSameLayer);
+                        turningOn.When(otherLayerBool.IsEqualTo(isSameLayer));
 
                         turnedOn.TransitionsTo(turnedOff)
-                            .When(otherLayerBool).Is(!isSameLayer);
+                            .When(otherLayerBool.IsEqualTo(!isSameLayer));
                     }
                 }
 
@@ -82,14 +85,16 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
         }
 
-        private Machinist ReinitializeLayerAsMachinist()
+        private AacFlLayer ReinitializeLayerAsMachinist()
         {
-            return _animatorGenerator.CreateOrRemakeLayerAtSameIndex(VirtualActivityLayerName, 0f, _logicalAvatarMask);
+            return _assetContainer.ExposeAac().CreateSupportingArbitraryControllerLayer(_controller, VirtualActivityLayerName)
+                .CGE_WithLayerWeight(0f)
+                .WithAvatarMask(_logicalAvatarMask);
         }
 
-        public static void Delete(AnimatorGenerator animatorGenerator)
+        public static void Delete(AssetContainer assetContainer, AnimatorController animatorController)
         {
-            animatorGenerator.RemoveLayerIfExists(VirtualActivityLayerName);
+            assetContainer.ExposeAac().CGE_RemoveSupportingArbitraryControllerLayer(animatorController, VirtualActivityLayerName);
         }
     }
 }

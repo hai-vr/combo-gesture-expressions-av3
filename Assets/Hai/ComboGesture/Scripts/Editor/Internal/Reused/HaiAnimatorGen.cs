@@ -1,10 +1,13 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+using Hai.ComboGesture.Scripts.Editor.Internal.CgeAac;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal.Reused
 {
+    [Obsolete]
     internal class AnimatorGenerator
     {
         private readonly AnimatorController _animatorController;
@@ -14,33 +17,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Reused
         {
             _animatorController = animatorController;
             _emptyClipProvider = emptyClipProvider;
-        }
-
-        internal void CreateParamsAsNeeded(params Parameterist[] parameterists)
-        {
-            foreach (var parameterist in parameterists)
-            {
-                switch (parameterist)
-                {
-                    case IntParameterist _:
-                        CreateParamIfNotExists(parameterist.Name, AnimatorControllerParameterType.Int);
-                        break;
-                    case FloatParameterist _:
-                        CreateParamIfNotExists(parameterist.Name, AnimatorControllerParameterType.Float);
-                        break;
-                    case BoolParameterist _:
-                        CreateParamIfNotExists(parameterist.Name, AnimatorControllerParameterType.Bool);
-                        break;
-                }
-            }
-        }
-
-        private void CreateParamIfNotExists(string paramName, AnimatorControllerParameterType type)
-        {
-            if (_animatorController.parameters.FirstOrDefault(param => param.name == paramName) == null)
-            {
-                _animatorController.AddParameter(paramName, type);
-            }
         }
 
         internal Machinist CreateOrRemakeLayerAtSameIndex(string layerName, float weightWhenCreating, AvatarMask maskWhenCreating = null)

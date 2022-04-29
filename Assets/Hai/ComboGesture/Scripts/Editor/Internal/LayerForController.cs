@@ -1,4 +1,4 @@
-﻿using Hai.ComboGesture.Scripts.Editor.Internal.Reused;
+﻿using UnityEditor.Animations;
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
@@ -7,9 +7,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
     {
         private const string ControllerLayerName = "Hai_GestureCtrl";
 
-        public static void Delete(AnimatorGenerator animatorGenerator)
+        public static void Delete(AssetContainer assetContainer, AnimatorController animatorController)
         {
-            animatorGenerator.RemoveLayerIfExists(ControllerLayerName);
+            assetContainer.ExposeAac().CGE_RemoveSupportingArbitraryControllerLayer(animatorController, ControllerLayerName);
         }
     }
 }

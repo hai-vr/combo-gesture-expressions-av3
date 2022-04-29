@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Hai.ComboGesture.Scripts.Editor.Internal.CgeAac;
 using Hai.ComboGesture.Scripts.Editor.Internal.Model;
-using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
 
@@ -10,80 +10,132 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
     internal class GestureCExpressionCombiner
     {
-        private readonly AnimatorController _animatorController;
-        private readonly AnimatorStateMachine _machine;
-        private readonly Dictionary<IAnimatedBehavior, List<TransitionCondition>> _intermediateToCombo;
+        private readonly AssetContainer _assetContainer;
+        private AacFlLayer _layer;
+        private readonly Dictionary<IAnimatedBehavior, TransitionCondition> _intermediateToCombo;
         private readonly string _activityStageName;
         private readonly bool _writeDefaultsForFaceExpressions;
         private readonly bool _useGestureWeightCorrection;
         private readonly bool _useSmoothing;
+        private readonly AacFlState _defaultState;
 
-        public GestureCExpressionCombiner(AnimatorController animatorController, AnimatorStateMachine machine,
-            Dictionary<IAnimatedBehavior, List<TransitionCondition>> intermediateToCombo, string activityStageName, bool writeDefaultsForFaceExpressions, bool useGestureWeightCorrection, bool useSmoothing)
+        public GestureCExpressionCombiner(AssetContainer assetContainer, AacFlLayer layer,
+            Dictionary<IAnimatedBehavior, TransitionCondition> intermediateToCombo, string activityStageName, bool writeDefaultsForFaceExpressions, bool useGestureWeightCorrection, bool useSmoothing, AacFlState defaultState)
         {
-            _animatorController = animatorController;
-            _machine = machine;
+            _assetContainer = assetContainer;
+            _layer = layer;
             _activityStageName = activityStageName;
             _writeDefaultsForFaceExpressions = writeDefaultsForFaceExpressions;
             _useGestureWeightCorrection = useGestureWeightCorrection;
             _useSmoothing = useSmoothing;
+            _defaultState = defaultState;
             _intermediateToCombo = intermediateToCombo;
         }
 
-        private const AnimatorConditionMode IsEqualTo = AnimatorConditionMode.Equals;
-
         public void Populate()
         {
-            foreach (var entry in _intermediateToCombo)
-            {
-                var behavior = entry.Key;
-                var transitionConditions = entry.Value;
+            var layerOrdinalIdxs = _intermediateToCombo
+                .Select(pair => pair.Value.LayerOrdinal)
+                .Distinct()
+                .ToArray();
 
-                switch (behavior.Nature())
+            var intern = _layer.NewSubStateMachine("Internal");
+            intern.Restarts();
+            _defaultState.CGE_AutomaticallyMovesTo(intern);
+
+            var ssms = layerOrdinalIdxs.ToDictionary(
+                ordinal => ordinal,
+                ordinal => intern.NewSubStateMachine($"Activity {ordinal}")
+            );
+
+            foreach (var ordinalToSsm in ssms)
+            {
+                var mine = _intermediateToCombo
+                    .Where(pair => pair.Value.LayerOrdinal == ordinalToSsm.Key)
+                    .ToArray();
+                foreach (var behaviourToCondition in mine)
                 {
-                    case AnimatedBehaviorNature.Single:
-                        var sab = (SingleAnimatedBehavior)behavior;
-                        ForSingle(sab, transitionConditions);
-                        break;
-                    case AnimatedBehaviorNature.Analog:
-                        AnalogAnimatedBehavior aab = (AnalogAnimatedBehavior)behavior;
-                        ForAnalog(transitionConditions, aab.Squeezing.Clip, aab.Resting.Clip, aab.HandSide);
-                        break;
-                    case AnimatedBehaviorNature.PuppetToAnalog:
-                        PuppetToAnalogAnimatedBehavior ptaab = (PuppetToAnalogAnimatedBehavior)behavior;
-                        ForAnalog(transitionConditions, ptaab.Squeezing.Clip, ptaab.Resting, ptaab.HandSide);
-                        break;
-                    case AnimatedBehaviorNature.DualAnalog:
-                        DualAnalogAnimatedBehavior daab = (DualAnalogAnimatedBehavior)behavior;
-                        ForDualAnalog(transitionConditions, daab.BothSqueezing.Clip, daab.Resting.Clip, daab.LeftSqueezing.Clip, daab.RightSqueezing.Clip);
-                        break;
-                    case AnimatedBehaviorNature.PuppetToDualAnalog:
-                        PuppetToDualAnalogAnimatedBehavior ptdaab = (PuppetToDualAnalogAnimatedBehavior)behavior;
-                        ForDualAnalog(transitionConditions, ptdaab.BothSqueezing.Clip, ptdaab.Resting, ptdaab.LeftSqueezing.Clip, ptdaab.RightSqueezing.Clip);
-                        break;
-                    case AnimatedBehaviorNature.Puppet:
-                        var pab = (PuppetAnimatedBehavior)behavior;
-                        ForPuppet(transitionConditions, pab);
-                        break;
-                    case AnimatedBehaviorNature.SimpleMassiveBlend:
-                        SimpleMassiveBlendAnimatedBehavior smbab = (SimpleMassiveBlendAnimatedBehavior)behavior;
-                        ForSimpleMassiveBlend(transitionConditions, smbab.Zero, smbab.One, smbab.ParameterName);
-                        break;
-                    case AnimatedBehaviorNature.TwoDirectionsMassiveBlend:
-                        TwoDirectionsMassiveBlendAnimatedBehavior tdmb = (TwoDirectionsMassiveBlendAnimatedBehavior)behavior;
-                        ForTwoDirectionsMassiveBlend(transitionConditions, tdmb.Zero, tdmb.One, tdmb.MinusOne, tdmb.ParameterName);
-                        break;
-                    case AnimatedBehaviorNature.ComplexMassiveBlend:
-                        ComplexMassiveBlendAnimatedBehavior cbtmbab = (ComplexMassiveBlendAnimatedBehavior)behavior;
-                        ForComplexMassiveBlend(transitionConditions, cbtmbab.Behaviors, cbtmbab.OriginalBlendTreeTemplate);
-                        break;
-                    case AnimatedBehaviorNature.UniversalAnalog:
-                        UniversalAnalogAnimatedBehavior uaab = (UniversalAnalogAnimatedBehavior)behavior;
-                        ForDualAnalog(transitionConditions, uaab.BothSqueezing.Clip, uaab.Resting.ToMotion(), uaab.LeftSqueezing.ToMotion(), uaab.RightSqueezing.ToMotion());
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
+                    AppendToSsm(ordinalToSsm.Value, behaviourToCondition.Key, behaviourToCondition.Value);
                 }
+
+                ordinalToSsm.Value.Exits();
+            }
+
+            if (_activityStageName != null)
+            {
+                // Order of execution matters here
+                foreach (var destSsm in ssms)
+                {
+                    intern.EntryTransitionsTo(destSsm.Value)
+                        .When(_layer.IntParameter(_activityStageName).IsEqualTo(destSsm.Key));
+                }
+
+                // Order of execution matters here
+                var neutral = intern.NewState("Neutral");
+                intern.WithDefaultState(neutral);
+                intern.EntryTransitionsTo(neutral);
+
+                foreach (var destSsm in ssms)
+                {
+                    neutral.Exits()
+                        .When(_layer.IntParameter(_activityStageName).IsEqualTo(destSsm.Key));
+                }
+            }
+            else
+            {
+                foreach (var destSsm in ssms)
+                {
+                    intern.EntryTransitionsTo(destSsm.Value);
+                }
+            }
+        }
+
+        private void AppendToSsm(AacFlStateMachine ssm, IAnimatedBehavior behaviour, TransitionCondition condition)
+        {
+            switch (behaviour.Nature())
+            {
+                case AnimatedBehaviorNature.Single:
+                    var sab = (SingleAnimatedBehavior)behaviour;
+                    ForSingle(ssm, condition, sab);
+                    break;
+                case AnimatedBehaviorNature.Analog:
+                    AnalogAnimatedBehavior aab = (AnalogAnimatedBehavior)behaviour;
+                    ForAnalog(ssm, condition, aab.Squeezing.Clip, aab.Resting.Clip, aab.HandSide);
+                    break;
+                case AnimatedBehaviorNature.PuppetToAnalog:
+                    PuppetToAnalogAnimatedBehavior ptaab = (PuppetToAnalogAnimatedBehavior)behaviour;
+                    ForAnalog(ssm, condition, ptaab.Squeezing.Clip, ptaab.Resting, ptaab.HandSide);
+                    break;
+                case AnimatedBehaviorNature.DualAnalog:
+                    DualAnalogAnimatedBehavior daab = (DualAnalogAnimatedBehavior)behaviour;
+                    ForDualAnalog(ssm, condition, daab.BothSqueezing.Clip, daab.Resting.Clip, daab.LeftSqueezing.Clip, daab.RightSqueezing.Clip);
+                    break;
+                case AnimatedBehaviorNature.PuppetToDualAnalog:
+                    PuppetToDualAnalogAnimatedBehavior ptdaab = (PuppetToDualAnalogAnimatedBehavior)behaviour;
+                    ForDualAnalog(ssm, condition, ptdaab.BothSqueezing.Clip, ptdaab.Resting, ptdaab.LeftSqueezing.Clip, ptdaab.RightSqueezing.Clip);
+                    break;
+                case AnimatedBehaviorNature.Puppet:
+                    var pab = (PuppetAnimatedBehavior)behaviour;
+                    ForPuppet(ssm, condition, pab);
+                    break;
+                case AnimatedBehaviorNature.SimpleMassiveBlend:
+                    SimpleMassiveBlendAnimatedBehavior smbab = (SimpleMassiveBlendAnimatedBehavior)behaviour;
+                    ForSimpleMassiveBlend(ssm, condition, smbab.Zero, smbab.One, smbab.ParameterName);
+                    break;
+                case AnimatedBehaviorNature.TwoDirectionsMassiveBlend:
+                    TwoDirectionsMassiveBlendAnimatedBehavior tdmb = (TwoDirectionsMassiveBlendAnimatedBehavior)behaviour;
+                    ForTwoDirectionsMassiveBlend(ssm, condition, tdmb.Zero, tdmb.One, tdmb.MinusOne, tdmb.ParameterName);
+                    break;
+                case AnimatedBehaviorNature.ComplexMassiveBlend:
+                    ComplexMassiveBlendAnimatedBehavior cbtmbab = (ComplexMassiveBlendAnimatedBehavior)behaviour;
+                    ForComplexMassiveBlend(ssm, condition, cbtmbab.Behaviors, cbtmbab.OriginalBlendTreeTemplate);
+                    break;
+                case AnimatedBehaviorNature.UniversalAnalog:
+                    UniversalAnalogAnimatedBehavior uaab = (UniversalAnalogAnimatedBehavior)behaviour;
+                    ForDualAnalog(ssm, condition, uaab.BothSqueezing.Clip, uaab.Resting.ToMotion(), uaab.LeftSqueezing.ToMotion(), uaab.RightSqueezing.ToMotion());
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
 
@@ -101,8 +153,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                         aab.HandSide == HandSide.LeftHand
                             ? LeftParam(_useGestureWeightCorrection, _useSmoothing)
                             : RightParam(_useGestureWeightCorrection, _useSmoothing),
-                        SanitizeName(UnshimName(aab.Resting.Clip.name) + " MB " + UnshimName((aab.Squeezing.Clip.name))),
-                        _animatorController);
+                        SanitizeName(UnshimName(aab.Resting.Clip.name) + " MB " + UnshimName((aab.Squeezing.Clip.name))));
                 case AnimatedBehaviorNature.PuppetToAnalog:
                     PuppetToAnalogAnimatedBehavior pta = (PuppetToAnalogAnimatedBehavior)behavior;
                     return CreateBlendTree(
@@ -111,19 +162,18 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                         pta.HandSide == HandSide.LeftHand
                             ? LeftParam(_useGestureWeightCorrection, _useSmoothing)
                             : RightParam(_useGestureWeightCorrection, _useSmoothing),
-                        SanitizeName(UnshimName(pta.Resting.name) + " MB " + UnshimName((pta.Squeezing.Clip.name))),
-                        _animatorController);
+                        SanitizeName(UnshimName(pta.Resting.name) + " MB " + UnshimName((pta.Squeezing.Clip.name))));
                 case AnimatedBehaviorNature.DualAnalog:
                     DualAnalogAnimatedBehavior da = (DualAnalogAnimatedBehavior)behavior;
-                    return CreateDualBlendTree(da.Resting.Clip, da.BothSqueezing.Clip, da.LeftSqueezing.Clip, da.LeftSqueezing.Clip, SanitizeName(UnshimName(da.BothSqueezing.Clip.name)), _animatorController, _useGestureWeightCorrection, _useSmoothing);
+                    return CreateDualBlendTree(da.Resting.Clip, da.BothSqueezing.Clip, da.LeftSqueezing.Clip, da.LeftSqueezing.Clip, SanitizeName(UnshimName(da.BothSqueezing.Clip.name)), _useGestureWeightCorrection, _useSmoothing);
                 case AnimatedBehaviorNature.PuppetToDualAnalog:
                     PuppetToDualAnalogAnimatedBehavior ptda = (PuppetToDualAnalogAnimatedBehavior)behavior;
-                    return CreateDualBlendTree(ptda.Resting, ptda.BothSqueezing.Clip, ptda.LeftSqueezing.Clip, ptda.LeftSqueezing.Clip, SanitizeName(UnshimName(ptda.BothSqueezing.Clip.name)), _animatorController, _useGestureWeightCorrection, _useSmoothing);
+                    return CreateDualBlendTree(ptda.Resting, ptda.BothSqueezing.Clip, ptda.LeftSqueezing.Clip, ptda.LeftSqueezing.Clip, SanitizeName(UnshimName(ptda.BothSqueezing.Clip.name)), _useGestureWeightCorrection, _useSmoothing);
                 case AnimatedBehaviorNature.Puppet:
                     return ((PuppetAnimatedBehavior)behavior).Tree;
                 case AnimatedBehaviorNature.UniversalAnalog:
                     UniversalAnalogAnimatedBehavior uaab = (UniversalAnalogAnimatedBehavior)behavior;
-                    return CreateDualBlendTree(uaab.Resting.ToMotion(), uaab.BothSqueezing.Clip, uaab.LeftSqueezing.ToMotion(), uaab.LeftSqueezing.ToMotion(), SanitizeName(UnshimName(uaab.BothSqueezing.Clip.name)), _animatorController, _useGestureWeightCorrection, _useSmoothing);
+                    return CreateDualBlendTree(uaab.Resting.ToMotion(), uaab.BothSqueezing.Clip, uaab.LeftSqueezing.ToMotion(), uaab.LeftSqueezing.ToMotion(), SanitizeName(UnshimName(uaab.BothSqueezing.Clip.name)), _useGestureWeightCorrection, _useSmoothing);
                 case AnimatedBehaviorNature.SimpleMassiveBlend:
                 case AnimatedBehaviorNature.TwoDirectionsMassiveBlend:
                 case AnimatedBehaviorNature.ComplexMassiveBlend:
@@ -133,64 +183,52 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
         }
 
-        private void ForSimpleMassiveBlend(List<TransitionCondition> transitionConditions, IAnimatedBehavior zero, IAnimatedBehavior one, string parameterName)
+        private void ForSimpleMassiveBlend(AacFlStateMachine ssm, TransitionCondition transitionCondition, IAnimatedBehavior zero, IAnimatedBehavior one, string parameterName)
         {
             var zeroMotion = Derive(zero);
             var oneMotion = Derive(one);
-            var state = CreateSimpleMassiveBlendState(zeroMotion, oneMotion, parameterName, ToPotentialGridPosition(transitionConditions[0]));
-            foreach (var transitionCondition in transitionConditions)
-            {
-                CreateTransition(GetNullableStageValue(transitionCondition),
-                    transitionCondition.Permutation,
-                    state, transitionCondition.TransitionDuration);
-            }
+            var state = CreateSimpleMassiveBlendState(zeroMotion, oneMotion, parameterName, ToPotentialGridPosition(transitionCondition), ssm);
+            CreateTransitions(GetNullableStageValue(transitionCondition),
+                transitionCondition.Permutation,
+                state, transitionCondition.TransitionDuration, ssm);
         }
 
-        private void ForTwoDirectionsMassiveBlend(List<TransitionCondition> transitionConditions, IAnimatedBehavior zero, IAnimatedBehavior one, IAnimatedBehavior minusOne, string parameterName)
+        private void ForTwoDirectionsMassiveBlend(AacFlStateMachine ssm, TransitionCondition transitionCondition, IAnimatedBehavior zero, IAnimatedBehavior one, IAnimatedBehavior minusOne, string parameterName)
         {
             var zeroMotion = Derive(zero);
             var oneMotion = Derive(one);
             var minusOneMotion = Derive(minusOne);
-            var state = CreateTwoDirectionsMassiveBlendState(zeroMotion, oneMotion, minusOneMotion, parameterName, ToPotentialGridPosition(transitionConditions[0]));
-            foreach (var transitionCondition in transitionConditions)
-            {
-                CreateTransition(GetNullableStageValue(transitionCondition),
-                    transitionCondition.Permutation,
-                    state, transitionCondition.TransitionDuration);
-            }
+            var state = CreateTwoDirectionsMassiveBlendState(zeroMotion, oneMotion, minusOneMotion, parameterName, ToPotentialGridPosition(transitionCondition), ssm);
+            CreateTransitions(GetNullableStageValue(transitionCondition),
+                transitionCondition.Permutation,
+                state, transitionCondition.TransitionDuration, ssm);
         }
 
-        private void ForComplexMassiveBlend(List<TransitionCondition> transitionConditions, List<IAnimatedBehavior> behaviors, BlendTree originalBlendTreeTemplate)
+        private void ForComplexMassiveBlend(AacFlStateMachine ssm, TransitionCondition transitionCondition, List<IAnimatedBehavior> behaviors, BlendTree originalBlendTreeTemplate)
         {
-            foreach (var transitionCondition in transitionConditions)
-            {
-                var motions = behaviors.Select(Derive).ToList();
-                var state = CreateComplexMassiveBlendState(motions, originalBlendTreeTemplate, ToPotentialGridPosition(transitionCondition));
+            var motions = behaviors.Select(Derive).ToList();
+            var state = CreateComplexMassiveBlendState(motions, originalBlendTreeTemplate, ToPotentialGridPosition(transitionCondition), ssm);
 
-                CreateTransition(GetNullableStageValue(transitionCondition),
-                    transitionCondition.Permutation,
-                    state, transitionCondition.TransitionDuration);
-            }
+            CreateTransitions(GetNullableStageValue(transitionCondition),
+                transitionCondition.Permutation,
+                state, transitionCondition.TransitionDuration, ssm);
         }
 
-        private AnimatorState CreateSimpleMassiveBlendState(Motion zero, Motion one, string parameterName, Vector3 gridPosition)
+        private AacFlState CreateSimpleMassiveBlendState(Motion zero, Motion one, string parameterName, Vector3 position, AacFlStateMachine ssm)
         {
             var clipName = UnshimName(zero.name) + " massive " + UnshimName(one.name);
-            var newState = _machine.AddState(SanitizeName(clipName), gridPosition);
-            newState.motion = CreateBlendTree(
-                zero,
-                one,
-                parameterName,
-                clipName,
-                _animatorController);
-            newState.writeDefaultValues = _writeDefaultsForFaceExpressions;
-            return newState;
+            return ssm.NewState(SanitizeName(clipName), (int) position.x, (int) position.y)
+                .WithAnimation(CreateBlendTree(
+                    zero,
+                    one,
+                    parameterName,
+                    clipName))
+                .WithWriteDefaultsSetTo(_writeDefaultsForFaceExpressions);
         }
 
-        private AnimatorState CreateTwoDirectionsMassiveBlendState(Motion zero, Motion one, Motion minusOne, string parameterName, Vector3 gridPosition)
+        private AacFlState CreateTwoDirectionsMassiveBlendState(Motion zero, Motion one, Motion minusOne, string parameterName, Vector3 position, AacFlStateMachine ssm)
         {
             var clipName = UnshimName(zero.name) + " - " + UnshimName(one.name) + " - " + UnshimName(minusOne.name);
-            var newState = _machine.AddState(SanitizeName(clipName), gridPosition);
             var blendTree = new BlendTree
             {
                 name = "autoBT_" + clipName,
@@ -204,29 +242,27 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 hideFlags = HideFlags.HideInHierarchy
             };
 
-            RegisterBlendTreeAsAsset(_animatorController, blendTree);
+            RegisterBlendTreeAsAsset(blendTree);
 
-            newState.motion = blendTree;
-            newState.writeDefaultValues = _writeDefaultsForFaceExpressions;
-            return newState;
+            return ssm.NewState(SanitizeName(clipName), (int) position.x, (int) position.y)
+                .WithAnimation(blendTree)
+                .WithWriteDefaultsSetTo(_writeDefaultsForFaceExpressions);
         }
 
-        private void ForSingle(SingleAnimatedBehavior intermediateAnimationGroup, List<TransitionCondition> transitionConditions)
+        private void ForSingle(AacFlStateMachine ssm, TransitionCondition transitionCondition, SingleAnimatedBehavior intermediateAnimationGroup)
         {
             var state = CreateMotionState(intermediateAnimationGroup.Posing.Clip,
-                ToPotentialGridPosition(transitionConditions[0]));
-            foreach (var transitionCondition in transitionConditions)
-            {
-                CreateTransition(GetNullableStageValue(transitionCondition),
-                    transitionCondition.Permutation,
-                    state, transitionCondition.TransitionDuration);
-            }
+                ToPotentialGridPosition(transitionCondition), ssm);
+            CreateTransitions(GetNullableStageValue(transitionCondition),
+                transitionCondition.Permutation,
+                state,
+                transitionCondition.TransitionDuration,
+                ssm);
         }
 
-        private AnimatorState CreateComplexMassiveBlendState(List<Motion> motions, BlendTree originalBlendTreeTemplate, Vector3 gridPosition)
+        private AacFlState CreateComplexMassiveBlendState(List<Motion> motions, BlendTree originalBlendTreeTemplate, Vector3 position, AacFlStateMachine ssm)
         {
             var clipName = UnshimName(originalBlendTreeTemplate.name) + " complex";
-            var newState = _machine.AddState(SanitizeName(clipName), gridPosition);
 
             var newBlendTree = CopyTreeIdentically(originalBlendTreeTemplate);
             newBlendTree.children = newBlendTree.children
@@ -238,11 +274,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 })
                 .ToArray();
 
-            RegisterBlendTreeAsAsset(_animatorController, newBlendTree);
+            RegisterBlendTreeAsAsset(newBlendTree);
 
-            newState.motion = newBlendTree;
-            newState.writeDefaultValues = _writeDefaultsForFaceExpressions;
-            return newState;
+            return ssm.NewState(SanitizeName(clipName), (int) position.x, (int) position.y)
+                .WithAnimation(newBlendTree)
+                .WithWriteDefaultsSetTo(_writeDefaultsForFaceExpressions);
         }
 
         private BlendTree CopyTreeIdentically(BlendTree originalTree)
@@ -286,119 +322,95 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             return GridPosition((int)transitionCondition.Permutation.Right, positionInList * 8 + (int)transitionCondition.Permutation.Left);
         }
 
-        private void ForAnalog(List<TransitionCondition> transitionConditions, Motion squeezing, Motion resting, HandSide handSide)
+        private void ForAnalog(AacFlStateMachine ssm, TransitionCondition transitionCondition, Motion squeezing, Motion resting, HandSide handSide)
         {
-            AnimatorState blendState = null;
-            foreach (var transitionCondition in transitionConditions)
-            {
-                var nullableTransition = GetNullableStageValue(transitionCondition);
-                if (blendState == null)
-                {
-                    Vector3 offset = ToPotentialGridPosition(transitionCondition);
+            var nullableTransition = GetNullableStageValue(transitionCondition);
+            var offset = ToPotentialGridPosition(transitionCondition);
 
-                    blendState = CreateSidedBlendState(squeezing, offset, resting, Vector3.zero, handSide == HandSide.LeftHand);
-                }
+            var blendState = CreateSidedBlendState(squeezing, offset, resting, Vector3.zero, handSide == HandSide.LeftHand, ssm);
 
-                CreateTransition(nullableTransition, transitionCondition.Permutation, blendState, transitionCondition.TransitionDuration);
-            }
+            CreateTransitions(nullableTransition, transitionCondition.Permutation, blendState, transitionCondition.TransitionDuration, ssm);
         }
 
-        private void ForDualAnalogOneHanded(List<TransitionCondition> transitionConditions, Motion squeezing, Motion resting, bool isLeftActive)
-        {
-            AnimatorState blendState = null;
-            foreach (var transitionCondition in transitionConditions)
-            {
-                var nullableTransition = GetNullableStageValue(transitionCondition);
-                if (blendState == null)
-                {
-                    blendState = CreateSidedBlendState(squeezing,
-                        ToPotentialGridPosition(transitionCondition),
-                        resting,
-                        Vector3.zero,
-                        isLeftActive);
-                }
+        // private void ForDualAnalogOneHanded(List<TransitionCondition> transitionConditions, Motion squeezing, Motion resting, bool isLeftActive)
+        // {
+        //     AnimatorState blendState = null;
+        //     foreach (var transitionCondition in transitionConditions)
+        //     {
+        //         var nullableTransition = GetNullableStageValue(transitionCondition);
+        //         if (blendState == null)
+        //         {
+        //             blendState = CreateSidedBlendState(squeezing,
+        //                 ToPotentialGridPosition(transitionCondition),
+        //                 resting,
+        //                 Vector3.zero,
+        //                 isLeftActive);
+        //         }
+        //
+        //         CreateTransitions(nullableTransition, transitionCondition.Permutation, blendState,
+        //             transitionCondition.TransitionDuration);
+        //     }
+        // }
 
-                CreateTransition(nullableTransition, transitionCondition.Permutation, blendState,
-                    transitionCondition.TransitionDuration);
-            }
+        private void ForDualAnalog(AacFlStateMachine ssm, TransitionCondition transitionCondition, Motion bothSqueezing, Motion resting, Motion leftSqueezingClip, Motion rightSqueezingClip)
+        {
+            var nullableTransition = GetNullableStageValue(transitionCondition);
+            var blendState = CreateDualBlendState(bothSqueezing,
+                resting, ToPotentialGridPosition(transitionCondition),
+                leftSqueezingClip, rightSqueezingClip, ssm);
+
+            CreateTransitions(nullableTransition, transitionCondition.Permutation, blendState,
+                transitionCondition.TransitionDuration, ssm);
         }
 
-        private void ForDualAnalog(List<TransitionCondition> transitionConditions, Motion bothSqueezing, Motion resting, Motion leftSqueezingClip, Motion rightSqueezingClip)
+        private void ForPuppet(AacFlStateMachine ssm, TransitionCondition transitionCondition, PuppetAnimatedBehavior intermediateAnimationGroup)
         {
-            AnimatorState blendState = null;
-            foreach (var transitionCondition in transitionConditions)
-            {
-                var nullableTransition = GetNullableStageValue(transitionCondition);
-                if (blendState == null)
-                {
-                    blendState = CreateDualBlendState(bothSqueezing,
-                        resting, ToPotentialGridPosition(transitionCondition),
-                        leftSqueezingClip, rightSqueezingClip);
-                }
+            var nullableTransition = GetNullableStageValue(transitionCondition);
+            var positionInList = transitionCondition.LayerOrdinal;
+            var blendState = CreatePuppetState(intermediateAnimationGroup.Tree, transitionCondition.Permutation == null ? GridPosition(-2, positionInList) : ToPotentialGridPosition(transitionCondition), ssm);
 
-                CreateTransition(nullableTransition, transitionCondition.Permutation, blendState,
-                    transitionCondition.TransitionDuration);
-            }
+            CreateTransitions(nullableTransition, transitionCondition.Permutation, blendState, transitionCondition.TransitionDuration, ssm);
         }
 
-        private void ForPuppet(List<TransitionCondition> transitionConditions, PuppetAnimatedBehavior intermediateAnimationGroup)
+        private AacFlState CreateMotionState(AnimationClip clip, Vector3 gridPosition, AacFlStateMachine ssm)
         {
-            AnimatorState blendState = null;
-            foreach (var transitionCondition in transitionConditions)
-            {
-                var nullableTransition = GetNullableStageValue(transitionCondition);
-                if (blendState == null)
-                {
-                    var positionInList = transitionCondition.LayerOrdinal;
-                    blendState = CreatePuppetState(intermediateAnimationGroup.Tree, transitionCondition.Permutation == null ? GridPosition(-2, positionInList) : ToPotentialGridPosition(transitionCondition));
-                }
-
-                CreateTransition(nullableTransition, transitionCondition.Permutation, blendState, transitionCondition.TransitionDuration);
-            }
+            return ssm.NewState(SanitizeName(UnshimName(clip.name)), (int) gridPosition.x, (int) gridPosition.y)
+                .WithAnimation(clip)
+                .WithWriteDefaultsSetTo(_writeDefaultsForFaceExpressions);
         }
 
-        private AnimatorState CreateMotionState(AnimationClip clip, Vector3 gridPosition)
+        private void CreateTransitions(int? stageValue, Permutation permutation, AacFlState state, float transitionDuration, AacFlStateMachine ssm)
         {
-            var newState = _machine.AddState(SanitizeName(UnshimName(clip.name)), gridPosition);
-            newState.motion = clip;
-            newState.writeDefaultValues = _writeDefaultsForFaceExpressions;
-            return newState;
-        }
+            var entryConditions = ssm.EntryTransitionsTo(state).WhenConditions();
+            Func<AacFlTransition> exitTransitionGenerator = () => state.Exits()
+                .WithTransitionDurationSeconds(transitionDuration);
 
-        private void CreateTransition(int? stageValue, Permutation permutation, AnimatorState state, float transitionDuration)
-        {
-            var transition = _machine.AddAnyStateTransition(state);
-            SetupComboTransition(transition, transitionDuration);
             if (permutation != null)
             {
-                transition.AddCondition(IsEqualTo, (float) permutation.Left, SharedLayerUtils.GestureLeft);
-                transition.AddCondition(IsEqualTo, (float) permutation.Right, SharedLayerUtils.GestureRight);
+                entryConditions.And(_layer.Av3().GestureLeft.IsEqualTo((int) permutation.Left));
+                entryConditions.And(_layer.Av3().GestureRight.IsEqualTo((int) permutation.Right));
+                exitTransitionGenerator.Invoke().When(_layer.Av3().GestureLeft.IsNotEqualTo((int) permutation.Left));
+                exitTransitionGenerator.Invoke().When(_layer.Av3().GestureRight.IsNotEqualTo((int) permutation.Right));
             }
             if (_activityStageName != null && stageValue != null)
             {
-                transition.AddCondition(IsEqualTo, (int) stageValue, _activityStageName);
-            }
-            if (permutation == null && stageValue == null)
-            {
-                transition.hasExitTime = true;
-                transition.exitTime = 0f;
+                exitTransitionGenerator.Invoke().When(_layer.IntParameter(_activityStageName).IsNotEqualTo((int) stageValue));
             }
         }
 
-        private AnimatorState CreateSidedBlendState(Motion squeezing, Vector3 offset, Motion resting, Vector3 gridPosition, bool isLeftSide)
+        private AacFlState CreateSidedBlendState(Motion squeezing, Vector3 offset, Motion resting, Vector3 gridPosition, bool isLeftSide, AacFlStateMachine ssm)
         {
             var clipName = UnshimName(squeezing.name) + " " + (isLeftSide ? "BlendLeft" : "BlendRight") + " " + UnshimName(resting.name);
-            var newState = _machine.AddState(SanitizeName(clipName), offset + gridPosition);
-            newState.motion = CreateBlendTree(
-                resting,
-                squeezing,
-                isLeftSide
-                    ? LeftParam(_useGestureWeightCorrection, _useSmoothing)
-                    : RightParam(_useGestureWeightCorrection, _useSmoothing),
-                clipName,
-                _animatorController);
-            newState.writeDefaultValues = _writeDefaultsForFaceExpressions;
-            return newState;
+            var position = offset + gridPosition;
+            return ssm.NewState(SanitizeName(clipName), (int) position.x, (int) position.y)
+                .WithAnimation(CreateBlendTree(
+                    resting,
+                    squeezing,
+                    _layer.FloatParameter(isLeftSide
+                        ? LeftParam(_useGestureWeightCorrection, _useSmoothing)
+                        : RightParam(_useGestureWeightCorrection, _useSmoothing)).Name,
+                    clipName))
+                .WithWriteDefaultsSetTo(_writeDefaultsForFaceExpressions);
         }
 
         private static string LeftParam(bool useGestureWeightCorrection, bool useSmoothing)
@@ -423,26 +435,23 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             return "GestureRightWeight";
         }
 
-        private AnimatorState CreateDualBlendState(Motion clip, Motion resting, Vector3 position, Motion posingLeft, Motion posingRight)
+        private AacFlState CreateDualBlendState(Motion clip, Motion resting, Vector3 position, Motion posingLeft, Motion posingRight, AacFlStateMachine ssm)
         {
             var clipName = UnshimName(clip.name) + " Dual " + UnshimName(resting.name);
-            var newState = _machine.AddState(SanitizeName(clipName), position);
-            newState.motion = CreateDualBlendTree(resting, clip, posingLeft, posingRight, clipName, _animatorController, _useGestureWeightCorrection, _useSmoothing);
-            newState.writeDefaultValues = _writeDefaultsForFaceExpressions;
-            return newState;
+            return ssm.NewState(SanitizeName(clipName), (int) position.x, (int) position.y)
+                .WithAnimation(CreateDualBlendTree(resting, clip, posingLeft, posingRight, clipName, _useGestureWeightCorrection, _useSmoothing))
+                .WithWriteDefaultsSetTo(_writeDefaultsForFaceExpressions);
         }
 
-        private AnimatorState CreatePuppetState(BlendTree tree, Vector3 position)
+        private AacFlState CreatePuppetState(BlendTree tree, Vector3 position, AacFlStateMachine ssm)
         {
             var clipName = UnshimName(tree.name) + " Puppet";
-            var newState = _machine.AddState(SanitizeName(clipName), position);
-            newState.motion = tree;
-            newState.writeDefaultValues = _writeDefaultsForFaceExpressions;
-            return newState;
+            return ssm.NewState(SanitizeName(clipName), (int) position.x, (int) position.y)
+                .WithAnimation(tree)
+                .WithWriteDefaultsSetTo(_writeDefaultsForFaceExpressions);
         }
 
-        public static Motion CreateBlendTree(Motion atZero, Motion atOne, string weight, string clipName,
-            AnimatorController animatorController)
+        public Motion CreateBlendTree(Motion atZero, Motion atOne, string weight, string clipName)
         {
             var blendTree = new BlendTree
             {
@@ -457,13 +466,12 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 hideFlags = HideFlags.HideInHierarchy
             };
 
-            RegisterBlendTreeAsAsset(animatorController, blendTree);
+            RegisterBlendTreeAsAsset(blendTree);
 
             return blendTree;
         }
 
-        private static Motion CreateDualBlendTree(Motion atZero, Motion atOne, Motion atLeft, Motion atRight, string clipName,
-            AnimatorController animatorController, bool useGestureWeightCorrection, bool useSmoothing)
+        private Motion CreateDualBlendTree(Motion atZero, Motion atOne, Motion atLeft, Motion atRight, string clipName, bool useGestureWeightCorrection, bool useSmoothing)
         {
             ChildMotion[] motions;
             if (atOne == atLeft && atOne == atRight)
@@ -497,35 +505,14 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 hideFlags = HideFlags.HideInHierarchy
             };
 
-            RegisterBlendTreeAsAsset(animatorController, blendTree);
+            RegisterBlendTreeAsAsset(blendTree);
 
             return blendTree;
         }
 
-        private static void RegisterBlendTreeAsAsset(AnimatorController animatorController, BlendTree blendTree)
+        private void RegisterBlendTreeAsAsset(BlendTree blendTree)
         {
-            if (AssetDatabase.GetAssetPath(animatorController) != "")
-            {
-                AssetDatabase.AddObjectToAsset(blendTree, AssetDatabase.GetAssetPath(animatorController));
-            }
-        }
-
-        private static void SetupComboTransition(AnimatorStateTransition transition, float transitionDuration)
-        {
-            SetupSourceTransition(transition);
-
-            transition.duration = transitionDuration;
-        }
-
-        private static void SetupSourceTransition(AnimatorStateTransition transition)
-        {
-            transition.hasExitTime = false;
-            transition.exitTime = 0;
-            transition.hasFixedDuration = true;
-            transition.offset = 0;
-            transition.interruptionSource = TransitionInterruptionSource.None;
-            transition.canTransitionToSelf = false;
-            transition.orderedInterruption = true;
+            _assetContainer.ExposeAac().CGE_StoringMotion(blendTree);
         }
 
         private static int? GetNullableStageValue(TransitionCondition transitionCondition)
@@ -543,7 +530,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         private static Vector3 GridPosition(int x, int y)
         {
-            return new Vector3(x * 200, y * 70, 0);
+            return new Vector3(x, y, 0);
         }
 
         private static string UnshimName(string shimmedName)

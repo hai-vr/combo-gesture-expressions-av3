@@ -256,7 +256,7 @@ namespace Hai.ExpressionsEditor.Scripts.Editor.Internal
             WriteToStringBuilder(sb, 0, aIndent, JSONTextMode.Indent);
             return sb.ToString();
         }
-        internal abstract void WriteToStringBuilder(StringBuilder aSB, int aIndent, int aIndentInc, JSONTextMode aMode);
+        public abstract void WriteToStringBuilder(StringBuilder aSB, int aIndent, int aIndentInc, JSONTextMode aMode);
 
         public abstract Enumerator GetEnumerator();
         public IEnumerable<KeyValuePair<string, JSONNode>> Linq { get { return new LinqEnumerator(this); } }
@@ -817,7 +817,7 @@ namespace Hai.ExpressionsEditor.Scripts.Editor.Internal
         }
 
 
-        internal override void WriteToStringBuilder(StringBuilder aSB, int aIndent, int aIndentInc, JSONTextMode aMode)
+        public override void WriteToStringBuilder(StringBuilder aSB, int aIndent, int aIndentInc, JSONTextMode aMode)
         {
             aSB.Append('[');
             int count = m_List.Count;
@@ -987,7 +987,7 @@ namespace Hai.ExpressionsEditor.Scripts.Editor.Internal
             }
         }
 
-        internal override void WriteToStringBuilder(StringBuilder aSB, int aIndent, int aIndentInc, JSONTextMode aMode)
+        public override void WriteToStringBuilder(StringBuilder aSB, int aIndent, int aIndentInc, JSONTextMode aMode)
         {
             aSB.Append('{');
             bool first = true;
@@ -1045,7 +1045,7 @@ namespace Hai.ExpressionsEditor.Scripts.Editor.Internal
             return new JSONString(m_Data);
         }
 
-        internal override void WriteToStringBuilder(StringBuilder aSB, int aIndent, int aIndentInc, JSONTextMode aMode)
+        public override void WriteToStringBuilder(StringBuilder aSB, int aIndent, int aIndentInc, JSONTextMode aMode)
         {
             aSB.Append('\"').Append(Escape(m_Data)).Append('\"');
         }
@@ -1122,7 +1122,7 @@ namespace Hai.ExpressionsEditor.Scripts.Editor.Internal
             return new JSONNumber(m_Data);
         }
 
-        internal override void WriteToStringBuilder(StringBuilder aSB, int aIndent, int aIndentInc, JSONTextMode aMode)
+        public override void WriteToStringBuilder(StringBuilder aSB, int aIndent, int aIndentInc, JSONTextMode aMode)
         {
             aSB.Append(Value);
         }
@@ -1198,7 +1198,7 @@ namespace Hai.ExpressionsEditor.Scripts.Editor.Internal
             return new JSONBool(m_Data);
         }
 
-        internal override void WriteToStringBuilder(StringBuilder aSB, int aIndent, int aIndentInc, JSONTextMode aMode)
+        public override void WriteToStringBuilder(StringBuilder aSB, int aIndent, int aIndentInc, JSONTextMode aMode)
         {
             aSB.Append((m_Data) ? "true" : "false");
         }
@@ -1264,7 +1264,7 @@ namespace Hai.ExpressionsEditor.Scripts.Editor.Internal
             return 0;
         }
 
-        internal override void WriteToStringBuilder(StringBuilder aSB, int aIndent, int aIndentInc, JSONTextMode aMode)
+        public override void WriteToStringBuilder(StringBuilder aSB, int aIndent, int aIndentInc, JSONTextMode aMode)
         {
             aSB.Append("null");
         }
@@ -1417,7 +1417,7 @@ namespace Hai.ExpressionsEditor.Scripts.Editor.Internal
         {
             get { return Set(new JSONObject()); }
         }
-        internal override void WriteToStringBuilder(StringBuilder aSB, int aIndent, int aIndentInc, JSONTextMode aMode)
+        public override void WriteToStringBuilder(StringBuilder aSB, int aIndent, int aIndentInc, JSONTextMode aMode)
         {
             aSB.Append("null");
         }

@@ -1,4 +1,5 @@
-﻿using Hai.ComboGesture.Scripts.Editor.Internal.Reused;
+﻿using Hai.ComboGesture.Scripts.Editor.Internal.CgeAac;
+using Hai.ComboGesture.Scripts.Editor.Internal.Reused;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
@@ -9,17 +10,17 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
     {
         private const string WeightCorrectionLeftLayerName = "Hai_GestureWeightLeft";
         private const string WeightCorrectionRightLayerName = "Hai_GestureWeightRight";
-        private const string LeftProxyClipPath = "Assets/Hai/ComboGesture/Hai_ComboGesture_LWProxy.anim";
-        private const string RightProxyClipPath = "Assets/Hai/ComboGesture/Hai_ComboGesture_RWProxy.anim";
 
-        private readonly AnimatorGenerator _animatorGenerator;
+        private readonly AssetContainer _assetContainer;
         private readonly AvatarMask _weightCorrectionAvatarMask;
         private readonly bool _writeDefaultsForAnimatedAnimatorParameterStates;
         private readonly bool _universalAnalogSupport;
+        private readonly AnimatorController _animatorController;
 
-        public LayerForWeightCorrection(AnimatorGenerator animatorGenerator, AvatarMask weightCorrectionAvatarMask, bool writeDefaults, bool universalAnalogSupport)
+        public LayerForWeightCorrection(AssetContainer assetContainer, AnimatorController animatorController, AvatarMask weightCorrectionAvatarMask, bool writeDefaults, bool universalAnalogSupport)
         {
-            _animatorGenerator = animatorGenerator;
+            _assetContainer = assetContainer;
+            _animatorController = animatorController;
             _weightCorrectionAvatarMask = weightCorrectionAvatarMask;
             _writeDefaultsForAnimatedAnimatorParameterStates = writeDefaults;
             _universalAnalogSupport = universalAnalogSupport;
@@ -29,75 +30,63 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         {
             EditorUtility.DisplayProgressBar("GestureCombo", "Creating weight correction layer", 0f);
             InitializeMachineFor(
-                _animatorGenerator.CreateOrRemakeLayerAtSameIndex(WeightCorrectionLeftLayerName, 1f, _weightCorrectionAvatarMask).ExposeMachine(),
+                _assetContainer.ExposeAac().CreateSupportingArbitraryControllerLayer(_animatorController, WeightCorrectionLeftLayerName)
+                    .WithAvatarMask(_weightCorrectionAvatarMask),
                 SharedLayerUtils.HaiGestureComboLeftWeightProxy,
                 "GestureLeftWeight",
-                "GestureLeft",
-                LeftProxyClipPath
+                "GestureLeft"
             );
             InitializeMachineFor(
-                _animatorGenerator.CreateOrRemakeLayerAtSameIndex(WeightCorrectionRightLayerName, 1f, _weightCorrectionAvatarMask).ExposeMachine(),
+                _assetContainer.ExposeAac().CreateSupportingArbitraryControllerLayer(_animatorController, WeightCorrectionRightLayerName)
+                    .WithAvatarMask(_weightCorrectionAvatarMask),
                 SharedLayerUtils.HaiGestureComboRightWeightProxy,
                 "GestureRightWeight",
-                "GestureRight",
-                RightProxyClipPath
+                "GestureRight"
             );
         }
 
-        private void InitializeMachineFor(AnimatorStateMachine machine, string proxyParam, string liveParam, string handParam, string clipPath)
+        private void InitializeMachineFor(AacFlLayer layer, string proxyParam, string liveParam, string handParam)
         {
             if (_universalAnalogSupport)
             {
                 // The order in which the states are created matters (initial state).
                 // Move CreateListeningState as the first state has some implications.
-                CreateListeningState(machine, liveParam, clipPath);
+                CreateListeningState(layer, liveParam, proxyParam);
                 return;
             }
 
-            var waiting = machine.AddState("Waiting", SharedLayerUtils.GridPosition(1, 1));
-            waiting.timeParameter = proxyParam;
-            waiting.timeParameterActive = true;
-            waiting.motion = AssetDatabase.LoadAssetAtPath<AnimationClip>(clipPath);
-            waiting.speed = 1;
-            waiting.writeDefaultValues = _writeDefaultsForAnimatedAnimatorParameterStates;
+            var waiting = layer.NewState("Waiting")
+                .WithAnimation(CreateProxyClip(proxyParam))
+                .MotionTime(layer.FloatParameter(proxyParam))
+                .WithWriteDefaultsSetTo(_writeDefaultsForAnimatedAnimatorParameterStates);
 
-            var listening = CreateListeningState(machine, liveParam, clipPath);
+            var listening = CreateListeningState(layer, liveParam, proxyParam);
 
-            var toListening = waiting.AddTransition(listening);
-            SetupTransition(toListening);
-            toListening.AddCondition(AnimatorConditionMode.Equals, 1, handParam);
-
-            var toWaiting = listening.AddTransition(waiting);
-            SetupTransition(toWaiting);
-            toWaiting.AddCondition(AnimatorConditionMode.NotEqual, 1, handParam);
+            waiting.TransitionsTo(listening).When(layer.IntParameter(handParam).IsEqualTo(1));
+            listening.TransitionsTo(waiting).When(layer.IntParameter(handParam).IsNotEqualTo(1));
         }
 
-        private AnimatorState CreateListeningState(AnimatorStateMachine machine, string liveParam, string clipPath)
+        private AacFlState CreateListeningState(AacFlLayer layer, string liveParam, string proxyParam)
         {
-            var listening = machine.AddState("Listening", SharedLayerUtils.GridPosition(1, 2));
-            listening.timeParameter = liveParam;
-            listening.timeParameterActive = true;
-            listening.motion = AssetDatabase.LoadAssetAtPath<AnimationClip>(clipPath);
-            listening.speed = 1;
-            listening.writeDefaultValues = _writeDefaultsForAnimatedAnimatorParameterStates;
-            return listening;
+            return layer.NewState("Listening")
+                .WithAnimation(CreateProxyClip(proxyParam))
+                .MotionTime(layer.FloatParameter(liveParam))
+                .WithWriteDefaultsSetTo(_writeDefaultsForAnimatedAnimatorParameterStates);
         }
 
-        private static void SetupTransition(AnimatorStateTransition toListening)
+        private AacFlClip CreateProxyClip(string proxyParam)
         {
-            toListening.hasExitTime = false;
-            toListening.exitTime = 0f;
-            toListening.hasFixedDuration = true;
-            toListening.duration = 0;
-            toListening.offset = 0;
-            toListening.interruptionSource = TransitionInterruptionSource.None;
-            toListening.orderedInterruption = true;
+            // It's not a big deal, but this proxy asset is generated multiple times identically.
+            return _assetContainer.ExposeAac().NewClip().Animating(clip =>
+            {
+                clip.Animates("", typeof(Animator), proxyParam).WithSecondsUnit(keyframes => keyframes.Linear(0, 0).Linear(1f, 1f));
+            });
         }
 
-        public static void Delete(AnimatorGenerator animatorGenerator)
+        public static void Delete(AssetContainer assetContainer, AnimatorController controller)
         {
-            animatorGenerator.RemoveLayerIfExists(WeightCorrectionLeftLayerName);
-            animatorGenerator.RemoveLayerIfExists(WeightCorrectionRightLayerName);
+            assetContainer.ExposeAac().CGE_RemoveSupportingArbitraryControllerLayer(controller, WeightCorrectionLeftLayerName);
+            assetContainer.ExposeAac().CGE_RemoveSupportingArbitraryControllerLayer(controller, WeightCorrectionRightLayerName);
         }
     }
 }

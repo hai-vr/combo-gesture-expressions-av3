@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Hai.ComboGesture.Scripts.Components;
+using Hai.ComboGesture.Scripts.Editor.Internal.CgeAac;
 using Hai.ComboGesture.Scripts.Editor.Internal.Model;
-using Hai.ComboGesture.Scripts.Editor.Internal.Reused;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
@@ -14,13 +14,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
     internal class ComboGestureCompilerInternal
     {
-        private const string EmptyClipPath = "Assets/Hai/ComboGesture/Hai_ComboGesture_EmptyClip.anim";
         private const string GesturePlayableLayerAvatarMaskPath = "Assets/Hai/ComboGesture/Hai_ComboGesture_Nothing.mask";
 
         private readonly string _activityStageName;
         private readonly List<GestureComboStageMapper> _comboLayers;
         private readonly AnimatorController _animatorController;
-        private readonly AnimationClip _customEmptyClip;
         private readonly float _analogBlinkingUpperThreshold;
         private readonly FeatureToggles _featuresToggles;
         private readonly ConflictPrevention _conflictPrevention;
@@ -32,9 +30,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly AvatarMask _expressionsAvatarMask;
         private readonly AvatarMask _logicalAvatarMask;
         private readonly AvatarMask _weightCorrectionAvatarMask;
-        private readonly bool _integrateLimitedLipsync;
-        private readonly ComboGestureLimitedLipsync _limitedLipsync;
-        private AnimatorGenerator _animatorGenerator;
         private readonly AssetContainer _assetContainer;
         private readonly bool _useGestureWeightCorrection;
         private readonly AnimatorController _gesturePlayableLayerController;
@@ -66,7 +61,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
             _animatorController = (AnimatorController)compiler.animatorController;
             _gesturePlayableLayerController = compiler.gesturePlayableLayerController as AnimatorController;
-            _customEmptyClip = compiler.customEmptyClip;
             _analogBlinkingUpperThreshold = compiler.analogBlinkingUpperThreshold;
             _featuresToggles = (compiler.doNotGenerateBlinkingOverrideLayer ? FeatureToggles.DoNotGenerateBlinkingOverrideLayer : 0)
                                | (compiler.doNotGenerateLipsyncOverrideLayer ? FeatureToggles.DoNotGenerateLipsyncOverrideLayer : 0)
@@ -83,8 +77,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _weightCorrectionAvatarMask = compiler.weightCorrectionAvatarMask ? compiler.weightCorrectionAvatarMask : AssetDatabase.LoadAssetAtPath<AvatarMask>(SharedLayerUtils.FxPlayableLayerAvatarMaskPath);
             _gesturePlayableLayerExpressionsAvatarMask = compiler.gesturePlayableLayerExpressionsAvatarMask ? compiler.gesturePlayableLayerExpressionsAvatarMask : AssetDatabase.LoadAssetAtPath<AvatarMask>(GesturePlayableLayerAvatarMaskPath);
             _gesturePlayableLayerTechnicalAvatarMask = compiler.gesturePlayableLayerTechnicalAvatarMask ? compiler.gesturePlayableLayerTechnicalAvatarMask : AssetDatabase.LoadAssetAtPath<AvatarMask>(GesturePlayableLayerAvatarMaskPath);
-            _integrateLimitedLipsync = false; // For now, Limited Lipsync is disabled regardless of the compiler value
-            _limitedLipsync = compiler.lipsyncForWideOpenMouth;
             _assetContainer = assetContainer;
             _useGestureWeightCorrection = compiler.WillUseGestureWeightCorrection();
             _useSmoothing = _useGestureWeightCorrection;
@@ -101,7 +93,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _comboLayers = new List<GestureComboStageMapper>();
             _parameterGeneration = ParameterGeneration.Unique;
             _gesturePlayableLayerController = null;
-            _customEmptyClip = null;
             _analogBlinkingUpperThreshold = 0f;
             _featuresToggles = 0;
             _conflictPreventionTempGestureLayer = ConflictPrevention.OfFxLayer(WriteDefaultsRecommendationMode.UseUnsupportedWriteDefaultsOn);
@@ -114,8 +105,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _weightCorrectionAvatarMask = null;
             _gesturePlayableLayerExpressionsAvatarMask = null;
             _gesturePlayableLayerTechnicalAvatarMask = null;
-            _integrateLimitedLipsync = false;
-            _limitedLipsync = null;
             _assetContainer = null;
             _useGestureWeightCorrection = false;
             _useSmoothing = _useGestureWeightCorrection;
@@ -129,17 +118,15 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         public void IntegrateWeightCorrection()
         {
-            _animatorGenerator = new AnimatorGenerator(_animatorController, new StatefulEmptyClipProvider(new ClipGenerator(_customEmptyClip, EmptyClipPath, "ComboGesture")));
-
             var avatarMaskPath = AssetDatabase.LoadAssetAtPath<AvatarMask>(GesturePlayableLayerAvatarMaskPath);
             CreateOrReplaceWeightCorrection(
                 avatarMaskPath,
-                _animatorGenerator,
+                _assetContainer,
                 _animatorController,
                 _conflictPrevention,
                 _universalAnalogSupport
             );
-            CreateOrReplaceSmoothing(avatarMaskPath, _animatorGenerator, _animatorController, _conflictPrevention);
+            CreateOrReplaceSmoothing(avatarMaskPath, _assetContainer, _animatorController, _conflictPrevention);
 
             ReapAnimator(_animatorController);
 
@@ -149,9 +136,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         public void DoOverwriteAnimatorFxLayer()
         {
-            _animatorGenerator = new AnimatorGenerator(_animatorController, new StatefulEmptyClipProvider(new ClipGenerator(_customEmptyClip, EmptyClipPath, "ComboGesture")));
-            var emptyClip = GetOrCreateEmptyClip();
-
             if (_activityStageName != null)
             {
                 SharedLayerUtils.CreateParamIfNotExists(_animatorController, _activityStageName, AnimatorControllerParameterType.Int);
@@ -172,10 +156,10 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             {
                 if (_useGestureWeightCorrection)
                 {
-                    CreateOrReplaceWeightCorrection(_weightCorrectionAvatarMask, _animatorGenerator, _animatorController, _conflictPrevention, _universalAnalogSupport);
+                    CreateOrReplaceWeightCorrection(_weightCorrectionAvatarMask, _assetContainer, _animatorController, _conflictPrevention, _universalAnalogSupport);
                     if (_useSmoothing)
                     {
-                        CreateOrReplaceSmoothing(_weightCorrectionAvatarMask, _animatorGenerator, _animatorController, _conflictPrevention);
+                        CreateOrReplaceSmoothing(_weightCorrectionAvatarMask, _assetContainer, _animatorController, _conflictPrevention);
                     }
                     else
                     {
@@ -189,25 +173,20 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 }
             }
 
+            var emptyClip = _assetContainer.ExposeAac().DummyClipLasting(1, AacFlUnit.Frames).Clip;
+
             var manifestBindings = CreateManifestBindings(emptyClip);
 
             CreateOrReplaceExpressionsView(emptyClip, manifestBindings);
 
             if (!Feature(FeatureToggles.DoNotGenerateBlinkingOverrideLayer))
             {
-                CreateOrReplaceBlinkingOverrideView(emptyClip, manifestBindings);
+                CreateOrReplaceBlinkingOverrideView(manifestBindings);
             }
 
             if (!Feature(FeatureToggles.DoNotGenerateLipsyncOverrideLayer))
             {
-                if (_integrateLimitedLipsync && _avatarDescriptor != null && _avatarDescriptor.VisemeSkinnedMesh != null)
-                {
-                    CreateOrReplaceLipsyncOverrideView(emptyClip, manifestBindings);
-                }
-                else
-                {
-                    DeleteLipsyncOverrideView();
-                }
+                DeleteLipsyncOverrideView();
             }
 
             ReapAnimator(_animatorController);
@@ -216,18 +195,14 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             EditorUtility.ClearProgressBar();
         }
 
-        private static void CreateOrReplaceSmoothing(AvatarMask weightCorrectionAvatarMask, AnimatorGenerator animatorGenerator, AnimatorController animatorController, ConflictPrevention conflictPrevention)
+        private static void CreateOrReplaceSmoothing(AvatarMask weightCorrectionAvatarMask, AssetContainer assetContainer, AnimatorController animatorController, ConflictPrevention conflictPrevention)
         {
-            SharedLayerUtils.CreateParamIfNotExists(animatorController, SharedLayerUtils.HaiGestureComboLeftWeightSmoothing, AnimatorControllerParameterType.Float);
-            SharedLayerUtils.CreateParamIfNotExists(animatorController, SharedLayerUtils.HaiGestureComboRightWeightSmoothing, AnimatorControllerParameterType.Float);
-            SharedLayerUtils.CreateParamIfNotExists(animatorController, SharedLayerUtils.HaiGestureComboSmoothingFactor, AnimatorControllerParameterType.Float);
-            new LayerForAnalogFistSmoothing(animatorGenerator, weightCorrectionAvatarMask, conflictPrevention.ShouldWriteDefaults, animatorController).Create();
+            new LayerForAnalogFistSmoothing(assetContainer, weightCorrectionAvatarMask, conflictPrevention.ShouldWriteDefaults, animatorController).Create();
         }
 
         public void DoOverwriteAnimatorGesturePlayableLayer()
         {
-            _animatorGenerator = new AnimatorGenerator(_gesturePlayableLayerController, new StatefulEmptyClipProvider(new ClipGenerator(_customEmptyClip, EmptyClipPath, "ComboGesture")));
-            var emptyClip = GetOrCreateEmptyClip();
+            var emptyClip = _assetContainer.ExposeAac().DummyClipLasting(1, AacFlUnit.Frames).Clip;
 
             if (_activityStageName != null)
             {
@@ -238,10 +213,10 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             {
                 if (_useGestureWeightCorrection)
                 {
-                    CreateOrReplaceWeightCorrection(_gesturePlayableLayerTechnicalAvatarMask, _animatorGenerator, _gesturePlayableLayerController, _conflictPreventionTempGestureLayer, _universalAnalogSupport);
+                    CreateOrReplaceWeightCorrection(_gesturePlayableLayerTechnicalAvatarMask, _assetContainer, _gesturePlayableLayerController, _conflictPreventionTempGestureLayer, _universalAnalogSupport);
                     if (_useSmoothing)
                     {
-                        CreateOrReplaceSmoothing(_weightCorrectionAvatarMask, _animatorGenerator, _gesturePlayableLayerController, _conflictPreventionTempGestureLayer);
+                        CreateOrReplaceSmoothing(_weightCorrectionAvatarMask, _assetContainer, _gesturePlayableLayerController, _conflictPreventionTempGestureLayer);
                     }
                     else
                     {
@@ -316,45 +291,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
         }
 
-        private AnimationClip GetOrCreateEmptyClip()
-        {
-            var emptyClip = _customEmptyClip;
-            if (emptyClip == null)
-            {
-                emptyClip = AssetDatabase.LoadAssetAtPath<AnimationClip>(EmptyClipPath);
-            }
-            if (emptyClip == null)
-            {
-                emptyClip = GenerateEmptyClipAsset();
-            }
-
-            return emptyClip;
-        }
-
-        private static AnimationClip GenerateEmptyClipAsset()
-        {
-            var emptyClip = new AnimationClip();
-            var settings = AnimationUtility.GetAnimationClipSettings(emptyClip);
-            settings.loopTime = false;
-            Keyframe[] keyframes = {new Keyframe(0, 0), new Keyframe(1 / 60f, 0)};
-            var curve = new AnimationCurve(keyframes);
-            emptyClip.SetCurve("_ignored", typeof(GameObject), "m_IsActive", curve);
-
-            if (!AssetDatabase.IsValidFolder("Assets/Hai"))
-            {
-                AssetDatabase.CreateFolder("Assets", "Hai");
-            }
-
-            if (!AssetDatabase.IsValidFolder("Assets/Hai/ComboGesture"))
-            {
-                AssetDatabase.CreateFolder("Assets/Hai", "ComboGesture");
-            }
-
-            AssetDatabase.CreateAsset(emptyClip, EmptyClipPath);
-            return emptyClip;
-        }
-
-
         private void CreateOrReplaceBooleansToVirtualActivityMenu()
         {
             foreach (var mapper in _comboLayers)
@@ -365,23 +301,17 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 }
             }
 
-            new LayerForBooleansToVirtualActivity(_animatorGenerator, _logicalAvatarMask, _conflictPrevention.ShouldWriteDefaults, _comboLayers).Create();
+            new LayerForBooleansToVirtualActivity(_assetContainer, _animatorController, _logicalAvatarMask, _conflictPrevention.ShouldWriteDefaults, _comboLayers).Create();
         }
 
         private void DeleteBooleansToVirtualActivityMenu()
         {
-            LayerForBooleansToVirtualActivity.Delete(_animatorGenerator);
+            LayerForBooleansToVirtualActivity.Delete(_assetContainer, _animatorController);
         }
 
-        private static void CreateOrReplaceWeightCorrection(AvatarMask weightCorrectionAvatarMask, AnimatorGenerator animatorGenerator, AnimatorController animatorController, ConflictPrevention conflictPrevention, bool universalAnalogSupport)
+        private static void CreateOrReplaceWeightCorrection(AvatarMask weightCorrectionAvatarMask, AssetContainer assetContainer, AnimatorController animatorController, ConflictPrevention conflictPrevention, bool universalAnalogSupport)
         {
-            SharedLayerUtils.CreateParamIfNotExists(animatorController, "GestureLeft", AnimatorControllerParameterType.Int);
-            SharedLayerUtils.CreateParamIfNotExists(animatorController, "GestureRight", AnimatorControllerParameterType.Int);
-            SharedLayerUtils.CreateParamIfNotExists(animatorController, "GestureLeftWeight", AnimatorControllerParameterType.Float);
-            SharedLayerUtils.CreateParamIfNotExists(animatorController, "GestureRightWeight", AnimatorControllerParameterType.Float);
-            SharedLayerUtils.CreateParamIfNotExists(animatorController, SharedLayerUtils.HaiGestureComboLeftWeightProxy, AnimatorControllerParameterType.Float);
-            SharedLayerUtils.CreateParamIfNotExists(animatorController, SharedLayerUtils.HaiGestureComboRightWeightProxy, AnimatorControllerParameterType.Float);
-            new LayerForWeightCorrection(animatorGenerator, weightCorrectionAvatarMask, conflictPrevention.ShouldWriteDefaults, universalAnalogSupport).Create();
+            new LayerForWeightCorrection(assetContainer, animatorController, weightCorrectionAvatarMask, conflictPrevention.ShouldWriteDefaults, universalAnalogSupport).Create();
         }
 
         private void CreateOrReplaceExpressionsView(AnimationClip emptyClip, List<ManifestBinding> manifestBindings)
@@ -393,7 +323,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             var avatarFallbacks = new CgeAvatarSnapshot(_avatarDescriptor, _compilerFallbackParamList).CaptureFallbacks();
             new LayerForExpressionsView(
                 _featuresToggles,
-                _animatorGenerator,
                 _expressionsAvatarMask,
                 emptyClip,
                 _activityStageName,
@@ -404,7 +333,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 avatarFallbacks,
                 new List<CurveKey>(),
                 _animatorController,
-                _comboLayers,
                 _useGestureWeightCorrection,
                 _useSmoothing,
                 manifestBindings,
@@ -423,7 +351,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             var avatarFallbacks = new CgeAvatarSnapshot(_avatarDescriptor, _compilerFallbackParamList).CaptureFallbacks();
             new LayerForExpressionsView(
                 _featuresToggles,
-                _animatorGenerator,
                 gesturePlayableLayerExpressionsAvatarMask,
                 emptyClip,
                 _activityStageName,
@@ -433,8 +360,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 _compilerIgnoreParamList,
                 avatarFallbacks,
                 new List<CurveKey>(),
-                _gesturePlayableLayerController,
-                _comboLayers,
+                _animatorController,
                 _useGestureWeightCorrection,
                 _useSmoothing,
                 manifestBindings,
@@ -455,7 +381,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             SharedLayerUtils.CreateParamIfNotExists(animatorController, "GestureRightWeight", AnimatorControllerParameterType.Float);
         }
 
-        private void CreateOrReplaceBlinkingOverrideView(AnimationClip emptyClip, List<ManifestBinding> manifestBindings)
+        private void CreateOrReplaceBlinkingOverrideView(List<ManifestBinding> manifestBindings)
         {
             if (_activityStageName != null)
             {
@@ -467,57 +393,30 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 _comboLayers,
                 _analogBlinkingUpperThreshold,
                 _logicalAvatarMask,
-                _animatorGenerator,
-                emptyClip,
-                manifestBindings,
-                _conflictPrevention.ShouldWriteDefaults).Create();
-        }
-
-        private void CreateOrReplaceLipsyncOverrideView(AnimationClip emptyClip, List<ManifestBinding> manifestBindings)
-        {
-            if (_activityStageName != null)
-            {
-                SharedLayerUtils.CreateParamIfNotExists(_animatorController, _activityStageName, AnimatorControllerParameterType.Int);
-            }
-            if (Feature(FeatureToggles.ExposeIsLipsyncLimited))
-            {
-                SharedLayerUtils.CreateParamIfNotExists(_animatorController, SharedLayerUtils.HaiGestureComboIsLipsyncLimitedParamName, AnimatorControllerParameterType.Int);
-            }
-            if (Feature(FeatureToggles.ExposeDisableLipsyncOverride))
-            {
-                SharedLayerUtils.CreateParamIfNotExists(_animatorController, SharedLayerUtils.HaiGestureComboDisableLipsyncOverrideParamName, AnimatorControllerParameterType.Int);
-            }
-            SharedLayerUtils.CreateParamIfNotExists(_animatorController, "Viseme", AnimatorControllerParameterType.Int);
-            SharedLayerUtils.CreateParamIfNotExists(_animatorController, "_Hai_GestureAnimLSWide", AnimatorControllerParameterType.Float);
-            new LayerForLipsyncOverrideView(_analogBlinkingUpperThreshold,
-                _logicalAvatarMask,
-                _animatorGenerator,
-                _avatarDescriptor,
-                _limitedLipsync,
+                _animatorController,
                 _assetContainer,
-                emptyClip,
                 manifestBindings,
                 _conflictPrevention.ShouldWriteDefaults).Create();
         }
 
         private void DeleteLipsyncOverrideView()
         {
-            LayerForLipsyncOverrideView.Delete(_animatorGenerator);
+            LayerForLipsyncOverrideView.Delete(_assetContainer, _animatorController);
         }
 
         private void DeleteDeprecatedControllerLayer()
         {
-            LayerForController.Delete(_animatorGenerator);
+            LayerForController.Delete(_assetContainer, _animatorController);
         }
 
         private void DeleteWeightCorrection()
         {
-            LayerForWeightCorrection.Delete(_animatorGenerator);
+            LayerForWeightCorrection.Delete(_assetContainer, _animatorController);
         }
 
         private void DeleteSmoothing()
         {
-            LayerForAnalogFistSmoothing.Delete(_animatorGenerator);
+            LayerForAnalogFistSmoothing.Delete(_assetContainer, _animatorController);
         }
 
         private bool Feature(FeatureToggles feature)
