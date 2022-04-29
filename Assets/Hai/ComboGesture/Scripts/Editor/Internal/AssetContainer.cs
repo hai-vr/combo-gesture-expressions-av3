@@ -56,29 +56,17 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         public void AddAnimation(AnimationClip animation)
         {
-            AssetDatabase.AddObjectToAsset(animation, _holder);
+            _aac.CGE_StoringMotion(animation);
         }
 
         public void AddBlendTree(BlendTree blendTree)
         {
-            AssetDatabase.AddObjectToAsset(blendTree, _holder);
+            _aac.CGE_StoringMotion(blendTree);
         }
 
         public void AddAvatarMask(AvatarMask mask)
         {
-            AssetDatabase.AddObjectToAsset(mask, _holder);
-        }
-
-        public void RemoveAssetsStartingWith(string prefix, Type typeOfAssets)
-        {
-            var allSubAssets = AssetDatabase.LoadAllAssetsAtPath(AssetDatabase.GetAssetPath(_holder));
-            foreach (var subAsset in allSubAssets)
-            {
-                if (subAsset.name.StartsWith(prefix) && subAsset.GetType() == typeOfAssets)
-                {
-                    AssetDatabase.RemoveObjectFromAsset(subAsset);
-                }
-            }
+            _aac.CGE_StoringAsset(mask);
         }
 
         public RuntimeAnimatorController ExposeContainerAsset()

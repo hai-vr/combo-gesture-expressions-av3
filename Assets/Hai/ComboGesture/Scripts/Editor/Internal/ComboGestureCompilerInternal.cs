@@ -335,8 +335,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 _animatorController,
                 _useGestureWeightCorrection,
                 _useSmoothing,
-                manifestBindings,
-                ""
+                manifestBindings
             ).Create();
         }
 
@@ -363,8 +362,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 _animatorController,
                 _useGestureWeightCorrection,
                 _useSmoothing,
-                manifestBindings,
-                "GPL"
+                manifestBindings
             ).Create();
         }
 
