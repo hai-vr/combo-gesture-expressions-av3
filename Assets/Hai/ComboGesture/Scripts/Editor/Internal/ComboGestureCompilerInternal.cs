@@ -353,7 +353,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         private void DeleteDeprecatedLipsyncOverrideView()
         {
-            LayerForLipsyncOverrideView.Delete(_assetContainer, _animatorController);
+            _assetContainer.ExposeCgeAac().CGE_RemoveSupportingArbitraryControllerLayer(_animatorController, "Hai_GestureLipsync");
         }
 
         private void DeleteDeprecatedControllerLayer()
