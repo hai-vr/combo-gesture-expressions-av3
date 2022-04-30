@@ -59,18 +59,16 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
 
         public readonly struct Qualification
         {
-            public Qualification(bool isBlinking, QualifiedLimitation limitation)
+            public Qualification(bool isBlinking)
             {
                 IsBlinking = isBlinking;
-                Limitation = limitation;
             }
 
             public bool IsBlinking { get; }
-            public QualifiedLimitation Limitation { get; }
 
             public bool Equals(Qualification other)
             {
-                return IsBlinking == other.IsBlinking && Limitation == other.Limitation;
+                return IsBlinking == other.IsBlinking;
             }
 
             public override bool Equals(object obj)
@@ -80,10 +78,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
 
             public override int GetHashCode()
             {
-                unchecked
-                {
-                    return (IsBlinking.GetHashCode() * 397) ^ (int) Limitation;
-                }
+                return IsBlinking.GetHashCode();
             }
 
             public static bool operator ==(Qualification left, Qualification right)
@@ -94,11 +89,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
             public static bool operator !=(Qualification left, Qualification right)
             {
                 return !left.Equals(right);
-            }
-
-            public override string ToString()
-            {
-                return $"{nameof(IsBlinking)}: {IsBlinking}, {nameof(Limitation)}: {Limitation}";
             }
         }
 

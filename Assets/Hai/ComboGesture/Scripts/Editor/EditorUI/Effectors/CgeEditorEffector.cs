@@ -235,11 +235,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
             return _state.ActivityAccessor.PreviewSetup.AsEePreviewAvatar();
         }
 
-        public List<ComboGestureActivity.LimitedLipsyncAnimation> MutableLimitedLipsync()
-        {
-            return _state.ActivityAccessor.LimitedLipsync;
-        }
-
         public bool IsPreviewSetupValid()
         {
             return _state.ActivityAccessor.PreviewSetup != null && _state.ActivityAccessor.PreviewSetup.IsValid();

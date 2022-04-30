@@ -63,7 +63,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _gesturePlayableLayerController = compiler.gesturePlayableLayerController as AnimatorController;
             _analogBlinkingUpperThreshold = compiler.analogBlinkingUpperThreshold;
             _featuresToggles = (compiler.doNotGenerateBlinkingOverrideLayer ? FeatureToggles.DoNotGenerateBlinkingOverrideLayer : 0)
-                               | (compiler.doNotGenerateLipsyncOverrideLayer ? FeatureToggles.DoNotGenerateLipsyncOverrideLayer : 0)
                                | (compiler.doNotGenerateWeightCorrectionLayer ? FeatureToggles.DoNotGenerateWeightCorrectionLayer : 0)
                                | (compiler.doNotFixSingleKeyframes ? FeatureToggles.DoNotFixSingleKeyframes : 0);
             _conflictPrevention = ConflictPrevention.OfFxLayer(compiler.writeDefaultsRecommendationMode);
@@ -179,10 +178,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 CreateOrReplaceBlinkingOverrideView(manifestBindings);
             }
 
-            if (!Feature(FeatureToggles.DoNotGenerateLipsyncOverrideLayer))
-            {
-                DeleteLipsyncOverrideView();
-            }
+            DeleteDeprecatedLipsyncOverrideView();
 
             ReapAnimator(_animatorController);
 
@@ -355,7 +351,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 _conflictPrevention.ShouldWriteDefaults).Create();
         }
 
-        private void DeleteLipsyncOverrideView()
+        private void DeleteDeprecatedLipsyncOverrideView()
         {
             LayerForLipsyncOverrideView.Delete(_assetContainer, _animatorController);
         }

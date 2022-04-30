@@ -49,11 +49,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
             return InternalManifests().Any(manifest => manifest.RequiresBlinking());
         }
 
-        public bool RequiresLimitedLipsync()
-        {
-            return InternalManifests().Any(manifest => manifest.RequiresLimitedLipsync());
-        }
-
         public IEnumerable<QualifiedAnimation> AllQualifiedAnimations()
         {
             return InternalManifests().SelectMany(manifest => manifest.AllQualifiedAnimations()).ToList();

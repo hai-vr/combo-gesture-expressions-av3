@@ -25,7 +25,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Processing
         {
             var poses = Permutation.All().ToDictionary(
                 permutation => permutation,
-                permutation => SingleAnimatedBehavior.Of(new QualifiedAnimation(defaultClip, new Qualification(false, QualifiedLimitation.None))));
+                permutation => SingleAnimatedBehavior.Of(new QualifiedAnimation(defaultClip, new Qualification(false))));
             return new PermutationManifest(poses, 0f);
         }
 
@@ -330,12 +330,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Processing
         {
             return new QualifiedAnimation(
                 clip,
-                new Qualification(
-                    activity.blinking.Contains(clip),
-                    LimitedLipsyncHasWideOpenMouth(activity, clip)
-                        ? QualifiedLimitation.Wide
-                        : QualifiedLimitation.None
-                )
+                new Qualification(activity.blinking.Contains(clip))
             );
         }
 
@@ -344,19 +339,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Processing
             return ManifestFromPuppet.AllAnimationsOf(tree)
                 .Select(clip => new QualifiedAnimation(
                     clip,
-                    new Qualification(
-                        activity.blinking.Contains(clip),
-                        LimitedLipsyncHasWideOpenMouth(activity, clip)
-                            ? QualifiedLimitation.Wide
-                            : QualifiedLimitation.None
-                    )
+                    new Qualification(activity.blinking.Contains(clip))
                 ))
                 .ToList();
-        }
-
-        private static bool LimitedLipsyncHasWideOpenMouth(ComboGestureActivity activity, AnimationClip clip)
-        {
-            return activity.limitedLipsync.Contains(new ComboGestureActivity.LimitedLipsyncAnimation{clip = clip, limitation = ComboGestureActivity.LipsyncLimitation.WideOpenMouth});
         }
 
         private struct NullableMotion

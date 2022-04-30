@@ -265,7 +265,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private static void MutateCurvesForAnimatedAnimatorParameters(AnimationClip neutralizedAnimation, QualifiedAnimation qualifiedAnimation)
         {
             var blinking = qualifiedAnimation.Qualification.IsBlinking ? 1 : 0;
-            var wide = qualifiedAnimation.Qualification.Limitation == QualifiedLimitation.Wide ? 1 : 0;
             neutralizedAnimation.SetCurve("", typeof(Animator), "_Hai_GestureAnimBlink", AnimationCurve.Linear(0, blinking, 1 / 60f, blinking));
         }
 

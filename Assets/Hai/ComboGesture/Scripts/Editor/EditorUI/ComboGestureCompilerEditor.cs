@@ -25,15 +25,12 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public SerializedProperty analogBlinkingUpperThreshold;
         public SerializedProperty parameterMode;
 
-        public SerializedProperty lipsyncForWideOpenMouth;
-
         public SerializedProperty expressionsAvatarMask;
         public SerializedProperty logicalAvatarMask;
         public SerializedProperty weightCorrectionAvatarMask;
         public SerializedProperty gesturePlayableLayerExpressionsAvatarMask;
         public SerializedProperty gesturePlayableLayerTechnicalAvatarMask;
         public SerializedProperty doNotGenerateBlinkingOverrideLayer;
-        public SerializedProperty doNotGenerateLipsyncOverrideLayer;
         public SerializedProperty doNotGenerateWeightCorrectionLayer;
 
         public SerializedProperty writeDefaultsRecommendationMode;
@@ -67,15 +64,12 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             analogBlinkingUpperThreshold = serializedObject.FindProperty("analogBlinkingUpperThreshold");
             parameterMode = serializedObject.FindProperty("parameterMode");
 
-            lipsyncForWideOpenMouth = serializedObject.FindProperty("lipsyncForWideOpenMouth");
-
             expressionsAvatarMask = serializedObject.FindProperty("expressionsAvatarMask");
             logicalAvatarMask = serializedObject.FindProperty("logicalAvatarMask");
             weightCorrectionAvatarMask = serializedObject.FindProperty("weightCorrectionAvatarMask");
             gesturePlayableLayerExpressionsAvatarMask = serializedObject.FindProperty("gesturePlayableLayerExpressionsAvatarMask");
             gesturePlayableLayerTechnicalAvatarMask = serializedObject.FindProperty("gesturePlayableLayerTechnicalAvatarMask");
             doNotGenerateBlinkingOverrideLayer = serializedObject.FindProperty("doNotGenerateBlinkingOverrideLayer");
-            doNotGenerateLipsyncOverrideLayer = serializedObject.FindProperty("doNotGenerateLipsyncOverrideLayer");
             doNotGenerateWeightCorrectionLayer = serializedObject.FindProperty("doNotGenerateWeightCorrectionLayer");
 
             writeDefaultsRecommendationMode = serializedObject.FindProperty("writeDefaultsRecommendationMode");
@@ -367,8 +361,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 ThereIsAMassiveBlendWithIncorrectConfiguration() ||
                 ThereIsANullMapper() ||
                 ThereIsNoActivityNameForMultipleActivities() ||
-                ThereIsNoAvatarDescriptor() ||
-                LipsyncIsIntegratedButThereIsNoCorrection()
+                ThereIsNoAvatarDescriptor()
             );
 
             bool ThereIsNoAnimatorController()
@@ -390,14 +383,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             {
                 return !compiler.bypassMandatoryAvatarDescriptor
                        && compiler.avatarDescriptor == null;
-            }
-
-            bool LipsyncIsIntegratedButThereIsNoCorrection()
-            {
-                return !compiler.bypassMandatoryAvatarDescriptor
-                    && !compiler.doNotGenerateLipsyncOverrideLayer
-                    && compiler.integrateLimitedLipsync
-                    && compiler.lipsyncForWideOpenMouth == null;
             }
 
             if (GUILayout.Button(compiler.useGesturePlayableLayer ?
@@ -427,27 +412,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 EditorGUILayout.LabelField("Corrections", EditorStyles.boldLabel);
                 if (compiler.avatarDescriptor != null) {
                     EditorGUILayout.PropertyField(weightCorrectionMode, new GUIContent(FakeBooleanIcon(compiler.WillUseGestureWeightCorrection()) + CgeLocale.CGEC_GestureWeight_correction));
-
-                    EditorGUI.BeginDisabledGroup(compiler.doNotGenerateLipsyncOverrideLayer);
-                    if (compiler.integrateLimitedLipsync && !compiler.doNotGenerateLipsyncOverrideLayer)
-                    {
-                        EditorGUILayout.PropertyField(lipsyncForWideOpenMouth, new GUIContent(CgeLocale.CGEC_Lipsync_correction));
-                        var lipsyncBlendshapes = new BlendshapesFinder(compiler.avatarDescriptor).FindLipsync();
-                        if (lipsyncBlendshapes.Any())
-                        {
-                            var firstLipsyncBlendshape = lipsyncBlendshapes.FirstOrDefault();
-                            if (lipsyncBlendshapes.Any())
-                            {
-                                EditorGUILayout.LabelField(CgeLocale.CGEC_Found_lipsync_blendshapes);
-                                EditorGUILayout.LabelField("- " + firstLipsyncBlendshape.Path + "::" + firstLipsyncBlendshape.BlendShapeName + " (+ " + (lipsyncBlendshapes.Count - 1) + " more...)");
-                            }
-                            else
-                            {
-                                EditorGUILayout.LabelField(CgeLocale.CGEC_No_lipsync_blendshapes_found);
-                            }
-                        }
-                    }
-                    EditorGUI.EndDisabledGroup();
                 }
 
                 EditorGUILayout.LabelField("Fine tuning", EditorStyles.boldLabel);
@@ -463,7 +427,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 EditorGUILayout.PropertyField(gesturePlayableLayerTechnicalAvatarMask, new GUIContent("Override Avatar Mask on Gesture playable technical layers"));
                 EditorGUILayout.PropertyField(doNotGenerateBlinkingOverrideLayer, new GUIContent("Don't update Blinking layer"));
                 GenBlinkingWarning(true);
-                EditorGUILayout.PropertyField(doNotGenerateLipsyncOverrideLayer, new GUIContent("Don't update Lipsync layer"));
                 EditorGUILayout.PropertyField(doNotGenerateWeightCorrectionLayer, new GUIContent("Don't update Weight Correction layer"));
                 GenWeightCorrection(true);
 

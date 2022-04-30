@@ -31,11 +31,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
             return Behavior.QualifiedAnimations().Any(qualifiedAnimation => qualifiedAnimation.Qualification.IsBlinking);
         }
 
-        public bool RequiresLimitedLipsync()
-        {
-            return Behavior.QualifiedAnimations().Any(qualifiedAnimation => qualifiedAnimation.Qualification.Limitation != QualifiedLimitation.None);
-        }
-
         public IEnumerable<QualifiedAnimation> AllQualifiedAnimations()
         {
             return Behavior.QualifiedAnimations();

@@ -2,6 +2,7 @@
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
+    // Lipsync layer no longer exists. Still, delete it from existing animators.
     internal class LayerForLipsyncOverrideView
     {
         private const string LipsyncLayerName = "Hai_GestureLipsync";

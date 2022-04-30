@@ -11,7 +11,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
     {
         ManifestKind Kind();
         bool RequiresBlinking();
-        bool RequiresLimitedLipsync();
         IEnumerable<QualifiedAnimation> AllQualifiedAnimations();
         IEnumerable<BlendTree> AllBlendTreesFoundRecursively();
         IManifest NewFromRemappedAnimations(Dictionary<QualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendToRemappedBlend);
@@ -62,11 +61,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
         public bool RequiresBlinking()
         {
             return Poses.Values.Any(behavior => behavior.QualifiedAnimations().Any(animation => animation.Qualification.IsBlinking));
-        }
-
-        public bool RequiresLimitedLipsync()
-        {
-            return Poses.Values.Any(behavior => behavior.QualifiedAnimations().Any(animation => animation.Qualification.Limitation != QualifiedLimitation.None));
         }
 
         public IEnumerable<QualifiedAnimation> AllQualifiedAnimations()

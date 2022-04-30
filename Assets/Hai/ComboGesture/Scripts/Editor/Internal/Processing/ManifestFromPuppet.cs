@@ -15,12 +15,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Processing
             var animations = AllDistinctAnimations(puppet);
             var qualifications = animations.Select(clip => new QualifiedAnimation(
                     clip,
-                    new Qualification(
-                        puppet.blinking.Contains(clip),
-                        LimitedLipsyncHasWideOpenMouth(puppet, clip)
-                            ? QualifiedLimitation.Wide
-                            : QualifiedLimitation.None
-                    )))
+                    new Qualification(puppet.blinking.Contains(clip))
+                ))
                 .Distinct()
                 .ToList();
 
@@ -28,11 +24,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Processing
                 puppet.transitionDuration,
                 PuppetAnimatedBehavior.Of((BlendTree)puppet.mainTree, qualifications)
             );
-        }
-
-        private static bool LimitedLipsyncHasWideOpenMouth(ComboGesturePuppet puppet, AnimationClip clip)
-        {
-            return puppet.limitedLipsync.Contains(new ComboGestureActivity.LimitedLipsyncAnimation{clip = clip, limitation = ComboGestureActivity.LipsyncLimitation.WideOpenMouth});
         }
 
         public static List<AnimationClip> AllDistinctAnimations(ComboGesturePuppet cgp)
