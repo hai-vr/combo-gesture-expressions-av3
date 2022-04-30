@@ -13,34 +13,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
     {
         internal const string FxPlayableLayerAvatarMaskPath = "Assets/Hai/ComboGesture/Hai_ComboGesture_FX_HideTransformsAndMuscles.mask";
 
-        internal static void SetupDefaultTransition(AnimatorStateTransition transition)
-        {
-            SetupCommonTransition(transition);
-
-            transition.duration = 0.1f; // There seems to be a quirk if the duration is 0 when using DisableExpressions, so use 0.1f instead
-            transition.orderedInterruption = true;
-            transition.canTransitionToSelf = false;
-        }
-
-        internal static void SetupCommonTransition(AnimatorStateTransition transition)
-        {
-            transition.hasExitTime = false;
-            transition.exitTime = 0;
-            transition.hasFixedDuration = true;
-            transition.offset = 0;
-            transition.interruptionSource = TransitionInterruptionSource.None;
-        }
-
-        internal static Vector3 GridPosition(int x, int y)
-        {
-            return new Vector3(x * 200 , y * 70, 0);
-        }
-
-        internal const string GestureLeft = "GestureLeft";
-        internal const string GestureRight = "GestureRight";
-        internal const string HaiGestureComboParamName = "_Hai_GestureComboValue";
-        internal const string HaiGestureComboIsLipsyncLimitedParamName = "_Hai_GestureComboIsLipsyncLimited";
-        internal const string HaiGestureComboDisableLipsyncOverrideParamName = "_Hai_GestureComboDisableLipsyncOverride";
         internal const string HaiGestureComboLeftWeightProxy = "_Hai_GestureLWProxy";
         internal const string HaiGestureComboRightWeightProxy = "_Hai_GestureRWProxy";
         internal const string HaiVirtualActivity = "_Hai_GestureVirtualActivity";
@@ -79,14 +51,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                     return ManifestFromMassiveBlend.FromMassiveBlend(massive, fallbackWhenAnyClipIsNull, universalAnalogSupport);
                 default:
                     throw new ArgumentOutOfRangeException();
-            }
-        }
-
-        public static void CreateParamIfNotExists(AnimatorController controller, string paramName, AnimatorControllerParameterType type)
-        {
-            if (controller.parameters.FirstOrDefault(param => param.name == paramName) == null)
-            {
-                controller.AddParameter(paramName, type);
             }
         }
 

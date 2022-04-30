@@ -94,7 +94,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
             foreach (var parameter in AllParametersUsedByManifests(activityManifests))
             {
-                SharedLayerUtils.CreateParamIfNotExists(_animatorController, parameter, AnimatorControllerParameterType.Float);
+                layer.FloatParameter(parameter);
             }
 
             var combinator = new IntermediateCombinator(activityManifests);

@@ -136,11 +136,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         public void DoOverwriteAnimatorFxLayer()
         {
-            if (_activityStageName != null)
-            {
-                SharedLayerUtils.CreateParamIfNotExists(_animatorController, _activityStageName, AnimatorControllerParameterType.Int);
-            }
-
             DeleteDeprecatedControllerLayer();
 
             if (_parameterGeneration == ParameterGeneration.VirtualActivity)
@@ -203,11 +198,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         public void DoOverwriteAnimatorGesturePlayableLayer()
         {
             var emptyClip = _assetContainer.ExposeAac().DummyClipLasting(1, AacFlUnit.Frames).Clip;
-
-            if (_activityStageName != null)
-            {
-                SharedLayerUtils.CreateParamIfNotExists(_gesturePlayableLayerController, _activityStageName, AnimatorControllerParameterType.Int);
-            }
 
             if (!Feature(FeatureToggles.DoNotGenerateWeightCorrectionLayer))
             {
@@ -293,14 +283,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         private void CreateOrReplaceBooleansToVirtualActivityMenu()
         {
-            foreach (var mapper in _comboLayers)
-            {
-                if (!string.IsNullOrEmpty(mapper.booleanParameterName))
-                {
-                    SharedLayerUtils.CreateParamIfNotExists(_animatorController, mapper.booleanParameterName, AnimatorControllerParameterType.Bool);
-                }
-            }
-
             new LayerForBooleansToVirtualActivity(_assetContainer, _animatorController, _logicalAvatarMask, _conflictPrevention.ShouldWriteDefaults, _comboLayers).Create();
         }
 
@@ -316,10 +298,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         private void CreateOrReplaceExpressionsView(AnimationClip emptyClip, List<ManifestBinding> manifestBindings)
         {
-            CreateExpressionsViewParameters(_animatorController, _activityStageName);
-            SharedLayerUtils.CreateParamIfNotExists(_animatorController, "_Hai_GestureAnimBlink", AnimatorControllerParameterType.Float);
-            SharedLayerUtils.CreateParamIfNotExists(_animatorController, "_Hai_GestureAnimLSWide", AnimatorControllerParameterType.Float);
-
             var avatarFallbacks = new CgeAvatarSnapshot(_avatarDescriptor, _compilerFallbackParamList).CaptureFallbacks();
             new LayerForExpressionsView(
                 _featuresToggles,
@@ -345,8 +323,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 ? _gesturePlayableLayerExpressionsAvatarMask
                 : AssetDatabase.LoadAssetAtPath<AvatarMask>(GesturePlayableLayerAvatarMaskPath);
 
-            CreateExpressionsViewParameters(_gesturePlayableLayerController, _activityStageName);
-
             var avatarFallbacks = new CgeAvatarSnapshot(_avatarDescriptor, _compilerFallbackParamList).CaptureFallbacks();
             new LayerForExpressionsView(
                 _featuresToggles,
@@ -366,26 +342,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             ).Create();
         }
 
-        private static void CreateExpressionsViewParameters(AnimatorController animatorController, string activityStageName)
-        {
-            if (activityStageName != null)
-            {
-                SharedLayerUtils.CreateParamIfNotExists(animatorController, activityStageName, AnimatorControllerParameterType.Int);
-            }
-
-            SharedLayerUtils.CreateParamIfNotExists(animatorController, "GestureLeft", AnimatorControllerParameterType.Int);
-            SharedLayerUtils.CreateParamIfNotExists(animatorController, "GestureRight", AnimatorControllerParameterType.Int);
-            SharedLayerUtils.CreateParamIfNotExists(animatorController, "GestureLeftWeight", AnimatorControllerParameterType.Float);
-            SharedLayerUtils.CreateParamIfNotExists(animatorController, "GestureRightWeight", AnimatorControllerParameterType.Float);
-        }
-
         private void CreateOrReplaceBlinkingOverrideView(List<ManifestBinding> manifestBindings)
         {
-            if (_activityStageName != null)
-            {
-                SharedLayerUtils.CreateParamIfNotExists(_animatorController, _activityStageName, AnimatorControllerParameterType.Int);
-            }
-            SharedLayerUtils.CreateParamIfNotExists(_animatorController, "_Hai_GestureAnimBlink", AnimatorControllerParameterType.Float);
             new LayerForBlinkingOverrideView(
                 _activityStageName,
                 _comboLayers,
