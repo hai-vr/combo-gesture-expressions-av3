@@ -84,89 +84,89 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         public SerializedProperty transitionDuration;
 
-        public SerializedProperty previewSetup;
+        public SerializedProperty previewAnimator;
         public SerializedProperty editorLegacyFoldout;
 
         public ReorderableList blinkingReorderableList;
 
         private void OnEnable()
         {
-            transitionDuration = serializedObject.FindProperty("transitionDuration");
-            anim00 = serializedObject.FindProperty("anim00");
-            anim01 = serializedObject.FindProperty("anim01");
-            anim02 = serializedObject.FindProperty("anim02");
-            anim03 = serializedObject.FindProperty("anim03");
-            anim04 = serializedObject.FindProperty("anim04");
-            anim05 = serializedObject.FindProperty("anim05");
-            anim06 = serializedObject.FindProperty("anim06");
-            anim07 = serializedObject.FindProperty("anim07");
-            anim11 = serializedObject.FindProperty("anim11");
-            anim12 = serializedObject.FindProperty("anim12");
-            anim13 = serializedObject.FindProperty("anim13");
-            anim14 = serializedObject.FindProperty("anim14");
-            anim15 = serializedObject.FindProperty("anim15");
-            anim16 = serializedObject.FindProperty("anim16");
-            anim17 = serializedObject.FindProperty("anim17");
-            anim22 = serializedObject.FindProperty("anim22");
-            anim23 = serializedObject.FindProperty("anim23");
-            anim24 = serializedObject.FindProperty("anim24");
-            anim25 = serializedObject.FindProperty("anim25");
-            anim26 = serializedObject.FindProperty("anim26");
-            anim27 = serializedObject.FindProperty("anim27");
-            anim33 = serializedObject.FindProperty("anim33");
-            anim34 = serializedObject.FindProperty("anim34");
-            anim35 = serializedObject.FindProperty("anim35");
-            anim36 = serializedObject.FindProperty("anim36");
-            anim37 = serializedObject.FindProperty("anim37");
-            anim44 = serializedObject.FindProperty("anim44");
-            anim45 = serializedObject.FindProperty("anim45");
-            anim46 = serializedObject.FindProperty("anim46");
-            anim47 = serializedObject.FindProperty("anim47");
-            anim55 = serializedObject.FindProperty("anim55");
-            anim56 = serializedObject.FindProperty("anim56");
-            anim57 = serializedObject.FindProperty("anim57");
-            anim66 = serializedObject.FindProperty("anim66");
-            anim67 = serializedObject.FindProperty("anim67");
-            anim77 = serializedObject.FindProperty("anim77");
-            anim11_L = serializedObject.FindProperty("anim11_L");
-            anim11_R = serializedObject.FindProperty("anim11_R");
-            previewSetup = serializedObject.FindProperty("previewSetup");
-            editorLegacyFoldout = serializedObject.FindProperty("editorLegacyFoldout");
-            anim10 = serializedObject.FindProperty("anim10");
-            anim20 = serializedObject.FindProperty("anim20");
-            anim21 = serializedObject.FindProperty("anim21");
-            anim30 = serializedObject.FindProperty("anim30");
-            anim31 = serializedObject.FindProperty("anim31");
-            anim32 = serializedObject.FindProperty("anim32");
-            anim40 = serializedObject.FindProperty("anim40");
-            anim41 = serializedObject.FindProperty("anim41");
-            anim42 = serializedObject.FindProperty("anim42");
-            anim43 = serializedObject.FindProperty("anim43");
-            anim50 = serializedObject.FindProperty("anim50");
-            anim51 = serializedObject.FindProperty("anim51");
-            anim52 = serializedObject.FindProperty("anim52");
-            anim53 = serializedObject.FindProperty("anim53");
-            anim54 = serializedObject.FindProperty("anim54");
-            anim60 = serializedObject.FindProperty("anim60");
-            anim61 = serializedObject.FindProperty("anim61");
-            anim62 = serializedObject.FindProperty("anim62");
-            anim63 = serializedObject.FindProperty("anim63");
-            anim64 = serializedObject.FindProperty("anim64");
-            anim65 = serializedObject.FindProperty("anim65");
-            anim70 = serializedObject.FindProperty("anim70");
-            anim71 = serializedObject.FindProperty("anim71");
-            anim72 = serializedObject.FindProperty("anim72");
-            anim73 = serializedObject.FindProperty("anim73");
-            anim74 = serializedObject.FindProperty("anim74");
-            anim75 = serializedObject.FindProperty("anim75");
-            anim76 = serializedObject.FindProperty("anim76");
-            enablePermutations = serializedObject.FindProperty("enablePermutations");
-            oneHandMode = serializedObject.FindProperty("oneHandMode");
+            transitionDuration = serializedObject.FindProperty(nameof(ComboGestureActivity.transitionDuration));
+            anim00 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim00));
+            anim01 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim01));
+            anim02 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim02));
+            anim03 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim03));
+            anim04 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim04));
+            anim05 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim05));
+            anim06 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim06));
+            anim07 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim07));
+            anim11 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim11));
+            anim12 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim12));
+            anim13 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim13));
+            anim14 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim14));
+            anim15 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim15));
+            anim16 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim16));
+            anim17 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim17));
+            anim22 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim22));
+            anim23 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim23));
+            anim24 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim24));
+            anim25 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim25));
+            anim26 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim26));
+            anim27 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim27));
+            anim33 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim33));
+            anim34 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim34));
+            anim35 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim35));
+            anim36 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim36));
+            anim37 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim37));
+            anim44 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim44));
+            anim45 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim45));
+            anim46 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim46));
+            anim47 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim47));
+            anim55 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim55));
+            anim56 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim56));
+            anim57 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim57));
+            anim66 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim66));
+            anim67 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim67));
+            anim77 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim77));
+            anim11_L = serializedObject.FindProperty(nameof(ComboGestureActivity.anim11_L));
+            anim11_R = serializedObject.FindProperty(nameof(ComboGestureActivity.anim11_R));
+            previewAnimator = serializedObject.FindProperty(nameof(ComboGestureActivity.previewAnimator));
+            editorLegacyFoldout = serializedObject.FindProperty(nameof(ComboGestureActivity.editorLegacyFoldout));
+            anim10 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim10));
+            anim20 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim20));
+            anim21 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim21));
+            anim30 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim30));
+            anim31 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim31));
+            anim32 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim32));
+            anim40 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim40));
+            anim41 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim41));
+            anim42 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim42));
+            anim43 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim43));
+            anim50 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim50));
+            anim51 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim51));
+            anim52 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim52));
+            anim53 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim53));
+            anim54 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim54));
+            anim60 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim60));
+            anim61 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim61));
+            anim62 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim62));
+            anim63 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim63));
+            anim64 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim64));
+            anim65 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim65));
+            anim70 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim70));
+            anim71 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim71));
+            anim72 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim72));
+            anim73 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim73));
+            anim74 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim74));
+            anim75 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim75));
+            anim76 = serializedObject.FindProperty(nameof(ComboGestureActivity.anim76));
+            enablePermutations = serializedObject.FindProperty(nameof(ComboGestureActivity.enablePermutations));
+            oneHandMode = serializedObject.FindProperty(nameof(ComboGestureActivity.oneHandMode));
 
             // reference: https://blog.terresquall.com/2020/03/creating-reorderable-lists-in-the-unity-inspector/
             blinkingReorderableList = new ReorderableList(
                 serializedObject,
-                serializedObject.FindProperty("blinking"),
+                serializedObject.FindProperty(nameof(ComboGestureActivity.blinking)),
                 true, true, true, true
             );
             blinkingReorderableList.drawElementCallback = BlinkingListElement;
@@ -326,7 +326,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             EditorGUILayout.PropertyField(transitionDuration, new GUIContent("Transition duration (s)"));
 
             if (serializedObject.isEditingMultipleObjects) {
-                EditorGUILayout.PropertyField(previewSetup, new GUIContent("Preview setup"));
+                EditorGUILayout.PropertyField(previewAnimator, new GUIContent("Preview animator"));
             }
         }
 

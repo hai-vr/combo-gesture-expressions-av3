@@ -87,12 +87,12 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
             _state = state;
         }
 
-        public SerializedProperty SpTransitionDuration() => _state.SerializedObject.FindProperty("transitionDuration");
-        public SerializedProperty SpEditorTool() => _state.SerializedObject.FindProperty("editorTool");
-        public SerializedProperty SpEditorArbitraryAnimations() => _state.SerializedObject.FindProperty("editorArbitraryAnimations");
-        public SerializedProperty SpPreviewSetup() => _state.SerializedObject.FindProperty("previewAnimator");
-        public SerializedProperty SpEnablePermutations() => _state.SerializedObject.FindProperty("enablePermutations");
-        public SerializedProperty SpOneHandMode() => _state.SerializedObject.FindProperty("oneHandMode");
+        public SerializedProperty SpTransitionDuration() => _state.SerializedObject.FindProperty(nameof(ComboGestureActivity.transitionDuration));
+        public SerializedProperty SpEditorTool() => _state.SerializedObject.FindProperty(nameof(ComboGestureActivity.editorTool));
+        public SerializedProperty SpEditorArbitraryAnimations() => _state.SerializedObject.FindProperty(nameof(ComboGestureActivity.editorArbitraryAnimations));
+        public SerializedProperty SpPreviewSetup() => _state.SerializedObject.FindProperty(nameof(ComboGestureActivity.previewAnimator));
+        public SerializedProperty SpEnablePermutations() => _state.SerializedObject.FindProperty(nameof(ComboGestureActivity.enablePermutations));
+        public SerializedProperty SpOneHandMode() => _state.SerializedObject.FindProperty(nameof(ComboGestureActivity.oneHandMode));
 
         public void NowEditingActivity(ComboGestureActivity selectedActivity)
         {

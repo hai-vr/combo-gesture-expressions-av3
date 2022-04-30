@@ -56,47 +56,47 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         private void OnEnable()
         {
-            animatorController = serializedObject.FindProperty("animatorController");
-            useGesturePlayableLayer = serializedObject.FindProperty("useGesturePlayableLayer");
-            gesturePlayableLayerController = serializedObject.FindProperty("gesturePlayableLayerController");
-            activityStageName = serializedObject.FindProperty("activityStageName");
-            customEmptyClip = serializedObject.FindProperty("customEmptyClip");
-            analogBlinkingUpperThreshold = serializedObject.FindProperty("analogBlinkingUpperThreshold");
-            parameterMode = serializedObject.FindProperty("parameterMode");
+            animatorController = serializedObject.FindProperty(nameof(ComboGestureCompiler.animatorController));
+            useGesturePlayableLayer = serializedObject.FindProperty(nameof(ComboGestureCompiler.useGesturePlayableLayer));
+            gesturePlayableLayerController = serializedObject.FindProperty(nameof(ComboGestureCompiler.gesturePlayableLayerController));
+            activityStageName = serializedObject.FindProperty(nameof(ComboGestureCompiler.activityStageName));
+            customEmptyClip = serializedObject.FindProperty(nameof(ComboGestureCompiler.customEmptyClip));
+            analogBlinkingUpperThreshold = serializedObject.FindProperty(nameof(ComboGestureCompiler.analogBlinkingUpperThreshold));
+            parameterMode = serializedObject.FindProperty(nameof(ComboGestureCompiler.parameterMode));
 
-            expressionsAvatarMask = serializedObject.FindProperty("expressionsAvatarMask");
-            logicalAvatarMask = serializedObject.FindProperty("logicalAvatarMask");
-            weightCorrectionAvatarMask = serializedObject.FindProperty("weightCorrectionAvatarMask");
-            gesturePlayableLayerExpressionsAvatarMask = serializedObject.FindProperty("gesturePlayableLayerExpressionsAvatarMask");
-            gesturePlayableLayerTechnicalAvatarMask = serializedObject.FindProperty("gesturePlayableLayerTechnicalAvatarMask");
-            doNotGenerateBlinkingOverrideLayer = serializedObject.FindProperty("doNotGenerateBlinkingOverrideLayer");
-            doNotGenerateWeightCorrectionLayer = serializedObject.FindProperty("doNotGenerateWeightCorrectionLayer");
+            expressionsAvatarMask = serializedObject.FindProperty(nameof(ComboGestureCompiler.expressionsAvatarMask));
+            logicalAvatarMask = serializedObject.FindProperty(nameof(ComboGestureCompiler.logicalAvatarMask));
+            weightCorrectionAvatarMask = serializedObject.FindProperty(nameof(ComboGestureCompiler.weightCorrectionAvatarMask));
+            gesturePlayableLayerExpressionsAvatarMask = serializedObject.FindProperty(nameof(ComboGestureCompiler.gesturePlayableLayerExpressionsAvatarMask));
+            gesturePlayableLayerTechnicalAvatarMask = serializedObject.FindProperty(nameof(ComboGestureCompiler.gesturePlayableLayerTechnicalAvatarMask));
+            doNotGenerateBlinkingOverrideLayer = serializedObject.FindProperty(nameof(ComboGestureCompiler.doNotGenerateBlinkingOverrideLayer));
+            doNotGenerateWeightCorrectionLayer = serializedObject.FindProperty(nameof(ComboGestureCompiler.doNotGenerateWeightCorrectionLayer));
 
-            writeDefaultsRecommendationMode = serializedObject.FindProperty("writeDefaultsRecommendationMode");
-            writeDefaultsRecommendationModeGesture = serializedObject.FindProperty("writeDefaultsRecommendationModeGesture");
-            gestureLayerTransformCapture = serializedObject.FindProperty("gestureLayerTransformCapture");
-            generatedAvatarMask = serializedObject.FindProperty("generatedAvatarMask");
-            conflictFxLayerMode = serializedObject.FindProperty("conflictFxLayerMode");
-            weightCorrectionMode = serializedObject.FindProperty("weightCorrectionMode");
-            ignoreParamList = serializedObject.FindProperty("ignoreParamList");
-            fallbackParamList = serializedObject.FindProperty("fallbackParamList");
-            folderToGenerateNeutralizedAssetsIn = serializedObject.FindProperty("folderToGenerateNeutralizedAssetsIn");
+            writeDefaultsRecommendationMode = serializedObject.FindProperty(nameof(ComboGestureCompiler.writeDefaultsRecommendationMode));
+            writeDefaultsRecommendationModeGesture = serializedObject.FindProperty(nameof(ComboGestureCompiler.writeDefaultsRecommendationModeGesture));
+            gestureLayerTransformCapture = serializedObject.FindProperty(nameof(ComboGestureCompiler.gestureLayerTransformCapture));
+            generatedAvatarMask = serializedObject.FindProperty(nameof(ComboGestureCompiler.generatedAvatarMask));
+            conflictFxLayerMode = serializedObject.FindProperty(nameof(ComboGestureCompiler.conflictFxLayerMode));
+            weightCorrectionMode = serializedObject.FindProperty(nameof(ComboGestureCompiler.weightCorrectionMode));
+            ignoreParamList = serializedObject.FindProperty(nameof(ComboGestureCompiler.ignoreParamList));
+            fallbackParamList = serializedObject.FindProperty(nameof(ComboGestureCompiler.fallbackParamList));
+            folderToGenerateNeutralizedAssetsIn = serializedObject.FindProperty(nameof(ComboGestureCompiler.folderToGenerateNeutralizedAssetsIn));
 
-            comboLayers = serializedObject.FindProperty("comboLayers");
+            comboLayers = serializedObject.FindProperty(nameof(ComboGestureCompiler.comboLayers));
 
-            avatarDescriptor = serializedObject.FindProperty("avatarDescriptor");
-            doNotFixSingleKeyframes = serializedObject.FindProperty("doNotFixSingleKeyframes");
-            bypassMandatoryAvatarDescriptor = serializedObject.FindProperty("bypassMandatoryAvatarDescriptor");
+            avatarDescriptor = serializedObject.FindProperty(nameof(ComboGestureCompiler.avatarDescriptor));
+            doNotFixSingleKeyframes = serializedObject.FindProperty(nameof(ComboGestureCompiler.doNotFixSingleKeyframes));
+            bypassMandatoryAvatarDescriptor = serializedObject.FindProperty(nameof(ComboGestureCompiler.bypassMandatoryAvatarDescriptor));
 
-            assetContainer = serializedObject.FindProperty("assetContainer");
-            generateNewContainerEveryTime = serializedObject.FindProperty("generateNewContainerEveryTime");
+            assetContainer = serializedObject.FindProperty(nameof(ComboGestureCompiler.assetContainer));
+            generateNewContainerEveryTime = serializedObject.FindProperty(nameof(ComboGestureCompiler.generateNewContainerEveryTime));
 
-            useViveAdvancedControlsForNonFistAnalog = serializedObject.FindProperty("useViveAdvancedControlsForNonFistAnalog");
+            useViveAdvancedControlsForNonFistAnalog = serializedObject.FindProperty(nameof(ComboGestureCompiler.useViveAdvancedControlsForNonFistAnalog));
 
             // reference: https://blog.terresquall.com/2020/03/creating-reorderable-lists-in-the-unity-inspector/
             comboLayersReorderableList = new ReorderableList(
                 serializedObject,
-                serializedObject.FindProperty("comboLayers"),
+                serializedObject.FindProperty(nameof(ComboGestureCompiler.comboLayers)),
                 true, true, true, true
             );
             comboLayersReorderableList.drawElementCallback = ComboLayersListElement;
@@ -110,18 +110,18 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                     return;
                 }
 
-                var previous = comboLayers.GetArrayElementAtIndex(comboLayers.arraySize - 2).FindPropertyRelative("stageValue").intValue;
+                var previous = comboLayers.GetArrayElementAtIndex(comboLayers.arraySize - 2).FindPropertyRelative(nameof(GestureComboStageMapper.stageValue)).intValue;
                 var newlyAddedElement = comboLayers.GetArrayElementAtIndex(comboLayers.arraySize - 1);
-                newlyAddedElement.FindPropertyRelative("stageValue").intValue = previous + 1;
-                newlyAddedElement.FindPropertyRelative("activity").objectReferenceValue = null;
-                newlyAddedElement.FindPropertyRelative("puppet").objectReferenceValue = null;
+                newlyAddedElement.FindPropertyRelative(nameof(GestureComboStageMapper.stageValue)).intValue = previous + 1;
+                newlyAddedElement.FindPropertyRelative(nameof(GestureComboStageMapper.activity)).objectReferenceValue = null;
+                newlyAddedElement.FindPropertyRelative(nameof(GestureComboStageMapper.puppet)).objectReferenceValue = null;
                 serializedObject.ApplyModifiedProperties();
             };
 
             _guideIcon16 = AssetDatabase.LoadAssetAtPath<Texture>("Assets/Hai/ComboGesture/Icons/guide-16.png");
             _guideIcon32 = AssetDatabase.LoadAssetAtPath<Texture>("Assets/Hai/ComboGesture/Icons/guide-32.png");
 
-            editorAdvancedFoldout = serializedObject.FindProperty("editorAdvancedFoldout");
+            editorAdvancedFoldout = serializedObject.FindProperty(nameof(ComboGestureCompiler.editorAdvancedFoldout));
         }
 
         private Texture _guideIcon16;
@@ -662,11 +662,11 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
 
             EditorGUI.PropertyField(
                 new Rect(rect.x, rect.y, 70, EditorGUIUtility.singleLineHeight),
-                element.FindPropertyRelative("kind"),
+                element.FindPropertyRelative(nameof(GestureComboStageMapper.kind)),
                 GUIContent.none
             );
 
-            var kind = (GestureComboStageKind) element.FindPropertyRelative("kind").intValue;
+            var kind = (GestureComboStageKind) element.FindPropertyRelative(nameof(GestureComboStageMapper.kind)).intValue;
             var compiler = AsCompiler();
             var onlyOneLayer = compiler.comboLayers.Count <= 1;
             var singleInt = compiler.parameterMode == ParameterMode.SingleInt;
@@ -681,7 +681,7 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
             {
                 EditorGUI.PropertyField(
                     new Rect(rect.x + rect.width - 20 - trailingWidth, rect.y, trailingWidth, EditorGUIUtility.singleLineHeight),
-                    singleInt ? element.FindPropertyRelative("stageValue") : element.FindPropertyRelative("booleanParameterName"),
+                    singleInt ? element.FindPropertyRelative(nameof(GestureComboStageMapper.stageValue)) : element.FindPropertyRelative(nameof(GestureComboStageMapper.booleanParameterName)),
                     GUIContent.none
                 );
             }
@@ -692,11 +692,11 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
             switch (kind)
             {
                 case GestureComboStageKind.Puppet:
-                    return element.FindPropertyRelative("puppet");
+                    return element.FindPropertyRelative(nameof(GestureComboStageMapper.puppet));
                 case GestureComboStageKind.Activity:
-                    return element.FindPropertyRelative("activity");
+                    return element.FindPropertyRelative(nameof(GestureComboStageMapper.activity));
                 case GestureComboStageKind.Massive:
-                    return element.FindPropertyRelative("massiveBlend");
+                    return element.FindPropertyRelative(nameof(GestureComboStageMapper.massiveBlend));
                 default:
                     throw new ArgumentOutOfRangeException(nameof(kind), kind, null);
             }

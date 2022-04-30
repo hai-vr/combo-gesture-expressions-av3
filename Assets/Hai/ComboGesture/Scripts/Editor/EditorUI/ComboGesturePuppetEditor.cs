@@ -15,23 +15,23 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         public SerializedProperty transitionDuration;
 
-        public SerializedProperty previewSetup;
+        public SerializedProperty previewAnimator;
         public SerializedProperty editorLegacyFoldout;
 
         public ReorderableList blinkingReorderableList;
 
         private void OnEnable()
         {
-            transitionDuration = serializedObject.FindProperty("transitionDuration");
-            mainTree = serializedObject.FindProperty("mainTree");
-            intent = serializedObject.FindProperty("intent");
-            previewSetup = serializedObject.FindProperty("previewSetup");
-            editorLegacyFoldout = serializedObject.FindProperty("editorLegacyFoldout");
+            transitionDuration = serializedObject.FindProperty(nameof(ComboGesturePuppet.transitionDuration));
+            mainTree = serializedObject.FindProperty(nameof(ComboGesturePuppet.mainTree));
+            intent = serializedObject.FindProperty(nameof(ComboGesturePuppet.intent));
+            previewAnimator = serializedObject.FindProperty(nameof(ComboGesturePuppet.previewAnimator));
+            editorLegacyFoldout = serializedObject.FindProperty(nameof(ComboGesturePuppet.editorLegacyFoldout));
 
             // reference: https://blog.terresquall.com/2020/03/creating-reorderable-lists-in-the-unity-inspector/
             blinkingReorderableList = new ReorderableList(
                 serializedObject,
-                serializedObject.FindProperty("blinking"),
+                serializedObject.FindProperty(nameof(ComboGesturePuppet.blinking)),
                 true, true, true, true
             );
             blinkingReorderableList.drawElementCallback = BlinkingListElement;
@@ -116,7 +116,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             EditorGUILayout.PropertyField(transitionDuration, new GUIContent("Transition duration (s)"));
 
             if (serializedObject.isEditingMultipleObjects) {
-                EditorGUILayout.PropertyField(previewSetup, new GUIContent("Preview setup"));
+                EditorGUILayout.PropertyField(previewAnimator, new GUIContent("Preview animator"));
             }
         }
     }
