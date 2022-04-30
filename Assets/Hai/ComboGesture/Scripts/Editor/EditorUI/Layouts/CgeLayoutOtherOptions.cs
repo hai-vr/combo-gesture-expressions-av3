@@ -38,7 +38,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                 if (GUILayout.Button(CgeLocale.CGEE_Automatically_setup_preview, GUILayout.Height(50), GUILayout.Width(300)))
                 {
                     DoAutoSetupPreview();
-                    if (_editorEffector.GetSetupResult() != EePreviewSetupWizard.SetupResult.NoAvatarFound)
+                    if (_editorEffector.PreviewSetup() != null)
                     {
                         _editorEffector.SwitchTo(ActivityEditorMode.SetFaceExpressions);
                     }
@@ -50,24 +50,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             {
                 EditorGUILayout.PropertyField(_editorEffector.SpTransitionDuration(), new GUIContent(CgeLocale.CGEE_Transition_duration));
                 EditorGUILayout.PropertyField(_editorEffector.SpPreviewSetup(), new GUIContent(CgeLocale.CGEE_Preview_setup));
-                if (_editorEffector.GetSetupResult() != null)
-                {
-                    var setupResult = (EePreviewSetupWizard.SetupResult) _editorEffector.GetSetupResult();
-                    switch (setupResult)
-                    {
-                        case EePreviewSetupWizard.SetupResult.ReusedExistsAndValidInScene:
-                            EditorGUILayout.HelpBox(CgeLocale.CGEE_AutoSetupReused, MessageType.Info);
-                            break;
-                        case EePreviewSetupWizard.SetupResult.NoAvatarFound:
-                            EditorGUILayout.HelpBox(CgeLocale.CGEE_AutoSetupNoActiveAvatarDescriptor, MessageType.Error);
-                            break;
-                        case EePreviewSetupWizard.SetupResult.CreatedNew:
-                            EditorGUILayout.HelpBox(CgeLocale.CGEE_AutoSetupCreated, MessageType.Info);
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException();
-                    }
-                }
 
                 EditorGUI.BeginDisabledGroup(AnimationMode.InAnimationMode());
                 if (GUILayout.Button(CgeLocale.CGEE_Generate_missing_previews))

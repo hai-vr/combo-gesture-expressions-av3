@@ -1,10 +1,10 @@
 ﻿using System;
+using System.Linq;
+using System.Reflection;
 using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors;
 using Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts;
 using Hai.ComboGesture.Scripts.Editor.EditorUI.Modules;
-using Hai.ExpressionsEditor.Scripts.Editor.EditorUI.EditorWindows;
-using Hai.ExpressionsEditor.Scripts.Editor.Internal.Modules;
 using UnityEditor;
 using UnityEngine;
 using static UnityEditor.EditorGUIUtility;
@@ -53,7 +53,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             _editorEffector = new CgeEditorEffector(new CgeEditorState());
             var blendTreeEffector = new CgeBlendTreeEffector();
             var memoization = Cge.Get().Memoization;
-            var renderingCommands = Ee.Get().RenderingCommands;
+            var renderingCommands = new EeRenderingCommands();
             var activityPreviewQueryAggregator = new CgeActivityPreviewQueryAggregator(memoization, _editorEffector, blendTreeEffector, renderingCommands);
             var cgeMemoryQuery = new CgeMemoryQuery(memoization);
             _common = new CgeLayoutCommon(Repaint, _editorEffector, activityPreviewQueryAggregator, cgeMemoryQuery);
@@ -68,11 +68,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             _common.GuiInit();
             _helpIcon16 = AssetDatabase.LoadAssetAtPath<Texture>("Assets/Hai/ComboGesture/Icons/help-16.png");
-
-            Ee.Get().Hooks.SetOnMainRenderedListener(rendered =>
-            {
-                activityPreviewQueryAggregator.OnMainRendered(rendered, Repaint);
-            });
         }
 
         private void OnInspectorUpdate()
@@ -119,7 +114,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             GUILayout.BeginArea(new Rect(position.width - 320, CgeLayoutCommon.SingleLineHeight * 2 + 5, 200, CgeLayoutCommon.SingleLineHeight + 2));
             if (GUILayout.Button(new GUIContent("❈ ExpressionsEditor"), GUILayout.Width(170), GUILayout.Height(CgeLayoutCommon.SingleLineHeight + 2)))
             {
-                EeAnimationEditorWindow.Obtain().Show();
+                ShowExpressionsEditor(_editorEffector);
             }
             GUILayout.EndArea();
 
@@ -143,6 +138,16 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        public static void ShowExpressionsEditor(CgeEditorEffector cgeEditorEffector)
+        {
+            var visualExpressionsEditorType = AppDomain.CurrentDomain
+                .GetAssemblies()
+                .SelectMany(assembly => assembly.GetTypes())
+                .First(type => type.Name == "VisualExpressionsEditorWindow");
+            visualExpressionsEditorType.GetMethod("OpenEditor", BindingFlags.Public | BindingFlags.Static)
+                .Invoke(null, new object[] {new MenuCommand(cgeEditorEffector.PreviewSetup())});
         }
 
         private void EditingAnActivity()

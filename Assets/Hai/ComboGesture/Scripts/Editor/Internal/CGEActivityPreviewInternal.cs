@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors;
-using Hai.ExpressionsEditor.Scripts.Components;
-using Hai.ExpressionsEditor.Scripts.Editor.Internal.Modules;
 using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal
@@ -42,7 +40,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             RecalculateEverything, CalculateMissing
         }
 
-        public void Process(ProcessMode processMode, AnimationClip prioritize, EePreviewAvatar previewSetup)
+        public void Process(ProcessMode processMode, AnimationClip prioritize, Animator previewSetup)
         {
             var clipDictionary = GatherAnimations(processMode);
             var animationPreviews = ToPrioritizedList(clipDictionary, prioritize);

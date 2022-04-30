@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Hai.ExpressionsEditor.Scripts.Components;
 using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Components
@@ -14,9 +13,10 @@ namespace Hai.ComboGesture.Scripts.Components
         public List<AnimationClip> blinking;
         public List<ComboGestureActivity.LimitedLipsyncAnimation> limitedLipsync;
 
-        public ExpressionEditorPreviewable previewSetup;
         public bool editorLegacyFoldout;
         public bool editorTool;
+
+        public Animator previewAnimator;
 
         [System.Serializable]
         public enum PuppetIntent

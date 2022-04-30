@@ -2,7 +2,6 @@
 using System.IO;
 using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors;
-using Hai.ExpressionsEditor.Scripts.Editor.EditorUI.EditorWindows;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
@@ -602,7 +601,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             _editorEffector.SpProperty(propertyPath).objectReferenceValue = clip;
             _editorEffector.ApplyModifiedProperties();
 
-            EeAnimationEditorWindow.Obtain().Show();
+            CgeEditorWindow.ShowExpressionsEditor(_editorEffector);
             EditorGUIUtility.PingObject(clip);
             Selection.SetActiveObjectWithContext(clip, null);
         }

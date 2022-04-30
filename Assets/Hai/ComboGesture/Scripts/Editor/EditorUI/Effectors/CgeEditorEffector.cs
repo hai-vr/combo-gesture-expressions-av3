@@ -2,11 +2,10 @@
 using System.Linq;
 using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.Internal.Processing;
-using Hai.ExpressionsEditor.Scripts.Components;
-using Hai.ExpressionsEditor.Scripts.Editor.Internal;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
+using VRC.SDK3.Avatars.Components;
 
 namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
 {
@@ -14,7 +13,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
     {
         List<AnimationClip> AllDistinctAnimations { get; }
         List<AnimationClip> Blinking { get; }
-        ExpressionEditorPreviewable PreviewSetup { get; set; }
+        Animator PreviewSetup { get; set; }
         List<ComboGestureActivity.LimitedLipsyncAnimation> LimitedLipsync { get; }
         void RecordMutation();
     }
@@ -36,10 +35,10 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
             Undo.RecordObject(_activity, "Activity modified");
         }
 
-        public ExpressionEditorPreviewable PreviewSetup
+        public Animator PreviewSetup
         {
-            get => _activity.previewSetup;
-            set => _activity.previewSetup = value;
+            get => _activity.previewAnimator;
+            set => _activity.previewAnimator = value;
         }
     }
 
@@ -55,10 +54,10 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
         public List<AnimationClip> AllDistinctAnimations => ManifestFromPuppet.AllDistinctAnimations(_puppet);
         public List<AnimationClip> Blinking => _puppet.blinking;
         public List<ComboGestureActivity.LimitedLipsyncAnimation> LimitedLipsync => _puppet.limitedLipsync;
-        public ExpressionEditorPreviewable PreviewSetup
+        public Animator PreviewSetup
         {
-            get => _puppet.previewSetup;
-            set => _puppet.previewSetup = value;
+            get => _puppet.previewAnimator;
+            set => _puppet.previewAnimator = value;
         }
         public void RecordMutation()
         {
@@ -80,7 +79,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
         public int CurrentEditorToolValue = -1;
 
         public bool FirstTimeSetup;
-        public EePreviewSetupWizard.SetupResult? SetupResult;
     }
 
     public class CgeEditorEffector
@@ -95,7 +93,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
         public SerializedProperty SpTransitionDuration() => _state.SerializedObject.FindProperty("transitionDuration");
         public SerializedProperty SpEditorTool() => _state.SerializedObject.FindProperty("editorTool");
         public SerializedProperty SpEditorArbitraryAnimations() => _state.SerializedObject.FindProperty("editorArbitraryAnimations");
-        public SerializedProperty SpPreviewSetup() => _state.SerializedObject.FindProperty("previewSetup");
+        public SerializedProperty SpPreviewSetup() => _state.SerializedObject.FindProperty("previewAnimator");
         public SerializedProperty SpEnablePermutations() => _state.SerializedObject.FindProperty("enablePermutations");
         public SerializedProperty SpOneHandMode() => _state.SerializedObject.FindProperty("oneHandMode");
 
@@ -173,19 +171,17 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
             return _state.FirstTimeSetup;
         }
 
-        public EePreviewSetupWizard.SetupResult? GetSetupResult()
-        {
-            return _state.SetupResult;
-        }
-
         public void TryAutoSetup()
         {
-            var setup = new EePreviewSetupWizard().AutoSetup();
-            if (setup.PreviewAvatar != null)
+            var firstAvatar = Object.FindObjectOfType<VRCAvatarDescriptor>();
+            if (firstAvatar != null)
             {
-                SetPreviewSetup(setup.PreviewAvatar);
+                var itsAnimator = firstAvatar.GetComponent<Animator>();
+                if (itsAnimator != null)
+                {
+                    SetPreviewSetup(itsAnimator);
+                }
             }
-            _state.SetupResult = setup.Result;
         }
 
         public void MarkFirstTimeSetup()
@@ -230,22 +226,22 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
             _state.ActivityAccessor.Blinking.Remove(clip);
         }
 
-        public EePreviewAvatar PreviewSetup()
+        public Animator PreviewSetup()
         {
-            return _state.ActivityAccessor.PreviewSetup.AsEePreviewAvatar();
+            return _state.ActivityAccessor.PreviewSetup;
         }
 
         public bool IsPreviewSetupValid()
         {
-            return _state.ActivityAccessor.PreviewSetup != null && _state.ActivityAccessor.PreviewSetup.IsValid();
+            return _state.ActivityAccessor.PreviewSetup != null;
         }
 
         public bool HasPreviewSetupWhichIsInvalid()
         {
-            return _state.ActivityAccessor.PreviewSetup != null && !_state.ActivityAccessor.PreviewSetup.IsValid();
+            return false;
         }
 
-        public void SetPreviewSetup(ExpressionEditorPreviewable previewSetup)
+        public void SetPreviewSetup(Animator previewSetup)
         {
             _state.ActivityAccessor.RecordMutation();
             _state.ActivityAccessor.PreviewSetup = previewSetup;
