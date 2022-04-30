@@ -11,7 +11,6 @@ namespace Hai.ComboGesture.Scripts.Components
         public PuppetIntent intent;
 
         public List<AnimationClip> blinking;
-        public List<ComboGestureActivity.LimitedLipsyncAnimation> limitedLipsync;
 
         public bool editorLegacyFoldout;
         public bool editorTool;

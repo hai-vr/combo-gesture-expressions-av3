@@ -80,26 +80,12 @@ namespace Hai.ComboGesture.Scripts.Components
         public Motion anim76;
 
         public List<AnimationClip> blinking;
-        public List<LimitedLipsyncAnimation> limitedLipsync;
 
         public bool editorLegacyFoldout;
         public bool editorTool;
         public AnimationClip[] editorArbitraryAnimations;
 
         public Animator previewAnimator;
-
-        [System.Serializable]
-        public struct LimitedLipsyncAnimation
-        {
-            public AnimationClip clip;
-            public LipsyncLimitation limitation;
-        }
-
-        [System.Serializable]
-        public enum LipsyncLimitation
-        {
-            WideOpenMouth
-        }
 
         [System.Serializable]
         public enum CgeOneHandMode

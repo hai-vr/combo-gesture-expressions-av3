@@ -18,9 +18,6 @@ namespace Hai.ComboGesture.Scripts.Components
         public AnimationClip customEmptyClip;
         public float analogBlinkingUpperThreshold = 0.95f;
 
-        public bool integrateLimitedLipsync; // Deprecated
-        public ComboGestureLimitedLipsync lipsyncForWideOpenMouth; // Deprecated
-
         public bool exposeDisableExpressions; // Deprecated
         public bool exposeDisableBlinkingOverride; // Deprecated
         public bool exposeAreEyesClosed; // Deprecated
@@ -28,7 +25,6 @@ namespace Hai.ComboGesture.Scripts.Components
         public bool doNotGenerateControllerLayer; // Deprecated
         public bool forceGenerationOfControllerLayer; // Deprecated
         public bool doNotGenerateBlinkingOverrideLayer;
-        public bool doNotGenerateLipsyncOverrideLayer; // Deprecated
         public bool doNotGenerateWeightCorrectionLayer;
 
         public AvatarMask expressionsAvatarMask;

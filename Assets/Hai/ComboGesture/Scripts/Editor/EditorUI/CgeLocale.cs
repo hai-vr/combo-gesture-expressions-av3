@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Hai.ExpressionsEditor.Scripts.Editor.Internal;
-using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 {
@@ -23,13 +22,10 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         internal static string CGEE_Combos => LocalizeOrElse("CGEE_Combos", CgeLocaleDefaults.CGEE_Combos);
         internal static string CGEE_Complete_view => LocalizeOrElse("CGEE_Complete_view", CgeLocaleDefaults.CGEE_Complete_view);
         internal static string CGEE_Create_blend_trees => LocalizeOrElse("CGEE_Create_blend_trees", CgeLocaleDefaults.CGEE_Create_blend_trees);
-        internal static string CGEE_Edit_lipsync_settings => LocalizeOrElse("CGEE_Edit_lipsync_settings", CgeLocaleDefaults.CGEE_Edit_lipsync_settings);
-        internal static string CGEE_Make_lipsync_movements_subtle => LocalizeOrElse("CGEE_Make_lipsync_movements_subtle", CgeLocaleDefaults.CGEE_Make_lipsync_movements_subtle);
         internal static string CGEE_Manipulate_trees => LocalizeOrElse("CGEE_Manipulate_trees", CgeLocaleDefaults.CGEE_Manipulate_trees);
         internal static string CGEE_Other_options => LocalizeOrElse("CGEE_Other_options", CgeLocaleDefaults.CGEE_Other_options);
         internal static string CGEE_Permutations => LocalizeOrElse("CGEE_Permutations", CgeLocaleDefaults.CGEE_Permutations);
         internal static string CGEE_Prevent_eyes_blinking => LocalizeOrElse("CGEE_Prevent_eyes_blinking", CgeLocaleDefaults.CGEE_Prevent_eyes_blinking);
-        internal static string CGEE_Select_wide_open_mouth => LocalizeOrElse("CGEE_Select_wide_open_mouth", CgeLocaleDefaults.CGEE_Select_wide_open_mouth);
         internal static string CGEE_Set_face_expressions => LocalizeOrElse("CGEE_Set_face_expressions", CgeLocaleDefaults.CGEE_Set_face_expressions);
         internal static string CGEE_Simplified_view => LocalizeOrElse("CGEE_Simplified_view", CgeLocaleDefaults.CGEE_Simplified_view);
         internal static string CGEE_Singles => LocalizeOrElse("CGEE_Singles", CgeLocaleDefaults.CGEE_Singles);
@@ -84,9 +80,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         internal static string CGEC_HintDefaultMood => LocalizeOrElse("CGEC_HintDefaultMood", CgeLocaleDefaults.CGEC_HintDefaultMood);
         internal static string CGEC_GestureWeight_correction => LocalizeOrElse("CGEC_GestureWeight_correction", CgeLocaleDefaults.CGEC_GestureWeight_correction);
         internal static string CGEC_Avatar_descriptor => LocalizeOrElse("CGEC_Avatar_descriptor", CgeLocaleDefaults.CGEC_Avatar_descriptor);
-        internal static string CGEC_Lipsync_correction => LocalizeOrElse("CGEC_Lipsync_correction", CgeLocaleDefaults.CGEC_Lipsync_correction);
-        internal static string CGEC_Found_lipsync_blendshapes => LocalizeOrElse("CGEC_Found_lipsync_blendshapes", CgeLocaleDefaults.CGEC_Found_lipsync_blendshapes);
-        internal static string CGEC_No_lipsync_blendshapes_found => LocalizeOrElse("CGEC_No_lipsync_blendshapes_found", CgeLocaleDefaults.CGEC_No_lipsync_blendshapes_found);
         internal static string CGEC_Support_for_other_transforms => LocalizeOrElse("CGEC_Support_for_other_transforms", CgeLocaleDefaults.CGEC_Support_for_other_transforms);
         internal static string CGEC_Gesture_playable_layer_support => LocalizeOrElse("CGEC_Gesture_playable_layer_support", CgeLocaleDefaults.CGEC_Gesture_playable_layer_support);
         internal static string CGEC_BackupGesture => LocalizeOrElse("CGEC_BackupGesture", CgeLocaleDefaults.CGEC_BackupGesture);

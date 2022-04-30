@@ -14,7 +14,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
         List<AnimationClip> AllDistinctAnimations { get; }
         List<AnimationClip> Blinking { get; }
         Animator PreviewSetup { get; set; }
-        List<ComboGestureActivity.LimitedLipsyncAnimation> LimitedLipsync { get; }
         void RecordMutation();
     }
 
@@ -29,7 +28,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
 
         public List<AnimationClip> AllDistinctAnimations => CgeEditorEffector.AllDistinctAnimations(_activity);
         public List<AnimationClip> Blinking => _activity.blinking;
-        public List<ComboGestureActivity.LimitedLipsyncAnimation> LimitedLipsync => _activity.limitedLipsync;
         public void RecordMutation()
         {
             Undo.RecordObject(_activity, "Activity modified");
@@ -53,7 +51,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
 
         public List<AnimationClip> AllDistinctAnimations => ManifestFromPuppet.AllDistinctAnimations(_puppet);
         public List<AnimationClip> Blinking => _puppet.blinking;
-        public List<ComboGestureActivity.LimitedLipsyncAnimation> LimitedLipsync => _puppet.limitedLipsync;
         public Animator PreviewSetup
         {
             get => _puppet.previewAnimator;

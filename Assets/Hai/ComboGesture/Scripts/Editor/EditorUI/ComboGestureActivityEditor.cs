@@ -88,7 +88,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public SerializedProperty editorLegacyFoldout;
 
         public ReorderableList blinkingReorderableList;
-        public ReorderableList limitedLipsyncReorderableList;
 
         private void OnEnable()
         {
@@ -173,14 +172,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             blinkingReorderableList.drawElementCallback = BlinkingListElement;
             blinkingReorderableList.drawHeaderCallback = rect => EditorGUI.LabelField(rect, "Closed eyes Animations (to disable blinking)");
 
-            limitedLipsyncReorderableList = new ReorderableList(
-                serializedObject,
-                serializedObject.FindProperty("limitedLipsync"),
-                true, true, true, true
-            );
-            limitedLipsyncReorderableList.drawElementCallback = LipsyncListElement;
-            limitedLipsyncReorderableList.drawHeaderCallback = rect => EditorGUI.LabelField(rect, "Limited Lipsync Animations (to reduce speaking mouth movements)");
-
             _guideIcon32 = AssetDatabase.LoadAssetAtPath<Texture>("Assets/Hai/ComboGesture/Icons/guide-32.png");
         }
 
@@ -191,23 +182,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             EditorGUI.PropertyField(
                 new Rect(rect.x, rect.y, rect.width, EditorGUIUtility.singleLineHeight),
                 element,
-                GUIContent.none
-            );
-        }
-
-        private void LipsyncListElement(Rect rect, int index, bool isActive, bool isFocused)
-        {
-            var element = limitedLipsyncReorderableList.serializedProperty.GetArrayElementAtIndex(index);
-
-            EditorGUI.PropertyField(
-                new Rect(rect.x, rect.y, rect.width - 200, EditorGUIUtility.singleLineHeight),
-                element.FindPropertyRelative("clip"),
-                GUIContent.none
-            );
-
-            EditorGUI.PropertyField(
-                new Rect(rect.x + rect.width - 200, rect.y, 180, EditorGUIUtility.singleLineHeight),
-                element.FindPropertyRelative("limitation"),
                 GUIContent.none
             );
         }
@@ -346,8 +320,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             EditorGUILayout.Separator();
 
             blinkingReorderableList.DoLayoutList();
-
-            limitedLipsyncReorderableList.DoLayoutList();
 
             EditorGUILayout.Separator();
 

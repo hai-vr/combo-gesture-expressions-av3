@@ -18,13 +18,10 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         internal static string CGEE_Combos = "Combos";
         internal static string CGEE_Complete_view = "Complete view";
         internal static string CGEE_Create_blend_trees = "Create blend trees";
-        internal static string CGEE_Edit_lipsync_settings = "Edit lipsync settings";
-        internal static string CGEE_Make_lipsync_movements_subtle = "Make lipsync movements subtle";
         internal static string CGEE_Manipulate_trees = "Manipulate trees";
         internal static string CGEE_Other_options = "Other options";
         internal static string CGEE_Permutations = "Permutations";
         internal static string CGEE_Prevent_eyes_blinking = "Prevent eyes blinking";
-        internal static string CGEE_Select_wide_open_mouth = "Select wide open mouth";
         internal static string CGEE_Set_face_expressions = "Set face expressions";
         internal static string CGEE_Simplified_view = "Simplified view";
         internal static string CGEE_Singles = "Singles";
@@ -87,9 +84,6 @@ You may choose to leave one of the mood set Parameter Name blank and it will bec
         internal static string CGEC_HintDefaultMood = @"The mood set ""{0}"" is the default mood because it has a blank Parameter Name.";
         internal static string CGEC_GestureWeight_correction = @"GestureWeight correction";
         internal static string CGEC_Avatar_descriptor = @"Avatar descriptor";
-        internal static string CGEC_Lipsync_correction = @"Lipsync correction";
-        internal static string CGEC_Found_lipsync_blendshapes = @"Found lipsync blendshapes:";
-        internal static string CGEC_No_lipsync_blendshapes_found = @"No lipsync blendshapes found";
         internal static string CGEC_Support_for_other_transforms = @"Enable this if you need support for ears/wings/tail/other transforms.";
         internal static string CGEC_Gesture_playable_layer_support = @"Gesture Playable Layer support";
         internal static string CGEC_BackupGesture = @"Make backups! The Gesture Animator Controller will be modified directly.";
