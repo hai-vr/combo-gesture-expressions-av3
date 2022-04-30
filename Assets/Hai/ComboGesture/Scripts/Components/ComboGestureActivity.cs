@@ -81,7 +81,6 @@ namespace Hai.ComboGesture.Scripts.Components
 
         public List<AnimationClip> blinking;
 
-        public bool editorLegacyFoldout;
         public bool editorTool;
 
         public Animator previewAnimator;
