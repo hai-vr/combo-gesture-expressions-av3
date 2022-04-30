@@ -73,24 +73,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             switch (_editorEffector.SpEditorTool().intValue)
             {
                 case 1:
-                    BeginLayoutUsing(CgeLayoutCommon.GuiSquareHeight * 2, position);
-                    LayoutSinglesDoublesMatrixProjection();
-                    CgeLayoutCommon.EndLayout();
-                    break;
-                case 2:
-                    BeginLayoutUsing(CgeLayoutCommon.GuiSquareHeight * 5, position);
-                    LayoutFistMatrixProjection();
-                    CgeLayoutCommon.EndLayout();
-                    break;
-                case 3:
-                    BeginLayoutUsing(CgeLayoutCommon.GuiSquareHeight * 8, position);
-                    LayoutComboMatrixProjection();
-                    CgeLayoutCommon.EndLayout();
-                    break;
-                case 4:
                     LayoutAllPermutationTogglePage();
                     break;
-                case 5:
+                case 2:
                     LayoutAllOneHandModePage();
                     break;
                 default:
@@ -128,7 +113,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                 else
                 {
                     _editorEffector.SpEnablePermutations().boolValue = false;
-                    _editorEffector.SpEditorTool().intValue = 4;
+                    _editorEffector.SpEditorTool().intValue = 1;
                 }
             }
 

@@ -215,7 +215,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 {
                     _editorEffector.SpEditorTool().intValue = GUILayout.Toolbar(_editorEffector.SpEditorTool().intValue, new[]
                     {
-                        CgeLocale.CGEE_All_combos, CgeLocale.CGEE_Singles, CgeLocale.CGEE_Analog_Fist, CgeLocale.CGEE_Combos, CgeLocale.CGEE_Permutations, CgeLocale.CGEE_OneHandMode
+                        CgeLocale.CGEE_All_combos, CgeLocale.CGEE_Permutations, CgeLocale.CGEE_OneHandMode
                     }, GUILayout.ExpandWidth(true));
                 }
                 else
