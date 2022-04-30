@@ -89,7 +89,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
 
         public SerializedProperty SpTransitionDuration() => _state.SerializedObject.FindProperty(nameof(ComboGestureActivity.transitionDuration));
         public SerializedProperty SpEditorTool() => _state.SerializedObject.FindProperty(nameof(ComboGestureActivity.editorTool));
-        public SerializedProperty SpEditorArbitraryAnimations() => _state.SerializedObject.FindProperty(nameof(ComboGestureActivity.editorArbitraryAnimations));
         public SerializedProperty SpPreviewSetup() => _state.SerializedObject.FindProperty(nameof(ComboGestureActivity.previewAnimator));
         public SerializedProperty SpEnablePermutations() => _state.SerializedObject.FindProperty(nameof(ComboGestureActivity.enablePermutations));
         public SerializedProperty SpOneHandMode() => _state.SerializedObject.FindProperty(nameof(ComboGestureActivity.oneHandMode));

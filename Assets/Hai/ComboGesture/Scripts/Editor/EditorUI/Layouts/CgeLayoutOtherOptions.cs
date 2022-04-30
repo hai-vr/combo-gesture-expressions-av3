@@ -61,33 +61,10 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                 {
                     _activityPreviewQueryAggregator.GenerateAll(repaintCallback);
                 }
-                if (_editorEffector.GetCurrentlyEditing() == CurrentlyEditing.Activity)
-                {
-                    EditorGUILayout.PropertyField(_editorEffector.SpEditorArbitraryAnimations(), new GUIContent(CgeLocale.CGEE_List_of_arbitrary_animations), true);
-                }
                 EditorGUI.EndDisabledGroup();
 
                 EditorGUI.BeginDisabledGroup(!AnimationMode.InAnimationMode());
                 EditorGUI.EndDisabledGroup();
-
-                if (_editorEffector.GetCurrentlyEditing() == CurrentlyEditing.Activity)
-                {
-                    if (_editorEffector.GetActivity().editorArbitraryAnimations != null)
-                    {
-                        GUILayout.BeginArea(new Rect(0, CgeLayoutCommon.SingleLineHeight * 10, position.width, CgeLayoutCommon.GuiSquareHeight * 8));
-                        var allClips = new HashSet<AnimationClip>(_editorEffector.GetActivity().editorArbitraryAnimations.Where(clip => clip != null)).ToList();
-                        var mod = (int) Math.Max(1, position.width / CgeLayoutCommon.GuiSquareWidth);
-                        for (var element = 0; element < allClips.Count; element++)
-                        {
-                            GUILayout.BeginArea(CgeLayoutCommon.RectAt(element % mod, element / mod));
-                            DrawArbitrary(allClips[element]);
-                            GUILayout.EndArea();
-                        }
-
-                        GUILayout.EndArea();
-                        GUILayout.Space((allClips.Count / mod) * CgeLayoutCommon.GuiSquareHeight + CgeLayoutCommon.GuiSquareHeight + CgeLayoutCommon.SingleLineHeight * 2);
-                    }
-                }
             }
             CgeLayoutCommon.EndLayout();
         }

@@ -36,7 +36,6 @@
   "CGEE_AutoSetupCreated": "A new preview setup was created.",
   "CGEE_Transition_duration": "Transition duration (s)",
   "CGEE_Preview_setup": "Preview setup",
-  "CGEE_List_of_arbitrary_animations": "List of arbitrary animations (Drag and drop assets directly on this title)",
   "CGEE_Generate_missing_previews": "Generate missing previews",
   "CGEE_Regenerate_all_previews": "Regenerate all previews",
   "CGEE_Stop_generating_previews": "Stop generating previews",

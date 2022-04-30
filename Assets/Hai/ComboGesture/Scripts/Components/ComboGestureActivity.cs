@@ -83,7 +83,6 @@ namespace Hai.ComboGesture.Scripts.Components
 
         public bool editorLegacyFoldout;
         public bool editorTool;
-        public AnimationClip[] editorArbitraryAnimations;
 
         public Animator previewAnimator;
 

@@ -48,7 +48,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         internal static string CGEE_AutoSetupCreated => LocalizeOrElse("CGEE_AutoSetupCreated", CgeLocaleDefaults.CGEE_AutoSetupCreated);
         internal static string CGEE_Transition_duration => LocalizeOrElse("CGEE_Transition_duration", CgeLocaleDefaults.CGEE_Transition_duration);
         internal static string CGEE_Preview_setup => LocalizeOrElse("CGEE_Preview_setup", CgeLocaleDefaults.CGEE_Preview_setup);
-        internal static string CGEE_List_of_arbitrary_animations => LocalizeOrElse("CGEE_List_of_arbitrary_animations", CgeLocaleDefaults.CGEE_List_of_arbitrary_animations);
         internal static string CGEE_Generate_missing_previews => LocalizeOrElse("CGEE_Generate_missing_previews", CgeLocaleDefaults.CGEE_Generate_missing_previews);
         internal static string CGEE_Regenerate_all_previews => LocalizeOrElse("CGEE_Regenerate_all_previews", CgeLocaleDefaults.CGEE_Regenerate_all_previews);
         internal static string CGEE_Stop_generating_previews => LocalizeOrElse("CGEE_Stop_generating_previews", CgeLocaleDefaults.CGEE_Stop_generating_previews);

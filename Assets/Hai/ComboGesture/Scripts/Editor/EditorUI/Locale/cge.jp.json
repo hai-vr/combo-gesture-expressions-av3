@@ -36,7 +36,6 @@
   "CGEE_AutoSetupCreated": "新規プレビュー設定が作成されました。",
   "CGEE_Transition_duration": "遷移時間 (秒)",
   "CGEE_Preview_setup": "プレビュー設定",
-  "CGEE_List_of_arbitrary_animations": "任意のアニメーションのリスト (このタイトルに直接アセットをドラッグ・アンド・ドロップします)",
   "CGEE_Generate_missing_previews": "欠落しているプレビューを生成",
   "CGEE_Regenerate_all_previews": "すべてのプレビューを再生成",
   "CGEE_Stop_generating_previews": "プレビューの生成を停止",

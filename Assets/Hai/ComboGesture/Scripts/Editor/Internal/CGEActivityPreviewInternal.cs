@@ -14,7 +14,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly CgeMemoization _memoization;
         private readonly int _pictureWidth;
         private readonly int _pictureHeight;
-        private readonly AnimationClip[] _editorArbitraryAnimations;
         private readonly EeRenderingCommands _eeRenderingCommands;
 
         public CgeActivityPreviewInternal(Action onClipRenderedFn,
@@ -31,7 +30,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _memoization = memoization;
             _pictureWidth = pictureWidth;
             _pictureHeight = pictureHeight;
-            _editorArbitraryAnimations = _editorEffector.GetActivity()?.editorArbitraryAnimations ?? new AnimationClip[]{};
             _eeRenderingCommands = eeRenderingCommands;
         }
 
@@ -95,7 +93,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         private Dictionary<AnimationClip, Texture2D> GatherAnimations(ProcessMode processMode)
         {
-            var enumerable = _editorArbitraryAnimations
+            var enumerable = new AnimationClip[0]
                 .Union(_editorEffector.AllDistinctAnimations())
                 .Union(_blendTreeEffector.AllAnimationsOfSelected())
                 .Distinct()
