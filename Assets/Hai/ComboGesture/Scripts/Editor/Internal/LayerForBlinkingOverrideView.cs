@@ -64,20 +64,20 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 .When(layer.FloatParameter("_Hai_GestureAnimBlink").IsLessThan(_analogBlinkingUpperThreshold));
         }
 
-        private AacFlState CreateSuspendState(AacFlLayer machine)
+        private CgeAacFlState CreateSuspendState(CgeAacFlLayer machine)
         {
             return machine.NewState("SuspendBlinking", 1, 1)
                 .WithWriteDefaultsSetTo(_writeDefaultsForLogicalStates);
         }
 
-        private AacFlState CreateBlinkingState(AacFlLayer layer, VRC_AnimatorTrackingControl.TrackingType type)
+        private CgeAacFlState CreateBlinkingState(CgeAacFlLayer layer, VRC_AnimatorTrackingControl.TrackingType type)
         {
             return layer.NewState(type == VRC_AnimatorTrackingControl.TrackingType.Tracking ? "EnableBlinking" : "DisableBlinking", type == VRC_AnimatorTrackingControl.TrackingType.Tracking ? 0 : 2, 3)
                 .WithWriteDefaultsSetTo(_writeDefaultsForLogicalStates)
-                .TrackingSets(AacFlState.TrackingElement.Eyes, type);
+                .TrackingSets(CgeAacFlState.TrackingElement.Eyes, type);
         }
 
-        private void CreateTransitionWhenActivityIsOutOfBounds(AacFlLayer layer, AacFlState from, AacFlState to)
+        private void CreateTransitionWhenActivityIsOutOfBounds(CgeAacFlLayer layer, CgeAacFlState from, CgeAacFlState to)
         {
             var conditions = from.TransitionsTo(to).WhenConditions();
 
@@ -88,9 +88,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         }
 
 
-        private AacFlLayer ReinitializeLayer()
+        private CgeAacFlLayer ReinitializeLayer()
         {
-            return _assetContainer.ExposeAac().CreateSupportingArbitraryControllerLayer(_animatorController, "Hai_GestureBlinking")
+            return _assetContainer.ExposeCgeAac().CreateSupportingArbitraryControllerLayer(_animatorController, "Hai_GestureBlinking")
                 .WithAvatarMask(_logicalAvatarMask)
                 .CGE_WithLayerWeight(0f);
         }

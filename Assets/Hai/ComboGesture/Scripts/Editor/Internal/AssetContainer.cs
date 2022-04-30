@@ -9,13 +9,13 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
     internal class AssetContainer
     {
         private readonly AnimatorController _holder;
-        private readonly AacFlBase _aac;
+        private readonly CgeAacFlBase _aac;
 
         private AssetContainer(AnimatorController holder)
         {
             _holder = holder;
 
-            _aac = AacV0.Create(new AacConfiguration
+            _aac = CgeAacV0.Create(new CgeAacConfiguration
             {
                 AnimatorRoot = null,
                 AssetContainer = _holder,
@@ -80,13 +80,13 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             AssetDatabase.Refresh();
         }
 
-        public AacFlBase ExposeAac()
+        public CgeAacFlBase ExposeCgeAac()
         {
             return _aac;
         }
     }
 
-    public class CgeDefaultsProvider : IAacDefaultsProvider
+    public class CgeDefaultsProvider : ICgeAacDefaultsProvider
     {
         private readonly bool _writeDefaults;
 

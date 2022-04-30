@@ -8,119 +8,119 @@ using VRC.SDKBase;
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
 {
-    internal class AacBackingAnimator
+    internal class CgeAacBackingAnimator
     {
-        private readonly AacAnimatorGenerator _generator;
+        private readonly CgeAacAnimatorGenerator _generator;
 
-        public AacBackingAnimator(AacAnimatorGenerator animatorGenerator)
+        public CgeAacBackingAnimator(CgeAacAnimatorGenerator animatorGenerator)
         {
             _generator = animatorGenerator;
         }
 
-        public AacFlBoolParameter BoolParameter(string parameterName)
+        public CgeAacFlBoolParameter BoolParameter(string parameterName)
         {
-            var result = AacFlBoolParameter.Internally(parameterName);
+            var result = CgeAacFlBoolParameter.Internally(parameterName);
             _generator.CreateParamsAsNeeded(result);
             return result;
         }
 
-        public AacFlBoolParameter TriggerParameter(string parameterName)
+        public CgeAacFlBoolParameter TriggerParameter(string parameterName)
         {
-            var result = AacFlBoolParameter.Internally(parameterName);
+            var result = CgeAacFlBoolParameter.Internally(parameterName);
             _generator.CreateTriggerParamsAsNeeded(result);
             return result;
         }
 
-        public AacFlFloatParameter FloatParameter(string parameterName)
+        public CgeAacFlFloatParameter FloatParameter(string parameterName)
         {
-            var result = AacFlFloatParameter.Internally(parameterName);
+            var result = CgeAacFlFloatParameter.Internally(parameterName);
             _generator.CreateParamsAsNeeded(result);
             return result;
         }
 
-        public AacFlIntParameter IntParameter(string parameterName)
+        public CgeAacFlIntParameter IntParameter(string parameterName)
         {
-            var result = AacFlIntParameter.Internally(parameterName);
+            var result = CgeAacFlIntParameter.Internally(parameterName);
             _generator.CreateParamsAsNeeded(result);
             return result;
         }
 
-        public AacFlEnumIntParameter<TEnum> EnumParameter<TEnum>(string parameterName) where TEnum : Enum
+        public CgeAacFlEnumIntParameter<TEnum> EnumParameter<TEnum>(string parameterName) where TEnum : Enum
         {
-            var result = AacFlEnumIntParameter<TEnum>.Internally<TEnum>(parameterName);
+            var result = CgeAacFlEnumIntParameter<TEnum>.Internally<TEnum>(parameterName);
             _generator.CreateParamsAsNeeded(result);
             return result;
         }
 
-        public AacFlBoolParameterGroup BoolParameters(params string[] parameterNames)
+        public CgeAacFlBoolParameterGroup BoolParameters(params string[] parameterNames)
         {
-            var result = AacFlBoolParameterGroup.Internally(parameterNames);
+            var result = CgeAacFlBoolParameterGroup.Internally(parameterNames);
             _generator.CreateParamsAsNeeded(result.ToList().ToArray());
             return result;
         }
 
-        public AacFlBoolParameterGroup TriggerParameters(params string[] parameterNames)
+        public CgeAacFlBoolParameterGroup TriggerParameters(params string[] parameterNames)
         {
-            var result = AacFlBoolParameterGroup.Internally(parameterNames);
+            var result = CgeAacFlBoolParameterGroup.Internally(parameterNames);
             _generator.CreateTriggerParamsAsNeeded(result.ToList().ToArray());
             return result;
         }
 
-        public AacFlFloatParameterGroup FloatParameters(params string[] parameterNames)
+        public CgeAacFlFloatParameterGroup FloatParameters(params string[] parameterNames)
         {
-            var result = AacFlFloatParameterGroup.Internally(parameterNames);
+            var result = CgeAacFlFloatParameterGroup.Internally(parameterNames);
             _generator.CreateParamsAsNeeded(result.ToList().ToArray());
             return result;
         }
 
-        public AacFlIntParameterGroup IntParameters(params string[] parameterNames)
+        public CgeAacFlIntParameterGroup IntParameters(params string[] parameterNames)
         {
-            var result = AacFlIntParameterGroup.Internally(parameterNames);
+            var result = CgeAacFlIntParameterGroup.Internally(parameterNames);
             _generator.CreateParamsAsNeeded(result.ToList().ToArray());
             return result;
         }
 
-        public AacFlBoolParameterGroup BoolParameters(params AacFlBoolParameter[] parameters)
+        public CgeAacFlBoolParameterGroup BoolParameters(params CgeAacFlBoolParameter[] parameters)
         {
-            var result = AacFlBoolParameterGroup.Internally(parameters.Select(parameter => parameter.Name).ToArray());
+            var result = CgeAacFlBoolParameterGroup.Internally(parameters.Select(parameter => parameter.Name).ToArray());
             _generator.CreateParamsAsNeeded(parameters);
             return result;
         }
 
-        public AacFlBoolParameterGroup TriggerParameters(params AacFlBoolParameter[] parameters)
+        public CgeAacFlBoolParameterGroup TriggerParameters(params CgeAacFlBoolParameter[] parameters)
         {
-            var result = AacFlBoolParameterGroup.Internally(parameters.Select(parameter => parameter.Name).ToArray());
+            var result = CgeAacFlBoolParameterGroup.Internally(parameters.Select(parameter => parameter.Name).ToArray());
             _generator.CreateTriggerParamsAsNeeded(parameters);
             return result;
         }
 
-        public AacFlFloatParameterGroup FloatParameters(params AacFlFloatParameter[] parameters)
+        public CgeAacFlFloatParameterGroup FloatParameters(params CgeAacFlFloatParameter[] parameters)
         {
-            var result = AacFlFloatParameterGroup.Internally(parameters.Select(parameter => parameter.Name).ToArray());
+            var result = CgeAacFlFloatParameterGroup.Internally(parameters.Select(parameter => parameter.Name).ToArray());
             _generator.CreateParamsAsNeeded(parameters);
             return result;
         }
 
-        public AacFlIntParameterGroup IntParameters(params AacFlIntParameter[] parameters)
+        public CgeAacFlIntParameterGroup IntParameters(params CgeAacFlIntParameter[] parameters)
         {
-            var result = AacFlIntParameterGroup.Internally(parameters.Select(parameter => parameter.Name).ToArray());
+            var result = CgeAacFlIntParameterGroup.Internally(parameters.Select(parameter => parameter.Name).ToArray());
             _generator.CreateParamsAsNeeded(parameters);
             return result;
         }
     }
 
-    public class AacFlStateMachine : AacAnimatorNode<AacFlStateMachine>
+    public class CgeAacFlStateMachine : CgeAacAnimatorNode<CgeAacFlStateMachine>
     {
         public readonly AnimatorStateMachine Machine;
         private readonly AnimationClip _emptyClip;
-        private readonly AacBackingAnimator _backingAnimator;
-        private readonly IAacDefaultsProvider _defaultsProvider;
+        private readonly CgeAacBackingAnimator _backingAnimator;
+        private readonly ICgeAacDefaultsProvider _defaultsProvider;
         private readonly float _gridShiftX;
         private readonly float _gridShiftY;
 
-        private readonly List<AacAnimatorNode> _childNodes;
+        private readonly List<CgeAacAnimatorNode> _childNodes;
 
-        internal AacFlStateMachine(AnimatorStateMachine machine, AnimationClip emptyClip, AacBackingAnimator backingAnimator, IAacDefaultsProvider defaultsProvider, AacFlStateMachine parent = null)
+        internal CgeAacFlStateMachine(AnimatorStateMachine machine, AnimationClip emptyClip, CgeAacBackingAnimator backingAnimator, ICgeAacDefaultsProvider defaultsProvider, CgeAacFlStateMachine parent = null)
             : base(parent, defaultsProvider)
         {
             Machine = machine;
@@ -132,111 +132,111 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
             _gridShiftX = grid.x;
             _gridShiftY = grid.y;
 
-            _childNodes = new List<AacAnimatorNode>();
+            _childNodes = new List<CgeAacAnimatorNode>();
         }
 
-        internal AacBackingAnimator BackingAnimator()
+        internal CgeAacBackingAnimator BackingAnimator()
         {
             return _backingAnimator;
         }
 
-        public AacFlStateMachine NewSubStateMachine(string name)
+        public CgeAacFlStateMachine NewSubStateMachine(string name)
         {
             var lastState = LastNodePosition();
             return NewSubStateMachine(name, 0, 0).Shift(lastState, 0, 1);
         }
 
-        public AacFlStateMachine NewSubStateMachine(string name, int x, int y)
+        public CgeAacFlStateMachine NewSubStateMachine(string name, int x, int y)
         {
             var stateMachine = Machine.AddStateMachine(name, GridPosition(x, y));
-            var aacMachine = new AacFlStateMachine(stateMachine, _emptyClip, _backingAnimator, DefaultsProvider, this);
+            var aacMachine = new CgeAacFlStateMachine(stateMachine, _emptyClip, _backingAnimator, DefaultsProvider, this);
             _defaultsProvider.ConfigureStateMachine(stateMachine);
             _childNodes.Add(aacMachine);
             return aacMachine;
         }
 
-        public AacFlStateMachine WithEntryPosition(int x, int y)
+        public CgeAacFlStateMachine WithEntryPosition(int x, int y)
         {
             Machine.entryPosition = GridPosition(x, y);
             return this;
         }
 
-        public AacFlStateMachine WithExitPosition(int x, int y)
+        public CgeAacFlStateMachine WithExitPosition(int x, int y)
         {
             Machine.exitPosition = GridPosition(x, y);
             return this;
         }
 
-        public AacFlStateMachine WithAnyStatePosition(int x, int y)
+        public CgeAacFlStateMachine WithAnyStatePosition(int x, int y)
         {
             Machine.anyStatePosition = GridPosition(x, y);
             return this;
         }
 
-        public AacFlStateMachine WithParentStateMachinePosition(int x, int y)
+        public CgeAacFlStateMachine WithParentStateMachinePosition(int x, int y)
         {
             Machine.parentStateMachinePosition = GridPosition(x, y);
             return this;
         }
 
-        public AacFlState NewState(string name)
+        public CgeAacFlState NewState(string name)
         {
             var lastState = LastNodePosition();
             return NewState(name, 0, 0).Shift(lastState, 0, 1);
         }
 
-        public AacFlState NewState(string name, int x, int y)
+        public CgeAacFlState NewState(string name, int x, int y)
         {
             var state = Machine.AddState(name, GridPosition(x, y));
             DefaultsProvider.ConfigureState(state, _emptyClip);
-            var aacState = new AacFlState(state, this, DefaultsProvider);
+            var aacState = new CgeAacFlState(state, this, DefaultsProvider);
             _childNodes.Add(aacState);
             return aacState;
         }
 
-        public AacFlTransition AnyTransitionsTo(AacFlState destination)
+        public CgeAacFlTransition AnyTransitionsTo(CgeAacFlState destination)
         {
             return AnyTransition(destination, Machine);
         }
 
-        public AacFlEntryTransition EntryTransitionsTo(AacFlState destination)
+        public CgeAacFlEntryTransition EntryTransitionsTo(CgeAacFlState destination)
         {
             return EntryTransition(destination, Machine);
         }
 
-        public AacFlEntryTransition EntryTransitionsTo(AacFlStateMachine destination)
+        public CgeAacFlEntryTransition EntryTransitionsTo(CgeAacFlStateMachine destination)
         {
             return EntryTransition(destination, Machine);
         }
 
-        public AacFlEntryTransition TransitionsFromEntry()
+        public CgeAacFlEntryTransition TransitionsFromEntry()
         {
             return EntryTransition(this, ParentMachine.Machine);
         }
 
-        public AacFlNewTransitionContinuation TransitionsTo(AacFlState destination)
+        public CgeAacFlNewTransitionContinuation TransitionsTo(CgeAacFlState destination)
         {
-            return new AacFlNewTransitionContinuation(ParentMachine.Machine.AddStateMachineTransition(Machine, destination.State), ParentMachine.Machine, Machine, destination.State);
+            return new CgeAacFlNewTransitionContinuation(ParentMachine.Machine.AddStateMachineTransition(Machine, destination.State), ParentMachine.Machine, Machine, destination.State);
         }
 
-        public AacFlNewTransitionContinuation TransitionsTo(AacFlStateMachine destination)
+        public CgeAacFlNewTransitionContinuation TransitionsTo(CgeAacFlStateMachine destination)
         {
-            return new AacFlNewTransitionContinuation(ParentMachine.Machine.AddStateMachineTransition(Machine, destination.Machine), ParentMachine.Machine, Machine, destination.Machine);
+            return new CgeAacFlNewTransitionContinuation(ParentMachine.Machine.AddStateMachineTransition(Machine, destination.Machine), ParentMachine.Machine, Machine, destination.Machine);
         }
 
-        public AacFlNewTransitionContinuation Restarts()
+        public CgeAacFlNewTransitionContinuation Restarts()
         {
-            return new AacFlNewTransitionContinuation(ParentMachine.Machine.AddStateMachineTransition(Machine, Machine), ParentMachine.Machine, Machine, Machine);
+            return new CgeAacFlNewTransitionContinuation(ParentMachine.Machine.AddStateMachineTransition(Machine, Machine), ParentMachine.Machine, Machine, Machine);
         }
 
-        public AacFlNewTransitionContinuation Exits()
+        public CgeAacFlNewTransitionContinuation Exits()
         {
-            return new AacFlNewTransitionContinuation(ParentMachine.Machine.AddStateMachineExitTransition(Machine), ParentMachine.Machine, Machine, null);
+            return new CgeAacFlNewTransitionContinuation(ParentMachine.Machine.AddStateMachineExitTransition(Machine), ParentMachine.Machine, Machine, null);
         }
 
-        private AacFlTransition AnyTransition(AacFlState destination, AnimatorStateMachine animatorStateMachine)
+        private CgeAacFlTransition AnyTransition(CgeAacFlState destination, AnimatorStateMachine animatorStateMachine)
         {
-            return new AacFlTransition(ConfigureTransition(animatorStateMachine.AddAnyStateTransition(destination.State)), animatorStateMachine, null, destination.State);
+            return new CgeAacFlTransition(ConfigureTransition(animatorStateMachine.AddAnyStateTransition(destination.State)), animatorStateMachine, null, destination.State);
         }
 
         private AnimatorStateTransition ConfigureTransition(AnimatorStateTransition transition)
@@ -245,14 +245,14 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
             return transition;
         }
 
-        private AacFlEntryTransition EntryTransition(AacFlState destination, AnimatorStateMachine animatorStateMachine)
+        private CgeAacFlEntryTransition EntryTransition(CgeAacFlState destination, AnimatorStateMachine animatorStateMachine)
         {
-            return new AacFlEntryTransition(animatorStateMachine.AddEntryTransition(destination.State), animatorStateMachine, null, destination.State);
+            return new CgeAacFlEntryTransition(animatorStateMachine.AddEntryTransition(destination.State), animatorStateMachine, null, destination.State);
         }
 
-        private AacFlEntryTransition EntryTransition(AacFlStateMachine destination, AnimatorStateMachine animatorStateMachine)
+        private CgeAacFlEntryTransition EntryTransition(CgeAacFlStateMachine destination, AnimatorStateMachine animatorStateMachine)
         {
-            return new AacFlEntryTransition(animatorStateMachine.AddEntryTransition(destination.Machine), animatorStateMachine, null, destination.Machine);
+            return new CgeAacFlEntryTransition(animatorStateMachine.AddEntryTransition(destination.Machine), animatorStateMachine, null, destination.Machine);
         }
 
         internal Vector3 LastNodePosition()
@@ -265,7 +265,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
             return new Vector3(x * _gridShiftX, y * _gridShiftY, 0);
         }
 
-        internal IReadOnlyList<AacAnimatorNode> GetChildNodes()
+        internal IReadOnlyList<CgeAacAnimatorNode> GetChildNodes()
         {
             return _childNodes;
         }
@@ -291,14 +291,14 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
             ParentMachine.Machine.stateMachines = stateMachines;
         }
 
-        public AacFlStateMachine WithDefaultState(AacFlState newDefaultState)
+        public CgeAacFlStateMachine WithDefaultState(CgeAacFlState newDefaultState)
         {
             Machine.defaultState = newDefaultState.State;
             return this;
         }
     }
 
-    public class AacFlState : AacAnimatorNode<AacFlState>
+    public class CgeAacFlState : CgeAacAnimatorNode<CgeAacFlState>
     {
         public readonly AnimatorState State;
         private readonly AnimatorStateMachine _machine;
@@ -307,61 +307,61 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
         private VRCAnimatorLocomotionControl _locomotionControl;
         private VRCAnimatorTemporaryPoseSpace _temporaryPoseSpace;
 
-        public AacFlState(AnimatorState state, AacFlStateMachine parentMachine, IAacDefaultsProvider defaultsProvider) : base(parentMachine, defaultsProvider)
+        public CgeAacFlState(AnimatorState state, CgeAacFlStateMachine parentMachine, ICgeAacDefaultsProvider defaultsProvider) : base(parentMachine, defaultsProvider)
         {
             State = state;
             _machine = parentMachine.Machine;
         }
 
-        public AacFlState WithAnimation(Motion clip)
+        public CgeAacFlState WithAnimation(Motion clip)
         {
             State.motion = clip;
             return this;
         }
 
-        public AacFlState WithAnimation(AacFlClip clip)
+        public CgeAacFlState WithAnimation(CgeAacFlClip clip)
         {
             State.motion = clip.Clip;
             return this;
         }
 
-        public AacFlTransition TransitionsTo(AacFlState destination)
+        public CgeAacFlTransition TransitionsTo(CgeAacFlState destination)
         {
-            return new AacFlTransition(ConfigureTransition(State.AddTransition(destination.State)), _machine, State, destination.State);
+            return new CgeAacFlTransition(ConfigureTransition(State.AddTransition(destination.State)), _machine, State, destination.State);
         }
 
-        public AacFlTransition TransitionsTo(AacFlStateMachine destination)
+        public CgeAacFlTransition TransitionsTo(CgeAacFlStateMachine destination)
         {
-            return new AacFlTransition(State.AddTransition(destination.Machine), _machine, State, destination.Machine);
+            return new CgeAacFlTransition(State.AddTransition(destination.Machine), _machine, State, destination.Machine);
         }
 
-        public AacFlTransition TransitionsFromAny()
+        public CgeAacFlTransition TransitionsFromAny()
         {
-            return new AacFlTransition(ConfigureTransition(_machine.AddAnyStateTransition(State)), _machine, null, State);
+            return new CgeAacFlTransition(ConfigureTransition(_machine.AddAnyStateTransition(State)), _machine, null, State);
         }
 
-        public AacFlEntryTransition TransitionsFromEntry()
+        public CgeAacFlEntryTransition TransitionsFromEntry()
         {
-            return new AacFlEntryTransition(_machine.AddEntryTransition(State), _machine, null, State);
+            return new CgeAacFlEntryTransition(_machine.AddEntryTransition(State), _machine, null, State);
         }
 
-        public AacFlState AutomaticallyMovesTo(AacFlState destination)
+        public CgeAacFlState AutomaticallyMovesTo(CgeAacFlState destination)
         {
             var transition = ConfigureTransition(State.AddTransition(destination.State));
             transition.hasExitTime = true;
             return this;
         }
 
-        public AacFlState CGE_AutomaticallyMovesTo(AacFlStateMachine destination)
+        public CgeAacFlState CGE_AutomaticallyMovesTo(CgeAacFlStateMachine destination)
         {
             var transition = ConfigureTransition(State.AddTransition(destination.Machine));
             transition.hasExitTime = true;
             return this;
         }
 
-        public AacFlTransition Exits()
+        public CgeAacFlTransition Exits()
         {
-            return new AacFlTransition(ConfigureTransition(State.AddExitTransition()), _machine, State, null);
+            return new CgeAacFlTransition(ConfigureTransition(State.AddExitTransition()), _machine, State, null);
         }
 
         private AnimatorStateTransition ConfigureTransition(AnimatorStateTransition transition)
@@ -370,7 +370,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
             return transition;
         }
 
-        public AacFlState Drives(AacFlIntParameter parameter, int value)
+        public CgeAacFlState Drives(CgeAacFlIntParameter parameter, int value)
         {
             CreateDriverBehaviorIfNotExists();
             _driver.parameters.Add(new VRC_AvatarParameterDriver.Parameter
@@ -381,7 +381,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
             return this;
         }
 
-        public AacFlState Drives(AacFlFloatParameter parameter, float value)
+        public CgeAacFlState Drives(CgeAacFlFloatParameter parameter, float value)
         {
             CreateDriverBehaviorIfNotExists();
             _driver.parameters.Add(new VRC_AvatarParameterDriver.Parameter
@@ -392,7 +392,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
             return this;
         }
 
-        public AacFlState DrivingIncreases(AacFlFloatParameter parameter, float additiveValue)
+        public CgeAacFlState DrivingIncreases(CgeAacFlFloatParameter parameter, float additiveValue)
         {
             CreateDriverBehaviorIfNotExists();
             _driver.parameters.Add(new VRC_AvatarParameterDriver.Parameter
@@ -403,7 +403,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
             return this;
         }
 
-        public AacFlState DrivingDecreases(AacFlFloatParameter parameter, float positiveValueToDecreaseBy)
+        public CgeAacFlState DrivingDecreases(CgeAacFlFloatParameter parameter, float positiveValueToDecreaseBy)
         {
             CreateDriverBehaviorIfNotExists();
             _driver.parameters.Add(new VRC_AvatarParameterDriver.Parameter
@@ -414,7 +414,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
             return this;
         }
 
-        public AacFlState DrivingIncreases(AacFlIntParameter parameter, int additiveValue)
+        public CgeAacFlState DrivingIncreases(CgeAacFlIntParameter parameter, int additiveValue)
         {
             CreateDriverBehaviorIfNotExists();
             _driver.parameters.Add(new VRC_AvatarParameterDriver.Parameter
@@ -425,7 +425,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
             return this;
         }
 
-        public AacFlState DrivingDecreases(AacFlIntParameter parameter, int positiveValueToDecreaseBy)
+        public CgeAacFlState DrivingDecreases(CgeAacFlIntParameter parameter, int positiveValueToDecreaseBy)
         {
             CreateDriverBehaviorIfNotExists();
             _driver.parameters.Add(new VRC_AvatarParameterDriver.Parameter
@@ -436,7 +436,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
             return this;
         }
 
-        public AacFlState DrivingRandomizesLocally(AacFlFloatParameter parameter, float min, float max)
+        public CgeAacFlState DrivingRandomizesLocally(CgeAacFlFloatParameter parameter, float min, float max)
         {
             CreateDriverBehaviorIfNotExists();
             _driver.parameters.Add(new VRC_AvatarParameterDriver.Parameter
@@ -448,7 +448,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
             return this;
         }
 
-        public AacFlState DrivingRandomizesLocally(AacFlBoolParameter parameter, float chance)
+        public CgeAacFlState DrivingRandomizesLocally(CgeAacFlBoolParameter parameter, float chance)
         {
             CreateDriverBehaviorIfNotExists();
             _driver.parameters.Add(new VRC_AvatarParameterDriver.Parameter
@@ -460,7 +460,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
             return this;
         }
 
-        public AacFlState DrivingRandomizesLocally(AacFlIntParameter parameter, int min, int max)
+        public CgeAacFlState DrivingRandomizesLocally(CgeAacFlIntParameter parameter, int min, int max)
         {
             CreateDriverBehaviorIfNotExists();
             _driver.parameters.Add(new VRC_AvatarParameterDriver.Parameter
@@ -472,7 +472,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
             return this;
         }
 
-        public AacFlState Drives(AacFlBoolParameter parameter, bool value)
+        public CgeAacFlState Drives(CgeAacFlBoolParameter parameter, bool value)
         {
             CreateDriverBehaviorIfNotExists();
             _driver.parameters.Add(new VRC_AvatarParameterDriver.Parameter
@@ -482,7 +482,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
             return this;
         }
 
-        public AacFlState Drives(AacFlBoolParameterGroup parameters, bool value)
+        public CgeAacFlState Drives(CgeAacFlBoolParameterGroup parameters, bool value)
         {
             CreateDriverBehaviorIfNotExists();
             foreach (var parameter in parameters.ToList())
@@ -495,7 +495,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
             return this;
         }
 
-        public AacFlState DrivingLocally()
+        public CgeAacFlState DrivingLocally()
         {
             CreateDriverBehaviorIfNotExists();
             _driver.localOnly = true;
@@ -509,13 +509,13 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
             _driver.parameters = new List<VRC_AvatarParameterDriver.Parameter>();
         }
 
-        public AacFlState WithWriteDefaultsSetTo(bool shouldWriteDefaults)
+        public CgeAacFlState WithWriteDefaultsSetTo(bool shouldWriteDefaults)
         {
             State.writeDefaultValues = shouldWriteDefaults;
             return this;
         }
 
-        public AacFlState PrintsToLogUsingTrackingBehaviour(string value)
+        public CgeAacFlState PrintsToLogUsingTrackingBehaviour(string value)
         {
             CreateTrackingBehaviorIfNotExists();
             _tracking.debugString = value;
@@ -523,7 +523,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
             return this;
         }
 
-        public AacFlState TrackingTracks(TrackingElement element)
+        public CgeAacFlState TrackingTracks(TrackingElement element)
         {
             CreateTrackingBehaviorIfNotExists();
             SettingElementTo(element, VRC_AnimatorTrackingControl.TrackingType.Tracking);
@@ -531,7 +531,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
             return this;
         }
 
-        public AacFlState TrackingAnimates(TrackingElement element)
+        public CgeAacFlState TrackingAnimates(TrackingElement element)
         {
             CreateTrackingBehaviorIfNotExists();
             SettingElementTo(element, VRC_AnimatorTrackingControl.TrackingType.Animation);
@@ -539,7 +539,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
             return this;
         }
 
-        public AacFlState TrackingSets(TrackingElement element, VRC_AnimatorTrackingControl.TrackingType trackingType)
+        public CgeAacFlState TrackingSets(TrackingElement element, VRC_AnimatorTrackingControl.TrackingType trackingType)
         {
             CreateTrackingBehaviorIfNotExists();
             SettingElementTo(element, trackingType);
@@ -547,7 +547,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
             return this;
         }
 
-        public AacFlState LocomotionEnabled()
+        public CgeAacFlState LocomotionEnabled()
         {
             CreateLocomotionBehaviorIfNotExists();
             _locomotionControl.disableLocomotion = false;
@@ -555,7 +555,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
             return this;
         }
 
-        public AacFlState LocomotionDisabled()
+        public CgeAacFlState LocomotionDisabled()
         {
             CreateLocomotionBehaviorIfNotExists();
             _locomotionControl.disableLocomotion = true;
@@ -563,17 +563,17 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
             return this;
         }
 
-        public AacFlState PlayableEnables(VRC_PlayableLayerControl.BlendableLayer blendable, float blendDurationSeconds = 0f)
+        public CgeAacFlState PlayableEnables(VRC_PlayableLayerControl.BlendableLayer blendable, float blendDurationSeconds = 0f)
         {
             return PlayableSets(blendable, blendDurationSeconds, 1.0f);
         }
 
-        public AacFlState PlayableDisables(VRC_PlayableLayerControl.BlendableLayer blendable, float blendDurationSeconds = 0f)
+        public CgeAacFlState PlayableDisables(VRC_PlayableLayerControl.BlendableLayer blendable, float blendDurationSeconds = 0f)
         {
             return PlayableSets(blendable, blendDurationSeconds, 0.0f);
         }
 
-        public AacFlState PlayableSets(VRC_PlayableLayerControl.BlendableLayer blendable, float blendDurationSeconds, float weight)
+        public CgeAacFlState PlayableSets(VRC_PlayableLayerControl.BlendableLayer blendable, float blendDurationSeconds, float weight)
         {
             var playable = State.AddStateMachineBehaviour<VRCPlayableLayerControl>();
             playable.layer = blendable;
@@ -583,7 +583,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
             return this;
         }
 
-        public AacFlState PoseSpaceEntered(float delaySeconds = 0f)
+        public CgeAacFlState PoseSpaceEntered(float delaySeconds = 0f)
         {
             CreateTemporaryPoseSpaceBehaviorIfNotExists();
             _temporaryPoseSpace.enterPoseSpace = true;
@@ -593,7 +593,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
             return this;
         }
 
-        public AacFlState PoseSpaceExited(float delaySeconds = 0f)
+        public CgeAacFlState PoseSpaceExited(float delaySeconds = 0f)
         {
             CreateTemporaryPoseSpaceBehaviorIfNotExists();
             _temporaryPoseSpace.enterPoseSpace = false;
@@ -603,7 +603,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
             return this;
         }
 
-        public AacFlState PoseSpaceEnteredPercent(float delayNormalized)
+        public CgeAacFlState PoseSpaceEnteredPercent(float delayNormalized)
         {
             CreateTemporaryPoseSpaceBehaviorIfNotExists();
             _temporaryPoseSpace.enterPoseSpace = true;
@@ -613,7 +613,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
             return this;
         }
 
-        public AacFlState PoseSpaceExitedPercent(float delayNormalized)
+        public CgeAacFlState PoseSpaceExitedPercent(float delayNormalized)
         {
             CreateTemporaryPoseSpaceBehaviorIfNotExists();
             _temporaryPoseSpace.enterPoseSpace = false;
@@ -623,7 +623,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
             return this;
         }
 
-        public AacFlState MotionTime(AacFlFloatParameter floatParam)
+        public CgeAacFlState MotionTime(CgeAacFlFloatParameter floatParam)
         {
             State.timeParameterActive = true;
             State.timeParameter = floatParam.Name;
@@ -631,7 +631,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
             return this;
         }
 
-        public AacFlState WithCycleOffset(AacFlFloatParameter floatParam)
+        public CgeAacFlState WithCycleOffset(CgeAacFlFloatParameter floatParam)
         {
             State.cycleOffsetParameterActive = false;
             State.cycleOffsetParameter = floatParam.Name;
@@ -639,7 +639,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
             return this;
         }
 
-        public AacFlState WithCycleOffsetSetTo(float cycleOffset)
+        public CgeAacFlState WithCycleOffsetSetTo(float cycleOffset)
         {
             State.cycleOffsetParameterActive = false;
             State.cycleOffset = cycleOffset;
@@ -718,7 +718,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
             Mouth
         }
 
-        public AacFlState WithSpeed(AacFlFloatParameter parameter)
+        public CgeAacFlState WithSpeed(CgeAacFlFloatParameter parameter)
         {
             State.speedParameterActive = true;
             State.speedParameter = parameter.Name;
@@ -726,7 +726,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
             return this;
         }
 
-        public AacFlState WithSpeedSetTo(float speed)
+        public CgeAacFlState WithSpeedSetTo(float speed)
         {
             State.speedParameterActive = false;
             State.speed = speed;
@@ -756,58 +756,58 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
         }
     }
 
-    public class AacFlTransition : AacFlNewTransitionContinuation
+    public class CgeAacFlTransition : CgeAacFlNewTransitionContinuation
     {
         private readonly AnimatorStateTransition _transition;
 
-        public AacFlTransition(AnimatorStateTransition transition, AnimatorStateMachine machine, AacTransitionEndpoint sourceNullableIfAny, AacTransitionEndpoint destinationNullableIfExits) : base(transition, machine, sourceNullableIfAny, destinationNullableIfExits)
+        public CgeAacFlTransition(AnimatorStateTransition transition, AnimatorStateMachine machine, CgeAacTransitionEndpoint sourceNullableIfAny, CgeAacTransitionEndpoint destinationNullableIfExits) : base(transition, machine, sourceNullableIfAny, destinationNullableIfExits)
         {
             _transition = transition;
         }
 
-        public AacFlTransition WithSourceInterruption()
+        public CgeAacFlTransition WithSourceInterruption()
         {
             _transition.interruptionSource = TransitionInterruptionSource.Source;
             return this;
         }
 
-        public AacFlTransition WithInterruption(TransitionInterruptionSource interruptionSource)
+        public CgeAacFlTransition WithInterruption(TransitionInterruptionSource interruptionSource)
         {
             _transition.interruptionSource = interruptionSource;
             return this;
         }
 
-        public AacFlTransition WithTransitionDurationSeconds(float transitionDuration)
+        public CgeAacFlTransition WithTransitionDurationSeconds(float transitionDuration)
         {
             _transition.duration = transitionDuration;
             return this;
         }
 
-        public AacFlTransition WithOrderedInterruption()
+        public CgeAacFlTransition WithOrderedInterruption()
         {
             _transition.orderedInterruption = true;
             return this;
         }
 
-        public AacFlTransition WithNoOrderedInterruption()
+        public CgeAacFlTransition WithNoOrderedInterruption()
         {
             _transition.orderedInterruption = false;
             return this;
         }
 
-        public AacFlTransition WithTransitionToSelf()
+        public CgeAacFlTransition WithTransitionToSelf()
         {
             _transition.canTransitionToSelf = true;
             return this;
         }
 
-        public AacFlTransition WithNoTransitionToSelf()
+        public CgeAacFlTransition WithNoTransitionToSelf()
         {
             _transition.canTransitionToSelf = false;
             return this;
         }
 
-        public AacFlTransition AfterAnimationFinishes()
+        public CgeAacFlTransition AfterAnimationFinishes()
         {
             _transition.hasExitTime = true;
             _transition.exitTime = 1;
@@ -815,7 +815,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
             return this;
         }
 
-        public AacFlTransition AfterAnimationIsAtLeastAtPercent(float exitTimeNormalized)
+        public CgeAacFlTransition AfterAnimationIsAtLeastAtPercent(float exitTimeNormalized)
         {
             _transition.hasExitTime = true;
             _transition.exitTime = exitTimeNormalized;
@@ -823,7 +823,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
             return this;
         }
 
-        public AacFlTransition WithTransitionDurationPercent(float transitionDurationNormalized)
+        public CgeAacFlTransition WithTransitionDurationPercent(float transitionDurationNormalized)
         {
             _transition.hasFixedDuration = false;
             _transition.duration = transitionDurationNormalized;
@@ -832,47 +832,47 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
         }
     }
 
-    public class AacFlEntryTransition : AacFlNewTransitionContinuation
+    public class CgeAacFlEntryTransition : CgeAacFlNewTransitionContinuation
     {
-        public AacFlEntryTransition(AnimatorTransition transition, AnimatorStateMachine machine, AnimatorState sourceNullableIfAny, AacTransitionEndpoint destinationNullableIfExits) : base(transition, machine, sourceNullableIfAny, destinationNullableIfExits)
+        public CgeAacFlEntryTransition(AnimatorTransition transition, AnimatorStateMachine machine, AnimatorState sourceNullableIfAny, CgeAacTransitionEndpoint destinationNullableIfExits) : base(transition, machine, sourceNullableIfAny, destinationNullableIfExits)
         {
         }
     }
 
-    public interface IAacFlCondition
+    public interface ICgeAacFlCondition
     {
-        void ApplyTo(AacFlCondition appender);
+        void ApplyTo(CgeAacFlCondition appender);
     }
 
-    public interface IAacFlOrCondition
+    public interface ICgeAacFlOrCondition
     {
-        List<AacFlTransitionContinuation> ApplyTo(AacFlNewTransitionContinuation firstContinuation);
+        List<CgeAacFlTransitionContinuation> ApplyTo(CgeAacFlNewTransitionContinuation firstContinuation);
     }
 
-    public class AacFlCondition
+    public class CgeAacFlCondition
     {
         private readonly AnimatorTransitionBase _transition;
 
-        public AacFlCondition(AnimatorTransitionBase transition)
+        public CgeAacFlCondition(AnimatorTransitionBase transition)
         {
             _transition = transition;
         }
 
-        public AacFlCondition Add(string parameter, AnimatorConditionMode mode, float threshold)
+        public CgeAacFlCondition Add(string parameter, AnimatorConditionMode mode, float threshold)
         {
             _transition.AddCondition(mode, threshold, parameter);
             return this;
         }
     }
 
-    public class AacFlNewTransitionContinuation
+    public class CgeAacFlNewTransitionContinuation
     {
         public readonly AnimatorTransitionBase Transition;
         private readonly AnimatorStateMachine _machine;
-        private readonly AacTransitionEndpoint _sourceNullableIfAny;
-        private readonly AacTransitionEndpoint _destinationNullableIfExits;
+        private readonly CgeAacTransitionEndpoint _sourceNullableIfAny;
+        private readonly CgeAacTransitionEndpoint _destinationNullableIfExits;
 
-        public AacFlNewTransitionContinuation(AnimatorTransitionBase transition, AnimatorStateMachine machine, AacTransitionEndpoint sourceNullableIfAny, AacTransitionEndpoint destinationNullableIfExits)
+        public CgeAacFlNewTransitionContinuation(AnimatorTransitionBase transition, AnimatorStateMachine machine, CgeAacTransitionEndpoint sourceNullableIfAny, CgeAacTransitionEndpoint destinationNullableIfExits)
         {
             Transition = transition;
             _machine = machine;
@@ -887,18 +887,18 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
         /// <code>
         /// .When(_aac.BoolParameter(my.myBoolParameterName).IsTrue())
         /// .And(_aac.BoolParameter(my.myIntParameterName).IsGreaterThan(2))
-        /// .And(AacAv3.ItIsLocal())
+        /// .And(CgeAacAv3.ItIsLocal())
         /// .Or()
         /// .When(_aac.BoolParameters(
         ///     my.myBoolParameterName,
         ///     my.myOtherBoolParameterName
         /// ).AreTrue())
-        /// .And(AacAv3.ItIsRemote());
+        /// .And(CgeAacAv3.ItIsRemote());
         /// </code>
         /// </example>
-        public AacFlTransitionContinuation When(IAacFlCondition action)
+        public CgeAacFlTransitionContinuation When(ICgeAacFlCondition action)
         {
-            action.ApplyTo(new AacFlCondition(Transition));
+            action.ApplyTo(new CgeAacFlCondition(Transition));
             return AsContinuationWithOr();
         }
 
@@ -907,9 +907,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
         /// </summary>
         /// <param name="actionsWithoutOr"></param>
         /// <returns></returns>
-        public AacFlTransitionContinuation When(Action<AacFlTransitionContinuationWithoutOr> actionsWithoutOr)
+        public CgeAacFlTransitionContinuation When(Action<CgeAacFlTransitionContinuationWithoutOr> actionsWithoutOr)
         {
-            actionsWithoutOr(new AacFlTransitionContinuationWithoutOr(Transition));
+            actionsWithoutOr(new CgeAacFlTransitionContinuationWithoutOr(Transition));
             return AsContinuationWithOr();
         }
 
@@ -918,7 +918,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
         /// </summary>
         /// <param name="actionsWithOr"></param>
         /// <returns></returns>
-        public AacFlTransitionContinuationOnlyOr When(Action<AacFlNewTransitionContinuation> actionsWithOr)
+        public CgeAacFlTransitionContinuationOnlyOr When(Action<CgeAacFlNewTransitionContinuation> actionsWithOr)
         {
             actionsWithOr(this);
             return AsContinuationOnlyOr();
@@ -929,31 +929,31 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
         /// </summary>
         /// <param name="actionsWithOr"></param>
         /// <returns></returns>
-        public AacFlMultiTransitionContinuation When(IAacFlOrCondition actionsWithOr)
+        public CgeAacFlMultiTransitionContinuation When(ICgeAacFlOrCondition actionsWithOr)
         {
             var pendingContinuations = actionsWithOr.ApplyTo(this);
-            return new AacFlMultiTransitionContinuation(Transition, _machine, _sourceNullableIfAny, _destinationNullableIfExits, pendingContinuations);
+            return new CgeAacFlMultiTransitionContinuation(Transition, _machine, _sourceNullableIfAny, _destinationNullableIfExits, pendingContinuations);
         }
 
-        public AacFlTransitionContinuation WhenConditions()
+        public CgeAacFlTransitionContinuation WhenConditions()
         {
             return AsContinuationWithOr();
         }
 
-        private AacFlTransitionContinuation AsContinuationWithOr()
+        private CgeAacFlTransitionContinuation AsContinuationWithOr()
         {
-            return new AacFlTransitionContinuation(Transition, _machine, _sourceNullableIfAny, _destinationNullableIfExits);
+            return new CgeAacFlTransitionContinuation(Transition, _machine, _sourceNullableIfAny, _destinationNullableIfExits);
         }
 
-        private AacFlTransitionContinuationOnlyOr AsContinuationOnlyOr()
+        private CgeAacFlTransitionContinuationOnlyOr AsContinuationOnlyOr()
         {
-            return new AacFlTransitionContinuationOnlyOr(Transition, _machine, _sourceNullableIfAny, _destinationNullableIfExits);
+            return new CgeAacFlTransitionContinuationOnlyOr(Transition, _machine, _sourceNullableIfAny, _destinationNullableIfExits);
         }
     }
 
-    public class AacFlTransitionContinuation : AacFlTransitionContinuationAbstractWithOr
+    public class CgeAacFlTransitionContinuation : CgeAacFlTransitionContinuationAbstractWithOr
     {
-        public AacFlTransitionContinuation(AnimatorTransitionBase transition, AnimatorStateMachine machine, AacTransitionEndpoint sourceNullableIfAny, AacTransitionEndpoint destinationNullableIfExits) : base(transition, machine, sourceNullableIfAny, destinationNullableIfExits)
+        public CgeAacFlTransitionContinuation(AnimatorTransitionBase transition, AnimatorStateMachine machine, CgeAacTransitionEndpoint sourceNullableIfAny, CgeAacTransitionEndpoint destinationNullableIfExits) : base(transition, machine, sourceNullableIfAny, destinationNullableIfExits)
         {
         }
 
@@ -962,18 +962,18 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
         /// <code>
         /// .When(_aac.BoolParameter(my.myBoolParameterName).IsTrue())
         /// .And(_aac.BoolParameter(my.myIntParameterName).IsGreaterThan(2))
-        /// .And(AacAv3.ItIsLocal())
+        /// .And(CgeAacAv3.ItIsLocal())
         /// .Or()
         /// .When(_aac.BoolParameters(
         ///     my.myBoolParameterName,
         ///     my.myOtherBoolParameterName
         /// ).AreTrue())
-        /// .And(AacAv3.ItIsRemote());
+        /// .And(CgeAacAv3.ItIsRemote());
         /// </code>
         /// </example>
-        public AacFlTransitionContinuation And(IAacFlCondition action)
+        public CgeAacFlTransitionContinuation And(ICgeAacFlCondition action)
         {
-            action.ApplyTo(new AacFlCondition(Transition));
+            action.ApplyTo(new CgeAacFlCondition(Transition));
             return this;
         }
 
@@ -982,18 +982,18 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
         /// </summary>
         /// <param name="actionsWithoutOr"></param>
         /// <returns></returns>
-        public AacFlTransitionContinuation And(Action<AacFlTransitionContinuationWithoutOr> actionsWithoutOr)
+        public CgeAacFlTransitionContinuation And(Action<CgeAacFlTransitionContinuationWithoutOr> actionsWithoutOr)
         {
-            actionsWithoutOr(new AacFlTransitionContinuationWithoutOr(Transition));
+            actionsWithoutOr(new CgeAacFlTransitionContinuationWithoutOr(Transition));
             return this;
         }
     }
 
-    public class AacFlMultiTransitionContinuation : AacFlTransitionContinuationAbstractWithOr
+    public class CgeAacFlMultiTransitionContinuation : CgeAacFlTransitionContinuationAbstractWithOr
     {
-        private readonly List<AacFlTransitionContinuation> _pendingContinuations;
+        private readonly List<CgeAacFlTransitionContinuation> _pendingContinuations;
 
-        public AacFlMultiTransitionContinuation(AnimatorTransitionBase transition, AnimatorStateMachine machine, AacTransitionEndpoint sourceNullableIfAny, AacTransitionEndpoint destinationNullableIfExits, List<AacFlTransitionContinuation> pendingContinuations) : base(transition, machine, sourceNullableIfAny, destinationNullableIfExits)
+        public CgeAacFlMultiTransitionContinuation(AnimatorTransitionBase transition, AnimatorStateMachine machine, CgeAacTransitionEndpoint sourceNullableIfAny, CgeAacTransitionEndpoint destinationNullableIfExits, List<CgeAacFlTransitionContinuation> pendingContinuations) : base(transition, machine, sourceNullableIfAny, destinationNullableIfExits)
         {
             _pendingContinuations = pendingContinuations;
         }
@@ -1003,16 +1003,16 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
         /// <code>
         /// .When(_aac.BoolParameter(my.myBoolParameterName).IsTrue())
         /// .And(_aac.BoolParameter(my.myIntParameterName).IsGreaterThan(2))
-        /// .And(AacAv3.ItIsLocal())
+        /// .And(CgeAacAv3.ItIsLocal())
         /// .Or()
         /// .When(_aac.BoolParameters(
         ///     my.myBoolParameterName,
         ///     my.myOtherBoolParameterName
         /// ).AreTrue())
-        /// .And(AacAv3.ItIsRemote());
+        /// .And(CgeAacAv3.ItIsRemote());
         /// </code>
         /// </example>
-        public AacFlMultiTransitionContinuation And(IAacFlCondition action)
+        public CgeAacFlMultiTransitionContinuation And(ICgeAacFlCondition action)
         {
             foreach (var pendingContinuation in _pendingContinuations)
             {
@@ -1027,7 +1027,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
         /// </summary>
         /// <param name="actionsWithoutOr"></param>
         /// <returns></returns>
-        public AacFlMultiTransitionContinuation And(Action<AacFlTransitionContinuationWithoutOr> actionsWithoutOr)
+        public CgeAacFlMultiTransitionContinuation And(Action<CgeAacFlTransitionContinuationWithoutOr> actionsWithoutOr)
         {
             foreach (var pendingContinuation in _pendingContinuations)
             {
@@ -1038,21 +1038,21 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
         }
     }
 
-    public class AacFlTransitionContinuationOnlyOr : AacFlTransitionContinuationAbstractWithOr
+    public class CgeAacFlTransitionContinuationOnlyOr : CgeAacFlTransitionContinuationAbstractWithOr
     {
-        public AacFlTransitionContinuationOnlyOr(AnimatorTransitionBase transition, AnimatorStateMachine machine, AacTransitionEndpoint sourceNullableIfAny, AacTransitionEndpoint destinationNullableIfExits) : base(transition, machine, sourceNullableIfAny, destinationNullableIfExits)
+        public CgeAacFlTransitionContinuationOnlyOr(AnimatorTransitionBase transition, AnimatorStateMachine machine, CgeAacTransitionEndpoint sourceNullableIfAny, CgeAacTransitionEndpoint destinationNullableIfExits) : base(transition, machine, sourceNullableIfAny, destinationNullableIfExits)
         {
         }
     }
 
-    public abstract class AacFlTransitionContinuationAbstractWithOr
+    public abstract class CgeAacFlTransitionContinuationAbstractWithOr
     {
         protected readonly AnimatorTransitionBase Transition;
         private readonly AnimatorStateMachine _machine;
-        private readonly AacTransitionEndpoint _sourceNullableIfAny;
-        private readonly AacTransitionEndpoint _destinationNullableIfExits;
+        private readonly CgeAacTransitionEndpoint _sourceNullableIfAny;
+        private readonly CgeAacTransitionEndpoint _destinationNullableIfExits;
 
-        public AacFlTransitionContinuationAbstractWithOr(AnimatorTransitionBase transition, AnimatorStateMachine machine, AacTransitionEndpoint sourceNullableIfAny, AacTransitionEndpoint destinationNullableIfExits)
+        public CgeAacFlTransitionContinuationAbstractWithOr(AnimatorTransitionBase transition, AnimatorStateMachine machine, CgeAacTransitionEndpoint sourceNullableIfAny, CgeAacTransitionEndpoint destinationNullableIfExits)
         {
             Transition = transition;
             _machine = machine;
@@ -1067,18 +1067,18 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
         /// <code>
         /// .When(_aac.BoolParameter(my.myBoolParameterName).IsTrue())
         /// .And(_aac.BoolParameter(my.myIntParameterName).IsGreaterThan(2))
-        /// .And(AacAv3.ItIsLocal())
+        /// .And(CgeAacAv3.ItIsLocal())
         /// .Or()
         /// .When(_aac.BoolParameters(
         ///     my.myBoolParameterName,
         ///     my.myOtherBoolParameterName
         /// ).AreTrue())
-        /// .And(AacAv3.ItIsRemote());
+        /// .And(CgeAacAv3.ItIsRemote());
         /// </code>
         /// </example>
-        public AacFlNewTransitionContinuation Or()
+        public CgeAacFlNewTransitionContinuation Or()
         {
-            return new AacFlNewTransitionContinuation(NewTransitionFromTemplate(), _machine, _sourceNullableIfAny, _destinationNullableIfExits);
+            return new CgeAacFlNewTransitionContinuation(NewTransitionFromTemplate(), _machine, _sourceNullableIfAny, _destinationNullableIfExits);
         }
 
         private AnimatorTransitionBase NewTransitionFromTemplate()
@@ -1161,18 +1161,18 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
         }
     }
 
-    public class AacFlTransitionContinuationWithoutOr
+    public class CgeAacFlTransitionContinuationWithoutOr
     {
         private readonly AnimatorTransitionBase _transition;
 
-        public AacFlTransitionContinuationWithoutOr(AnimatorTransitionBase transition)
+        public CgeAacFlTransitionContinuationWithoutOr(AnimatorTransitionBase transition)
         {
             _transition = transition;
         }
 
-        public AacFlTransitionContinuationWithoutOr And(IAacFlCondition action)
+        public CgeAacFlTransitionContinuationWithoutOr And(ICgeAacFlCondition action)
         {
-            action.ApplyTo(new AacFlCondition(_transition));
+            action.ApplyTo(new CgeAacFlCondition(_transition));
             return this;
         }
 
@@ -1181,36 +1181,36 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
         /// </summary>
         /// <param name="action"></param>
         /// <returns></returns>
-        public AacFlTransitionContinuationWithoutOr AndWhenever(Action<AacFlTransitionContinuationWithoutOr> action)
+        public CgeAacFlTransitionContinuationWithoutOr AndWhenever(Action<CgeAacFlTransitionContinuationWithoutOr> action)
         {
             action(this);
             return this;
         }
     }
 
-    public class AacTransitionEndpoint
+    public class CgeAacTransitionEndpoint
     {
         private readonly AnimatorState _state;
         private readonly AnimatorStateMachine _stateMachine;
 
-        public AacTransitionEndpoint(AnimatorState state)
+        public CgeAacTransitionEndpoint(AnimatorState state)
         {
             _state = state;
         }
 
-        public AacTransitionEndpoint(AnimatorStateMachine stateMachine)
+        public CgeAacTransitionEndpoint(AnimatorStateMachine stateMachine)
         {
             _stateMachine = stateMachine;
         }
 
-        public static implicit operator AacTransitionEndpoint(AnimatorState state)
+        public static implicit operator CgeAacTransitionEndpoint(AnimatorState state)
         {
-            return new AacTransitionEndpoint(state);
+            return new CgeAacTransitionEndpoint(state);
         }
 
-        public static implicit operator AacTransitionEndpoint(AnimatorStateMachine stateMachine)
+        public static implicit operator CgeAacTransitionEndpoint(AnimatorStateMachine stateMachine)
         {
-            return new AacTransitionEndpoint(stateMachine);
+            return new CgeAacTransitionEndpoint(stateMachine);
         }
 
         public bool TryGetState(out AnimatorState state)

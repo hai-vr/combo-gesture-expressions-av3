@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
 {
-    public interface IAacDefaultsProvider
+    public interface ICgeAacDefaultsProvider
     {
         void ConfigureState(AnimatorState state, AnimationClip emptyClip);
         void ConfigureTransition(AnimatorStateTransition transition);
@@ -13,11 +13,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
         void ConfigureStateMachine(AnimatorStateMachine stateMachine);
     }
 
-    public class AacDefaultsProvider : IAacDefaultsProvider
+    public class CgeAacDefaultsProvider : ICgeAacDefaultsProvider
     {
         private readonly bool _writeDefaults;
 
-        public AacDefaultsProvider(bool writeDefaults = false)
+        public CgeAacDefaultsProvider(bool writeDefaults = false)
         {
             _writeDefaults = writeDefaults;
         }

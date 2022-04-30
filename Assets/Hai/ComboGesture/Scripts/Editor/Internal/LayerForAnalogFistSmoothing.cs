@@ -28,26 +28,26 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         {
             EditorUtility.DisplayProgressBar("GestureCombo", "Creating weight correction layer", 0f);
             InitializeMachineFor(
-                _assetContainer.ExposeAac().CreateSupportingArbitraryControllerLayer(_animatorController, SmoothingLeftLayerName).WithAvatarMask(_weightCorrectionAvatarMask),
+                _assetContainer.ExposeCgeAac().CreateSupportingArbitraryControllerLayer(_animatorController, SmoothingLeftLayerName).WithAvatarMask(_weightCorrectionAvatarMask),
                 SharedLayerUtils.HaiGestureComboLeftWeightProxy,
                 SharedLayerUtils.HaiGestureComboLeftWeightSmoothing
             );
             InitializeMachineFor(
-                _assetContainer.ExposeAac().CreateSupportingArbitraryControllerLayer(_animatorController, SmoothingRightLayerName).WithAvatarMask(_weightCorrectionAvatarMask),
+                _assetContainer.ExposeCgeAac().CreateSupportingArbitraryControllerLayer(_animatorController, SmoothingRightLayerName).WithAvatarMask(_weightCorrectionAvatarMask),
                 SharedLayerUtils.HaiGestureComboRightWeightProxy,
                 SharedLayerUtils.HaiGestureComboRightWeightSmoothing
             );
         }
 
-        private void InitializeMachineFor(AacFlLayer layer, string proxyParam, string smoothingParam)
+        private void InitializeMachineFor(CgeAacFlLayer layer, string proxyParam, string smoothingParam)
         {
             var zeroClip = SmoothingClip(layer, smoothingParam, 0f);
             var oneClip = SmoothingClip(layer, smoothingParam, 1f);
             var proxyTree = InterpolationTree(layer.FloatParameter(proxyParam).Name, zeroClip, oneClip);
-            _assetContainer.ExposeAac().CGE_StoringMotion(proxyTree);
+            _assetContainer.ExposeCgeAac().CGE_StoringMotion(proxyTree);
 
             var smoothingTree = InterpolationTree(layer.FloatParameter(smoothingParam).Name, zeroClip, oneClip);
-            _assetContainer.ExposeAac().CGE_StoringMotion(smoothingTree);
+            _assetContainer.ExposeCgeAac().CGE_StoringMotion(smoothingTree);
 
             var smoothingFactor = layer.FloatParameter(SharedLayerUtils.HaiGestureComboSmoothingFactor);
             var factorTree = new BlendTree
@@ -64,7 +64,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                     new ChildMotion {motion = smoothingTree, timeScale = 1, threshold = 1}},
                 hideFlags = HideFlags.HideInHierarchy
             };
-            _assetContainer.ExposeAac().CGE_StoringMotion(factorTree);
+            _assetContainer.ExposeCgeAac().CGE_StoringMotion(factorTree);
 
             layer.OverrideValue(smoothingFactor, DefaultSmoothingFactor);
             layer.NewState("Interpolating", 1, 1)
@@ -73,9 +73,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 .Drives(smoothingFactor, DefaultSmoothingFactor);
         }
 
-        private AnimationClip SmoothingClip(AacFlLayer layer, string smoothingParam, float desiredValue)
+        private AnimationClip SmoothingClip(CgeAacFlLayer layer, string smoothingParam, float desiredValue)
         {
-            return _assetContainer.ExposeAac().NewClip().Animating(clip =>
+            return _assetContainer.ExposeCgeAac().NewClip().Animating(clip =>
             {
                 clip.AnimatesAnimator(layer.FloatParameter(smoothingParam)).WithOneFrame(desiredValue);
             }).Clip;
@@ -101,8 +101,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         public static void Delete(AssetContainer assetContainer, AnimatorController controller)
         {
-            assetContainer.ExposeAac().CGE_RemoveSupportingArbitraryControllerLayer(controller, SmoothingLeftLayerName);
-            assetContainer.ExposeAac().CGE_RemoveSupportingArbitraryControllerLayer(controller, SmoothingRightLayerName);
+            assetContainer.ExposeCgeAac().CGE_RemoveSupportingArbitraryControllerLayer(controller, SmoothingLeftLayerName);
+            assetContainer.ExposeCgeAac().CGE_RemoveSupportingArbitraryControllerLayer(controller, SmoothingRightLayerName);
         }
     }
 }

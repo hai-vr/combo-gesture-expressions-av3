@@ -168,7 +168,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 }
             }
 
-            var emptyClip = _assetContainer.ExposeAac().DummyClipLasting(1, AacFlUnit.Frames).Clip;
+            var emptyClip = _assetContainer.ExposeCgeAac().DummyClipLasting(1, CgeAacFlUnit.Frames).Clip;
 
             var manifestBindings = CreateManifestBindings(emptyClip);
 
@@ -197,7 +197,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         public void DoOverwriteAnimatorGesturePlayableLayer()
         {
-            var emptyClip = _assetContainer.ExposeAac().DummyClipLasting(1, AacFlUnit.Frames).Clip;
+            var emptyClip = _assetContainer.ExposeCgeAac().DummyClipLasting(1, CgeAacFlUnit.Frames).Clip;
 
             if (!Feature(FeatureToggles.DoNotGenerateWeightCorrectionLayer))
             {

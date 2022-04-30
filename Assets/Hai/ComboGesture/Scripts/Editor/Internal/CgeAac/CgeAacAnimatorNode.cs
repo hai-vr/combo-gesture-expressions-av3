@@ -2,18 +2,18 @@ using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
 {
-    public abstract class AacAnimatorNode
+    public abstract class CgeAacAnimatorNode
     {
         protected internal abstract Vector3 GetPosition();
         protected internal abstract void SetPosition(Vector3 position);
     }
 
-    public abstract class AacAnimatorNode<TNode> : AacAnimatorNode where TNode : AacAnimatorNode<TNode>
+    public abstract class CgeAacAnimatorNode<TNode> : CgeAacAnimatorNode where TNode : CgeAacAnimatorNode<TNode>
     {
-        protected readonly AacFlStateMachine ParentMachine;
-        protected readonly IAacDefaultsProvider DefaultsProvider;
+        protected readonly CgeAacFlStateMachine ParentMachine;
+        protected readonly ICgeAacDefaultsProvider DefaultsProvider;
 
-        protected AacAnimatorNode(AacFlStateMachine parentMachine, IAacDefaultsProvider defaultsProvider)
+        protected CgeAacAnimatorNode(CgeAacFlStateMachine parentMachine, ICgeAacDefaultsProvider defaultsProvider)
         {
             ParentMachine = parentMachine;
             DefaultsProvider = defaultsProvider;

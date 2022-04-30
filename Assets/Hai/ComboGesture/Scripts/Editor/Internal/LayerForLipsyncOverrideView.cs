@@ -8,7 +8,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         public static void Delete(AssetContainer assetContainer, AnimatorController animatorController)
         {
-            assetContainer.ExposeAac().CGE_RemoveSupportingArbitraryControllerLayer(animatorController, LipsyncLayerName);
+            assetContainer.ExposeCgeAac().CGE_RemoveSupportingArbitraryControllerLayer(animatorController, LipsyncLayerName);
         }
     }
 }

@@ -11,16 +11,16 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
     internal class GestureCExpressionCombiner
     {
         private readonly AssetContainer _assetContainer;
-        private AacFlLayer _layer;
+        private CgeAacFlLayer _layer;
         private readonly Dictionary<IAnimatedBehavior, TransitionCondition> _intermediateToCombo;
         private readonly string _activityStageName;
         private readonly bool _writeDefaultsForFaceExpressions;
         private readonly bool _useGestureWeightCorrection;
         private readonly bool _useSmoothing;
-        private readonly AacFlState _defaultState;
+        private readonly CgeAacFlState _defaultState;
 
-        public GestureCExpressionCombiner(AssetContainer assetContainer, AacFlLayer layer,
-            Dictionary<IAnimatedBehavior, TransitionCondition> intermediateToCombo, string activityStageName, bool writeDefaultsForFaceExpressions, bool useGestureWeightCorrection, bool useSmoothing, AacFlState defaultState)
+        public GestureCExpressionCombiner(AssetContainer assetContainer, CgeAacFlLayer layer,
+            Dictionary<IAnimatedBehavior, TransitionCondition> intermediateToCombo, string activityStageName, bool writeDefaultsForFaceExpressions, bool useGestureWeightCorrection, bool useSmoothing, CgeAacFlState defaultState)
         {
             _assetContainer = assetContainer;
             _layer = layer;
@@ -90,7 +90,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
         }
 
-        private void AppendToSsm(AacFlStateMachine ssm, IAnimatedBehavior behaviour, TransitionCondition condition)
+        private void AppendToSsm(CgeAacFlStateMachine ssm, IAnimatedBehavior behaviour, TransitionCondition condition)
         {
             switch (behaviour.Nature())
             {
@@ -183,7 +183,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
         }
 
-        private void ForSimpleMassiveBlend(AacFlStateMachine ssm, TransitionCondition transitionCondition, IAnimatedBehavior zero, IAnimatedBehavior one, string parameterName)
+        private void ForSimpleMassiveBlend(CgeAacFlStateMachine ssm, TransitionCondition transitionCondition, IAnimatedBehavior zero, IAnimatedBehavior one, string parameterName)
         {
             var zeroMotion = Derive(zero);
             var oneMotion = Derive(one);
@@ -193,7 +193,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 state, transitionCondition.TransitionDuration, ssm);
         }
 
-        private void ForTwoDirectionsMassiveBlend(AacFlStateMachine ssm, TransitionCondition transitionCondition, IAnimatedBehavior zero, IAnimatedBehavior one, IAnimatedBehavior minusOne, string parameterName)
+        private void ForTwoDirectionsMassiveBlend(CgeAacFlStateMachine ssm, TransitionCondition transitionCondition, IAnimatedBehavior zero, IAnimatedBehavior one, IAnimatedBehavior minusOne, string parameterName)
         {
             var zeroMotion = Derive(zero);
             var oneMotion = Derive(one);
@@ -204,7 +204,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 state, transitionCondition.TransitionDuration, ssm);
         }
 
-        private void ForComplexMassiveBlend(AacFlStateMachine ssm, TransitionCondition transitionCondition, List<IAnimatedBehavior> behaviors, BlendTree originalBlendTreeTemplate)
+        private void ForComplexMassiveBlend(CgeAacFlStateMachine ssm, TransitionCondition transitionCondition, List<IAnimatedBehavior> behaviors, BlendTree originalBlendTreeTemplate)
         {
             var motions = behaviors.Select(Derive).ToList();
             var state = CreateComplexMassiveBlendState(motions, originalBlendTreeTemplate, ToPotentialGridPosition(transitionCondition), ssm);
@@ -214,7 +214,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 state, transitionCondition.TransitionDuration, ssm);
         }
 
-        private AacFlState CreateSimpleMassiveBlendState(Motion zero, Motion one, string parameterName, Vector3 position, AacFlStateMachine ssm)
+        private CgeAacFlState CreateSimpleMassiveBlendState(Motion zero, Motion one, string parameterName, Vector3 position, CgeAacFlStateMachine ssm)
         {
             var clipName = UnshimName(zero.name) + " massive " + UnshimName(one.name);
             return ssm.NewState(SanitizeName(clipName), (int) position.x, (int) position.y)
@@ -226,7 +226,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 .WithWriteDefaultsSetTo(_writeDefaultsForFaceExpressions);
         }
 
-        private AacFlState CreateTwoDirectionsMassiveBlendState(Motion zero, Motion one, Motion minusOne, string parameterName, Vector3 position, AacFlStateMachine ssm)
+        private CgeAacFlState CreateTwoDirectionsMassiveBlendState(Motion zero, Motion one, Motion minusOne, string parameterName, Vector3 position, CgeAacFlStateMachine ssm)
         {
             var clipName = UnshimName(zero.name) + " - " + UnshimName(one.name) + " - " + UnshimName(minusOne.name);
             var blendTree = new BlendTree
@@ -249,7 +249,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 .WithWriteDefaultsSetTo(_writeDefaultsForFaceExpressions);
         }
 
-        private void ForSingle(AacFlStateMachine ssm, TransitionCondition transitionCondition, SingleAnimatedBehavior intermediateAnimationGroup)
+        private void ForSingle(CgeAacFlStateMachine ssm, TransitionCondition transitionCondition, SingleAnimatedBehavior intermediateAnimationGroup)
         {
             var state = CreateMotionState(intermediateAnimationGroup.Posing.Clip,
                 ToPotentialGridPosition(transitionCondition), ssm);
@@ -260,7 +260,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 ssm);
         }
 
-        private AacFlState CreateComplexMassiveBlendState(List<Motion> motions, BlendTree originalBlendTreeTemplate, Vector3 position, AacFlStateMachine ssm)
+        private CgeAacFlState CreateComplexMassiveBlendState(List<Motion> motions, BlendTree originalBlendTreeTemplate, Vector3 position, CgeAacFlStateMachine ssm)
         {
             var clipName = UnshimName(originalBlendTreeTemplate.name) + " complex";
 
@@ -322,7 +322,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             return GridPosition((int)transitionCondition.Permutation.Right, positionInList * 8 + (int)transitionCondition.Permutation.Left);
         }
 
-        private void ForAnalog(AacFlStateMachine ssm, TransitionCondition transitionCondition, Motion squeezing, Motion resting, HandSide handSide)
+        private void ForAnalog(CgeAacFlStateMachine ssm, TransitionCondition transitionCondition, Motion squeezing, Motion resting, HandSide handSide)
         {
             var nullableTransition = GetNullableStageValue(transitionCondition);
             var offset = ToPotentialGridPosition(transitionCondition);
@@ -352,7 +352,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         //     }
         // }
 
-        private void ForDualAnalog(AacFlStateMachine ssm, TransitionCondition transitionCondition, Motion bothSqueezing, Motion resting, Motion leftSqueezingClip, Motion rightSqueezingClip)
+        private void ForDualAnalog(CgeAacFlStateMachine ssm, TransitionCondition transitionCondition, Motion bothSqueezing, Motion resting, Motion leftSqueezingClip, Motion rightSqueezingClip)
         {
             var nullableTransition = GetNullableStageValue(transitionCondition);
             var blendState = CreateDualBlendState(bothSqueezing,
@@ -363,7 +363,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 transitionCondition.TransitionDuration, ssm);
         }
 
-        private void ForPuppet(AacFlStateMachine ssm, TransitionCondition transitionCondition, PuppetAnimatedBehavior intermediateAnimationGroup)
+        private void ForPuppet(CgeAacFlStateMachine ssm, TransitionCondition transitionCondition, PuppetAnimatedBehavior intermediateAnimationGroup)
         {
             var nullableTransition = GetNullableStageValue(transitionCondition);
             var positionInList = transitionCondition.LayerOrdinal;
@@ -372,17 +372,17 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             CreateTransitions(nullableTransition, transitionCondition.Permutation, blendState, transitionCondition.TransitionDuration, ssm);
         }
 
-        private AacFlState CreateMotionState(AnimationClip clip, Vector3 gridPosition, AacFlStateMachine ssm)
+        private CgeAacFlState CreateMotionState(AnimationClip clip, Vector3 gridPosition, CgeAacFlStateMachine ssm)
         {
             return ssm.NewState(SanitizeName(UnshimName(clip.name)), (int) gridPosition.x, (int) gridPosition.y)
                 .WithAnimation(clip)
                 .WithWriteDefaultsSetTo(_writeDefaultsForFaceExpressions);
         }
 
-        private void CreateTransitions(int? stageValue, Permutation permutation, AacFlState state, float transitionDuration, AacFlStateMachine ssm)
+        private void CreateTransitions(int? stageValue, Permutation permutation, CgeAacFlState state, float transitionDuration, CgeAacFlStateMachine ssm)
         {
             var entryConditions = ssm.EntryTransitionsTo(state).WhenConditions();
-            Func<AacFlTransition> exitTransitionGenerator = () => state.Exits()
+            Func<CgeAacFlTransition> exitTransitionGenerator = () => state.Exits()
                 .WithTransitionDurationSeconds(transitionDuration);
 
             if (permutation != null)
@@ -398,7 +398,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
         }
 
-        private AacFlState CreateSidedBlendState(Motion squeezing, Vector3 offset, Motion resting, Vector3 gridPosition, bool isLeftSide, AacFlStateMachine ssm)
+        private CgeAacFlState CreateSidedBlendState(Motion squeezing, Vector3 offset, Motion resting, Vector3 gridPosition, bool isLeftSide, CgeAacFlStateMachine ssm)
         {
             var clipName = UnshimName(squeezing.name) + " " + (isLeftSide ? "BlendLeft" : "BlendRight") + " " + UnshimName(resting.name);
             var position = offset + gridPosition;
@@ -435,7 +435,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             return "GestureRightWeight";
         }
 
-        private AacFlState CreateDualBlendState(Motion clip, Motion resting, Vector3 position, Motion posingLeft, Motion posingRight, AacFlStateMachine ssm)
+        private CgeAacFlState CreateDualBlendState(Motion clip, Motion resting, Vector3 position, Motion posingLeft, Motion posingRight, CgeAacFlStateMachine ssm)
         {
             var clipName = UnshimName(clip.name) + " Dual " + UnshimName(resting.name);
             return ssm.NewState(SanitizeName(clipName), (int) position.x, (int) position.y)
@@ -443,7 +443,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 .WithWriteDefaultsSetTo(_writeDefaultsForFaceExpressions);
         }
 
-        private AacFlState CreatePuppetState(BlendTree tree, Vector3 position, AacFlStateMachine ssm)
+        private CgeAacFlState CreatePuppetState(BlendTree tree, Vector3 position, CgeAacFlStateMachine ssm)
         {
             var clipName = UnshimName(tree.name) + " Puppet";
             return ssm.NewState(SanitizeName(clipName), (int) position.x, (int) position.y)
@@ -512,7 +512,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         private void RegisterBlendTreeAsAsset(BlendTree blendTree)
         {
-            _assetContainer.ExposeAac().CGE_StoringMotion(blendTree);
+            _assetContainer.ExposeCgeAac().CGE_StoringMotion(blendTree);
         }
 
         private static int? GetNullableStageValue(TransitionCondition transitionCondition)

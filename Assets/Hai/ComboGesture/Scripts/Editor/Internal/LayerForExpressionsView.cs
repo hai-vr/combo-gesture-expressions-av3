@@ -167,9 +167,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
         }
 
-        private AacFlLayer ReinitializeLayer(AvatarMask avatarMaskNullable)
+        private CgeAacFlLayer ReinitializeLayer(AvatarMask avatarMaskNullable)
         {
-            return _assetContainer.ExposeAac().CreateSupportingArbitraryControllerLayer(_animatorController, "Hai_GestureExp")
+            return _assetContainer.ExposeCgeAac().CreateSupportingArbitraryControllerLayer(_animatorController, "Hai_GestureExp")
                 .WithAvatarMask(avatarMaskNullable != null ? avatarMaskNullable : _expressionsAvatarMask);
         }
 
