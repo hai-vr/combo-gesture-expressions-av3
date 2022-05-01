@@ -94,7 +94,7 @@ namespace Hai.ExpressionsEditor.Scripts.Editor.EditorUI.EditorWindows
             GUILayout.EndVertical();
             GUILayout.EndHorizontal();
 
-            _scrollPos = GUILayout.BeginScrollView(_scrollPos, GUILayout.Height(Screen.height - EditorGUIUtility.singleLineHeight * 6));
+            _scrollPos = GUILayout.BeginScrollView(_scrollPos, GUILayout.Height(position.height - EditorGUIUtility.singleLineHeight * 6));
             GUILayout.BeginHorizontal();
 
             var widthRun = HalfWidth + TempBorder;
@@ -178,7 +178,7 @@ namespace Hai.ExpressionsEditor.Scripts.Editor.EditorUI.EditorWindows
                 GUILayout.EndVertical();
 
                 widthRun += HalfWidth + TempBorder;
-                if (Screen.width < widthRun)
+                if (position.width < widthRun)
                 {
                     widthRun = HalfWidth + TempBorder;
                     GUILayout.FlexibleSpace();
