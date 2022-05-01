@@ -36,10 +36,13 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         {
             var intern = _layer.NewSubStateMachine("Internal");
             intern.Restarts();
+            intern.WithEntryPosition(-1, -1);
+            intern.WithExitPosition(1, _composedBehaviours.Count + 1);
+
             _defaultState.CGE_AutomaticallyMovesTo(intern);
 
             var ssms = _composedBehaviours
-                .Select(behaviour => intern.NewSubStateMachine($"Activity {behaviour.StageValue}"))
+                .Select((behaviour, i) => intern.NewSubStateMachine($"Activity {behaviour.StageValue}").At(0, i))
                 .ToArray();
 
             for (var index = 0; index < ssms.Length; index++)
@@ -98,26 +101,42 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         private void BuildPcb(CgeAacFlStateMachine ssm, PermutationComposedBehaviour composed)
         {
-            foreach (var pair in composed.Behaviors)
+            foreach (HandPose right in Enum.GetValues(typeof(HandPose)))
             {
-                var permutation = pair.Key;
-                var behavior = pair.Value;
+                var rightSsm = ssm.NewSubStateMachine($"Right {right}").At((int) right, 0);
+                ssm.EntryTransitionsTo(rightSsm).When(_layer.Av3().GestureRight.IsEqualTo((int) right));
 
-                var state = AppendToSsm(ssm, behavior).At((int)permutation.Right, (int)permutation.Left);
-                ssm.EntryTransitionsTo(state)
-                    .When(_layer.Av3().GestureLeft.IsEqualTo((int) permutation.Left))
-                    .And(_layer.Av3().GestureRight.IsEqualTo((int) permutation.Right));
-                state.Exits()
-                    .WithTransitionDurationSeconds(composed.TransitionDuration)
-                    .When(_layer.Av3().GestureLeft.IsNotEqualTo((int) permutation.Left))
-                    .Or().When(_layer.Av3().GestureRight.IsNotEqualTo((int) permutation.Right));
+                var restartCondition = rightSsm.Restarts().When(_layer.Av3().GestureRight.IsEqualTo((int) right));
                 if (_activityStageName != null)
                 {
+                    restartCondition.And(_layer.IntParameter(_activityStageName).IsEqualTo(composed.StageValue));
+                }
+                rightSsm.Exits();
+                rightSsm.WithEntryPosition(-1, -1);
+                rightSsm.WithExitPosition(1, 8);
+
+                foreach (HandPose left in Enum.GetValues(typeof(HandPose)))
+                {
+                    var permutation = Permutation.LeftRight(left, right);
+                    var state = AppendToSsm(rightSsm, composed.Behaviors[permutation]).At((int)permutation.Right, (int)permutation.Left);
+
+                    rightSsm.EntryTransitionsTo(state)
+                        .When(_layer.Av3().GestureLeft.IsEqualTo((int) permutation.Left));
                     state.Exits()
                         .WithTransitionDurationSeconds(composed.TransitionDuration)
-                        .When(_layer.IntParameter(_activityStageName).IsNotEqualTo(composed.StageValue));
+                        .When(_layer.Av3().GestureLeft.IsNotEqualTo((int) permutation.Left))
+                        .Or().When(_layer.Av3().GestureRight.IsNotEqualTo((int) permutation.Right));
+                    if (_activityStageName != null)
+                    {
+                        state.Exits()
+                            .WithTransitionDurationSeconds(composed.TransitionDuration)
+                            .When(_layer.IntParameter(_activityStageName).IsNotEqualTo(composed.StageValue));
+                    }
                 }
             }
+
+            ssm.WithEntryPosition(-1, -1);
+            ssm.WithExitPosition(9, -1);
         }
 
         private void BuildOcb(CgeAacFlStateMachine ssm, OneHandComposedBehaviour composed)
@@ -141,6 +160,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                         .When(_layer.IntParameter(_activityStageName).IsNotEqualTo(composed.StageValue));
                 }
             }
+
+            ssm.WithEntryPosition(-1, -1);
+            ssm.WithExitPosition(1, 8);
         }
 
         private void BuildScb(CgeAacFlStateMachine ssm, SingularComposedBehaviour composed)
