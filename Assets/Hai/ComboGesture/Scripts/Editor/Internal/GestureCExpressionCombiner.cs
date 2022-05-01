@@ -58,6 +58,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                     AppendToSsm(ordinalToSsm.Value, behaviourToCondition.Key, behaviourToCondition.Value);
                 }
 
+                ordinalToSsm.Value.Restarts().When(_layer.IntParameter(_activityStageName).IsEqualTo(ordinalToSsm.Key));
                 ordinalToSsm.Value.Exits();
             }
 
