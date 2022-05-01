@@ -14,8 +14,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
     internal class ComboGestureCompilerInternal
     {
-        private const string GesturePlayableLayerAvatarMaskPath = "Assets/Hai/ComboGesture/Hai_ComboGesture_Nothing.mask";
-
         private readonly string _activityStageName;
         private readonly List<GestureComboStageMapper> _comboLayers;
         private readonly AnimatorController _animatorController;
@@ -38,6 +36,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly ParameterGeneration _parameterGeneration;
         private readonly bool _useSmoothing;
         private readonly bool _universalAnalogSupport;
+        private readonly AvatarMask _nothingMask;
+        private readonly AvatarMask _noTransformsMask;
 
         public ComboGestureCompilerInternal(
             ComboGestureCompiler compiler,
@@ -71,11 +71,18 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _compilerIgnoreParamList = compiler.ignoreParamList;
             _compilerFallbackParamList = compiler.fallbackParamList;
             _avatarDescriptor = compiler.avatarDescriptor;
-            _expressionsAvatarMask = compiler.expressionsAvatarMask ? compiler.expressionsAvatarMask : AssetDatabase.LoadAssetAtPath<AvatarMask>(SharedLayerUtils.FxPlayableLayerAvatarMaskPath);
-            _logicalAvatarMask = compiler.logicalAvatarMask ? compiler.logicalAvatarMask : AssetDatabase.LoadAssetAtPath<AvatarMask>(SharedLayerUtils.FxPlayableLayerAvatarMaskPath);
-            _weightCorrectionAvatarMask = compiler.weightCorrectionAvatarMask ? compiler.weightCorrectionAvatarMask : AssetDatabase.LoadAssetAtPath<AvatarMask>(SharedLayerUtils.FxPlayableLayerAvatarMaskPath);
-            _gesturePlayableLayerExpressionsAvatarMask = compiler.gesturePlayableLayerExpressionsAvatarMask ? compiler.gesturePlayableLayerExpressionsAvatarMask : AssetDatabase.LoadAssetAtPath<AvatarMask>(GesturePlayableLayerAvatarMaskPath);
-            _gesturePlayableLayerTechnicalAvatarMask = compiler.gesturePlayableLayerTechnicalAvatarMask ? compiler.gesturePlayableLayerTechnicalAvatarMask : AssetDatabase.LoadAssetAtPath<AvatarMask>(GesturePlayableLayerAvatarMaskPath);
+
+            _nothingMask = CreateNothingMask();
+            _assetContainer.AddAvatarMask(_nothingMask);
+
+            _noTransformsMask = CreateNoTransformsMask();
+            _assetContainer.AddAvatarMask(_noTransformsMask);
+
+            _expressionsAvatarMask = compiler.expressionsAvatarMask ? compiler.expressionsAvatarMask : _noTransformsMask;
+            _logicalAvatarMask = compiler.logicalAvatarMask ? compiler.logicalAvatarMask : _noTransformsMask;
+            _weightCorrectionAvatarMask = compiler.weightCorrectionAvatarMask ? compiler.weightCorrectionAvatarMask : _noTransformsMask;
+            _gesturePlayableLayerExpressionsAvatarMask = compiler.gesturePlayableLayerExpressionsAvatarMask ? compiler.gesturePlayableLayerExpressionsAvatarMask : _nothingMask;
+            _gesturePlayableLayerTechnicalAvatarMask = compiler.gesturePlayableLayerTechnicalAvatarMask ? compiler.gesturePlayableLayerTechnicalAvatarMask : _nothingMask;
             _assetContainer = assetContainer;
             _useGestureWeightCorrection = compiler.WillUseGestureWeightCorrection();
             _useSmoothing = _useGestureWeightCorrection;
@@ -117,20 +124,48 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         public void IntegrateWeightCorrection()
         {
-            var avatarMaskPath = AssetDatabase.LoadAssetAtPath<AvatarMask>(GesturePlayableLayerAvatarMaskPath);
             CreateOrReplaceWeightCorrection(
-                avatarMaskPath,
+                _nothingMask,
                 _assetContainer,
                 _animatorController,
                 _conflictPrevention,
                 _universalAnalogSupport
             );
-            CreateOrReplaceSmoothing(avatarMaskPath, _assetContainer, _animatorController, _conflictPrevention);
+            CreateOrReplaceSmoothing(_nothingMask, _assetContainer, _animatorController, _conflictPrevention);
 
             ReapAnimator(_animatorController);
 
             AssetDatabase.Refresh();
             EditorUtility.ClearProgressBar();
+        }
+
+        private static AvatarMask CreateNothingMask()
+        {
+            var avatarMask = new AvatarMask();
+            for (var i = 0; i < (int) AvatarMaskBodyPart.LastBodyPart; i++)
+            {
+                avatarMask.SetHumanoidBodyPartActive((AvatarMaskBodyPart) i, false);
+            }
+
+            return avatarMask;
+        }
+
+        private static AvatarMask CreateNoTransformsMask()
+        {
+            var avatarMask = new AvatarMask();
+            if (true)
+            {
+                avatarMask.transformCount = 1;
+                avatarMask.SetTransformActive(0, false);
+                avatarMask.SetTransformPath(0, "_ignored");
+            }
+
+            for (int i = 0; i < (int) AvatarMaskBodyPart.LastBodyPart; i++)
+            {
+                avatarMask.SetHumanoidBodyPartActive((AvatarMaskBodyPart) i, false);
+            }
+
+            return avatarMask;
         }
 
         public void DoOverwriteAnimatorFxLayer()
@@ -317,7 +352,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         {
             var gesturePlayableLayerExpressionsAvatarMask = _gesturePlayableLayerExpressionsAvatarMask
                 ? _gesturePlayableLayerExpressionsAvatarMask
-                : AssetDatabase.LoadAssetAtPath<AvatarMask>(GesturePlayableLayerAvatarMaskPath);
+                : _nothingMask;
 
             var avatarFallbacks = new CgeAvatarSnapshot(_avatarDescriptor, _compilerFallbackParamList).CaptureFallbacks();
             new LayerForExpressionsView(

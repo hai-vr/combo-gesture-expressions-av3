@@ -11,8 +11,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
     internal class SharedLayerUtils
     {
-        internal const string FxPlayableLayerAvatarMaskPath = "Assets/Hai/ComboGesture/Hai_ComboGesture_FX_HideTransformsAndMuscles.mask";
-
         internal const string HaiGestureComboLeftWeightProxy = "_Hai_GestureLWProxy";
         internal const string HaiGestureComboRightWeightProxy = "_Hai_GestureRWProxy";
         internal const string HaiVirtualActivity = "_Hai_GestureVirtualActivity";
