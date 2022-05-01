@@ -34,7 +34,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         public void Create()
         {
-            EditorUtility.DisplayProgressBar("GestureCombo", "Clearing eyes blinking override layer", 0f);
+            EditorUtility.DisplayProgressBar("ComboGestureExpressions", "Clearing eyes blinking override layer", 0f);
             var layer = ReinitializeLayer();
 
             if (!_manifestBindings.Any(manifest => manifest.Manifest.RequiresBlinking()))

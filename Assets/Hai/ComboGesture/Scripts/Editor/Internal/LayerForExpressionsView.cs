@@ -58,7 +58,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         public void Create()
         {
-            EditorUtility.DisplayProgressBar("GestureCombo", "Generating animations", 0f);
+            EditorUtility.DisplayProgressBar("ComboGestureExpressions", "Generating animations", 0f);
 
             var activityManifests = _manifestBindings;
             var animationNeutralizer = new AnimationNeutralizer(

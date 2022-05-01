@@ -28,10 +28,10 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         internal void Create()
         {
-            EditorUtility.DisplayProgressBar("GestureCombo", "Clearing virtual activity layer", 0f);
+            EditorUtility.DisplayProgressBar("ComboGestureExpressions", "Clearing virtual activity layer", 0f);
             var layer = ReinitializeLayerAsMachinist();
 
-            EditorUtility.DisplayProgressBar("GestureCombo", "Creating virtual activity layer", 0f);
+            EditorUtility.DisplayProgressBar("ComboGestureExpressions", "Creating virtual activity layer", 0f);
 
             var init = layer.NewState("Init", 3, 3)
                 .WithWriteDefaultsSetTo(_writeDefaultsForLogicalStates);

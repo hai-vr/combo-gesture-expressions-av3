@@ -27,7 +27,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         internal void Create()
         {
-            EditorUtility.DisplayProgressBar("GestureCombo", "Creating weight correction layer", 0f);
+            EditorUtility.DisplayProgressBar("ComboGestureExpressions", "Creating weight correction layer", 0f);
             InitializeMachineFor(
                 _assetContainer.ExposeCgeAac().CreateSupportingArbitraryControllerLayer(_animatorController, WeightCorrectionLeftLayerName)
                     .WithAvatarMask(_weightCorrectionAvatarMask),
