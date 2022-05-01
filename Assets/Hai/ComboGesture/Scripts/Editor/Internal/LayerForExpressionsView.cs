@@ -22,7 +22,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly ConflictFxLayerMode _compilerConflictFxLayerMode;
         private readonly AnimationClip _compilerIgnoreParamList;
         private readonly AnimationClip _compilerFallbackParamList;
-        private readonly List<CurveKey> _blinkBlendshapes;
         private readonly AnimatorController _animatorController;
         private readonly bool _useGestureWeightCorrection;
         private readonly bool _useSmoothing;
@@ -37,7 +36,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             ConflictFxLayerMode compilerConflictFxLayerMode,
             AnimationClip compilerIgnoreParamList,
             AnimationClip compilerFallbackParamList,
-            List<CurveKey> blinkBlendshapes,
             AnimatorController animatorController,
             bool useGestureWeightCorrection,
             bool useSmoothing,
@@ -52,7 +50,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _compilerConflictFxLayerMode = compilerConflictFxLayerMode;
             _compilerIgnoreParamList = compilerIgnoreParamList;
             _compilerFallbackParamList = compilerFallbackParamList;
-            _blinkBlendshapes = blinkBlendshapes;
             _animatorController = animatorController;
             _useGestureWeightCorrection = useGestureWeightCorrection;
             _useSmoothing = useSmoothing;
@@ -69,7 +66,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 _compilerConflictFxLayerMode,
                 _compilerIgnoreParamList,
                 _compilerFallbackParamList,
-                _blinkBlendshapes,
                 _assetContainer,
                 _conflictPrevention.ShouldGenerateExhaustiveAnimations,
                 _emptyClip,

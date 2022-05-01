@@ -18,7 +18,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly HashSet<CurveKey> _ignoreObjectReferences;
         private readonly Dictionary<CurveKey, float> _curveKeyToFallbackValue;
         private readonly Dictionary<CurveKey, Object> _objectReferenceToFallbackValue;
-        private readonly List<CurveKey> _blinkBlendshapes;
         private readonly AssetContainer _assetContainer;
         private readonly bool _useExhaustiveAnimations;
         private readonly AnimationClip _emptyClip;
@@ -28,7 +27,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             ConflictFxLayerMode compilerConflictFxLayerMode,
             AnimationClip compilerIgnoreParamList,
             AnimationClip compilerFallbackParamList,
-            List<CurveKey> blinkBlendshapes,
             AssetContainer assetContainer,
             bool useExhaustiveAnimations,
             AnimationClip emptyClip,
@@ -40,7 +38,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _ignoreObjectReferences = compilerIgnoreParamList == null ? new HashSet<CurveKey>() : ExtractAllObjectReferencesOf(compilerIgnoreParamList);
             _curveKeyToFallbackValue = compilerFallbackParamList == null ? new Dictionary<CurveKey, float>() : ExtractFirstKeyframeValueOf(compilerFallbackParamList);
             _objectReferenceToFallbackValue = compilerFallbackParamList == null ? new Dictionary<CurveKey, Object>() : ExtractFirstKeyframeObjectReferenceOf(compilerFallbackParamList);
-            _blinkBlendshapes = blinkBlendshapes;
             _assetContainer = assetContainer;
             _useExhaustiveAnimations = useExhaustiveAnimations;
             _emptyClip = emptyClip;
@@ -436,7 +433,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 .Select(CurveKey.FromBinding)
                 .ToList();
 
-            var curveKeys = new[]{allCurveKeysFromAnimations, _blinkBlendshapes}
+            var curveKeys = new[]{allCurveKeysFromAnimations}
                 .SelectMany(keys => keys)
                 .Where(curveKey => !_ignoreCurveKeys.Contains(curveKey))
                 .Where(curveKey =>

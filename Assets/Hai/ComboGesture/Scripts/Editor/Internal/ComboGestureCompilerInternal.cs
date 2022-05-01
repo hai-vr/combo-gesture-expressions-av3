@@ -37,7 +37,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly bool _useSmoothing;
         private readonly bool _universalAnalogSupport;
         private readonly AvatarMask _nothingMask;
-        private readonly AvatarMask _noTransformsMask;
 
         public ComboGestureCompilerInternal(
             ComboGestureCompiler compiler,
@@ -73,12 +72,12 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _nothingMask = CreateNothingMask();
             _assetContainer.AddAvatarMask(_nothingMask);
 
-            _noTransformsMask = CreateNoTransformsMask();
-            _assetContainer.AddAvatarMask(_noTransformsMask);
+            var noTransformsMask = CreateNoTransformsMask();
+            _assetContainer.AddAvatarMask(noTransformsMask);
 
-            _expressionsAvatarMask = compiler.expressionsAvatarMask ? compiler.expressionsAvatarMask : _noTransformsMask;
-            _logicalAvatarMask = compiler.logicalAvatarMask ? compiler.logicalAvatarMask : _noTransformsMask;
-            _weightCorrectionAvatarMask = compiler.weightCorrectionAvatarMask ? compiler.weightCorrectionAvatarMask : _noTransformsMask;
+            _expressionsAvatarMask = compiler.expressionsAvatarMask ? compiler.expressionsAvatarMask : noTransformsMask;
+            _logicalAvatarMask = compiler.logicalAvatarMask ? compiler.logicalAvatarMask : noTransformsMask;
+            _weightCorrectionAvatarMask = compiler.weightCorrectionAvatarMask ? compiler.weightCorrectionAvatarMask : noTransformsMask;
             _gesturePlayableLayerExpressionsAvatarMask = compiler.gesturePlayableLayerExpressionsAvatarMask ? compiler.gesturePlayableLayerExpressionsAvatarMask : _nothingMask;
             _gesturePlayableLayerTechnicalAvatarMask = compiler.gesturePlayableLayerTechnicalAvatarMask ? compiler.gesturePlayableLayerTechnicalAvatarMask : _nothingMask;
             _assetContainer = assetContainer;
@@ -336,7 +335,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 _compilerConflictFxLayerMode,
                 _compilerIgnoreParamList,
                 avatarFallbacks,
-                new List<CurveKey>(),
                 _animatorController,
                 _useGestureWeightCorrection,
                 _useSmoothing,
@@ -361,7 +359,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 ConflictFxLayerMode.KeepOnlyTransforms,
                 _compilerIgnoreParamList,
                 avatarFallbacks,
-                new List<CurveKey>(),
                 _animatorController,
                 _useGestureWeightCorrection,
                 _useSmoothing,
