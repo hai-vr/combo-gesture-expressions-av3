@@ -70,10 +70,10 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _avatarDescriptor = compiler.avatarDescriptor;
 
             _nothingMask = CreateNothingMask();
-            _assetContainer.AddAvatarMask(_nothingMask);
+            assetContainer.AddAvatarMask(_nothingMask);
 
             var noTransformsMask = CreateNoTransformsMask();
-            _assetContainer.AddAvatarMask(noTransformsMask);
+            assetContainer.AddAvatarMask(noTransformsMask);
 
             _expressionsAvatarMask = compiler.expressionsAvatarMask ? compiler.expressionsAvatarMask : noTransformsMask;
             _logicalAvatarMask = compiler.logicalAvatarMask ? compiler.logicalAvatarMask : noTransformsMask;
