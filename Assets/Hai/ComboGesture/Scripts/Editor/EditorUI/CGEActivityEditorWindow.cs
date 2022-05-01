@@ -35,7 +35,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
     public class CgeEditorWindow : EditorWindow
     {
-        private const int RightSpace = 30 + 120 + 220;
+        private const int RightSpace = 30 + 120 + 220 + 170;
         private CgeLayoutCommon _common;
         private CgeEditorEffector _editorEffector;
         private CgeLayoutPreventEyesBlinking _layoutPreventEyesBlinking;
@@ -46,6 +46,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         private Vector2 _scrollPos;
         private Texture _helpIcon16;
+        private CgeActivityPreviewQueryAggregator _activityPreviewQueryAggregator;
         public CgeWindowHandler WindowHandler { get; private set; }
 
         private void OnEnable()
@@ -54,13 +55,13 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             var blendTreeEffector = new CgeBlendTreeEffector();
             var memoization = Cge.Get().Memoization;
             var renderingCommands = new EeRenderingCommands();
-            var activityPreviewQueryAggregator = new CgeActivityPreviewQueryAggregator(memoization, _editorEffector, blendTreeEffector, renderingCommands);
+            _activityPreviewQueryAggregator = new CgeActivityPreviewQueryAggregator(memoization, _editorEffector, blendTreeEffector, renderingCommands);
             var cgeMemoryQuery = new CgeMemoryQuery(memoization);
-            _common = new CgeLayoutCommon(Repaint, _editorEffector, activityPreviewQueryAggregator, cgeMemoryQuery);
+            _common = new CgeLayoutCommon(Repaint, _editorEffector, _activityPreviewQueryAggregator, cgeMemoryQuery);
             var driver = new CgeActivityEditorDriver(_editorEffector);
             _layoutPreventEyesBlinking = new CgeLayoutPreventEyesBlinking(_common, _editorEffector);
-            _layoutFaceExpressionCombiner = new CgeLayoutFaceExpressionCombiner(_common, driver, _editorEffector, renderingCommands, activityPreviewQueryAggregator);
-            _layoutOtherOptions = new CgeLayoutOtherOptions(_common, _editorEffector, activityPreviewQueryAggregator);
+            _layoutFaceExpressionCombiner = new CgeLayoutFaceExpressionCombiner(_common, driver, _editorEffector, renderingCommands, _activityPreviewQueryAggregator);
+            _layoutOtherOptions = new CgeLayoutOtherOptions(_common, _editorEffector, _activityPreviewQueryAggregator);
             _layoutSetFaceExpressions = new CgeLayoutSetFaceExpressions(_common, driver, _layoutFaceExpressionCombiner /* FIXME it is not normal to inject the layout here */, _editorEffector, Repaint, blendTreeEffector);
             _layoutManipulateTrees = new CgeLayoutManipulateTrees(_common, _editorEffector, blendTreeEffector);
 
@@ -110,6 +111,14 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             {
                 _editorEffector.ClearFirstTimeSetup();
             }
+
+
+            GUILayout.BeginArea(new Rect(position.width - 320 - 170, CgeLayoutCommon.SingleLineHeight * 2 + 5, 200, CgeLayoutCommon.SingleLineHeight + 2));
+            if (GUILayout.Button(new GUIContent(CgeLocale.CGEE_Regenerate_all_previews), GUILayout.Width(170), GUILayout.Height(CgeLayoutCommon.SingleLineHeight + 2)))
+            {
+                _activityPreviewQueryAggregator.GenerateAll(Repaint);
+            }
+            GUILayout.EndArea();
 
             GUILayout.BeginArea(new Rect(position.width - 320, CgeLayoutCommon.SingleLineHeight * 2 + 5, 200, CgeLayoutCommon.SingleLineHeight + 2));
             if (GUILayout.Button(new GUIContent("❈ ExpressionsEditor"), GUILayout.Width(170), GUILayout.Height(CgeLayoutCommon.SingleLineHeight + 2)))
