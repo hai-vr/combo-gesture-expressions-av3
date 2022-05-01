@@ -18,12 +18,6 @@ namespace Hai.ComboGesture.Scripts.Components
         public AnimationClip customEmptyClip;
         public float analogBlinkingUpperThreshold = 0.95f;
 
-        public bool exposeDisableExpressions; // Deprecated
-        public bool exposeDisableBlinkingOverride; // Deprecated
-        public bool exposeAreEyesClosed; // Deprecated
-
-        public bool doNotGenerateControllerLayer; // Deprecated
-        public bool forceGenerationOfControllerLayer; // Deprecated
         public bool doNotGenerateBlinkingOverrideLayer;
         public bool doNotGenerateWeightCorrectionLayer;
 
@@ -33,14 +27,11 @@ namespace Hai.ComboGesture.Scripts.Components
         public AvatarMask gesturePlayableLayerExpressionsAvatarMask;
         public AvatarMask gesturePlayableLayerTechnicalAvatarMask;
 
-        public ConflictPreventionMode conflictPreventionMode; // Deprecated
         public WriteDefaultsRecommendationMode writeDefaultsRecommendationMode = WriteDefaultsRecommendationMode.FollowVrChatRecommendationWriteDefaultsOff;
         public WriteDefaultsRecommendationMode writeDefaultsRecommendationModeGesture = WriteDefaultsRecommendationMode.UseUnsupportedWriteDefaultsOn;
         public GestureLayerTransformCapture gestureLayerTransformCapture = GestureLayerTransformCapture.CaptureDefaultTransformsFromAvatar;
-        public ConflictPreventionMode conflictPreventionTempGestureLayerMode = ConflictPreventionMode.UseRecommendedConfiguration; // Deprecated
         public ConflictFxLayerMode conflictFxLayerMode = ConflictFxLayerMode.RemoveTransformsAndMuscles;
         public WeightCorrectionMode weightCorrectionMode = WeightCorrectionMode.UseRecommendedConfiguration;
-        public BlinkCorrectionMode blinkCorrectionMode = BlinkCorrectionMode.UseRecommendedConfiguration; // Deprecated
 
         public bool useViveAdvancedControlsForNonFistAnalog;
 
@@ -97,12 +88,6 @@ namespace Hai.ComboGesture.Scripts.Components
     }
 
     [System.Serializable]
-    public enum ConflictPreventionMode
-    {
-        UseRecommendedConfiguration, OnlyWriteDefaults, GenerateAnimationsWithWriteDefaults, GenerateAnimationsWithoutWriteDefaults
-    }
-
-    [System.Serializable]
     public enum WriteDefaultsRecommendationMode
     {
         FollowVrChatRecommendationWriteDefaultsOff, UseUnsupportedWriteDefaultsOn
@@ -123,12 +108,6 @@ namespace Hai.ComboGesture.Scripts.Components
     public enum WeightCorrectionMode
     {
         UseRecommendedConfiguration, UseWeightCorrection, UseNativeWeight
-    }
-
-    [System.Serializable]
-    public enum BlinkCorrectionMode
-    {
-        UseRecommendedConfiguration, UseBlinkCorrection, DoNotUseBlinkCorrection
     }
 
     [System.Serializable]
