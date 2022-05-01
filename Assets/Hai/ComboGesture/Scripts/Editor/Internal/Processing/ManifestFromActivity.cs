@@ -29,12 +29,12 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Processing
             return new PermutationManifest(poses, 0f);
         }
 
-        public static PermutationManifest FromActivity(ComboGestureActivity activity, AnimationClip defaultClip, bool universalAnalogSupport)
+        public static IManifest FromActivity(ComboGestureActivity activity, AnimationClip defaultClip, bool universalAnalogSupport)
         {
             return new ManifestFromActivity(activity, defaultClip, universalAnalogSupport).Resolve();
         }
 
-        private PermutationManifest Resolve()
+        private IManifest Resolve()
         {
             var isOneHandMode = _activity.oneHandMode != ComboGestureActivity.CgeOneHandMode.Disabled;
             if (isOneHandMode) return OneHand();
@@ -282,31 +282,27 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Processing
             return new PermutationManifest(poses, _activity.transitionDuration);
         }
 
-        private PermutationManifest OneHand()
+        private OneHandManifest OneHand()
         {
-            var poses = new Dictionary<Permutation, IAnimatedBehavior>();
+            var poses = new Dictionary<HandPose, IAnimatedBehavior>();
             var handSide = _activity.oneHandMode == ComboGestureActivity.CgeOneHandMode.LeftHandOnly ? HandSide.LeftHand : HandSide.RightHand;
-            for (var activeHand = HandPose.H0; activeHand <= HandPose.H7; activeHand++)
+            foreach (HandPose handPose in Enum.GetValues(typeof(HandPose)))
             {
-                for (var ignoredHand = HandPose.H0; ignoredHand <= HandPose.H7; ignoredHand++)
+                if (_universalAnalogSupport)
                 {
-                    var permutation = handSide == HandSide.LeftHand ? Permutation.LeftRight(activeHand, ignoredHand) : Permutation.LeftRight(ignoredHand, activeHand);
-                    if (_universalAnalogSupport)
-                    {
-                        poses.Add(permutation, InterpretAnalog(Just(_activity.anim00), Just(OneHandMotionOf(_activity, activeHand)), handSide));
-                    }
-                    else if (activeHand == HandPose.H1)
-                    {
-                        poses.Add(permutation, InterpretAnalog(Just(_activity.anim00), Just(_activity.anim01), handSide));
-                    }
-                    else
-                    {
-                        poses.Add(permutation, InterpretSingle(Just(OneHandMotionOf(_activity, activeHand))));
-                    }
+                    poses.Add(handPose, InterpretAnalog(Just(_activity.anim00), Just(OneHandMotionOf(_activity, handPose)), handSide));
+                }
+                else if (handPose == HandPose.H1)
+                {
+                    poses.Add(handPose, InterpretAnalog(Just(_activity.anim00), Just(_activity.anim01), handSide));
+                }
+                else
+                {
+                    poses.Add(handPose, InterpretSingle(Just(OneHandMotionOf(_activity, handPose))));
                 }
             }
 
-            return new PermutationManifest(poses, _activity.transitionDuration);
+            return new OneHandManifest(poses, _activity.transitionDuration, _activity.oneHandMode == ComboGestureActivity.CgeOneHandMode.LeftHandOnly);
         }
 
         private static Motion OneHandMotionOf(ComboGestureActivity activity, HandPose activeHand)

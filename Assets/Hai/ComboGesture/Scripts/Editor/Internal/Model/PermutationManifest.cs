@@ -34,7 +34,85 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
 
     public enum ManifestKind
     {
-        Permutation, Puppet, Massive
+        Permutation, Puppet, Massive, OneHand
+    }
+
+    public class OneHandManifest : IManifest
+    {
+        public ReadOnlyDictionary<HandPose, IAnimatedBehavior> Poses { get; }
+        public bool IsLeftHand;
+
+        private readonly float _transitionDuration;
+
+        public OneHandManifest(Dictionary<HandPose, IAnimatedBehavior> poses, float transitionDuration, bool isLeftHand)
+        {
+            Poses = new ReadOnlyDictionary<HandPose, IAnimatedBehavior>(poses);
+            IsLeftHand = isLeftHand;
+            _transitionDuration = transitionDuration;
+        }
+
+        public ManifestKind Kind()
+        {
+            return ManifestKind.OneHand;
+        }
+
+        public float TransitionDuration()
+        {
+            return _transitionDuration;
+        }
+
+        public bool RequiresBlinking()
+        {
+            return Poses.Values.Any(behavior => behavior.QualifiedAnimations().Any(animation => animation.Qualification.IsBlinking));
+        }
+
+        public IEnumerable<QualifiedAnimation> AllQualifiedAnimations()
+        {
+            return Poses.Values.SelectMany(behavior => behavior.QualifiedAnimations()).ToList();
+        }
+
+        public IEnumerable<BlendTree> AllBlendTreesFoundRecursively()
+        {
+            return Poses.Values.SelectMany(behavior => behavior.AllBlendTreesFoundRecursively()).Distinct().ToList();
+        }
+
+        public IManifest NewFromRemappedAnimations(Dictionary<QualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)
+        {
+            var newPoses = new Dictionary<HandPose, IAnimatedBehavior>(Poses);
+            foreach (var handPose in newPoses.Keys.ToList())
+            {
+                newPoses[handPose] = newPoses[handPose].Remapping(remapping, blendRemapping);
+            }
+
+            return new OneHandManifest(newPoses, _transitionDuration, IsLeftHand);
+        }
+
+        public IManifest UsingRemappedWeights(Dictionary<BlendTree, AutoWeightTreeMapping> autoWeightRemapping)
+        {
+            var remappingLeft = autoWeightRemapping.ToDictionary(pair => pair.Key, pair => pair.Value.LeftHand);
+            var remappingRight = autoWeightRemapping.ToDictionary(pair => pair.Key, pair => pair.Value.RightHand);
+            var emptyDict = new Dictionary<QualifiedAnimation, AnimationClip>();
+
+            var newPoses = new Dictionary<HandPose, IAnimatedBehavior>(Poses);
+            foreach (var pair in Poses)
+            {
+                newPoses[pair.Key] = pair.Value.Remapping(emptyDict, IsLeftHand ? remappingLeft : remappingRight);
+            }
+
+            return new OneHandManifest(newPoses, _transitionDuration, IsLeftHand);
+        }
+
+        public PermutationManifest ToEquatedPermutation()
+        {
+            var dict = new Dictionary<Permutation, IAnimatedBehavior>();
+
+            foreach (var permutation in Permutation.All())
+            {
+                dict.Add(permutation, IsLeftHand ? Poses[permutation.Left] : Poses[permutation.Right]);
+            }
+
+            return new PermutationManifest(dict, _transitionDuration);
+        }
     }
 
     public class PermutationManifest : IManifest

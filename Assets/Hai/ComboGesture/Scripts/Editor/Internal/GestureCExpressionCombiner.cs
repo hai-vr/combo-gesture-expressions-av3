@@ -51,6 +51,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                     case PermutationComposedBehaviour pcb:
                         BuildPcb(ssm, pcb);
                         break;
+                    case OneHandComposedBehaviour ocb:
+                        BuildOcb(ssm, ocb);
+                        break;
                     case SingularComposedBehaviour scb:
                         BuildScb(ssm, scb);
                         break;
@@ -108,6 +111,29 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                     .WithTransitionDurationSeconds(composed.TransitionDuration)
                     .When(_layer.Av3().GestureLeft.IsNotEqualTo((int) permutation.Left))
                     .Or().When(_layer.Av3().GestureRight.IsNotEqualTo((int) permutation.Right));
+                if (_activityStageName != null)
+                {
+                    state.Exits()
+                        .WithTransitionDurationSeconds(composed.TransitionDuration)
+                        .When(_layer.IntParameter(_activityStageName).IsNotEqualTo(composed.StageValue));
+                }
+            }
+        }
+
+        private void BuildOcb(CgeAacFlStateMachine ssm, OneHandComposedBehaviour composed)
+        {
+            var which = composed.IsLeftHand ? _layer.Av3().GestureLeft : _layer.Av3().GestureRight;
+            foreach (var pair in composed.Behaviors)
+            {
+                var handPose = pair.Key;
+                var behavior = pair.Value;
+
+                var state = AppendToSsm(ssm, behavior).At(0, (int)handPose);
+                ssm.EntryTransitionsTo(state)
+                    .When(which.IsEqualTo((int) handPose));
+                state.Exits()
+                    .WithTransitionDurationSeconds(composed.TransitionDuration)
+                    .When(which.IsNotEqualTo((int) handPose));
                 if (_activityStageName != null)
                 {
                     state.Exits()

@@ -19,6 +19,14 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         public Dictionary<Permutation, IAnimatedBehavior> Behaviors;
     }
 
+    public class OneHandComposedBehaviour : IComposedBehaviour
+    {
+        public int StageValue { get; set; }
+        public float TransitionDuration { get; set; }
+        public Dictionary<HandPose, IAnimatedBehavior> Behaviors;
+        public bool IsLeftHand;
+    }
+
     public class SingularComposedBehaviour : IComposedBehaviour
     {
         public int StageValue { get; set; }
@@ -56,6 +64,14 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                             StageValue = binding.StageValue,
                             TransitionDuration = massiveManifest.TransitionDuration(),
                             Behaviors = DecomposeMassiveIntoBehaviors(massiveManifest)
+                        };
+                    case OneHandManifest oneHandManifest:
+                        return new OneHandComposedBehaviour
+                        {
+                            StageValue = binding.StageValue,
+                            TransitionDuration = oneHandManifest.TransitionDuration(),
+                            Behaviors = new Dictionary<HandPose, IAnimatedBehavior>(oneHandManifest.Poses),
+                            IsLeftHand = oneHandManifest.IsLeftHand
                         };
                     default:
                         throw new ArgumentOutOfRangeException();

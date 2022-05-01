@@ -26,8 +26,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         public List<ManifestBinding> MutateAndCorrectExistingBlendTrees()
         {
+            var remappables = new HashSet<ManifestKind>(new[] {ManifestKind.Permutation, ManifestKind.Massive, ManifestKind.OneHand});
             var mappings = _activityManifests
-                .Where(binding => binding.Manifest.Kind() == ManifestKind.Permutation || binding.Manifest.Kind() == ManifestKind.Massive)
+                .Where(binding => remappables.Contains(binding.Manifest.Kind()))
                 .SelectMany(binding => binding.Manifest.AllBlendTreesFoundRecursively())
                 .Distinct()
                 .Where(tree =>
@@ -60,7 +61,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             return _activityManifests
                 .Select(binding =>
                 {
-                    if (binding.Manifest.Kind() != ManifestKind.Permutation && binding.Manifest.Kind() != ManifestKind.Massive)
+                    if (!remappables.Contains(binding.Manifest.Kind()))
                     {
                         return binding;
                     }
