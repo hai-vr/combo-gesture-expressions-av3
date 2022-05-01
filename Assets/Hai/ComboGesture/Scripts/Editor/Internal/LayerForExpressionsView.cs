@@ -97,7 +97,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
             new GestureCExpressionCombiner(_assetContainer,
                 layer,
-                combinator.IntermediateToTransition,
+                combinator.ComposedBehaviours,
                 _activityStageName,
                 _conflictPrevention.ShouldWriteDefaults,
                 _useGestureWeightCorrection,

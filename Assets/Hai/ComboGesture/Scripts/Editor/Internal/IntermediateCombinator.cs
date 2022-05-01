@@ -6,47 +6,69 @@ using Hai.ComboGesture.Scripts.Editor.Internal.Model;
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
+    public interface IComposedBehaviour
+    {
+        int StageValue { get; }
+        float TransitionDuration { get; }
+    }
+
+    public class PermutationComposedBehaviour : IComposedBehaviour
+    {
+        public int StageValue { get; set; }
+        public float TransitionDuration { get; set; }
+        public Dictionary<Permutation, IAnimatedBehavior> Behaviors;
+    }
+
+    public class SingularComposedBehaviour : IComposedBehaviour
+    {
+        public int StageValue { get; set; }
+        public float TransitionDuration { get; set; }
+        public IAnimatedBehavior Behavior;
+    }
+
     internal class IntermediateCombinator
     {
-        public Dictionary<IAnimatedBehavior, TransitionCondition> IntermediateToTransition { get; }
+        public List<IComposedBehaviour> ComposedBehaviours;
 
         public IntermediateCombinator(List<ManifestBinding> activityManifests)
         {
-            var permutationRepresentation = DecomposePermutationsIntoBehaviors(activityManifests);
-            var puppetRepresentation = DecomposePuppetsIntoBehaviors(activityManifests);
-            var massiveRepresentation = DecomposeMassiveIntoBehaviors(activityManifests);
-
-            IntermediateToTransition = permutationRepresentation
-                .Concat(puppetRepresentation)
-                .Concat(massiveRepresentation)
-                .ToDictionary(pair => pair.Key, pair => pair.Value);
+            ComposedBehaviours = activityManifests.Select(binding =>
+            {
+                switch (binding.Manifest)
+                {
+                    case PermutationManifest permutationManifest:
+                        return (IComposedBehaviour)new PermutationComposedBehaviour
+                        {
+                            StageValue = binding.StageValue,
+                            TransitionDuration = permutationManifest.TransitionDuration(),
+                            Behaviors = new Dictionary<Permutation, IAnimatedBehavior>(permutationManifest.Poses)
+                        };
+                    case PuppetManifest puppetManifest:
+                        return new SingularComposedBehaviour
+                        {
+                            StageValue = binding.StageValue,
+                            TransitionDuration = puppetManifest.TransitionDuration(),
+                            Behavior = puppetManifest.Behavior
+                        };
+                    case MassiveBlendManifest massiveManifest:
+                        return new PermutationComposedBehaviour
+                        {
+                            StageValue = binding.StageValue,
+                            TransitionDuration = massiveManifest.TransitionDuration(),
+                            Behaviors = DecomposeMassiveIntoBehaviors(massiveManifest)
+                        };
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }).ToList();
         }
 
-        private static Dictionary<IAnimatedBehavior, TransitionCondition> DecomposeMassiveIntoBehaviors(List<ManifestBinding> activityManifests)
+        private static Dictionary<Permutation, IAnimatedBehavior> DecomposeMassiveIntoBehaviors(MassiveBlendManifest massiveManifest)
         {
-            var representation = activityManifests
-                .Where(binding => binding.Manifest.Kind() == ManifestKind.Massive)
-                .SelectMany(binding =>
-                {
-                    MassiveBlendManifest manifest = (MassiveBlendManifest) binding.Manifest;
-
-                    return Permutation.All().Select(currentPermutation =>
-                    {
-                        var animatedBehavior = MassiveBlendToAnimatedBehavior(manifest, currentPermutation);
-                        return new KeyValuePair<IAnimatedBehavior, TransitionCondition.ActivityBoundTransitionCondition>(
-                            animatedBehavior,
-                            new TransitionCondition.ActivityBoundTransitionCondition(
-                                binding.StageValue,
-                                manifest.TransitionDuration(),
-                                currentPermutation
-                            )
-                        );
-
-                    }).ToList();
-                })
-                .ToDictionary(pair => pair.Key, pair => (TransitionCondition)pair.Value);
-
-            return representation;
+            return Permutation.All().ToDictionary(
+                permutation => permutation,
+                permutation => MassiveBlendToAnimatedBehavior(massiveManifest, permutation)
+            );
         }
 
         private static IAnimatedBehavior MassiveBlendToAnimatedBehavior(MassiveBlendManifest manifest, Permutation currentPermutation)
@@ -83,58 +105,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         {
             var poses = manifest.EquatedManifests.Select(permutationManifest => permutationManifest.Poses[currentPermutation]).ToList();
             return ComplexMassiveBlendAnimatedBehavior.Of(poses, manifest.BlendTree);
-        }
-
-        private static Dictionary<IAnimatedBehavior, TransitionCondition> DecomposePuppetsIntoBehaviors(List<ManifestBinding> activityManifests)
-        {
-            var puppetRepresentation = new Dictionary<IAnimatedBehavior, TransitionCondition>();
-
-            var puppetManifests = activityManifests
-                .Where(binding => binding.Manifest.Kind() == ManifestKind.Puppet)
-                .ToList();
-
-            foreach (var binding in puppetManifests)
-            {
-                var puppet = (PuppetManifest) binding.Manifest;
-
-                puppetRepresentation.Add(puppet.Behavior, new TransitionCondition.PuppetBoundTransitionCondition(
-                    binding.StageValue,
-                    puppet.TransitionDuration()
-                ));
-            }
-
-            return puppetRepresentation;
-        }
-
-        private static Dictionary<IAnimatedBehavior, TransitionCondition> DecomposePermutationsIntoBehaviors(List<ManifestBinding> activityManifests)
-        {
-            return activityManifests
-                .Where(binding => binding.Manifest.Kind() == ManifestKind.Permutation)
-                .SelectMany(DecomposePermutation)
-                .ToDictionary(entry => entry.Behavior, entry => entry.TransitionCondition);
-        }
-
-        private static List<AnimToTransitionEntry> DecomposePermutation(ManifestBinding manifestBinding)
-        {
-            var manifest = (PermutationManifest)manifestBinding.Manifest;
-            return manifest.Poses
-                .Select(pair => new AnimToTransitionEntry(
-                    new TransitionCondition.ActivityBoundTransitionCondition(manifestBinding.StageValue, manifest.TransitionDuration(), pair.Key),
-                    pair.Value
-                ))
-                .ToList();
-        }
-    }
-
-    internal class AnimToTransitionEntry
-    {
-        public TransitionCondition TransitionCondition { get; }
-        public IAnimatedBehavior Behavior { get; }
-
-        public AnimToTransitionEntry(TransitionCondition transitionCondition, IAnimatedBehavior behavior)
-        {
-            TransitionCondition = transitionCondition;
-            Behavior = behavior;
         }
     }
 

@@ -30,6 +30,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
         public TNode Under() => MoveNextTo(null, 0, 1);
 
         public TNode Shift(TNode otherState, int shiftX, int shiftY) => MoveNextTo(otherState, shiftX, shiftY);
+        public TNode At(int shiftX, int shiftY)
+        {
+            SetPosition(new Vector3(shiftX * DefaultsProvider.Grid().x, shiftY * DefaultsProvider.Grid().y, 0));
+            return (TNode) this;
+        }
 
         private TNode MoveNextTo(TNode otherStateOrSecondToLastWhenNull, int x, int y)
         {
