@@ -48,13 +48,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             switch (_parameterGeneration)
             {
                 case ParameterGeneration.Unique:
-                    _activityStageName = null;
+                case ParameterGeneration.VirtualActivity:
+                    _activityStageName = SharedLayerUtils.HaiVirtualActivity;
                     break;
                 case ParameterGeneration.UserDefinedActivity:
                     _activityStageName = compiler.activityStageName;
-                    break;
-                case ParameterGeneration.VirtualActivity:
-                    _activityStageName = SharedLayerUtils.HaiVirtualActivity;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -266,8 +264,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             return _comboLayers
                 .Select((mapper, layerOrdinal) => new ManifestBinding(
                     ToParameterGeneration(mapper),
-                    SharedLayerUtils.FromMapper(mapper, emptyClip, _universalAnalogSupport),
-                    layerOrdinal
+                    SharedLayerUtils.FromMapper(mapper, emptyClip, _universalAnalogSupport)
                 ))
                 .ToList();
         }
@@ -277,11 +274,10 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             switch (_parameterGeneration)
             {
                 case ParameterGeneration.VirtualActivity:
+                case ParameterGeneration.UserDefinedActivity:
                     return mapper.internalVirtualStageValue;
                 case ParameterGeneration.Unique:
                     return 0;
-                case ParameterGeneration.UserDefinedActivity:
-                    return mapper.stageValue;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -416,13 +412,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
     {
         public int StageValue { get; }
         public IManifest Manifest { get; }
-        public int LayerOrdinal { get; }
 
-        public ManifestBinding(int stageValue, IManifest manifest, int layerOrdinal)
+        public ManifestBinding(int stageValue, IManifest manifest)
         {
             StageValue = stageValue;
             Manifest = manifest;
-            LayerOrdinal = layerOrdinal;
         }
     }
 }

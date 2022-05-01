@@ -622,6 +622,15 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
                     compiler.comboLayers[index] = mapper;
                 }
             }
+            else
+            {
+                for (var index = 0; index < compiler.comboLayers.Count; index++)
+                {
+                    var mapper = compiler.comboLayers[index];
+                    mapper.internalVirtualStageValue = mapper.stageValue;
+                    compiler.comboLayers[index] = mapper;
+                }
+            }
 
             if (compiler.avatarDescriptor.transform != null && (compiler.useGesturePlayableLayer || compiler.generatedAvatarMask != null))
             {

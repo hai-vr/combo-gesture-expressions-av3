@@ -54,7 +54,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
                 foreach (var comboLayer in _comboLayers)
                 {
-                    suspend.TransitionsTo(enableBlinking).When(layer.IntParameter(_activityStageName).IsEqualTo(comboLayer.stageValue));
+                    suspend.TransitionsTo(enableBlinking).When(layer.IntParameter(_activityStageName).IsEqualTo(comboLayer.internalVirtualStageValue));
                 }
             }
 
@@ -83,10 +83,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
             foreach (var comboLayer in _comboLayers)
             {
-                conditions.And(layer.IntParameter(_activityStageName).IsNotEqualTo(comboLayer.stageValue));
+                conditions.And(layer.IntParameter(_activityStageName).IsNotEqualTo(comboLayer.internalVirtualStageValue));
             }
         }
-
 
         private CgeAacFlLayer ReinitializeLayer()
         {

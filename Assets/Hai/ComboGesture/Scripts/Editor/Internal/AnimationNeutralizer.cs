@@ -205,7 +205,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private static ManifestBinding RemapManifest(ManifestBinding manifestBinding, Dictionary<QualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendToRemappedBlend)
         {
             var remappedManifest = manifestBinding.Manifest.NewFromRemappedAnimations(remapping, blendToRemappedBlend);
-            return new ManifestBinding(manifestBinding.StageValue, remappedManifest, manifestBinding.LayerOrdinal);
+            return new ManifestBinding(manifestBinding.StageValue, remappedManifest);
         }
 
         private Dictionary<QualifiedAnimation, AnimationClip> GenerateNeutralizedAnimationsIntoContainer(HashSet<QualifiedAnimation> allQualifiedAnimations, HashSet<CurveKey> allApplicableCurveKeys, HashSet<CurveKey> allApplicableObjectReferences)

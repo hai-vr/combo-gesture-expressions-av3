@@ -34,8 +34,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         public void Populate()
         {
-            var layerOrdinalIdxs = _intermediateToCombo
-                .Select(pair => pair.Value.LayerOrdinal)
+            var stageIdxs = _intermediateToCombo
+                .Select(pair => pair.Value.StageValue)
                 .Distinct()
                 .ToArray();
 
@@ -43,23 +43,23 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             intern.Restarts();
             _defaultState.CGE_AutomaticallyMovesTo(intern);
 
-            var ssms = layerOrdinalIdxs.ToDictionary(
-                ordinal => ordinal,
-                ordinal => intern.NewSubStateMachine($"Activity {ordinal}")
+            var ssms = stageIdxs.ToDictionary(
+                stage => stage,
+                stage => intern.NewSubStateMachine($"Activity {stage}")
             );
 
-            foreach (var ordinalToSsm in ssms)
+            foreach (var stageToSsm in ssms)
             {
                 var mine = _intermediateToCombo
-                    .Where(pair => pair.Value.LayerOrdinal == ordinalToSsm.Key)
+                    .Where(pair => pair.Value.StageValue == stageToSsm.Key)
                     .ToArray();
                 foreach (var behaviourToCondition in mine)
                 {
-                    AppendToSsm(ordinalToSsm.Value, behaviourToCondition.Key, behaviourToCondition.Value);
+                    AppendToSsm(stageToSsm.Value, behaviourToCondition.Key, behaviourToCondition.Value);
                 }
 
-                ordinalToSsm.Value.Restarts().When(_layer.IntParameter(_activityStageName).IsEqualTo(ordinalToSsm.Key));
-                ordinalToSsm.Value.Exits();
+                stageToSsm.Value.Restarts().When(_layer.IntParameter(_activityStageName).IsEqualTo(stageToSsm.Key));
+                stageToSsm.Value.Exits();
             }
 
             if (_activityStageName != null)
@@ -190,7 +190,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             var oneMotion = Derive(one);
             var state = CreateSimpleMassiveBlendState(zeroMotion, oneMotion, parameterName, ToPotentialGridPosition(transitionCondition), ssm);
             CreateTransitions(GetNullableStageValue(transitionCondition),
-                transitionCondition.Permutation,
+                transitionCondition.PermutationNullable,
                 state, transitionCondition.TransitionDuration, ssm);
         }
 
@@ -201,7 +201,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             var minusOneMotion = Derive(minusOne);
             var state = CreateTwoDirectionsMassiveBlendState(zeroMotion, oneMotion, minusOneMotion, parameterName, ToPotentialGridPosition(transitionCondition), ssm);
             CreateTransitions(GetNullableStageValue(transitionCondition),
-                transitionCondition.Permutation,
+                transitionCondition.PermutationNullable,
                 state, transitionCondition.TransitionDuration, ssm);
         }
 
@@ -211,7 +211,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             var state = CreateComplexMassiveBlendState(motions, originalBlendTreeTemplate, ToPotentialGridPosition(transitionCondition), ssm);
 
             CreateTransitions(GetNullableStageValue(transitionCondition),
-                transitionCondition.Permutation,
+                transitionCondition.PermutationNullable,
                 state, transitionCondition.TransitionDuration, ssm);
         }
 
@@ -255,7 +255,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             var state = CreateMotionState(intermediateAnimationGroup.Posing.Clip,
                 ToPotentialGridPosition(transitionCondition), ssm);
             CreateTransitions(GetNullableStageValue(transitionCondition),
-                transitionCondition.Permutation,
+                transitionCondition.PermutationNullable,
                 state,
                 transitionCondition.TransitionDuration,
                 ssm);
@@ -319,8 +319,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         private static Vector3 ToPotentialGridPosition(TransitionCondition transitionCondition)
         {
-            var positionInList = transitionCondition.LayerOrdinal;
-            return GridPosition((int)transitionCondition.Permutation.Right, positionInList * 8 + (int)transitionCondition.Permutation.Left);
+            return GridPosition((int)transitionCondition.PermutationNullable.Right, (int)transitionCondition.PermutationNullable.Left);
         }
 
         private void ForAnalog(CgeAacFlStateMachine ssm, TransitionCondition transitionCondition, Motion squeezing, Motion resting, HandSide handSide)
@@ -330,7 +329,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
             var blendState = CreateSidedBlendState(squeezing, offset, resting, Vector3.zero, handSide == HandSide.LeftHand, ssm);
 
-            CreateTransitions(nullableTransition, transitionCondition.Permutation, blendState, transitionCondition.TransitionDuration, ssm);
+            CreateTransitions(nullableTransition, transitionCondition.PermutationNullable, blendState, transitionCondition.TransitionDuration, ssm);
         }
 
         // private void ForDualAnalogOneHanded(List<TransitionCondition> transitionConditions, Motion squeezing, Motion resting, bool isLeftActive)
@@ -360,17 +359,16 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 resting, ToPotentialGridPosition(transitionCondition),
                 leftSqueezingClip, rightSqueezingClip, ssm);
 
-            CreateTransitions(nullableTransition, transitionCondition.Permutation, blendState,
+            CreateTransitions(nullableTransition, transitionCondition.PermutationNullable, blendState,
                 transitionCondition.TransitionDuration, ssm);
         }
 
         private void ForPuppet(CgeAacFlStateMachine ssm, TransitionCondition transitionCondition, PuppetAnimatedBehavior intermediateAnimationGroup)
         {
             var nullableTransition = GetNullableStageValue(transitionCondition);
-            var positionInList = transitionCondition.LayerOrdinal;
-            var blendState = CreatePuppetState(intermediateAnimationGroup.Tree, transitionCondition.Permutation == null ? GridPosition(-2, positionInList) : ToPotentialGridPosition(transitionCondition), ssm);
+            var blendState = CreatePuppetState(intermediateAnimationGroup.Tree, transitionCondition.PermutationNullable == null ? GridPosition(-2, 0) : ToPotentialGridPosition(transitionCondition), ssm);
 
-            CreateTransitions(nullableTransition, transitionCondition.Permutation, blendState, transitionCondition.TransitionDuration, ssm);
+            CreateTransitions(nullableTransition, transitionCondition.PermutationNullable, blendState, transitionCondition.TransitionDuration, ssm);
         }
 
         private CgeAacFlState CreateMotionState(AnimationClip clip, Vector3 gridPosition, CgeAacFlStateMachine ssm)

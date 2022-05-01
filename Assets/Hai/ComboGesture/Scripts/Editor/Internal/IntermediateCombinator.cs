@@ -38,8 +38,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                             new TransitionCondition.ActivityBoundTransitionCondition(
                                 binding.StageValue,
                                 manifest.TransitionDuration(),
-                                currentPermutation,
-                                binding.LayerOrdinal
+                                currentPermutation
                             )
                         );
 
@@ -100,8 +99,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
                 puppetRepresentation.Add(puppet.Behavior, new TransitionCondition.PuppetBoundTransitionCondition(
                     binding.StageValue,
-                    puppet.TransitionDuration(),
-                    binding.LayerOrdinal
+                    puppet.TransitionDuration()
                 ));
             }
 
@@ -121,7 +119,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             var manifest = (PermutationManifest)manifestBinding.Manifest;
             return manifest.Poses
                 .Select(pair => new AnimToTransitionEntry(
-                    new TransitionCondition.ActivityBoundTransitionCondition(manifestBinding.StageValue, manifest.TransitionDuration(), pair.Key, manifestBinding.LayerOrdinal),
+                    new TransitionCondition.ActivityBoundTransitionCondition(manifestBinding.StageValue, manifest.TransitionDuration(), pair.Key),
                     pair.Value
                 ))
                 .ToList();
@@ -143,42 +141,26 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
     internal abstract class TransitionCondition
     {
         public float TransitionDuration { get; }
-        public Permutation Permutation { get; } // Can be null...?
-        public int LayerOrdinal { get; }
+        public Permutation PermutationNullable { get; }
+        public int StageValue { get; }
 
-        private TransitionCondition(float transitionDuration, Permutation permutation, int layerOrdinal)
+        private TransitionCondition(float transitionDuration, Permutation permutationNullable, int stageValue)
         {
             TransitionDuration = transitionDuration;
-            Permutation = permutation;
-            LayerOrdinal = layerOrdinal;
+            PermutationNullable = permutationNullable;
+            StageValue = stageValue;
         }
 
         internal class ActivityBoundTransitionCondition : TransitionCondition
         {
-            public int StageValue { get; }
-
-            public ActivityBoundTransitionCondition(int stageValue, float transitionDuration, Permutation permutation,
-                int layerOrdinal) : base(transitionDuration, permutation, layerOrdinal)
+            public ActivityBoundTransitionCondition(int stageValue, float transitionDuration, Permutation permutationNullable) : base(transitionDuration, permutationNullable, stageValue)
             {
-                StageValue = stageValue;
             }
         }
 
         internal class PuppetBoundTransitionCondition : TransitionCondition
         {
-            public int StageValue { get; }
-
-            public PuppetBoundTransitionCondition(int stageValue, float transitionDuration,
-                int layerOrdinal) : base(transitionDuration, null, layerOrdinal)
-            {
-                StageValue = stageValue;
-            }
-        }
-
-        internal class AlwaysTransitionCondition : TransitionCondition
-        {
-            public AlwaysTransitionCondition(float transitionDuration, Permutation permutation,
-                int layerOrdinal) : base(transitionDuration, permutation, layerOrdinal)
+            public PuppetBoundTransitionCondition(int stageValue, float transitionDuration) : base(transitionDuration, null, stageValue)
             {
             }
         }
