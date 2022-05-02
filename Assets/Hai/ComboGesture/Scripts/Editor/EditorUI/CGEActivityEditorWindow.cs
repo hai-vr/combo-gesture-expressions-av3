@@ -123,7 +123,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             // GUILayout.EndArea();
 
             GUILayout.BeginArea(new Rect(position.width - 320, CgeLayoutCommon.SingleLineHeight * 2 + 5, 200, CgeLayoutCommon.SingleLineHeight + 2));
-            if (GUILayout.Button(new GUIContent("❈ ExpressionsEditor"), GUILayout.Width(170), GUILayout.Height(CgeLayoutCommon.SingleLineHeight + 2)))
+            if (GUILayout.Button(new GUIContent("❈ Visual Expressions Editor"), GUILayout.Width(170), GUILayout.Height(CgeLayoutCommon.SingleLineHeight + 2)))
             {
                 ShowExpressionsEditor(_editorEffector, null);
             }
@@ -158,7 +158,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 .GetAssemblies()
                 .SelectMany(assembly => assembly.GetTypes())
                 .First(type => type.Name == "VisualExpressionsEditorWindow");
-            if (_veeAnimator != newAnimator)
+            if (_veeAnimator != newAnimator && newAnimator != null)
             {
                 visualExpressionsEditorType.GetMethod("OpenEditor", BindingFlags.Public | BindingFlags.Static)
                     .Invoke(null, new object[] {new MenuCommand(newAnimator)});
