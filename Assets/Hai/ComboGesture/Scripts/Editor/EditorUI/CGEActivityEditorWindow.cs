@@ -5,6 +5,7 @@ using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors;
 using Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts;
 using Hai.ComboGesture.Scripts.Editor.EditorUI.Modules;
+using Hai.ComboGesture.Scripts.Editor.Internal.Model;
 using UnityEditor;
 using UnityEngine;
 using static UnityEditor.EditorGUIUtility;
@@ -15,15 +16,13 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
     {
         SetFaceExpressions,
         PreventEyesBlinking,
-        AdditionalEditors,
-        OtherOptions
+        AdditionalEditors
     }
 
     public enum PuppetEditorMode
     {
         ManipulateTrees,
-        PreventEyesBlinking,
-        OtherOptions
+        PreventEyesBlinking
     }
 
     public enum AdditionalEditorsMode
@@ -40,7 +39,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         private CgeEditorEffector _editorEffector;
         private CgeLayoutPreventEyesBlinking _layoutPreventEyesBlinking;
         private CgeLayoutFaceExpressionCombiner _layoutFaceExpressionCombiner;
-        private CgeLayoutOtherOptions _layoutOtherOptions;
         private CgeLayoutSetFaceExpressions _layoutSetFaceExpressions;
         private CgeLayoutManipulateTrees _layoutManipulateTrees;
 
@@ -61,7 +59,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             var driver = new CgeActivityEditorDriver(_editorEffector);
             _layoutPreventEyesBlinking = new CgeLayoutPreventEyesBlinking(_common, _editorEffector);
             _layoutFaceExpressionCombiner = new CgeLayoutFaceExpressionCombiner(_common, driver, _editorEffector, renderingCommands, _activityPreviewQueryAggregator);
-            _layoutOtherOptions = new CgeLayoutOtherOptions(_common, _editorEffector, _activityPreviewQueryAggregator);
             _layoutSetFaceExpressions = new CgeLayoutSetFaceExpressions(_common, driver, _layoutFaceExpressionCombiner /* FIXME it is not normal to inject the layout here */, _editorEffector, Repaint, blendTreeEffector);
             _layoutManipulateTrees = new CgeLayoutManipulateTrees(_common, _editorEffector, blendTreeEffector);
 
@@ -113,12 +110,12 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             }
 
 
-            GUILayout.BeginArea(new Rect(position.width - 320 - 170, CgeLayoutCommon.SingleLineHeight * 2 + 5, 200, CgeLayoutCommon.SingleLineHeight + 2));
-            if (GUILayout.Button(new GUIContent(CgeLocale.CGEE_Regenerate_all_previews), GUILayout.Width(170), GUILayout.Height(CgeLayoutCommon.SingleLineHeight + 2)))
-            {
-                _activityPreviewQueryAggregator.GenerateAll(Repaint);
-            }
-            GUILayout.EndArea();
+            // GUILayout.BeginArea(new Rect(position.width - 320 - 170, CgeLayoutCommon.SingleLineHeight * 2 + 5, 200, CgeLayoutCommon.SingleLineHeight + 2));
+            // if (GUILayout.Button(new GUIContent(CgeLocale.CGEE_Regenerate_all_previews), GUILayout.Width(170), GUILayout.Height(CgeLayoutCommon.SingleLineHeight + 2)))
+            // {
+            //     _activityPreviewQueryAggregator.GenerateAll(Repaint);
+            // }
+            // GUILayout.EndArea();
 
             GUILayout.BeginArea(new Rect(position.width - 320, CgeLayoutCommon.SingleLineHeight * 2 + 5, 200, CgeLayoutCommon.SingleLineHeight + 2));
             if (GUILayout.Button(new GUIContent("❈ ExpressionsEditor"), GUILayout.Width(170), GUILayout.Height(CgeLayoutCommon.SingleLineHeight + 2)))
@@ -188,9 +185,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                             throw new ArgumentOutOfRangeException();
                     }
                     break;
-                case ActivityEditorMode.OtherOptions:
-                    _layoutOtherOptions.Layout(Repaint, position);
-                    break;
                 // ReSharper disable once RedundantCaseLabel
                 case ActivityEditorMode.SetFaceExpressions:
                 default:
@@ -204,32 +198,22 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         private void CreateActivityToolbarArea()
         {
-            GUILayout.BeginArea(new Rect(0, singleLineHeight, position.width, singleLineHeight * 3));
+            GUILayout.BeginArea(new Rect(0, 0, position.width, singleLineHeight * 4));
+
+            TopBar();
+
             _editorEffector.SwitchTo((ActivityEditorMode) GUILayout.Toolbar((int) _editorEffector.CurrentActivityMode(), new[]
             {
-                CgeLocale.CGEE_Set_face_expressions, CgeLocale.CGEE_Prevent_eyes_blinking, CgeLocale.CGEE_Additional_editors, CgeLocale.CGEE_Other_options
+                CgeLocale.CGEE_Set_face_expressions, CgeLocale.CGEE_Prevent_eyes_blinking, CgeLocale.CGEE_Additional_editors
             }));
             if (_editorEffector.CurrentActivityMode() == ActivityEditorMode.SetFaceExpressions)
             {
                 GUILayout.BeginHorizontal();
                 GUILayout.Space(30);
-                if (_editorEffector.GetActivity().oneHandMode != ComboGestureActivity.CgeOneHandMode.Disabled)
+                EditorGUILayout.PropertyField(_editorEffector.SpActivityMode(), GUIContent.none, GUILayout.Width(200));
+                if (_editorEffector.GetActivity().activityMode == ComboGestureActivity.CgeActivityMode.Permutations)
                 {
-                    _editorEffector.SpEditorTool().intValue = GUILayout.Toolbar(_editorEffector.SpEditorTool().intValue, new[]
-                    {
-                        CgeLocale.CGEE_OneHandMode
-                    }, GUILayout.ExpandWidth(true));
-                }
-                else if (!_editorEffector.GetActivity().enablePermutations)
-                {
-                    _editorEffector.SpEditorTool().intValue = GUILayout.Toolbar(_editorEffector.SpEditorTool().intValue, new[]
-                    {
-                        CgeLocale.CGEE_All_combos, CgeLocale.CGEE_Permutations, CgeLocale.CGEE_OneHandMode
-                    }, GUILayout.ExpandWidth(true));
-                }
-                else
-                {
-                    _editorEffector.SpEditorTool().intValue = GUILayout.Toolbar(_editorEffector.SpEditorTool().intValue, new[] {CgeLocale.CGEE_Simplified_view, CgeLocale.CGEE_Complete_view, CgeLocale.CGEE_Permutations});
+                    _editorEffector.SpEditorTool().intValue = GUILayout.Toolbar(_editorEffector.SpEditorTool().intValue, new[] {CgeLocale.CGEE_Simplified_view, CgeLocale.CGEE_Complete_view});
                 }
                 GUILayout.Space(RightSpace);
                 GUILayout.EndHorizontal();
@@ -242,6 +226,17 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             }
 
             GUILayout.EndArea();
+        }
+
+        private void TopBar()
+        {
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.PropertyField(_editorEffector.SpPreviewSetup(), new GUIContent(CgeLocale.CGEE_Preview_setup));
+            if (GUILayout.Button(new GUIContent(CgeLocale.CGEE_Regenerate_all_previews), GUILayout.Width(170), GUILayout.Height(CgeLayoutCommon.SingleLineHeight + 2)))
+            {
+                _activityPreviewQueryAggregator.GenerateAll(Repaint);
+            }
+            EditorGUILayout.EndHorizontal();
         }
 
         private void EditingAPuppet()
@@ -257,10 +252,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 case PuppetEditorMode.PreventEyesBlinking:
                     _layoutPreventEyesBlinking.Layout(position);
                     break;
-                case PuppetEditorMode.OtherOptions:
-                    _layoutOtherOptions.Layout(Repaint, position);
-                    break;
-                // ReSharper disable once RedundantCaseLabel
                 case PuppetEditorMode.ManipulateTrees:
                 default:
                     _layoutManipulateTrees.Layout(position);
@@ -273,10 +264,12 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         private void CreatePuppetToolbarArea()
         {
-            GUILayout.BeginArea(new Rect(0, singleLineHeight, position.width, singleLineHeight * 3));
+            GUILayout.BeginArea(new Rect(0, 0, position.width, singleLineHeight * 4));
+            TopBar();
+
             _editorEffector.SwitchTo((PuppetEditorMode) GUILayout.Toolbar((int) _editorEffector.CurrentPuppetMode(), new[]
             {
-                CgeLocale.CGEE_Manipulate_trees, CgeLocale.CGEE_Prevent_eyes_blinking, CgeLocale.CGEE_Other_options
+                CgeLocale.CGEE_Manipulate_trees, CgeLocale.CGEE_Prevent_eyes_blinking
             }));
             GUILayout.EndArea();
         }

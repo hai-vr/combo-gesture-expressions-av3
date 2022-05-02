@@ -29,11 +29,12 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
 
         public void Layout(Rect position)
         {
-            if (_editorEffector.GetActivity().oneHandMode != ComboGestureActivity.CgeOneHandMode.Disabled)
+            var mode = _editorEffector.GetActivity().activityMode;
+            if (mode == ComboGestureActivity.CgeActivityMode.LeftHandOnly || mode == ComboGestureActivity.CgeActivityMode.RightHandOnly)
             {
                 LayoutOneHandEditor(position);
             }
-            else if (_editorEffector.GetActivity().enablePermutations)
+            else if (_editorEffector.GetActivity().activityMode == ComboGestureActivity.CgeActivityMode.Permutations)
             {
                 LayoutPermutationEditor(position);
             }
@@ -70,20 +71,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
 
         private void LayoutActivityEditor(Rect position)
         {
-            switch (_editorEffector.SpEditorTool().intValue)
-            {
-                case 1:
-                    LayoutAllPermutationTogglePage();
-                    break;
-                case 2:
-                    LayoutAllOneHandModePage();
-                    break;
-                default:
-                    BeginLayoutUsing(CgeLayoutCommon.GuiSquareHeight * 8, position);
-                    LayoutFullMatrixProjection();
-                    CgeLayoutCommon.EndLayout();
-                    break;
-            }
+            BeginLayoutUsing(CgeLayoutCommon.GuiSquareHeight * 8, position);
+            LayoutFullMatrixProjection();
+            CgeLayoutCommon.EndLayout();
         }
 
         private void LayoutAllPermutationTogglePage()
@@ -167,9 +157,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                     BeginPermutationLayoutUsing(position);
                     LayoutPermutationMatrixProjection(true);
                     CgeLayoutCommon.EndLayout();
-                    break;
-                case 2:
-                    LayoutAllPermutationTogglePage();
                     break;
                 case 1:
                 default:

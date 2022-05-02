@@ -31,11 +31,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
         public void RetargetActivity(ComboGestureActivity activity)
         {
             _editorEffector.NowEditingActivity(activity);
-            if (!_editorEffector.IsPreviewSetupValid())
-            {
-                _editorEffector.SwitchTo(ActivityEditorMode.OtherOptions);
-                _editorEffector.MarkFirstTimeSetup();
-            }
 
             _window.titleContent = new GUIContent("CGE/" + activity.name);
         }
@@ -49,11 +44,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
         public void RetargetPuppet(ComboGesturePuppet puppet)
         {
             _editorEffector.NowEditingPuppet(puppet);
-            if (!_editorEffector.IsPreviewSetupValid())
-            {
-                _editorEffector.SwitchTo(PuppetEditorMode.OtherOptions);
-                _editorEffector.MarkFirstTimeSetup();
-            }
 
             _window.titleContent = new GUIContent("CGE/" + puppet.name);
         }

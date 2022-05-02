@@ -36,7 +36,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Processing
 
         private IManifest Resolve()
         {
-            var isOneHandMode = _activity.oneHandMode != ComboGestureActivity.CgeOneHandMode.Disabled;
+            var isOneHandMode = _activity.activityMode == ComboGestureActivity.CgeActivityMode.LeftHandOnly
+                                || _activity.activityMode == ComboGestureActivity.CgeActivityMode.RightHandOnly;
             if (isOneHandMode) return OneHand();
             if (_universalAnalogSupport) return UniversalAnalog();
             return Regular();
@@ -228,7 +229,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Processing
             poses.Add(Permutation.LeftRight(HandPose.H6, HandPose.H7), InterpretSingle(Just(_activity.anim67)));
             poses.Add(Permutation.LeftRight(HandPose.H7, HandPose.H7), InterpretSingle(Just(_activity.anim77)));
 
-            if (_activity.enablePermutations)
+            if (_activity.activityMode == ComboGestureActivity.CgeActivityMode.Permutations)
             {
                 poses.Add(Permutation.LeftRight(HandPose.H1, HandPose.H0), InterpretAnalog(Just(_activity.anim00), Otherwise(_activity.anim10, _activity.anim01), HandSide.LeftHand));
                 poses.Add(Permutation.LeftRight(HandPose.H2, HandPose.H0), InterpretSingle(Otherwise(_activity.anim20, _activity.anim02)));
@@ -285,7 +286,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Processing
         private OneHandManifest OneHand()
         {
             var poses = new Dictionary<HandPose, IAnimatedBehavior>();
-            var handSide = _activity.oneHandMode == ComboGestureActivity.CgeOneHandMode.LeftHandOnly ? HandSide.LeftHand : HandSide.RightHand;
+            var handSide = _activity.activityMode == ComboGestureActivity.CgeActivityMode.LeftHandOnly ? HandSide.LeftHand : HandSide.RightHand;
             foreach (HandPose handPose in Enum.GetValues(typeof(HandPose)))
             {
                 if (_universalAnalogSupport)
@@ -302,7 +303,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Processing
                 }
             }
 
-            return new OneHandManifest(poses, _activity.transitionDuration, _activity.oneHandMode == ComboGestureActivity.CgeOneHandMode.LeftHandOnly);
+            return new OneHandManifest(poses, _activity.transitionDuration, _activity.activityMode == ComboGestureActivity.CgeActivityMode.LeftHandOnly);
         }
 
         private static Motion OneHandMotionOf(ComboGestureActivity activity, HandPose activeHand)

@@ -1,10 +1,22 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Components
 {
+    [ExecuteInEditMode]
     public class ComboGestureActivity : ComboGestureMoodSet
     {
+        private void Awake()
+        {
+            if (enablePermutations)
+            {
+                enablePermutations = false;
+                activityMode = CgeActivityMode.Permutations;
+            }
+        }
+
         public float transitionDuration = 0.1f;
 
         public Motion anim00;
@@ -48,8 +60,8 @@ namespace Hai.ComboGesture.Scripts.Components
         // ReSharper disable once InconsistentNaming
         public AnimationClip anim11_R;
 
-        public bool enablePermutations;
-        public CgeOneHandMode oneHandMode;
+        public bool enablePermutations; // Deprecated, old value used for migration
+        public CgeActivityMode activityMode;
         public Motion anim10;
         public Motion anim20;
         public Motion anim21;
@@ -86,9 +98,10 @@ namespace Hai.ComboGesture.Scripts.Components
         public Animator previewAnimator;
 
         [System.Serializable]
-        public enum CgeOneHandMode
+        public enum CgeActivityMode
         {
-            Disabled,
+            Combos,
+            Permutations,
             LeftHandOnly,
             RightHandOnly,
         }

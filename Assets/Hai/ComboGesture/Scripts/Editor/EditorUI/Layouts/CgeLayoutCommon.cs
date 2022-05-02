@@ -124,17 +124,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                         {
                             _activityPreviewQueryAggregator.GenerateMissingPreviewsPrioritizing(_repaintCallback, clip);
                         }
-                        else
-                        {
-                            if (_editorEffector.GetCurrentlyEditing() == CurrentlyEditing.Activity)
-                            {
-                                _editorEffector.SwitchTo(ActivityEditorMode.OtherOptions);
-                            }
-                            else
-                            {
-                                _editorEffector.SwitchTo(PuppetEditorMode.OtherOptions);
-                            }
-                        }
                     }
                     EditorGUI.EndDisabledGroup();
                 }
@@ -175,10 +164,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                         if (isPreviewSetupValid)
                         {
                             _activityPreviewQueryAggregator.GenerateMissingPreviewsPrioritizing(_repaintCallback, animations[0]);
-                        }
-                        else
-                        {
-                            _editorEffector.SwitchTo(ActivityEditorMode.OtherOptions);
                         }
                     }
                     EditorGUI.EndDisabledGroup();
