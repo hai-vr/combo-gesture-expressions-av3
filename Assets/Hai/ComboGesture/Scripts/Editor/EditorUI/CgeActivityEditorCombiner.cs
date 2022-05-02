@@ -65,27 +65,28 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public const int CombinerPreviewCenterWidth = (int) (CombinerPreviewWidth * CombinerPreviewCenterScale);
         public const int CombinerPreviewCenterHeight = (int) (CombinerPreviewHeight * CombinerPreviewCenterScale);
 
-        private readonly Texture2D _leftPreview;
-        private readonly Texture2D _rightPreview;
+        private Texture2D _leftPreview;
+        private Texture2D _rightPreview;
         private Texture2D _combinedPreview;
         private readonly AnimationClip _leftAnim;
         private readonly AnimationClip _rightAnim;
-        private readonly Action _onClipRenderedFn;
+        private readonly Action _repaintCallback;
         private readonly CgeEditorEffector _editorEffector;
-        private readonly EeRenderingCommands _previewController;
+        private readonly EeRenderingCommands _renderingCommands;
         private CgeDecider _cgeDecider;
         private AnimationClip _combinedAnim;
 
-        public CgeActivityEditorCombiner(AnimationClip leftAnim, AnimationClip rightAnim, Action onClipRenderedFn, CgeEditorEffector editorEffector, EeRenderingCommands previewController)
+        public CgeActivityEditorCombiner(AnimationClip leftAnim, AnimationClip rightAnim, Action repaintCallback, CgeEditorEffector editorEffector, EeRenderingCommands renderingCommands)
         {
             _leftPreview = EeRenderingCommands.NewPreviewTexture2D(CombinerPreviewWidth, CombinerPreviewHeight);
             _rightPreview = EeRenderingCommands.NewPreviewTexture2D(CombinerPreviewWidth, CombinerPreviewHeight);
             _combinedPreview = EeRenderingCommands.NewPreviewTexture2D(CombinerPreviewCenterWidth, CombinerPreviewCenterHeight);
             _leftAnim = leftAnim;
             _rightAnim = rightAnim;
-            _onClipRenderedFn = onClipRenderedFn;
+            _combinedAnim = new AnimationClip();
+            _repaintCallback = repaintCallback;
             _editorEffector = editorEffector;
-            _previewController = previewController;
+            _renderingCommands = renderingCommands;
         }
 
         public void Prepare()
@@ -98,7 +99,25 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             CreatePreviews();
         }
 
-        private AnimationClip GenerateCombinedClip()
+        private void RegenerateCombinedClip()
+        {
+            var generatedClip = GenerateCombinedClipInternal();
+
+            _combinedAnim.ClearCurves();
+            foreach (var editorCurveBinding in AnimationUtility.GetCurveBindings(generatedClip))
+            {
+                AnimationUtility.SetEditorCurve(_combinedAnim, editorCurveBinding, AnimationUtility.GetEditorCurve(generatedClip, editorCurveBinding));
+            }
+            foreach (var editorCurveBinding in AnimationUtility.GetObjectReferenceCurveBindings(generatedClip))
+            {
+                AnimationUtility.SetObjectReferenceCurve(_combinedAnim, editorCurveBinding, AnimationUtility.GetObjectReferenceCurve(generatedClip, editorCurveBinding));
+            }
+
+            var settings = AnimationUtility.GetAnimationClipSettings(generatedClip);
+            AnimationUtility.SetAnimationClipSettings(_combinedAnim, settings);
+        }
+
+        private AnimationClip GenerateCombinedClipInternal()
         {
             var generatedClip = new AnimationClip();
 
@@ -111,7 +130,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             var rightSide = AllActiveOf(_cgeDecider.Right)
                 .Concat(AllIntersectOf(IntersectionChoice.UseRight));
 
-            MutateClipUsing(_rightAnim, generatedClip, leftSide);
+            MutateClipUsing(_leftAnim, generatedClip, leftSide);
             MutateClipUsing(_rightAnim, generatedClip, rightSide);
 
             return generatedClip;
@@ -247,26 +266,21 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         {
             if (!_editorEffector.IsPreviewSetupValid()) return;
 
-            var animationsPreviews = new[] {_leftPreview, _rightPreview, _combinedPreview}.ToList();
+            _leftPreview = _renderingCommands.RequireRender(_leftAnim, _repaintCallback).Normal;
+            _rightPreview = _renderingCommands.RequireRender(_rightAnim, _repaintCallback).Normal;
 
-            // _previewController.GenerateSpecific(animationsPreviews, _editorEffector.PreviewSetup());
+            RegenerateCombinedClip();
+            _combinedPreview = _renderingCommands.RequireRender(_combinedAnim, _repaintCallback, true).Normal;
+            _renderingCommands.InvalidateSome(_repaintCallback, _leftAnim, _rightAnim, _combinedAnim);
         }
 
         private void RegenerateCombinedPreview()
         {
             if (!_editorEffector.IsPreviewSetupValid()) return;
 
-            _combinedAnim = GenerateCombinedClip();
-            // var sample = new EeRenderingSample(_combined, sample.RenderTexture, OnClipRendered);
-
-            // var animationsPreviews = new[] {sample}.ToList();
-
-            // _previewController.GenerateSpecific(animationsPreviews, _editorEffector.PreviewSetup());
-        }
-
-        private void OnClipRendered(EeRenderingSample obj)
-        {
-            _onClipRenderedFn.Invoke();
+            RegenerateCombinedClip();
+            _combinedPreview = _renderingCommands.RequireRender(_combinedAnim, _repaintCallback, true).Normal;
+            _renderingCommands.InvalidateSome(_repaintCallback, _combinedAnim);
         }
 
         public Texture LeftTexture()

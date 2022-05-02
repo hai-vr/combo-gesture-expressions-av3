@@ -196,7 +196,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
             }
         }
 
-        public EeRenderResult RequireRender(AnimationClip clip, Action repaintCallback)
+        public EeRenderResult RequireRender(AnimationClip clip, Action repaintCallback, bool isBig = false)
         {
             if (_clipToRender.ContainsKey(clip)
                 && _clipToRender[clip].Normal != null) // Can happen when the texture is destroyed (Unity invalid object)
@@ -210,10 +210,12 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
                 return _clipToRender[clip];
             }
 
+            var width = isBig ? CgeActivityEditorCombiner.CombinerPreviewCenterWidth : CgeActivityEditorCombiner.CombinerPreviewWidth;
+            var height = isBig ? CgeActivityEditorCombiner.CombinerPreviewCenterHeight : CgeActivityEditorCombiner.CombinerPreviewHeight;
             var render = new EeRenderResult
             {
-                Normal = new Texture2D(CgeActivityEditorCombiner.CombinerPreviewWidth, CgeActivityEditorCombiner.CombinerPreviewHeight, TextureFormat.RGB24, true),
-                Grayscale = new Texture2D(CgeActivityEditorCombiner.CombinerPreviewWidth, CgeActivityEditorCombiner.CombinerPreviewHeight, TextureFormat.RGB24, true)
+                Normal = new Texture2D(width, height, TextureFormat.RGB24, true),
+                Grayscale = new Texture2D(width, height, TextureFormat.RGB24, true)
             };
             _clipToRender[clip] = render; // TODO: Dimensions
 
@@ -267,19 +269,11 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
         {
             return new Texture2D(width, height, TextureFormat.ARGB32, false);
         }
-    }
 
-    public readonly struct EeRenderingSample
-    {
-        public readonly AnimationClip Clip;
-        public readonly Texture2D RenderTexture;
-        public readonly Action<EeRenderingSample> Callback;
-
-        public EeRenderingSample(AnimationClip clip, Texture2D renderTexture, Action<EeRenderingSample> callback)
+        public void InvalidateSome(Action repaintCallback, params AnimationClip[] clips)
         {
-            Clip = clip;
-            RenderTexture = renderTexture;
-            Callback = callback;
+            _invalidation.AddRange(clips);
+            ScheduleRendering(repaintCallback);
         }
     }
 }

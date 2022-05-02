@@ -98,6 +98,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
         private void Save(Action repaintCallback)
         {
             var savedClip = _combinerState.Combiner.SaveTo(_combinerState.CombinerCandidateFileName);
+            _renderingCommands.InvalidateSome(repaintCallback, savedClip);
 
             _editorEffector.SpProperty(_combinerState.CombinerTarget).objectReferenceValue = savedClip;
             _editorEffector.ApplyModifiedProperties();
