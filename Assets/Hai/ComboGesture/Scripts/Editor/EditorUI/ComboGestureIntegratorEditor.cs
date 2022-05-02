@@ -17,7 +17,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         {
             animatorController = serializedObject.FindProperty(nameof(ComboGestureIntegrator.animatorController));
             writeDefaults = serializedObject.FindProperty(nameof(ComboGestureIntegrator.writeDefaults));
-            _guideIcon32 = AssetDatabase.LoadAssetAtPath<Texture>("Assets/Hai/ComboGesture/Icons/guide-32.png");
+            _guideIcon32 = ComboGestureIcons.Instance.Guide32;
         }
 
         public override void OnInspectorGUI()

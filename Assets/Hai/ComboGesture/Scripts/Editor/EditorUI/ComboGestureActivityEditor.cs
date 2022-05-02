@@ -1,5 +1,6 @@
 ﻿using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts;
+using Hai.ComboGesture.Scripts.Editor.Internal.Model;
 using UnityEditor;
 using UnityEngine;
 
@@ -11,7 +12,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
     {
         private void OnEnable()
         {
-            _guideIcon32 = AssetDatabase.LoadAssetAtPath<Texture>("Assets/Hai/ComboGesture/Icons/guide-32.png");
+            _guideIcon32 = ComboGestureIcons.Instance.Guide32;
         }
 
         private bool _foldoutHelp;
@@ -59,6 +60,49 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             EditorGUILayout.Separator();
 
             serializedObject.ApplyModifiedProperties();
+        }
+    }
+
+    public class ComboGestureIcons
+    {
+        public readonly Texture Guide32 = LoadGuid("a28bf0ae55e45dc46a1a61b1afffb574");
+        public readonly Texture Guide16 = LoadGuid("90dc72f3fb374d94e821a6ad173b5275");
+        public readonly Texture Help16 = LoadGuid("56b8fe77cebd7fd449c4e2101ecb4744");
+
+        public Texture Gesture(HandPose pose)
+        {
+            return _gestures[(int) pose];
+        }
+
+        private static ComboGestureIcons _instance;
+
+        private readonly Texture[] _gestures = {
+            // LoadGuid("56b8fe77cebd7fd449c4e2101ecb4744"),
+            // LoadGuid("eace99aeb4760cf409ba23cf85ebc517"),
+            // LoadGuid("3117be647abd8a249a8d25674e8e8384"),
+            // LoadGuid("822629dcf5ae40c409148064e9076500"),
+            // LoadGuid("2da273c081c852c42aa1955cd044247a"),
+            // LoadGuid("be8bc96ae1098274dbe36f414b718a8d"),
+            // LoadGuid("a55ca97ca49c51542a56070a646888b5"),
+            // LoadGuid("76994cec0c2f44f4caf9724dfa235ade")
+        };
+
+        public static ComboGestureIcons Instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = new ComboGestureIcons();
+                }
+
+                return _instance;
+            }
+        }
+
+        private static Texture LoadGuid(string guid)
+        {
+            return AssetDatabase.LoadAssetAtPath<Texture>(AssetDatabase.GUIDToAssetPath(guid));
         }
     }
 }

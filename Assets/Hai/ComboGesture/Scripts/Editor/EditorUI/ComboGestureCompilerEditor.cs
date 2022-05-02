@@ -118,8 +118,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 serializedObject.ApplyModifiedProperties();
             };
 
-            _guideIcon16 = AssetDatabase.LoadAssetAtPath<Texture>("Assets/Hai/ComboGesture/Icons/guide-16.png");
-            _guideIcon32 = AssetDatabase.LoadAssetAtPath<Texture>("Assets/Hai/ComboGesture/Icons/guide-32.png");
+            _guideIcon16 = ComboGestureIcons.Instance.Guide16;
+            _guideIcon32 = ComboGestureIcons.Instance.Guide32;
 
             editorAdvancedFoldout = serializedObject.FindProperty(nameof(ComboGestureCompiler.editorAdvancedFoldout));
         }

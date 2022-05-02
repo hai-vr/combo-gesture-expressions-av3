@@ -68,7 +68,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                 MiddleAlignedBold.normal.textColor = new Color(0.71f, 0.71f, 0.71f);
             }
 
-            GuideIcon32 = AssetDatabase.LoadAssetAtPath<Texture>("Assets/Hai/ComboGesture/Icons/guide-32.png");
+            GuideIcon32 = ComboGestureIcons.Instance.Guide32;
         }
 
         public static void DrawColoredBackground(Color color)

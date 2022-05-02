@@ -70,7 +70,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             WindowHandler = new CgeWindowHandler(this, _editorEffector);
 
             _common.GuiInit();
-            _helpIcon16 = AssetDatabase.LoadAssetAtPath<Texture>("Assets/Hai/ComboGesture/Icons/help-16.png");
+            _helpIcon16 = ComboGestureIcons.Instance.Help16;
         }
 
         private void OnInspectorUpdate()
