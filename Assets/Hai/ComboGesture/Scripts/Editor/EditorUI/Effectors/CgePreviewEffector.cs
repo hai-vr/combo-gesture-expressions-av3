@@ -11,6 +11,12 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
     {
         private GameObject _animatedRoot;
         private Camera _camera;
+        private Material _shader;
+
+        public ComboGestureViewerGenerator()
+        {
+            _shader = new Material(Shader.Find("Hai/HaiCgeGrayscale"));
+        }
 
         public void Begin(GameObject animatedRoot)
         {
@@ -59,8 +65,14 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
 
                 RenderCamera(renderTexture, _camera);
                 RenderTextureTo(renderTexture, renderResult.Normal);
-                RenderTextureTo(renderTexture, renderResult.Grayscale);
                 RenderTexture.ReleaseTemporary(renderTexture);
+
+                var destination = RenderTexture.GetTemporary(renderResult.Grayscale.width, renderResult.Grayscale.height, 24);
+                var tempMat = Object.Instantiate(_shader);
+                Graphics.Blit(renderResult.Normal, destination, tempMat);
+                Object.DestroyImmediate(tempMat);
+                RenderTextureTo(destination, renderResult.Grayscale);
+                RenderTexture.ReleaseTemporary(destination);
             }
             finally
             {
