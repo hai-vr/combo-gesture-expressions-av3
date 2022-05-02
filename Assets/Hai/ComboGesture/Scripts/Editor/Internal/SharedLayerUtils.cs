@@ -11,6 +11,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
     internal class SharedLayerUtils
     {
+        private const float DynamicsTransitionDuration = 0.1f;
+
         internal const string HaiGestureComboLeftWeightProxy = "_Hai_GestureLWProxy";
         internal const string HaiGestureComboRightWeightProxy = "_Hai_GestureRWProxy";
         internal const string HaiVirtualActivity = "_Hai_GestureVirtualActivity";
@@ -33,6 +35,26 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        public static IManifest FromSimpleDynamics(ComboGestureSimpleDynamicsItem simpleDynamics, AnimationClip emptyClip, bool universalAnalogSupport)
+        {
+            if (simpleDynamics.clip != null)
+            {
+                return ManifestFromPuppet.FromAnim(simpleDynamics.clip, simpleDynamics.bothEyesClosed, DynamicsTransitionDuration);
+            }
+
+            if (simpleDynamics.activity != null)
+            {
+                return ManifestFromActivity.FromActivity(simpleDynamics.activity, emptyClip, universalAnalogSupport);
+            }
+
+            if (simpleDynamics.puppet != null)
+            {
+                return ManifestFromPuppet.FromPuppet(simpleDynamics.puppet);
+            }
+
+            return ManifestFromActivity.FromNothing(emptyClip);
         }
 
         public static IManifest FromMoodSet(ComboGestureMoodSet moodSet, AnimationClip fallbackWhenAnyClipIsNull, bool universalAnalogSupport)

@@ -406,7 +406,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
 
         public IEnumerable<BlendTree> AllBlendTreesFoundRecursively()
         {
-            return PuppetManifest.FindAllBlendTreesIncludingItself(Tree);
+            return SingleManifest.FindAllBlendTreesIncludingItself(Tree);
         }
 
         public IAnimatedBehavior Remapping(Dictionary<QualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)
@@ -448,7 +448,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
 
         public IEnumerable<BlendTree> AllBlendTreesFoundRecursively()
         {
-            return PuppetManifest.FindAllBlendTreesIncludingItself(Resting);
+            return SingleManifest.FindAllBlendTreesIncludingItself(Resting);
         }
 
         public IAnimatedBehavior Remapping(Dictionary<QualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)

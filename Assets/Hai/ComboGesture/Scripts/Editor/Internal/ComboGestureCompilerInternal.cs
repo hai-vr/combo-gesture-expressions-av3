@@ -7,6 +7,7 @@ using Hai.ComboGesture.Scripts.Editor.Internal.Model;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
+using VRC.Dynamics;
 using VRC.SDK3.Avatars.Components;
 using Object = UnityEngine.Object;
 
@@ -37,12 +38,14 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly bool _useSmoothing;
         private readonly bool _universalAnalogSupport;
         private readonly AvatarMask _nothingMask;
+        private readonly ComboGestureSimpleDynamicsItem[] _dynamicsLayers;
 
         public ComboGestureCompilerInternal(
             ComboGestureCompiler compiler,
             AssetContainer assetContainer)
         {
             _comboLayers = compiler.comboLayers;
+            _dynamicsLayers = compiler.simpleDynamics != null ? compiler.simpleDynamics.items : new ComboGestureSimpleDynamicsItem[] { };
             _parameterGeneration = _comboLayers.Count <= 1 ? ParameterGeneration.Unique : (compiler.parameterMode == ParameterMode.SingleInt ? ParameterGeneration.UserDefinedActivity : ParameterGeneration.VirtualActivity);
             switch (_parameterGeneration)
             {
@@ -260,12 +263,63 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         private List<ManifestBinding> CreateManifestBindings(AnimationClip emptyClip)
         {
-            return _comboLayers
+            var comboLayers = _comboLayers
                 .Select((mapper, layerOrdinal) => new ManifestBinding(
                     ToParameterGeneration(mapper),
                     SharedLayerUtils.FromMapper(mapper, emptyClip, _universalAnalogSupport)
                 ))
                 .ToList();
+            var dynamicsLayers = _dynamicsLayers
+                .Select((simpleDynamics, rank) => ManifestBinding.FromAvatarDynamics(
+                    new CgeDynamicsDescriptor
+                    {
+                        parameter = DynamicsResolveParameter(simpleDynamics),
+                        rank = rank,
+                        condition = simpleDynamics.condition,
+                        threshold = simpleDynamics.threshold,
+                        parameterType = DynamicsResolveParameterType(simpleDynamics)
+                    }, SharedLayerUtils.FromSimpleDynamics(simpleDynamics, emptyClip, _universalAnalogSupport)
+                ))
+                .ToList();
+
+            // Dynamics layers must be above combo layers -- This will affect layer generation order later on.
+            return dynamicsLayers.Concat(comboLayers).ToList();
+        }
+
+        private static ComboGestureSimpleDynamicsParameterType DynamicsResolveParameterType(ComboGestureSimpleDynamicsItem mapper)
+        {
+            return mapper.contactReceiver != null
+                ? (mapper.contactReceiver.receiverType == ContactReceiver.ReceiverType.Proximity
+                    ? ComboGestureSimpleDynamicsParameterType.Float
+                    : mapper.parameterType)
+                : mapper.physBone != null
+                    ? (mapper.physBoneSource != ComboGestureSimpleDynamicsPhysBoneSource.IsGrabbed
+                        ? ComboGestureSimpleDynamicsParameterType.Float
+                        : mapper.parameterType)
+                    : mapper.parameterType;
+        }
+
+        private static string DynamicsResolveParameter(ComboGestureSimpleDynamicsItem mapper)
+        {
+            return mapper.contactReceiver != null
+                ? mapper.contactReceiver.parameter
+                : mapper.physBone != null
+                    ? $"{mapper.physBone.parameter}_{ToSuffix(mapper.physBoneSource)}"
+                    : mapper.parameterName != null
+                        ? mapper.parameterName
+                        : throw new ArgumentException();
+        }
+
+        private static string ToSuffix(ComboGestureSimpleDynamicsPhysBoneSource source)
+        {
+            switch (source)
+            {
+                case ComboGestureSimpleDynamicsPhysBoneSource.Stretch: return "Stretch";
+                case ComboGestureSimpleDynamicsPhysBoneSource.Angle: return "Angle";
+                case ComboGestureSimpleDynamicsPhysBoneSource.IsGrabbed: return "IsGrabbed";
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(source), source, null);
+            }
         }
 
         private int ToParameterGeneration(GestureComboStageMapper mapper)
@@ -409,11 +463,34 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
     {
         public int StageValue { get; }
         public IManifest Manifest { get; }
+        public bool IsAvatarDynamics;
+        public CgeDynamicsDescriptor DynamicsDescriptor;
 
         public ManifestBinding(int stageValue, IManifest manifest)
         {
             StageValue = stageValue;
             Manifest = manifest;
         }
+
+        public static ManifestBinding FromAvatarDynamics(CgeDynamicsDescriptor dynamicsDescriptor, IManifest manifest)
+        {
+            return new ManifestBinding(dynamicsDescriptor, manifest);
+        }
+
+        private ManifestBinding(CgeDynamicsDescriptor dynamicsDescriptor, IManifest manifest)
+        {
+            Manifest = manifest;
+            IsAvatarDynamics = true;
+            DynamicsDescriptor = dynamicsDescriptor;
+        }
+    }
+
+    public struct CgeDynamicsDescriptor
+    {
+        public int rank;
+        public string parameter;
+        public float threshold;
+        public ComboGestureSimpleDynamicsParameterType parameterType;
+        public ComboGestureSimpleDynamicsCondition condition;
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.Internal.CgeAac;
 using Hai.ComboGesture.Scripts.Editor.Internal.Model;
 using UnityEditor.Animations;
@@ -42,75 +43,164 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _defaultState.CGE_AutomaticallyMovesTo(intern);
 
             var ssms = _composedBehaviours
-                .Select((behaviour, i) => intern.NewSubStateMachine($"Activity {behaviour.StageValue}").At(0, i))
+                .Select((behaviour, i) =>
+                {
+                    var name = behaviour.IsAvatarDynamics
+                        ? $"Dynamics {behaviour.DynamicsDescriptor.rank}"
+                        : $"Activity {behaviour.StageValue}";
+                    return intern.NewSubStateMachine(name).At(0, i);
+                })
                 .ToArray();
 
             for (var index = 0; index < ssms.Length; index++)
             {
+                var dynamicsExiters = Enumerable.Range(0, index)
+                    .Select(i => _composedBehaviours[i])
+                    .Where(behaviour => behaviour.IsAvatarDynamics)
+                    .Select(behaviour => behaviour.DynamicsDescriptor)
+                    .ToArray();
+
                 var ssm = ssms[index];
                 var composed = _composedBehaviours[index];
                 switch (composed)
                 {
                     case PermutationComposedBehaviour pcb:
-                        BuildPcb(ssm, pcb);
+                        BuildPcb(ssm, pcb, dynamicsExiters);
                         break;
                     case OneHandComposedBehaviour ocb:
-                        BuildOcb(ssm, ocb);
+                        BuildOcb(ssm, ocb, dynamicsExiters);
                         break;
                     case SingularComposedBehaviour scb:
-                        BuildScb(ssm, scb);
+                        BuildScb(ssm, scb, dynamicsExiters);
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
 
-                ssm.Restarts().When(_layer.IntParameter(_activityStageName).IsEqualTo(composed.StageValue));
+                // Short Restarts are no longer possible with Avatar Dynamics
+                // ssm.Restarts().When(ResolveEntrance(composed));
                 ssm.Exits();
             }
 
-            if (_activityStageName != null)
-            {
                 // Order of execution matters here
                 for (var index = 0; index < ssms.Length; index++)
                 {
                     var destSsm = ssms[index];
                     var composed = _composedBehaviours[index];
-                    intern.EntryTransitionsTo(destSsm)
-                        .When(_layer.IntParameter(_activityStageName).IsEqualTo(composed.StageValue));
+                    var entryTransition = intern.EntryTransitionsTo(destSsm);
+                    if (composed.IsAvatarDynamics || _activityStageName != null)
+                    {
+                        entryTransition.When(ResolveEntrance(composed));
+                    }
                 }
 
+            if (_activityStageName != null)
+            {
                 // Order of execution matters here
                 var neutral = intern.NewState("Neutral");
                 intern.WithDefaultState(neutral);
                 intern.EntryTransitionsTo(neutral);
 
-                foreach (var composedBehaviour in _composedBehaviours)
+                foreach (var composed in _composedBehaviours)
                 {
                     neutral.Exits()
-                        .When(_layer.IntParameter(_activityStageName).IsEqualTo(composedBehaviour.StageValue));
-                }
-            }
-            else
-            {
-                foreach (var destSsm in ssms)
-                {
-                    intern.EntryTransitionsTo(destSsm);
+                        .When(ResolveEntrance(composed));
                 }
             }
         }
 
-        private void BuildPcb(CgeAacFlStateMachine ssm, PermutationComposedBehaviour composed)
+        private ICgeAacFlCondition ResolveEntrance(IComposedBehaviour composed)
+        {
+            if (composed.IsAvatarDynamics)
+            {
+                var descriptor = composed.DynamicsDescriptor;
+                return ResolveEntrance(descriptor);
+            }
+
+            return _layer.IntParameter(_activityStageName).IsEqualTo(composed.StageValue);
+        }
+
+        private ICgeAacFlCondition ResolveEntrance(CgeDynamicsDescriptor descriptor)
+        {
+            switch (descriptor.parameterType)
+            {
+                case ComboGestureSimpleDynamicsParameterType.Bool:
+                    return _layer.BoolParameter(descriptor.parameter)
+                        .IsEqualTo(descriptor.condition == ComboGestureSimpleDynamicsCondition.IsAboveThreshold);
+                case ComboGestureSimpleDynamicsParameterType.Int:
+                    if (descriptor.condition == ComboGestureSimpleDynamicsCondition.IsAboveThreshold)
+                    {
+                        return _layer.IntParameter(descriptor.parameter)
+                            .IsGreaterThan((int) descriptor.threshold);
+                    }
+                    else
+                    {
+                        return _layer.IntParameter(descriptor.parameter)
+                            .IsLessThan((int) descriptor.threshold + 1);
+                    }
+                case ComboGestureSimpleDynamicsParameterType.Float:
+                    if (descriptor.condition == ComboGestureSimpleDynamicsCondition.IsAboveThreshold)
+                    {
+                        return _layer.FloatParameter(descriptor.parameter)
+                            .IsGreaterThan(descriptor.threshold);
+                    }
+                    else
+                    {
+                        return _layer.FloatParameter(descriptor.parameter)
+                            .IsLessThan(descriptor.threshold + 0.0001f);
+                    }
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        private ICgeAacFlCondition ResolveExiter(CgeDynamicsDescriptor descriptor)
+        {
+            switch (descriptor.parameterType)
+            {
+                case ComboGestureSimpleDynamicsParameterType.Bool:
+                    return _layer.BoolParameter(descriptor.parameter)
+                        .IsNotEqualTo(descriptor.condition == ComboGestureSimpleDynamicsCondition.IsAboveThreshold);
+                case ComboGestureSimpleDynamicsParameterType.Int:
+                    if (descriptor.condition == ComboGestureSimpleDynamicsCondition.IsAboveThreshold)
+                    {
+                        return _layer.IntParameter(descriptor.parameter)
+                            .IsLessThan((int) descriptor.threshold + 1);
+                    }
+                    else
+                    {
+                        return _layer.IntParameter(descriptor.parameter)
+                            .IsGreaterThan((int) descriptor.threshold);
+                    }
+                case ComboGestureSimpleDynamicsParameterType.Float:
+                    if (descriptor.condition == ComboGestureSimpleDynamicsCondition.IsAboveThreshold)
+                    {
+                        return _layer.FloatParameter(descriptor.parameter)
+                            .IsLessThan(descriptor.threshold + 0.0001f);
+                    }
+                    else
+                    {
+                        return _layer.FloatParameter(descriptor.parameter)
+                            .IsGreaterThan(descriptor.threshold);
+                    }
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        private void BuildPcb(CgeAacFlStateMachine ssm, PermutationComposedBehaviour composed, CgeDynamicsDescriptor[] dynamicsExiters)
         {
             foreach (HandPose right in Enum.GetValues(typeof(HandPose)))
             {
                 var rightSsm = ssm.NewSubStateMachine($"Right {right}").At((int) right, 0);
                 ssm.EntryTransitionsTo(rightSsm).When(_layer.Av3().GestureRight.IsEqualTo((int) right));
 
-                var restartCondition = rightSsm.Restarts().When(_layer.Av3().GestureRight.IsEqualTo((int) right));
-                if (_activityStageName != null)
-                {
-                    restartCondition.And(_layer.IntParameter(_activityStageName).IsEqualTo(composed.StageValue));
-                }
+                // Short Restarts are no longer possible with Avatar Dynamics
+                // var restartCondition = rightSsm.Restarts().When(_layer.Av3().GestureRight.IsEqualTo((int) right));
+                // if (_activityStageName != null)
+                // {
+                //     restartCondition.And(_layer.IntParameter(_activityStageName).IsEqualTo(composed.StageValue));
+                // }
                 rightSsm.Exits();
                 rightSsm.WithEntryPosition(-1, -1);
                 rightSsm.WithExitPosition(1, 8);
@@ -126,11 +216,23 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                         .WithTransitionDurationSeconds(composed.TransitionDuration)
                         .When(_layer.Av3().GestureLeft.IsNotEqualTo((int) permutation.Left))
                         .Or().When(_layer.Av3().GestureRight.IsNotEqualTo((int) permutation.Right));
-                    if (_activityStageName != null)
+                    if (composed.IsAvatarDynamics)
+                    {
+                        state.Exits()
+                            .WithTransitionDurationSeconds(composed.TransitionDuration)
+                            .When(ResolveExiter(composed.DynamicsDescriptor));
+                    }
+                    else if (_activityStageName != null)
                     {
                         state.Exits()
                             .WithTransitionDurationSeconds(composed.TransitionDuration)
                             .When(_layer.IntParameter(_activityStageName).IsNotEqualTo(composed.StageValue));
+                    }
+                    foreach (var dynamics in dynamicsExiters)
+                    {
+                        state.Exits()
+                            .WithTransitionDurationSeconds(composed.TransitionDuration)
+                            .When(ResolveEntrance(dynamics));
                     }
                 }
             }
@@ -139,7 +241,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             ssm.WithExitPosition(9, -1);
         }
 
-        private void BuildOcb(CgeAacFlStateMachine ssm, OneHandComposedBehaviour composed)
+        private void BuildOcb(CgeAacFlStateMachine ssm, OneHandComposedBehaviour composed, CgeDynamicsDescriptor[] dynamicsExiters)
         {
             var which = composed.IsLeftHand ? _layer.Av3().GestureLeft : _layer.Av3().GestureRight;
             foreach (var pair in composed.Behaviors)
@@ -153,11 +255,23 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 state.Exits()
                     .WithTransitionDurationSeconds(composed.TransitionDuration)
                     .When(which.IsNotEqualTo((int) handPose));
-                if (_activityStageName != null)
+                if (composed.IsAvatarDynamics)
+                {
+                    state.Exits()
+                        .WithTransitionDurationSeconds(composed.TransitionDuration)
+                        .When(ResolveExiter(composed.DynamicsDescriptor));
+                }
+                else if (_activityStageName != null)
                 {
                     state.Exits()
                         .WithTransitionDurationSeconds(composed.TransitionDuration)
                         .When(_layer.IntParameter(_activityStageName).IsNotEqualTo(composed.StageValue));
+                }
+                foreach (var dynamics in dynamicsExiters)
+                {
+                    state.Exits()
+                        .WithTransitionDurationSeconds(composed.TransitionDuration)
+                        .When(ResolveEntrance(dynamics));
                 }
             }
 
@@ -165,15 +279,27 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             ssm.WithExitPosition(1, 8);
         }
 
-        private void BuildScb(CgeAacFlStateMachine ssm, SingularComposedBehaviour composed)
+        private void BuildScb(CgeAacFlStateMachine ssm, SingularComposedBehaviour composed, CgeDynamicsDescriptor[] dynamicsExiters)
         {
             var state = AppendToSsm(ssm, composed.Behavior);
             ssm.EntryTransitionsTo(state);
-            if (_activityStageName != null)
+            if (composed.IsAvatarDynamics)
+            {
+                state.Exits()
+                    .WithTransitionDurationSeconds(composed.TransitionDuration)
+                    .When(ResolveExiter(composed.DynamicsDescriptor));
+            }
+            else if (_activityStageName != null)
             {
                 state.Exits()
                     .WithTransitionDurationSeconds(composed.TransitionDuration)
                     .When(_layer.IntParameter(_activityStageName).IsNotEqualTo(composed.StageValue));
+            }
+            foreach (var dynamics in dynamicsExiters)
+            {
+                state.Exits()
+                    .WithTransitionDurationSeconds(composed.TransitionDuration)
+                    .When(ResolveEntrance(dynamics));
             }
         }
 

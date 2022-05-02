@@ -436,7 +436,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
         private CgeAacFlLayer DoCreateLayer(AnimatorController animator, string layerName)
         {
             var ag = new CgeAacAnimatorGenerator(animator, CreateEmptyClip().Clip, _configuration.DefaultsProvider);
-            var machine = ag.CreateOrClearLayerAtSameIndex(layerName, 1f);
+            var machine = ag.CreateOrRemakeLayerAtSameIndex(layerName, 1f);
 
             return new CgeAacFlLayer(animator, _configuration, machine, layerName);
         }
@@ -642,6 +642,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
         }
 
         // DEPRECATED: This causes the editor window to glitch by deselecting, which is jarring for experimentation
+        // Re-enabled in CGE to reduce regeneration times.
         internal CgeAacFlStateMachine CreateOrRemakeLayerAtSameIndex(string layerName, float weightWhenCreating, AvatarMask maskWhenCreating = null)
         {
             var originalIndexToPreserveOrdering = FindIndexOf(layerName);
@@ -662,10 +663,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
 
             var layer = TryGetLayer(layerName);
             var machinist = new CgeAacFlStateMachine(layer.stateMachine, _emptyClip, new CgeAacBackingAnimator(this), _defaultsProvider);
-            return machinist
-                .WithAnyStatePosition(0, 7)
-                .WithEntryPosition(0, -1)
-                .WithExitPosition(7, -1);
+            _defaultsProvider.ConfigureStateMachine(layer.stateMachine);
+            return machinist;
         }
 
         internal CgeAacFlStateMachine CreateOrClearLayerAtSameIndex(string layerName, float weightWhenCreating, AvatarMask maskWhenCreating = null)

@@ -53,6 +53,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public SerializedProperty editorAdvancedFoldout;
 
         public SerializedProperty useViveAdvancedControlsForNonFistAnalog;
+        public SerializedProperty simpleDynamics;
 
         private void OnEnable()
         {
@@ -92,6 +93,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             generateNewContainerEveryTime = serializedObject.FindProperty(nameof(ComboGestureCompiler.generateNewContainerEveryTime));
 
             useViveAdvancedControlsForNonFistAnalog = serializedObject.FindProperty(nameof(ComboGestureCompiler.useViveAdvancedControlsForNonFistAnalog));
+            simpleDynamics = serializedObject.FindProperty(nameof(ComboGestureCompiler.simpleDynamics));
 
             // reference: https://blog.terresquall.com/2020/03/creating-reorderable-lists-in-the-unity-inspector/
             comboLayersReorderableList = new ReorderableList(
@@ -288,6 +290,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                     }
                 }
             }
+
+            EditorGUILayout.LabelField(CgeLocale.CGEC_Avatar_Dynamics, EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(simpleDynamics, new GUIContent(CgeLocale.CGEC_Simple_Dynamics));
 
             EditorGUILayout.LabelField(CgeLocale.CGEC_FX_Playable_Layer, EditorStyles.boldLabel);
             EditorGUILayout.LabelField(CgeLocale.CGEC_BackupFX, italic);

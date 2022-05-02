@@ -162,5 +162,8 @@ You usually need to synchronize only once.";
 The animations may look different when you are not using Vive controllers (such as Index controllers or Oculus controllers).
 
 You should disable Vive Advanced Controls Analog if you are not sure of what you're doing.";
+
+        internal static string CGEC_Avatar_Dynamics = "Avatar Dynamics";
+        internal static string CGEC_Simple_Dynamics = "Simple Dynamics";
     }
 }

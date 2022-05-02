@@ -5,12 +5,12 @@ using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
 {
-    public class PuppetManifest : IManifest
+    public class SingleManifest : IManifest
     {
-        public PuppetAnimatedBehavior Behavior { get; }
+        public IAnimatedBehavior Behavior { get; }
         private readonly float _transitionDuration;
 
-        public PuppetManifest(float transitionDuration, PuppetAnimatedBehavior behavior)
+        public SingleManifest(float transitionDuration, IAnimatedBehavior behavior)
         {
             Behavior = behavior;
             _transitionDuration = transitionDuration;
@@ -38,7 +38,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
 
         public IEnumerable<BlendTree> AllBlendTreesFoundRecursively()
         {
-            return FindAllBlendTreesIncludingItself(Behavior.Tree);
+            return Behavior.AllBlendTreesFoundRecursively();
         }
 
         public static IEnumerable<BlendTree> FindAllBlendTreesIncludingItself(BlendTree tree)
@@ -74,7 +74,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
 
         public IManifest NewFromRemappedAnimations(Dictionary<QualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)
         {
-            return new PuppetManifest(_transitionDuration, (PuppetAnimatedBehavior)Behavior.Remapping(remapping, blendRemapping));
+            return new SingleManifest(_transitionDuration, Behavior.Remapping(remapping, blendRemapping));
         }
 
         public IManifest UsingRemappedWeights(Dictionary<BlendTree, AutoWeightTreeMapping> autoWeightRemapping)

@@ -47,6 +47,7 @@ namespace Hai.ComboGesture.Scripts.Components
         public bool bypassMandatoryAvatarDescriptor;
 
         public ParameterMode parameterMode;
+        public ComboGestureSimpleDynamics simpleDynamics;
 
         public bool WillUseGestureWeightCorrection()
         {

@@ -10,12 +10,17 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
     {
         int StageValue { get; }
         float TransitionDuration { get; }
+        bool IsAvatarDynamics { get; }
+        CgeDynamicsDescriptor DynamicsDescriptor { get; }
     }
 
     public class PermutationComposedBehaviour : IComposedBehaviour
     {
         public int StageValue { get; set; }
         public float TransitionDuration { get; set; }
+        public bool IsAvatarDynamics { get; set; }
+        public CgeDynamicsDescriptor DynamicsDescriptor { get; set; }
+
         public Dictionary<Permutation, IAnimatedBehavior> Behaviors;
     }
 
@@ -23,6 +28,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
     {
         public int StageValue { get; set; }
         public float TransitionDuration { get; set; }
+        public bool IsAvatarDynamics { get; set; }
+        public CgeDynamicsDescriptor DynamicsDescriptor { get; set; }
         public Dictionary<HandPose, IAnimatedBehavior> Behaviors;
         public bool IsLeftHand;
     }
@@ -31,6 +38,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
     {
         public int StageValue { get; set; }
         public float TransitionDuration { get; set; }
+        public bool IsAvatarDynamics { get; set; }
+        public CgeDynamicsDescriptor DynamicsDescriptor { get; set; }
         public IAnimatedBehavior Behavior;
     }
 
@@ -49,13 +58,17 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                         {
                             StageValue = binding.StageValue,
                             TransitionDuration = permutationManifest.TransitionDuration(),
+                            IsAvatarDynamics = binding.IsAvatarDynamics,
+                            DynamicsDescriptor = binding.DynamicsDescriptor,
                             Behaviors = new Dictionary<Permutation, IAnimatedBehavior>(permutationManifest.Poses)
                         };
-                    case PuppetManifest puppetManifest:
+                    case SingleManifest puppetManifest:
                         return new SingularComposedBehaviour
                         {
                             StageValue = binding.StageValue,
                             TransitionDuration = puppetManifest.TransitionDuration(),
+                            IsAvatarDynamics = binding.IsAvatarDynamics,
+                            DynamicsDescriptor = binding.DynamicsDescriptor,
                             Behavior = puppetManifest.Behavior
                         };
                     case MassiveBlendManifest massiveManifest:
@@ -63,6 +76,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                         {
                             StageValue = binding.StageValue,
                             TransitionDuration = massiveManifest.TransitionDuration(),
+                            IsAvatarDynamics = binding.IsAvatarDynamics,
+                            DynamicsDescriptor = binding.DynamicsDescriptor,
                             Behaviors = DecomposeMassiveIntoBehaviors(massiveManifest)
                         };
                     case OneHandManifest oneHandManifest:
@@ -70,6 +85,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                         {
                             StageValue = binding.StageValue,
                             TransitionDuration = oneHandManifest.TransitionDuration(),
+                            IsAvatarDynamics = binding.IsAvatarDynamics,
+                            DynamicsDescriptor = binding.DynamicsDescriptor,
                             Behaviors = new Dictionary<HandPose, IAnimatedBehavior>(oneHandManifest.Poses),
                             IsLeftHand = oneHandManifest.IsLeftHand
                         };

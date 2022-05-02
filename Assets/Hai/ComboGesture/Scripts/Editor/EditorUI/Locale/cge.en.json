@@ -118,5 +118,7 @@
   "CGEE_TreeCreateAsset": "Create a new blend tree asset",
   "CGEE_TreeFileCreate": "Create...",
   "CGEE_TreeFileInvalidSavePath": "Invalid save path",
-  "CGEE_TreeFileInvalidSavePathMessage": "Save path must be in the project's /Assets path."
+  "CGEE_TreeFileInvalidSavePathMessage": "Save path must be in the project's /Assets path.",
+  "CGEC_Avatar_Dynamics" : "Avatar Dynamics",
+  "CGEC_Simple_Dynamics": "Simple Dynamics"
 }

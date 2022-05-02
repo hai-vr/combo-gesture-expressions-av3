@@ -20,9 +20,17 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Processing
                 .Distinct()
                 .ToList();
 
-            return new PuppetManifest(
+            return new SingleManifest(
                 puppet.transitionDuration,
                 PuppetAnimatedBehavior.Of((BlendTree)puppet.mainTree, qualifications)
+            );
+        }
+
+        public static IManifest FromAnim(AnimationClip clip, bool bothEyesClosed, float transitionDuration)
+        {
+            return new SingleManifest(
+                transitionDuration,
+                SingleAnimatedBehavior.Of(new QualifiedAnimation(clip, new Qualification(bothEyesClosed)))
             );
         }
 
