@@ -485,6 +485,15 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                 GUILayout.EndArea();
                 EditorGUI.EndDisabledGroup();
             }
+            else if (element != null && element is AnimationClip clip)
+            {
+                GUILayout.BeginArea(new Rect(CgeLayoutCommon.GuiSquareWidth - 20, CgeLayoutCommon.PictureHeight - CgeLayoutCommon.SingleLineHeight * 3f, 20, CgeLayoutCommon.SingleLineHeight * 1.5f));
+                if (GUILayout.Button("❈"))
+                {
+                    EditAnimation(clip);
+                }
+                GUILayout.EndArea();
+            }
 
             if (usePermutations && propertyPath != oppositePath && property.objectReferenceValue == oppositeProperty.objectReferenceValue && property.objectReferenceValue != null)
             {
@@ -558,6 +567,13 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             EditorGUILayout.PropertyField(property, GUIContent.none);
         }
 
+        private void EditAnimation(AnimationClip clip)
+        {
+            CgeEditorWindow.ShowExpressionsEditor(_editorEffector, clip);
+            EditorGUIUtility.PingObject(clip);
+            Selection.SetActiveObjectWithContext(clip, null);
+        }
+
         private void CreateNewAnimation(string propertyPath)
         {
             var animations = _editorEffector.AllDistinctAnimations();
@@ -573,7 +589,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             _editorEffector.SpProperty(propertyPath).objectReferenceValue = clip;
             _editorEffector.ApplyModifiedProperties();
 
-            CgeEditorWindow.ShowExpressionsEditor(_editorEffector);
+            CgeEditorWindow.ShowExpressionsEditor(_editorEffector, clip);
             EditorGUIUtility.PingObject(clip);
             Selection.SetActiveObjectWithContext(clip, null);
         }

@@ -43,7 +43,17 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         private Vector2 _scrollPos;
         private Texture _helpIcon16;
         private EeRenderingCommands _renderingCommands;
+        private static Animator _veeAnimator;
+        private static AnimationClip _veeLastClip;
         public CgeWindowHandler WindowHandler { get; private set; }
+
+        private void OnFocus()
+        {
+            if (_veeLastClip != null)
+            {
+                _renderingCommands.InvalidateSome(Repaint, _veeLastClip);
+            }
+        }
 
         private void OnEnable()
         {
@@ -115,7 +125,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             GUILayout.BeginArea(new Rect(position.width - 320, CgeLayoutCommon.SingleLineHeight * 2 + 5, 200, CgeLayoutCommon.SingleLineHeight + 2));
             if (GUILayout.Button(new GUIContent("❈ ExpressionsEditor"), GUILayout.Width(170), GUILayout.Height(CgeLayoutCommon.SingleLineHeight + 2)))
             {
-                ShowExpressionsEditor(_editorEffector);
+                ShowExpressionsEditor(_editorEffector, null);
             }
             GUILayout.EndArea();
 
@@ -141,14 +151,34 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             }
         }
 
-        public static void ShowExpressionsEditor(CgeEditorEffector cgeEditorEffector)
+        public static void ShowExpressionsEditor(CgeEditorEffector cgeEditorEffector, AnimationClip clipNullable)
         {
+            var newAnimator = cgeEditorEffector.PreviewSetup();
             var visualExpressionsEditorType = AppDomain.CurrentDomain
                 .GetAssemblies()
                 .SelectMany(assembly => assembly.GetTypes())
                 .First(type => type.Name == "VisualExpressionsEditorWindow");
-            visualExpressionsEditorType.GetMethod("OpenEditor", BindingFlags.Public | BindingFlags.Static)
-                .Invoke(null, new object[] {new MenuCommand(cgeEditorEffector.PreviewSetup())});
+            if (_veeAnimator != newAnimator)
+            {
+                visualExpressionsEditorType.GetMethod("OpenEditor", BindingFlags.Public | BindingFlags.Static)
+                    .Invoke(null, new object[] {new MenuCommand(newAnimator)});
+            }
+            else
+            {
+                visualExpressionsEditorType.GetMethod("ShowWindow", BindingFlags.Public | BindingFlags.Static)
+                    .Invoke(null, new object[] {});
+            }
+
+            if (clipNullable != null)
+            {
+                var instance = visualExpressionsEditorType.GetMethod("Obtain", BindingFlags.NonPublic | BindingFlags.Static)
+                    .Invoke(null, new object[] {});
+                visualExpressionsEditorType.GetMethod("ChangeClip", BindingFlags.Public | BindingFlags.Instance)
+                    .Invoke(instance, new object[] {clipNullable});
+                _veeLastClip = clipNullable;
+            }
+
+            _veeAnimator = newAnimator;
         }
 
         private void EditingAnActivity()
