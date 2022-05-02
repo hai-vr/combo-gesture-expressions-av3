@@ -39,15 +39,13 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
         private readonly CombinerState _combinerState = new CombinerState();
         private readonly CgeEditorEffector _editorEffector;
         private readonly EeRenderingCommands _renderingCommands;
-        private readonly CgeActivityPreviewQueryAggregator _activityPreviewQueryAggregator;
 
-        public CgeLayoutFaceExpressionCombiner(CgeLayoutCommon common, CgeActivityEditorDriver driver, CgeEditorEffector editorEffector, EeRenderingCommands renderingCommands, CgeActivityPreviewQueryAggregator activityPreviewQueryAggregator)
+        public CgeLayoutFaceExpressionCombiner(CgeLayoutCommon common, CgeActivityEditorDriver driver, CgeEditorEffector editorEffector, EeRenderingCommands renderingCommands)
         {
             _common = common;
             _driver = driver;
             _editorEffector = editorEffector;
             _renderingCommands = renderingCommands;
-            _activityPreviewQueryAggregator = activityPreviewQueryAggregator;
         }
 
         public void DoSetCombiner(AnimationClip leftAnim, AnimationClip rightAnim, String propertyPath, bool usePermutations, Action repaintCallback)
@@ -104,7 +102,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             _editorEffector.SpProperty(_combinerState.CombinerTarget).objectReferenceValue = savedClip;
             _editorEffector.ApplyModifiedProperties();
 
-            _activityPreviewQueryAggregator.GenerateMissingPreviews(repaintCallback);
             if (_combinerState.CombinerIsLikelyEyesClosed)
             {
                 _editorEffector.GetActivity().blinking.Add(savedClip);

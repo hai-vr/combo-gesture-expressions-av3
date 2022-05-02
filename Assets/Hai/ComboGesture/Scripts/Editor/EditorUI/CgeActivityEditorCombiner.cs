@@ -65,19 +65,24 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public const int CombinerPreviewCenterWidth = (int) (CombinerPreviewWidth * CombinerPreviewCenterScale);
         public const int CombinerPreviewCenterHeight = (int) (CombinerPreviewHeight * CombinerPreviewCenterScale);
 
-        private readonly EeRenderingSample _leftPreview;
-        private readonly EeRenderingSample _rightPreview;
-        private EeRenderingSample _combinedPreview;
+        private readonly Texture2D _leftPreview;
+        private readonly Texture2D _rightPreview;
+        private Texture2D _combinedPreview;
+        private readonly AnimationClip _leftAnim;
+        private readonly AnimationClip _rightAnim;
         private readonly Action _onClipRenderedFn;
         private readonly CgeEditorEffector _editorEffector;
         private readonly EeRenderingCommands _previewController;
         private CgeDecider _cgeDecider;
+        private AnimationClip _combinedAnim;
 
         public CgeActivityEditorCombiner(AnimationClip leftAnim, AnimationClip rightAnim, Action onClipRenderedFn, CgeEditorEffector editorEffector, EeRenderingCommands previewController)
         {
-            _leftPreview = new EeRenderingSample(leftAnim, CgeMemoryQuery.NewPreviewTexture2D(CombinerPreviewWidth, CombinerPreviewHeight), OnClipRendered);
-            _rightPreview = new EeRenderingSample(rightAnim, CgeMemoryQuery.NewPreviewTexture2D(CombinerPreviewWidth, CombinerPreviewHeight), OnClipRendered);
-            _combinedPreview = new EeRenderingSample(new AnimationClip(), CgeMemoryQuery.NewPreviewTexture2D(CombinerPreviewCenterWidth, CombinerPreviewCenterHeight), OnClipRendered);
+            _leftPreview = EeRenderingCommands.NewPreviewTexture2D(CombinerPreviewWidth, CombinerPreviewHeight);
+            _rightPreview = EeRenderingCommands.NewPreviewTexture2D(CombinerPreviewWidth, CombinerPreviewHeight);
+            _combinedPreview = EeRenderingCommands.NewPreviewTexture2D(CombinerPreviewCenterWidth, CombinerPreviewCenterHeight);
+            _leftAnim = leftAnim;
+            _rightAnim = rightAnim;
             _onClipRenderedFn = onClipRenderedFn;
             _editorEffector = editorEffector;
             _previewController = previewController;
@@ -85,12 +90,10 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         public void Prepare()
         {
-            var leftCurves = FilterAnimationClip(_leftPreview.Clip);
-            var rightCurves = FilterAnimationClip(_rightPreview.Clip);
+            var leftCurves = FilterAnimationClip(_leftAnim);
+            var rightCurves = FilterAnimationClip(_rightAnim);
 
             _cgeDecider = CreateDeciders(leftCurves, rightCurves);
-
-            _combinedPreview = new EeRenderingSample(GenerateCombinedClip(), _combinedPreview.RenderTexture, OnClipRendered);
 
             CreatePreviews();
         }
@@ -99,7 +102,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         {
             var generatedClip = new AnimationClip();
 
-            var leftClipSettings = AnimationUtility.GetAnimationClipSettings(_leftPreview.Clip);
+            var leftClipSettings = AnimationUtility.GetAnimationClipSettings(_leftAnim);
             AnimationUtility.SetAnimationClipSettings(generatedClip, leftClipSettings);
 
             var leftSide = AllActiveOf(_cgeDecider.Left)
@@ -108,8 +111,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             var rightSide = AllActiveOf(_cgeDecider.Right)
                 .Concat(AllIntersectOf(IntersectionChoice.UseRight));
 
-            MutateClipUsing(_leftPreview.Clip, generatedClip, leftSide);
-            MutateClipUsing(_rightPreview.Clip, generatedClip, rightSide);
+            MutateClipUsing(_rightAnim, generatedClip, leftSide);
+            MutateClipUsing(_rightAnim, generatedClip, rightSide);
 
             return generatedClip;
         }
@@ -246,18 +249,19 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             var animationsPreviews = new[] {_leftPreview, _rightPreview, _combinedPreview}.ToList();
 
-            _previewController.GenerateSpecific(animationsPreviews, _editorEffector.PreviewSetup());
+            // _previewController.GenerateSpecific(animationsPreviews, _editorEffector.PreviewSetup());
         }
 
         private void RegenerateCombinedPreview()
         {
             if (!_editorEffector.IsPreviewSetupValid()) return;
 
-            _combinedPreview = new EeRenderingSample(GenerateCombinedClip(), _combinedPreview.RenderTexture, OnClipRendered);
+            _combinedAnim = GenerateCombinedClip();
+            // var sample = new EeRenderingSample(_combined, sample.RenderTexture, OnClipRendered);
 
-            var animationsPreviews = new[] {_combinedPreview}.ToList();
+            // var animationsPreviews = new[] {sample}.ToList();
 
-            _previewController.GenerateSpecific(animationsPreviews, _editorEffector.PreviewSetup());
+            // _previewController.GenerateSpecific(animationsPreviews, _editorEffector.PreviewSetup());
         }
 
         private void OnClipRendered(EeRenderingSample obj)
@@ -267,24 +271,24 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         public Texture LeftTexture()
         {
-            return _leftPreview.RenderTexture;
+            return _leftPreview;
         }
 
         public Texture RightTexture()
         {
-            return _rightPreview.RenderTexture;
+            return _rightPreview;
         }
 
         public Texture CombinedTexture()
         {
-            return _combinedPreview.RenderTexture;
+            return _combinedPreview;
         }
 
         public AnimationClip SaveTo(string candidateFileName)
         {
-            var copyOfCombinedAnimation = Object.Instantiate(_combinedPreview.Clip);
+            var copyOfCombinedAnimation = Object.Instantiate(_combinedAnim);
 
-            var originalAssetPath = AssetDatabase.GetAssetPath(_leftPreview.Clip);
+            var originalAssetPath = AssetDatabase.GetAssetPath(_leftAnim);
             var folder = originalAssetPath.Replace(Path.GetFileName(originalAssetPath), "");
 
             var finalFilename = candidateFileName + "__" + DateTime.Now.ToString("yyyy'-'MM'-'dd'_'HHmmss") + ".anim";

@@ -1,110 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts;
-using Hai.ComboGesture.Scripts.Editor.Internal;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
 {
-    public class CgeMemoization
-    {
-        public Dictionary<AnimationClip, Texture2D> AnimationClipToTextureDict { get; } = new Dictionary<AnimationClip, Texture2D>();
-        public Dictionary<AnimationClip, Texture2D> AnimationClipToTextureDictGray { get; } = new Dictionary<AnimationClip, Texture2D>();
-
-        public void AssignRegular(AnimationClip clip, Texture2D texture)
-        {
-            AnimationClipToTextureDict[clip] = texture;
-        }
-
-        public void AssignGrayscale(AnimationClip clip, Texture2D texture)
-        {
-            AnimationClipToTextureDictGray[clip] = texture;
-        }
-
-        public bool Has(AnimationClip clip)
-        {
-            return AnimationClipToTextureDict.ContainsKey(clip);
-        }
-    }
-
-    public class CgeMemoryQuery
-    {
-        private readonly CgeMemoization _cgePreviewState;
-
-        public CgeMemoryQuery(CgeMemoization cgePreviewState)
-        {
-            _cgePreviewState = cgePreviewState;
-        }
-
-        public bool HasClip(AnimationClip element)
-        {
-            return _cgePreviewState.AnimationClipToTextureDict.ContainsKey(element);
-        }
-
-        public Texture GetPicture(AnimationClip element)
-        {
-            return _cgePreviewState.AnimationClipToTextureDict[element];
-        }
-
-        public Texture GetGrayscale(AnimationClip element)
-        {
-            return _cgePreviewState.AnimationClipToTextureDictGray[element];
-        }
-
-        public static Texture2D NewPreviewTexture2D(int width, int height)
-        {
-            return new Texture2D(width, height, TextureFormat.ARGB32, false);
-        }
-    }
-
-    public class CgeActivityPreviewQueryAggregator
-    {
-        private readonly CgeMemoization _cgeMemoization;
-        private readonly CgeEditorEffector _editorEffector;
-        private readonly CgeBlendTreeEffector _blendTreeEffector;
-        private readonly EeRenderingCommands _renderingCommands;
-        private bool _isProcessing;
-
-        public CgeActivityPreviewQueryAggregator(CgeMemoization cgeMemoization, CgeEditorEffector editorEffector, CgeBlendTreeEffector blendTreeEffector, EeRenderingCommands renderingCommands)
-        {
-            _cgeMemoization = cgeMemoization;
-            _editorEffector = editorEffector;
-            _blendTreeEffector = blendTreeEffector;
-            _renderingCommands = renderingCommands;
-        }
-
-        public void GenerateMissingPreviews(Action repaintCallback)
-        {
-            Previewer(repaintCallback).Process(CgeActivityPreviewInternal.ProcessMode.CalculateMissing, null, _editorEffector.PreviewSetup());
-        }
-
-        public void GenerateMissingPreviewsPrioritizing(Action repaintCallback, AnimationClip element)
-        {
-            Previewer(repaintCallback).Process(CgeActivityPreviewInternal.ProcessMode.CalculateMissing, element, _editorEffector.PreviewSetup());
-        }
-
-        public void GenerateAll(Action repaintCallback)
-        {
-            Previewer(repaintCallback).Process(CgeActivityPreviewInternal.ProcessMode.RecalculateEverything, null, _editorEffector.PreviewSetup());
-        }
-
-        private CgeActivityPreviewInternal Previewer(Action repaintCallback)
-        {
-            return new CgeActivityPreviewInternal(
-                repaintCallback,
-                _editorEffector,
-                _blendTreeEffector,
-                _cgeMemoization,
-                CgeLayoutCommon.PictureWidth,
-                CgeLayoutCommon.PictureHeight,
-                _renderingCommands
-            );
-        }
-    }
-
     public class ComboGestureViewerGenerator
     {
         private GameObject _animatedRoot;
@@ -137,7 +39,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
             Object.DestroyImmediate(_camera.gameObject);
         }
 
-        public void Render(AnimationClip clip, Texture2D element, float normalizedTime)
+        public void Render(AnimationClip clip, EeRenderingCommands.EeRenderResult renderResult, float normalizedTime)
         {
             var initPos = _animatedRoot.transform.position;
             var initRot = _animatedRoot.transform.rotation;
@@ -152,11 +54,12 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
                 _animatedRoot.transform.position = initPos;
                 _animatedRoot.transform.rotation = initRot;
 
-                var renderTexture = RenderTexture.GetTemporary(element.width, element.height, 24);
+                var renderTexture = RenderTexture.GetTemporary(renderResult.Normal.width, renderResult.Normal.height, 24);
                 renderTexture.wrapMode = TextureWrapMode.Clamp;
 
                 RenderCamera(renderTexture, _camera);
-                RenderTextureTo(renderTexture, element);
+                RenderTextureTo(renderTexture, renderResult.Normal);
+                RenderTextureTo(renderTexture, renderResult.Grayscale);
                 RenderTexture.ReleaseTemporary(renderTexture);
             }
             finally
@@ -195,26 +98,16 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
 
     public class EeRenderingCommands
     {
-        private Queue<EeRenderingSample> _queue;
+        private Queue<AnimationClip> _queue = new Queue<AnimationClip>();
         private HumanBodyBones _bone = HumanBodyBones.Head;
         private float _normalizedTime;
         private AnimationClip _basePose;
 
-        public EeRenderingCommands()
-        {
-            _queue = new Queue<EeRenderingSample>();
-        }
-
-        public void GenerateSpecific(
-            List<EeRenderingSample> animationsPreviews,
-            Animator previewSetup)
-        {
-            foreach (var sample in animationsPreviews)
-            {
-                _queue.Enqueue(sample);
-            }
-            TryRender(previewSetup.gameObject);
-        }
+        private List<AnimationClip> _invalidation = new List<AnimationClip>();
+        private Dictionary<AnimationClip, EeRenderResult> _clipToRender = new Dictionary<AnimationClip, EeRenderResult>();
+        private bool _scheduled;
+        private Animator _animator;
+        private Action _repaint;
 
         private bool TryRender(GameObject root)
         {
@@ -258,8 +151,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
 
                 while (_queue.Count > 0)
                 {
-                    var sample = _queue.Dequeue();
-                    var clip = sample.Clip;
+                    var clip = _queue.Dequeue();
                     if (_basePose != null)
                     {
                         var modifiedClip = Object.Instantiate(clip);
@@ -270,13 +162,12 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
                         {
                             AnimationUtility.SetEditorCurve(modifiedClip, missingBinding, AnimationUtility.GetEditorCurve(_basePose, missingBinding));
                         }
-                        viewer.Render(modifiedClip, sample.RenderTexture, _normalizedTime);
+                        viewer.Render(modifiedClip, _clipToRender[clip], _normalizedTime);
                     }
                     else
                     {
-                        viewer.Render(clip, sample.RenderTexture, _normalizedTime);
+                        viewer.Render(clip, _clipToRender[clip], _normalizedTime);
                     }
-                    sample.Callback(sample);
 
                     // This is a workaround for an issue where the muscles will not update
                     // across multiple samplings of the animator on the same frame.
@@ -291,6 +182,78 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
             {
                 viewer.Terminate();
             }
+        }
+
+        public EeRenderResult RequireRender(AnimationClip clip, Action repaintCallback)
+        {
+            if (_clipToRender.ContainsKey(clip)
+                && _clipToRender[clip].Normal != null) // Can happen when the texture is destroyed (Unity invalid object)
+            {
+                if (!_queue.Contains(clip) && _invalidation.Contains(clip))
+                {
+                    _invalidation.RemoveAll(inList => inList == clip);
+                    _queue.Enqueue(clip);
+                    ScheduleRendering(repaintCallback);
+                }
+                return _clipToRender[clip];
+            }
+
+            var render = new EeRenderResult
+            {
+                Normal = new Texture2D(CgeActivityEditorCombiner.CombinerPreviewWidth, CgeActivityEditorCombiner.CombinerPreviewHeight, TextureFormat.RGB24, true),
+                Grayscale = new Texture2D(CgeActivityEditorCombiner.CombinerPreviewWidth, CgeActivityEditorCombiner.CombinerPreviewHeight, TextureFormat.RGB24, true)
+            };
+            _clipToRender[clip] = render; // TODO: Dimensions
+
+            _queue.Enqueue(clip);
+
+            return render;
+        }
+
+        public void SelectAnimator(Animator animator)
+        {
+            if (_animator == null && animator != null)
+            {
+                Invalidate(() => {});
+            }
+            _animator = animator;
+        }
+
+        private void ScheduleRendering(Action repaintCallback)
+        {
+            if (!_scheduled)
+            {
+                EditorApplication.delayCall += DoRender;
+                _scheduled = true;
+                _repaint = repaintCallback;
+            }
+        }
+
+        private void DoRender()
+        {
+            _scheduled = false;
+            if (_animator != null)
+            {
+                TryRender(_animator.gameObject);
+            }
+            _repaint.Invoke();
+        }
+
+        public struct EeRenderResult
+        {
+            public Texture2D Normal;
+            public Texture2D Grayscale;
+        }
+
+        public void Invalidate(Action repaintCallback)
+        {
+            _invalidation.AddRange(_clipToRender.Keys);
+            ScheduleRendering(repaintCallback);
+        }
+
+        public static Texture2D NewPreviewTexture2D(int width, int height)
+        {
+            return new Texture2D(width, height, TextureFormat.ARGB32, false);
         }
     }
 

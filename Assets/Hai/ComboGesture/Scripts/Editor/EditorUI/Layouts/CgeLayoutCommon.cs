@@ -11,9 +11,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
     public class CgeLayoutCommon
     {
         private readonly Action _repaintCallback;
-        private readonly CgeEditorEffector _editorEffector;
-        private readonly CgeMemoryQuery _memoryQuery;
-        private readonly CgeActivityPreviewQueryAggregator _activityPreviewQueryAggregator;
+        private readonly EeRenderingCommands _renderingCommands;
 
         public const int PictureWidth = 120;
         public const int PictureHeight = 80;
@@ -33,12 +31,10 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
         public static Texture GuideIcon32;
         private bool _isSimulationOfProSkin = false;
 
-        public CgeLayoutCommon(Action repaintCallback, CgeEditorEffector editorEffector, CgeActivityPreviewQueryAggregator activityPreviewQueryAggregator, CgeMemoryQuery memoryQuery)
+        public CgeLayoutCommon(Action repaintCallback, EeRenderingCommands renderingCommands)
         {
             _repaintCallback = repaintCallback;
-            _editorEffector = editorEffector;
-            _activityPreviewQueryAggregator = activityPreviewQueryAggregator;
-            _memoryQuery = memoryQuery;
+            _renderingCommands = renderingCommands;
         }
 
         public void GuiInit()
@@ -102,31 +98,11 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
         public void DrawPreviewOrRefreshButton(Motion element, bool grayscale = false)
         {
             if (element is AnimationClip clip) {
-                if (_memoryQuery.HasClip(clip))
-                {
-                    GUILayout.Box(Texture(grayscale, clip), GUIStyle.none, GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true));
-                    InvisibleRankPreservingBox();
-                    InvisibleRankPreservingBox();
-                    InvisibleRankPreservingBox();
-                    InvisibleRankPreservingButton();
-                }
-                else
-                {
-                    InvisibleRankPreservingBox();
-                    InvisibleRankPreservingBox();
-                    InvisibleRankPreservingBox();
-                    InvisibleRankPreservingBox();
-                    EditorGUI.BeginDisabledGroup(AnimationMode.InAnimationMode());
-                    var isPreviewSetupValid = _editorEffector.IsPreviewSetupValid();
-                    if (GUILayout.Button(isPreviewSetupValid ? CgeLocale.CGEE_GeneratePreview : CgeLocale.CGEE_SetupPreview, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true)))
-                    {
-                        if (isPreviewSetupValid)
-                        {
-                            _activityPreviewQueryAggregator.GenerateMissingPreviewsPrioritizing(_repaintCallback, clip);
-                        }
-                    }
-                    EditorGUI.EndDisabledGroup();
-                }
+                GUILayout.Box(Texture(grayscale, clip), GUIStyle.none, GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true));
+                InvisibleRankPreservingBox();
+                InvisibleRankPreservingBox();
+                InvisibleRankPreservingBox();
+                InvisibleRankPreservingButton();
             }
             else if (element is BlendTree tree)
             {
@@ -139,7 +115,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                     InvisibleRankPreservingBox();
                     InvisibleRankPreservingButton();
                 }
-                else if (_memoryQuery.HasClip(animations[0]))
+                else
                 {
                     GUILayout.BeginHorizontal();
                     TexturedBox(grayscale, animations, 0);
@@ -150,23 +126,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                     TexturedBox(grayscale, animations, 3);
                     GUILayout.EndHorizontal();
                     InvisibleRankPreservingButton();
-                }
-                else
-                {
-                    InvisibleRankPreservingBox();
-                    InvisibleRankPreservingBox();
-                    InvisibleRankPreservingBox();
-                    InvisibleRankPreservingBox();
-                    EditorGUI.BeginDisabledGroup(AnimationMode.InAnimationMode());
-                    var isPreviewSetupValid = _editorEffector.IsPreviewSetupValid();
-                    if (GUILayout.Button(isPreviewSetupValid ? CgeLocale.CGEE_GeneratePreview : CgeLocale.CGEE_SetupPreview, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true)))
-                    {
-                        if (isPreviewSetupValid)
-                        {
-                            _activityPreviewQueryAggregator.GenerateMissingPreviewsPrioritizing(_repaintCallback, animations[0]);
-                        }
-                    }
-                    EditorGUI.EndDisabledGroup();
                 }
             }
             else
@@ -181,19 +140,16 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
 
         private void TexturedBox(bool grayscale, List<AnimationClip> animations, int index)
         {
-            if (animations.Count > index && _memoryQuery.HasClip(animations[index]))
+            if (animations.Count > index)
             {
                 GUILayout.Box(Texture(grayscale, animations[index]), GUIStyle.none, GUILayout.Width(PictureWidth / 2), GUILayout.Height(PictureHeight / 2));
-            }
-            else
-            {
-                InvisibleRankPreservingBox();
             }
         }
 
         private Texture Texture(bool grayscale, AnimationClip clip)
         {
-            return grayscale ? _memoryQuery.GetGrayscale(clip) : _memoryQuery.GetPicture(clip);
+            var render = _renderingCommands.RequireRender(clip, _repaintCallback);
+            return grayscale ? render.Grayscale : render.Normal;
         }
 
         private static void InvisibleRankPreservingBox()
