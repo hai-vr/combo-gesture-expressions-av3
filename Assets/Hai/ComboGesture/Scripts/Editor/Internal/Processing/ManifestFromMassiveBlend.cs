@@ -39,6 +39,20 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Processing
             );
         }
 
+        public static IManifest FromDynamics(IManifest zero, IManifest one, string simpleParameterName, float transitionDuration)
+        {
+            return MassiveBlendManifest.OfParameterBased(
+                CgeMassiveBlendMode.Simple,
+                new List<IManifest>
+                {
+                    zero,
+                    one,
+                },
+                simpleParameterName,
+                transitionDuration
+            );
+        }
+
         private static IManifest OfTwoDirections(ComboGestureMassiveBlend massiveBlend, AnimationClip fallbackWhenAnyClipIsNull, bool universalAnalogSupport)
         {
             return MassiveBlendManifest.OfParameterBased(

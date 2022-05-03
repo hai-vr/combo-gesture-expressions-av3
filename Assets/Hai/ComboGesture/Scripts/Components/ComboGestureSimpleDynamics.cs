@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using VRC.Dynamics;
 using VRC.SDK3.Dynamics.Contact.Components;
 using VRC.SDK3.Dynamics.PhysBone.Components;
 
@@ -24,6 +25,48 @@ namespace Hai.ComboGesture.Scripts.Components
         public ComboGestureSimpleDynamicsParameterType parameterType;
         public ComboGestureSimpleDynamicsCondition condition;
         public float threshold;
+        public bool isHardThreshold;
+
+        public CgeDynamicsDescriptor ToDescriptor()
+        {
+            return new CgeDynamicsDescriptor
+            {
+                parameter = DynamicsResolveParameter(),
+                condition = condition,
+                threshold = threshold,
+                isHardThreshold = isHardThreshold,
+                parameterType = DynamicsResolveParameterType()
+            };
+        }
+
+        private string DynamicsResolveParameter()
+        {
+            return contactReceiver != null
+                ? contactReceiver.parameter
+                : physBone != null
+                    ? $"{physBone.parameter}_{ToSuffix()}"
+                    : parameterName != null
+                        ? parameterName
+                        : throw new ArgumentException();
+        }
+
+        private ComboGestureSimpleDynamicsParameterType DynamicsResolveParameterType()
+        {
+            return contactReceiver != null
+                ? (contactReceiver.receiverType == ContactReceiver.ReceiverType.Proximity
+                    ? ComboGestureSimpleDynamicsParameterType.Float
+                    : parameterType)
+                : physBone != null
+                    ? (physBoneSource != ComboGestureSimpleDynamicsPhysBoneSource.IsGrabbed
+                        ? ComboGestureSimpleDynamicsParameterType.Float
+                        : parameterType)
+                    : parameterType;
+        }
+
+        private string ToSuffix()
+        {
+            return Enum.GetName(typeof(ComboGestureSimpleDynamicsPhysBoneSource), physBoneSource);
+        }
     }
 
     [Serializable]
@@ -42,5 +85,20 @@ namespace Hai.ComboGesture.Scripts.Components
     public enum ComboGestureSimpleDynamicsCondition
     {
         IsAboveThreshold, IsBelowOrEqualThreshold
+    }
+
+    public struct CgeDynamicsRankedDescriptor
+    {
+        public int rank;
+        public CgeDynamicsDescriptor descriptor;
+    }
+
+    public struct CgeDynamicsDescriptor
+    {
+        public string parameter;
+        public float threshold;
+        public ComboGestureSimpleDynamicsParameterType parameterType;
+        public ComboGestureSimpleDynamicsCondition condition;
+        public bool isHardThreshold;
     }
 }

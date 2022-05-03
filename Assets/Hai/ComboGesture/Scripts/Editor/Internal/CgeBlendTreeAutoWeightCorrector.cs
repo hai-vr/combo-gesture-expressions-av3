@@ -73,9 +73,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private static ManifestBinding RemapManifest(ManifestBinding manifestBinding, Dictionary<BlendTree, AutoWeightTreeMapping> autoWeightRemapping)
         {
             var remappedManifest = manifestBinding.Manifest.UsingRemappedWeights(autoWeightRemapping);
-            return manifestBinding.IsAvatarDynamics
-                ? ManifestBinding.FromAvatarDynamics(manifestBinding.DynamicsDescriptor, remappedManifest)
-                : new ManifestBinding(manifestBinding.StageValue, remappedManifest);
+            return ManifestBinding.Remapping(manifestBinding, remappedManifest);
         }
 
         private BlendTree CopyTreeIdentically(BlendTree originalTree, Side side)

@@ -4,6 +4,7 @@ using System.Linq;
 using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.Internal.CgeAac;
 using Hai.ComboGesture.Scripts.Editor.Internal.Model;
+using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
 
@@ -35,6 +36,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         public void Populate()
         {
+            EditorUtility.DisplayProgressBar("ComboGestureExpressions", "Creating sub-state machines", 0f);
             var intern = _layer.NewSubStateMachine("Internal");
             intern.Restarts();
             intern.WithEntryPosition(-1, -1);
@@ -46,7 +48,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 .Select((behaviour, i) =>
                 {
                     var name = behaviour.IsAvatarDynamics
-                        ? $"Dynamics {behaviour.DynamicsDescriptor.rank}"
+                        ? behaviour.IsActivityBound
+                        ? $"Dynamics {behaviour.DynamicsDescriptor.rank} @ Activity {behaviour.StageValue}"
+                        : $"Dynamics {behaviour.DynamicsDescriptor.rank}"
                         : $"Activity {behaviour.StageValue}";
                     return intern.NewSubStateMachine(name).At(0, i);
                 })
@@ -54,14 +58,17 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
             for (var index = 0; index < ssms.Length; index++)
             {
+                EditorUtility.DisplayProgressBar("ComboGestureExpressions", $"Creating sub-state machines {index + 1} / {ssms.Length}", (float)index / ssms.Length);
+                var ssm = ssms[index];
+                var composed = _composedBehaviours[index];
+
                 var dynamicsExiters = Enumerable.Range(0, index)
                     .Select(i => _composedBehaviours[i])
                     .Where(behaviour => behaviour.IsAvatarDynamics)
-                    .Select(behaviour => behaviour.DynamicsDescriptor)
+                    .Where(behaviour => !behaviour.IsActivityBound || behaviour.StageValue == composed.StageValue)
+                    .Select(behaviour => behaviour.DynamicsDescriptor.descriptor)
                     .ToArray();
 
-                var ssm = ssms[index];
-                var composed = _composedBehaviours[index];
                 switch (composed)
                 {
                     case PermutationComposedBehaviour pcb:
@@ -82,17 +89,17 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 ssm.Exits();
             }
 
-                // Order of execution matters here
-                for (var index = 0; index < ssms.Length; index++)
+            // Order of execution matters here
+            for (var index = 0; index < ssms.Length; index++)
+            {
+                var destSsm = ssms[index];
+                var composed = _composedBehaviours[index];
+                var entryTransition = intern.EntryTransitionsTo(destSsm);
+                if (composed.IsAvatarDynamics || _activityStageName != null)
                 {
-                    var destSsm = ssms[index];
-                    var composed = _composedBehaviours[index];
-                    var entryTransition = intern.EntryTransitionsTo(destSsm);
-                    if (composed.IsAvatarDynamics || _activityStageName != null)
-                    {
-                        entryTransition.When(ResolveEntrance(composed));
-                    }
+                    entryTransition.When(continuation => ContinuateEntrance(continuation, composed));
                 }
+            }
 
             if (_activityStageName != null)
             {
@@ -104,23 +111,26 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 foreach (var composed in _composedBehaviours)
                 {
                     neutral.Exits()
-                        .When(ResolveEntrance(composed));
+                        .When(continuation => ContinuateEntrance(continuation, composed));
                 }
             }
         }
 
-        private ICgeAacFlCondition ResolveEntrance(IComposedBehaviour composed)
+        private void ContinuateEntrance(CgeAacFlTransitionContinuationWithoutOr continuation, IComposedBehaviour composed)
         {
             if (composed.IsAvatarDynamics)
             {
-                var descriptor = composed.DynamicsDescriptor;
-                return ResolveEntrance(descriptor);
+                var descriptor = composed.DynamicsDescriptor.descriptor;
+                continuation.And(ResolveEntranceDescriptor(descriptor));
             }
 
-            return _layer.IntParameter(_activityStageName).IsEqualTo(composed.StageValue);
+            if (composed.IsActivityBound)
+            {
+                continuation.And(_layer.IntParameter(_activityStageName).IsEqualTo(composed.StageValue));
+            }
         }
 
-        private ICgeAacFlCondition ResolveEntrance(CgeDynamicsDescriptor descriptor)
+        private ICgeAacFlCondition ResolveEntranceDescriptor(CgeDynamicsDescriptor descriptor)
         {
             switch (descriptor.parameterType)
             {
@@ -190,10 +200,14 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         private void BuildPcb(CgeAacFlStateMachine ssm, PermutationComposedBehaviour composed, CgeDynamicsDescriptor[] dynamicsExiters)
         {
+            var GL = _layer.Av3().GestureLeft;
+            var GT = _layer.Av3().GestureRight;
+            var ASN = _activityStageName != null ? _layer.IntParameter(_activityStageName) : null;
+
             foreach (HandPose right in Enum.GetValues(typeof(HandPose)))
             {
                 var rightSsm = ssm.NewSubStateMachine($"Right {right}").At((int) right, 0);
-                ssm.EntryTransitionsTo(rightSsm).When(_layer.Av3().GestureRight.IsEqualTo((int) right));
+                ssm.EntryTransitionsTo(rightSsm).When(GT.IsEqualTo((int) right));
 
                 // Short Restarts are no longer possible with Avatar Dynamics
                 // var restartCondition = rightSsm.Restarts().When(_layer.Av3().GestureRight.IsEqualTo((int) right));
@@ -211,28 +225,28 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                     var state = AppendToSsm(rightSsm, composed.Behaviors[permutation]).At((int)permutation.Right, (int)permutation.Left);
 
                     rightSsm.EntryTransitionsTo(state)
-                        .When(_layer.Av3().GestureLeft.IsEqualTo((int) permutation.Left));
+                        .When(GL.IsEqualTo((int) permutation.Left));
                     state.Exits()
                         .WithTransitionDurationSeconds(composed.TransitionDuration)
-                        .When(_layer.Av3().GestureLeft.IsNotEqualTo((int) permutation.Left))
-                        .Or().When(_layer.Av3().GestureRight.IsNotEqualTo((int) permutation.Right));
+                        .When(GL.IsNotEqualTo((int) permutation.Left))
+                        .Or().When(GT.IsNotEqualTo((int) permutation.Right));
                     if (composed.IsAvatarDynamics)
                     {
                         state.Exits()
                             .WithTransitionDurationSeconds(composed.TransitionDuration)
-                            .When(ResolveExiter(composed.DynamicsDescriptor));
+                            .When(ResolveExiter(composed.DynamicsDescriptor.descriptor));
                     }
-                    else if (_activityStageName != null)
+                    if (composed.IsActivityBound && _activityStageName != null)
                     {
                         state.Exits()
                             .WithTransitionDurationSeconds(composed.TransitionDuration)
-                            .When(_layer.IntParameter(_activityStageName).IsNotEqualTo(composed.StageValue));
+                            .When(ASN.IsNotEqualTo(composed.StageValue));
                     }
                     foreach (var dynamics in dynamicsExiters)
                     {
                         state.Exits()
                             .WithTransitionDurationSeconds(composed.TransitionDuration)
-                            .When(ResolveEntrance(dynamics));
+                            .When(ResolveEntranceDescriptor(dynamics));
                     }
                 }
             }
@@ -259,7 +273,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 {
                     state.Exits()
                         .WithTransitionDurationSeconds(composed.TransitionDuration)
-                        .When(ResolveExiter(composed.DynamicsDescriptor));
+                        .When(ResolveExiter(composed.DynamicsDescriptor.descriptor));
                 }
                 else if (_activityStageName != null)
                 {
@@ -271,7 +285,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 {
                     state.Exits()
                         .WithTransitionDurationSeconds(composed.TransitionDuration)
-                        .When(ResolveEntrance(dynamics));
+                        .When(ResolveEntranceDescriptor(dynamics));
                 }
             }
 
@@ -287,7 +301,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             {
                 state.Exits()
                     .WithTransitionDurationSeconds(composed.TransitionDuration)
-                    .When(ResolveExiter(composed.DynamicsDescriptor));
+                    .When(ResolveExiter(composed.DynamicsDescriptor.descriptor));
             }
             else if (_activityStageName != null)
             {
@@ -299,7 +313,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             {
                 state.Exits()
                     .WithTransitionDurationSeconds(composed.TransitionDuration)
-                    .When(ResolveEntrance(dynamics));
+                    .When(ResolveEntranceDescriptor(dynamics));
             }
         }
 

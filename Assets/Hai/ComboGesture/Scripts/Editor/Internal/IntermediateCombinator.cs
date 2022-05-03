@@ -8,38 +8,42 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
     public interface IComposedBehaviour
     {
+        bool IsActivityBound { get; }
         int StageValue { get; }
         float TransitionDuration { get; }
         bool IsAvatarDynamics { get; }
-        CgeDynamicsDescriptor DynamicsDescriptor { get; }
+        CgeDynamicsRankedDescriptor DynamicsDescriptor { get; }
     }
 
     public class PermutationComposedBehaviour : IComposedBehaviour
     {
+        public bool IsActivityBound { get; set; }
         public int StageValue { get; set; }
         public float TransitionDuration { get; set; }
         public bool IsAvatarDynamics { get; set; }
-        public CgeDynamicsDescriptor DynamicsDescriptor { get; set; }
+        public CgeDynamicsRankedDescriptor DynamicsDescriptor { get; set; }
 
         public Dictionary<Permutation, IAnimatedBehavior> Behaviors;
     }
 
     public class OneHandComposedBehaviour : IComposedBehaviour
     {
+        public bool IsActivityBound { get; set; }
         public int StageValue { get; set; }
         public float TransitionDuration { get; set; }
         public bool IsAvatarDynamics { get; set; }
-        public CgeDynamicsDescriptor DynamicsDescriptor { get; set; }
+        public CgeDynamicsRankedDescriptor DynamicsDescriptor { get; set; }
         public Dictionary<HandPose, IAnimatedBehavior> Behaviors;
         public bool IsLeftHand;
     }
 
     public class SingularComposedBehaviour : IComposedBehaviour
     {
+        public bool IsActivityBound { get; set; }
         public int StageValue { get; set; }
         public float TransitionDuration { get; set; }
         public bool IsAvatarDynamics { get; set; }
-        public CgeDynamicsDescriptor DynamicsDescriptor { get; set; }
+        public CgeDynamicsRankedDescriptor DynamicsDescriptor { get; set; }
         public IAnimatedBehavior Behavior;
     }
 
@@ -56,6 +60,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                     case PermutationManifest permutationManifest:
                         return (IComposedBehaviour)new PermutationComposedBehaviour
                         {
+                            IsActivityBound = binding.IsActivityBound,
                             StageValue = binding.StageValue,
                             TransitionDuration = permutationManifest.TransitionDuration(),
                             IsAvatarDynamics = binding.IsAvatarDynamics,
@@ -65,6 +70,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                     case SingleManifest puppetManifest:
                         return new SingularComposedBehaviour
                         {
+                            IsActivityBound = binding.IsActivityBound,
                             StageValue = binding.StageValue,
                             TransitionDuration = puppetManifest.TransitionDuration(),
                             IsAvatarDynamics = binding.IsAvatarDynamics,
@@ -74,6 +80,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                     case MassiveBlendManifest massiveManifest:
                         return new PermutationComposedBehaviour
                         {
+                            IsActivityBound = binding.IsActivityBound,
                             StageValue = binding.StageValue,
                             TransitionDuration = massiveManifest.TransitionDuration(),
                             IsAvatarDynamics = binding.IsAvatarDynamics,
@@ -83,6 +90,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                     case OneHandManifest oneHandManifest:
                         return new OneHandComposedBehaviour
                         {
+                            IsActivityBound = binding.IsActivityBound,
                             StageValue = binding.StageValue,
                             TransitionDuration = oneHandManifest.TransitionDuration(),
                             IsAvatarDynamics = binding.IsAvatarDynamics,

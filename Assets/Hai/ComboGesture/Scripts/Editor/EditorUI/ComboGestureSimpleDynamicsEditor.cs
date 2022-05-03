@@ -43,6 +43,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 element.FindPropertyRelative(nameof(ComboGestureSimpleDynamicsItem.parameterType)).intValue = 0;
                 element.FindPropertyRelative(nameof(ComboGestureSimpleDynamicsItem.condition)).intValue = 0;
                 element.FindPropertyRelative(nameof(ComboGestureSimpleDynamicsItem.threshold)).floatValue = 0f;
+                element.FindPropertyRelative(nameof(ComboGestureSimpleDynamicsItem.isHardThreshold)).boolValue = false;
             };
 
             _renderingCommands = new EeRenderingCommands();
@@ -111,6 +112,12 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 {
                     EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureSimpleDynamicsItem.threshold)));
                 }
+                if (
+                    item.contactReceiver.receiverType == ContactReceiver.ReceiverType.Proximity ||
+                    item.parameterType == ComboGestureSimpleDynamicsParameterType.Float )
+                {
+                    EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureSimpleDynamicsItem.isHardThreshold)));
+                }
             }
             else if (item.physBone != null)
             {
@@ -133,6 +140,12 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 {
                     EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureSimpleDynamicsItem.threshold)));
                 }
+                if (item.physBoneSource == ComboGestureSimpleDynamicsPhysBoneSource.Angle ||
+                    item.physBoneSource == ComboGestureSimpleDynamicsPhysBoneSource.Stretch ||
+                    item.parameterType == ComboGestureSimpleDynamicsParameterType.Float)
+                {
+                    EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureSimpleDynamicsItem.isHardThreshold)));
+                }
             }
             else if (!string.IsNullOrEmpty(item.parameterName))
             {
@@ -142,6 +155,10 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 if (item.parameterType == ComboGestureSimpleDynamicsParameterType.Float || item.parameterType == ComboGestureSimpleDynamicsParameterType.Int)
                 {
                     EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureSimpleDynamicsItem.threshold)));
+                }
+                if (item.parameterType == ComboGestureSimpleDynamicsParameterType.Float)
+                {
+                    EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureSimpleDynamicsItem.isHardThreshold)));
                 }
             }
             else

@@ -264,62 +264,40 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private List<ManifestBinding> CreateManifestBindings(AnimationClip emptyClip)
         {
             var comboLayers = _comboLayers
-                .Select((mapper, layerOrdinal) => new ManifestBinding(
-                    ToParameterGeneration(mapper),
-                    SharedLayerUtils.FromMapper(mapper, emptyClip, _universalAnalogSupport)
-                ))
+                .Select((mapper, layerOrdinal) => ManifestBinding.FromActivity(ToParameterGeneration(mapper),
+                    SharedLayerUtils.FromMapper(mapper, emptyClip, _universalAnalogSupport)))
                 .ToList();
             var dynamicsLayers = _dynamicsLayers
-                .Select((simpleDynamics, rank) => ManifestBinding.FromAvatarDynamics(
-                    new CgeDynamicsDescriptor
+                .SelectMany((simpleDynamics, rank) =>
+                {
+                    var descriptor = simpleDynamics.ToDescriptor();
+                    if (descriptor.parameterType == ComboGestureSimpleDynamicsParameterType.Float && !descriptor.isHardThreshold)
                     {
-                        parameter = DynamicsResolveParameter(simpleDynamics),
-                        rank = rank,
-                        condition = simpleDynamics.condition,
-                        threshold = simpleDynamics.threshold,
-                        parameterType = DynamicsResolveParameterType(simpleDynamics)
-                    }, SharedLayerUtils.FromSimpleDynamics(simpleDynamics, emptyClip, _universalAnalogSupport)
-                ))
+                        return comboLayers.Select(binding => ManifestBinding.FromActivityBoundAvatarDynamics(
+                            new CgeDynamicsRankedDescriptor
+                            {
+                                descriptor = descriptor,
+                                rank = rank
+                            }, SharedLayerUtils.FromMassiveSimpleDynamics(simpleDynamics, emptyClip, _universalAnalogSupport, binding.Manifest),
+                            binding.StageValue
+                        )).ToArray();
+                    }
+
+                    return new[]
+                    {
+                        ManifestBinding.FromAvatarDynamics(
+                            new CgeDynamicsRankedDescriptor
+                            {
+                                descriptor = descriptor,
+                                rank = rank,
+                            }, SharedLayerUtils.FromSimpleDynamics(simpleDynamics, emptyClip, _universalAnalogSupport)
+                        )
+                    };
+                })
                 .ToList();
 
             // Dynamics layers must be above combo layers -- This will affect layer generation order later on.
             return dynamicsLayers.Concat(comboLayers).ToList();
-        }
-
-        private static ComboGestureSimpleDynamicsParameterType DynamicsResolveParameterType(ComboGestureSimpleDynamicsItem mapper)
-        {
-            return mapper.contactReceiver != null
-                ? (mapper.contactReceiver.receiverType == ContactReceiver.ReceiverType.Proximity
-                    ? ComboGestureSimpleDynamicsParameterType.Float
-                    : mapper.parameterType)
-                : mapper.physBone != null
-                    ? (mapper.physBoneSource != ComboGestureSimpleDynamicsPhysBoneSource.IsGrabbed
-                        ? ComboGestureSimpleDynamicsParameterType.Float
-                        : mapper.parameterType)
-                    : mapper.parameterType;
-        }
-
-        private static string DynamicsResolveParameter(ComboGestureSimpleDynamicsItem mapper)
-        {
-            return mapper.contactReceiver != null
-                ? mapper.contactReceiver.parameter
-                : mapper.physBone != null
-                    ? $"{mapper.physBone.parameter}_{ToSuffix(mapper.physBoneSource)}"
-                    : mapper.parameterName != null
-                        ? mapper.parameterName
-                        : throw new ArgumentException();
-        }
-
-        private static string ToSuffix(ComboGestureSimpleDynamicsPhysBoneSource source)
-        {
-            switch (source)
-            {
-                case ComboGestureSimpleDynamicsPhysBoneSource.Stretch: return "Stretch";
-                case ComboGestureSimpleDynamicsPhysBoneSource.Angle: return "Angle";
-                case ComboGestureSimpleDynamicsPhysBoneSource.IsGrabbed: return "IsGrabbed";
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(source), source, null);
-            }
         }
 
         private int ToParameterGeneration(GestureComboStageMapper mapper)
@@ -459,38 +437,56 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         }
     }
 
-    class ManifestBinding
+    struct ManifestBinding
     {
-        public int StageValue { get; }
-        public IManifest Manifest { get; }
+        public bool IsActivityBound;
+        public int StageValue;
+        public IManifest Manifest;
         public bool IsAvatarDynamics;
-        public CgeDynamicsDescriptor DynamicsDescriptor;
+        public CgeDynamicsRankedDescriptor DynamicsDescriptor;
 
-        public ManifestBinding(int stageValue, IManifest manifest)
+        public static ManifestBinding FromActivity(int stageValue, IManifest manifest)
         {
-            StageValue = stageValue;
-            Manifest = manifest;
+            return new ManifestBinding
+            {
+                IsActivityBound = true,
+                StageValue = stageValue,
+                Manifest = manifest
+            };
         }
 
-        public static ManifestBinding FromAvatarDynamics(CgeDynamicsDescriptor dynamicsDescriptor, IManifest manifest)
+        public static ManifestBinding FromAvatarDynamics(CgeDynamicsRankedDescriptor dynamicsDescriptor, IManifest manifest)
         {
-            return new ManifestBinding(dynamicsDescriptor, manifest);
+            return new ManifestBinding
+            {
+                IsAvatarDynamics = true,
+                DynamicsDescriptor = dynamicsDescriptor,
+                Manifest = manifest
+            };
         }
 
-        private ManifestBinding(CgeDynamicsDescriptor dynamicsDescriptor, IManifest manifest)
+        public static ManifestBinding FromActivityBoundAvatarDynamics(CgeDynamicsRankedDescriptor dynamicsDescriptor, IManifest manifest, int stageValue)
         {
-            Manifest = manifest;
-            IsAvatarDynamics = true;
-            DynamicsDescriptor = dynamicsDescriptor;
+            return new ManifestBinding
+            {
+                IsActivityBound = true,
+                StageValue = stageValue,
+                IsAvatarDynamics = true,
+                DynamicsDescriptor = dynamicsDescriptor,
+                Manifest = manifest
+            };
         }
-    }
 
-    public struct CgeDynamicsDescriptor
-    {
-        public int rank;
-        public string parameter;
-        public float threshold;
-        public ComboGestureSimpleDynamicsParameterType parameterType;
-        public ComboGestureSimpleDynamicsCondition condition;
+        public static ManifestBinding Remapping(ManifestBinding original, IManifest newManifest)
+        {
+            return new ManifestBinding
+            {
+                IsActivityBound = original.IsActivityBound,
+                StageValue = original.StageValue,
+                Manifest = newManifest,
+                IsAvatarDynamics = original.IsAvatarDynamics,
+                DynamicsDescriptor = original.DynamicsDescriptor
+            };
+        }
     }
 }
