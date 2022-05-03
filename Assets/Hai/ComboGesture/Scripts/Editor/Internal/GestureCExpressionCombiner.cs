@@ -618,27 +618,12 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         private Motion CreateDualBlendTree(Motion atZero, Motion atOne, Motion atLeft, Motion atRight, string clipName, bool useGestureWeightCorrection, bool useSmoothing)
         {
-            ChildMotion[] motions;
-            if (atOne == atLeft && atOne == atRight)
-            {
-                motions = new[]
-                {
-                    new ChildMotion {motion = atZero, timeScale = 1, position = Vector2.zero},
-                    new ChildMotion {motion = atOne, timeScale = 1, position = Vector2.right},
-                    new ChildMotion {motion = atOne, timeScale = 1, position = Vector2.up},
-                };
-            }
-            else
-            {
-                motions = new[]
-                {
-                    new ChildMotion {motion = atZero, timeScale = 1, position = Vector2.zero},
-                    new ChildMotion {motion = atLeft, timeScale = 1, position = Vector2.right},
-                    new ChildMotion {motion = atRight, timeScale = 1, position = Vector2.up},
-                    new ChildMotion {motion = atOne, timeScale = 1, position = Vector2.right + Vector2.up},
-                };
-            }
-
+            ChildMotion[] motions = {
+                new ChildMotion {motion = atZero, timeScale = 1, position = Vector2.zero},
+                new ChildMotion {motion = atLeft, timeScale = 1, position = Vector2.right},
+                new ChildMotion {motion = atRight, timeScale = 1, position = Vector2.up},
+                new ChildMotion {motion = atOne, timeScale = 1, position = Vector2.right + Vector2.up},
+            };
 
             var blendTree = new BlendTree
             {
