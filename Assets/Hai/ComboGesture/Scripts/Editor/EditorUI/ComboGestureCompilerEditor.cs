@@ -7,6 +7,7 @@ using Hai.ComboGesture.Scripts.Editor.Internal;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
+using VRC.SDKBase;
 using AnimatorController = UnityEditor.Animations.AnimatorController;
 using BlendTree = UnityEditor.Animations.BlendTree;
 
@@ -54,6 +55,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         public SerializedProperty useViveAdvancedControlsForNonFistAnalog;
         public SerializedProperty dynamics;
+        private SerializedProperty doNotForceBlinkBlendshapes;
 
         private void OnEnable()
         {
@@ -94,6 +96,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             useViveAdvancedControlsForNonFistAnalog = serializedObject.FindProperty(nameof(ComboGestureCompiler.useViveAdvancedControlsForNonFistAnalog));
             dynamics = serializedObject.FindProperty(nameof(ComboGestureCompiler.dynamics));
+            doNotForceBlinkBlendshapes = serializedObject.FindProperty(nameof(ComboGestureCompiler.doNotForceBlinkBlendshapes));
 
             // reference: https://blog.terresquall.com/2020/03/creating-reorderable-lists-in-the-unity-inspector/
             comboLayersReorderableList = new ReorderableList(
@@ -300,6 +303,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             EditorGUILayout.PropertyField(animatorController, new GUIContent(CgeLocale.CGEC_FX_Animator_Controller));
             EditorGUILayout.PropertyField(writeDefaultsRecommendationMode, new GUIContent(CgeLocale.CGEC_FX_Playable_Mode));
             WriteDefaultsSection(writeDefaultsRecommendationMode);
+
+            EditorGUILayout.PropertyField(doNotForceBlinkBlendshapes, new GUIContent(CgeLocale.CGEC_DoNotForceBlinkBlendshapes));
 
             EditorGUILayout.Separator();
 

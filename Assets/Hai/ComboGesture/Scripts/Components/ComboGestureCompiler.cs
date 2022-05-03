@@ -48,6 +48,7 @@ namespace Hai.ComboGesture.Scripts.Components
 
         public ParameterMode parameterMode;
         public ComboGestureDynamics dynamics;
+        public bool doNotForceBlinkBlendshapes;
 
         public bool WillUseGestureWeightCorrection()
         {

@@ -38,6 +38,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly bool _universalAnalogSupport;
         private readonly AvatarMask _nothingMask;
         private readonly ComboGestureDynamicsItem[] _dynamicsLayers;
+        private readonly bool _doNotForceBlinkBlendshapes;
 
         public ComboGestureCompilerInternal(
             ComboGestureCompiler compiler,
@@ -86,6 +87,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _useGestureWeightCorrection = compiler.WillUseGestureWeightCorrection();
             _useSmoothing = _useGestureWeightCorrection;
             _universalAnalogSupport = compiler.useViveAdvancedControlsForNonFistAnalog;
+            _doNotForceBlinkBlendshapes = compiler.doNotForceBlinkBlendshapes;
         }
 
         public ComboGestureCompilerInternal(
@@ -406,7 +408,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 _useGestureWeightCorrection,
                 _useSmoothing,
                 manifestBindings,
-                _avatarDescriptor
+                _avatarDescriptor,
+                _doNotForceBlinkBlendshapes
             ).Create();
         }
 
@@ -431,7 +434,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 _useGestureWeightCorrection,
                 _useSmoothing,
                 manifestBindings,
-                _avatarDescriptor
+                _avatarDescriptor,
+                _doNotForceBlinkBlendshapes
             ).Create();
         }
 

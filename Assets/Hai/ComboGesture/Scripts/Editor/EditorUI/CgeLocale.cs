@@ -141,6 +141,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         //
         internal static string CGEC_Avatar_Dynamics => LocalizeOrElse("CGEC_Avatar_Dynamics", CgeLocaleDefaults.CGEC_Avatar_Dynamics);
         internal static string CGEC_Dynamics => LocalizeOrElse("CGEC_Dynamics", CgeLocaleDefaults.CGEC_Dynamics);
+        internal static string CGEC_DoNotForceBlinkBlendshapes => LocalizeOrElse("CGEC_DoNotForceBlinkBlendshapes", CgeLocaleDefaults.CGEC_DoNotForceBlinkBlendshapes);
+
 
         private static string LocalizeOrElse(string key, string defaultCultureLocalization)
         {

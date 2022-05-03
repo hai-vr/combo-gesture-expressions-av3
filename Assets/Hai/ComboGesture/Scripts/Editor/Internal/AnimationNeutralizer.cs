@@ -24,6 +24,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly AnimationClip _emptyClip;
         private readonly bool _doNotFixSingleKeyframes;
         private readonly VRCAvatarDescriptor _avatarDescriptorNullable;
+        private readonly bool _doNotForceBlinkBlendshapes;
 
         public AnimationNeutralizer(List<ManifestBinding> originalBindings,
             ConflictFxLayerMode compilerConflictFxLayerMode,
@@ -33,7 +34,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             bool useExhaustiveAnimations,
             AnimationClip emptyClip,
             bool doNotFixSingleKeyframes,
-            VRCAvatarDescriptor avatarDescriptorNullable)
+            VRCAvatarDescriptor avatarDescriptorNullable,
+            bool doNotForceBlinkBlendshapes)
         {
             _originalBindings = originalBindings;
             _compilerConflictFxLayerMode = compilerConflictFxLayerMode;
@@ -46,6 +48,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _emptyClip = emptyClip;
             _doNotFixSingleKeyframes = doNotFixSingleKeyframes;
             _avatarDescriptorNullable = avatarDescriptorNullable;
+            _doNotForceBlinkBlendshapes = doNotForceBlinkBlendshapes;
         }
 
         private static HashSet<CurveKey> ExtractAllCurvesOf(AnimationClip clip)
@@ -263,10 +266,47 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
         }
 
-        private static void MutateCurvesForAnimatedAnimatorParameters(AnimationClip neutralizedAnimation, QualifiedAnimation qualifiedAnimation)
+        private void MutateCurvesForAnimatedAnimatorParameters(AnimationClip neutralizedAnimation, QualifiedAnimation qualifiedAnimation)
         {
             var blinking = qualifiedAnimation.Qualification.IsBlinking ? 1 : 0;
-            neutralizedAnimation.SetCurve("", typeof(Animator), "_Hai_GestureAnimBlink", AnimationCurve.Linear(0, blinking, 1 / 60f, blinking));
+            neutralizedAnimation.SetCurve("", typeof(Animator), "_Hai_GestureAnimBlink", AnimationCurve.Constant(0, 1 / 60f, blinking));
+
+            if (qualifiedAnimation.Qualification.IsBlinking && !_doNotForceBlinkBlendshapes)
+            {
+                TryCreateBlinkBlendshapesOnBlinkingAnimation(neutralizedAnimation);
+            }
+        }
+
+        private void TryCreateBlinkBlendshapesOnBlinkingAnimation(AnimationClip neutralizedAnimation)
+        {
+            if (_avatarDescriptorNullable != null && _avatarDescriptorNullable.enableEyeLook)
+            {
+                var eyeLook = _avatarDescriptorNullable.customEyeLookSettings;
+                if (eyeLook.eyelidType == VRCAvatarDescriptor.EyelidType.Blendshapes && eyeLook.eyelidsSkinnedMesh != null)
+                {
+                    var editorCurveBindings = AnimationUtility.GetCurveBindings(neutralizedAnimation);
+                    var path = AnimationUtility.CalculateTransformPath(eyeLook.eyelidsSkinnedMesh.transform, _avatarDescriptorNullable.transform);
+
+                    var totalBlendShapeCount = eyeLook.eyelidsSkinnedMesh.sharedMesh.blendShapeCount;
+                    foreach (var eyelidsBlendshape in eyeLook.eyelidsBlendshapes)
+                    {
+                        if (eyelidsBlendshape >= 0 && eyelidsBlendshape < totalBlendShapeCount)
+                        {
+                            var blendShapeName = eyeLook.eyelidsSkinnedMesh.sharedMesh.GetBlendShapeName(eyelidsBlendshape);
+                            var propertyName = $"blendShape.{blendShapeName}";
+                            if (!editorCurveBindings.Contains(new EditorCurveBinding
+                            {
+                                path = path,
+                                propertyName = propertyName,
+                                type = typeof(SkinnedMeshRenderer)
+                            }))
+                            {
+                                neutralizedAnimation.SetCurve(path, typeof(SkinnedMeshRenderer), propertyName, AnimationCurve.Constant(0, 1 / 60f, 0));
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         private AnimationClip CopyAndNeutralize(AnimationClip animationClipToBePreserved, HashSet<CurveKey> allApplicableCurveKeys, HashSet<CurveKey> allApplicableObjectReferences, bool useExhaustiveAnimations)

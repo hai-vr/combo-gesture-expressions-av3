@@ -28,6 +28,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly bool _useSmoothing;
         private readonly List<ManifestBinding> _manifestBindings;
         private readonly VRCAvatarDescriptor _avatarDescriptorNullable;
+        private readonly bool _doNotForceBlinkBlendshapes;
 
         public LayerForExpressionsView(FeatureToggles featuresToggles,
             AvatarMask expressionsAvatarMask,
@@ -42,7 +43,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             bool useGestureWeightCorrection,
             bool useSmoothing,
             List<ManifestBinding> manifestBindings,
-            VRCAvatarDescriptor avatarDescriptorNullable)
+            VRCAvatarDescriptor avatarDescriptorNullable,
+            bool doNotForceBlinkBlendshapes)
         {
             _featuresToggles = featuresToggles;
             _expressionsAvatarMask = expressionsAvatarMask;
@@ -58,6 +60,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _useSmoothing = useSmoothing;
             _manifestBindings = manifestBindings;
             _avatarDescriptorNullable = avatarDescriptorNullable;
+            _doNotForceBlinkBlendshapes = doNotForceBlinkBlendshapes;
         }
 
         public void Create()
@@ -74,7 +77,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 _conflictPrevention.ShouldGenerateExhaustiveAnimations,
                 _emptyClip,
                 Feature(FeatureToggles.DoNotFixSingleKeyframes),
-                _avatarDescriptorNullable
+                _avatarDescriptorNullable,
+                _doNotForceBlinkBlendshapes
             );
 
             var avatarMaskNullable = animationNeutralizer.GenerateAvatarMaskInsideContainerIfApplicableOrNull();

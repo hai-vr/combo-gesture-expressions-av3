@@ -165,5 +165,6 @@ You should disable Vive Advanced Controls Analog if you are not sure of what you
 
         internal static string CGEC_Avatar_Dynamics = "Avatar Dynamics";
         internal static string CGEC_Dynamics = "Dynamics";
+        internal static string CGEC_DoNotForceBlinkBlendshapes = "Do not force blink blendshapes";
     }
 }
