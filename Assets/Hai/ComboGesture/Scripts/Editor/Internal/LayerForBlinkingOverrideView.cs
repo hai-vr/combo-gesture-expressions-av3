@@ -45,19 +45,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             var enableBlinking = CreateBlinkingState(layer, VRC_AnimatorTrackingControl.TrackingType.Tracking);
             var disableBlinking = CreateBlinkingState(layer, VRC_AnimatorTrackingControl.TrackingType.Animation);
 
-            if (_activityStageName != null)
-            {
-                var suspend = CreateSuspendState(layer);
-
-                CreateTransitionWhenActivityIsOutOfBounds(layer, enableBlinking, suspend);
-                CreateTransitionWhenActivityIsOutOfBounds(layer, disableBlinking, suspend);
-
-                foreach (var comboLayer in _comboLayers)
-                {
-                    suspend.TransitionsTo(enableBlinking).When(layer.IntParameter(_activityStageName).IsEqualTo(comboLayer.internalVirtualStageValue));
-                }
-            }
-
             enableBlinking.TransitionsTo(disableBlinking)
                 .When(layer.FloatParameter("_Hai_GestureAnimBlink").IsGreaterThan(_analogBlinkingUpperThreshold));
             disableBlinking.TransitionsTo(enableBlinking)
