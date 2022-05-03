@@ -49,8 +49,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 {
                     var name = behaviour.IsAvatarDynamics
                         ? behaviour.IsActivityBound
-                        ? $"Dynamics {behaviour.DynamicsDescriptor.rank} @ Activity {behaviour.StageValue}"
-                        : $"Dynamics {behaviour.DynamicsDescriptor.rank}"
+                        ? $"Dynamics {behaviour.DynamicsDescriptor.rank} Act {behaviour.StageValue} #{i}"
+                        : $"Dynamics {behaviour.DynamicsDescriptor.rank} #{i}"
                         : $"Activity {behaviour.StageValue}";
                     return intern.NewSubStateMachine(name).At(0, i);
                 })
@@ -223,6 +223,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 {
                     var permutation = Permutation.LeftRight(left, right);
                     var state = AppendToSsm(rightSsm, composed.Behaviors[permutation]).At((int)permutation.Right, (int)permutation.Left);
+                    state.State.name = $"Left {left}";
 
                     rightSsm.EntryTransitionsTo(state)
                         .When(GL.IsEqualTo((int) permutation.Left));
@@ -264,6 +265,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 var behavior = pair.Value;
 
                 var state = AppendToSsm(ssm, behavior).At(0, (int)handPose);
+                state.State.name = $"{(composed.IsLeftHand ? "Left" : "Right")} {handPose}";
                 ssm.EntryTransitionsTo(state)
                     .When(which.IsEqualTo((int) handPose));
                 state.Exits()
@@ -296,6 +298,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private void BuildScb(CgeAacFlStateMachine ssm, SingularComposedBehaviour composed, CgeDynamicsDescriptor[] dynamicsExiters)
         {
             var state = AppendToSsm(ssm, composed.Behavior);
+            state.State.name = $"Single";
             ssm.EntryTransitionsTo(state);
             if (composed.IsAvatarDynamics)
             {
