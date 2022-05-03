@@ -1,10 +1,10 @@
-# ComboGestureExpressions (CGE) for Avatars 3.0
+# ComboGestureExpressions (CGE) for Avatar Dynamics
 
 ### [> Download latest version...](https://github.com/hai-vr/combo-gesture-expressions-av3/releases)
 
-*ComboGestureExpressions* is an Unity Editor tool that lets you attach face expressions to hand gestures and take as much advantage of *Avatars 3.0*'s features.
+*ComboGestureExpressions* is an Unity Editor tool that lets you attach face expressions to hand gestures and take as much advantage of *Avatars 3.0* features, including *Avatar Dynamics* and *OSC*.
 
-It also includes *ExpressionsEditor*, an animation editor that lets you create face expressions with the help of previews.
+It is bundled with *Visual Expressions Editor*, an animation editor that lets you create face expressions with the help of previews.
 
 ![](https://github.com/hai-vr/combo-gesture-expressions-av3/raw/z-res-pictures/Documentation/illustration-2.gif)
 
@@ -16,6 +16,7 @@ For instance, if a face expression closes the eyes on the left hand, but lowers 
 - Using the expressions menu, attach multiple expressions on a single gesture by switching between entire sets of face expressions representing different moods.
 - Eyes will no longer blink whenever the avatar has a face expression with eyes closed.
 - Puppets and blend trees are integrated into the tool, with automatic correction of incorrect blending.
+- PhysBones, Contacts and OSC can be used to blend in face expressions.
 - ...and more tweaks.
 
 This tool should NOT be used for:
