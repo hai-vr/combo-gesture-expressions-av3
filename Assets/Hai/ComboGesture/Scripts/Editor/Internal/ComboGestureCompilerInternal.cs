@@ -7,7 +7,6 @@ using Hai.ComboGesture.Scripts.Editor.Internal.Model;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
-using VRC.Dynamics;
 using VRC.SDK3.Avatars.Components;
 using Object = UnityEngine.Object;
 
@@ -406,7 +405,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 _animatorController,
                 _useGestureWeightCorrection,
                 _useSmoothing,
-                manifestBindings
+                manifestBindings,
+                _avatarDescriptor
             ).Create();
         }
 
@@ -430,7 +430,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 _animatorController,
                 _useGestureWeightCorrection,
                 _useSmoothing,
-                manifestBindings
+                manifestBindings,
+                _avatarDescriptor
             ).Create();
         }
 

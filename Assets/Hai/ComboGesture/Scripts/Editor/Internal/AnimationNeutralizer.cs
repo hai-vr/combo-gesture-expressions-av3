@@ -6,6 +6,7 @@ using Hai.ComboGesture.Scripts.Editor.Internal.Model;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
+using VRC.SDK3.Avatars.Components;
 using Object = UnityEngine.Object;
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal
@@ -22,6 +23,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly bool _useExhaustiveAnimations;
         private readonly AnimationClip _emptyClip;
         private readonly bool _doNotFixSingleKeyframes;
+        private readonly VRCAvatarDescriptor _avatarDescriptorNullable;
 
         public AnimationNeutralizer(List<ManifestBinding> originalBindings,
             ConflictFxLayerMode compilerConflictFxLayerMode,
@@ -30,7 +32,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             AssetContainer assetContainer,
             bool useExhaustiveAnimations,
             AnimationClip emptyClip,
-            bool doNotFixSingleKeyframes)
+            bool doNotFixSingleKeyframes,
+            VRCAvatarDescriptor avatarDescriptorNullable)
         {
             _originalBindings = originalBindings;
             _compilerConflictFxLayerMode = compilerConflictFxLayerMode;
@@ -42,6 +45,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _useExhaustiveAnimations = useExhaustiveAnimations;
             _emptyClip = emptyClip;
             _doNotFixSingleKeyframes = doNotFixSingleKeyframes;
+            _avatarDescriptorNullable = avatarDescriptorNullable;
         }
 
         private static HashSet<CurveKey> ExtractAllCurvesOf(AnimationClip clip)
@@ -382,13 +386,35 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             {
                 if (!thisAnimationPaths.Contains(curveKey))
                 {
-                    var fallbackValue = _curveKeyToFallbackValue.ContainsKey(curveKey) ? _curveKeyToFallbackValue[curveKey] : 0;
+                    var fallbackValue = _curveKeyToFallbackValue.ContainsKey(curveKey) ? _curveKeyToFallbackValue[curveKey] : FindFallbackInAvatar(curveKey);
 
                     Keyframe[] keyframes = {new Keyframe(0, fallbackValue), new Keyframe(1 / 60f, fallbackValue)};
                     var curve = new AnimationCurve(keyframes);
                     copyOfAnimationClip.SetCurve(curveKey.Path, curveKey.Type, curveKey.PropertyName, curve);
                 }
             }
+        }
+
+        private float FindFallbackInAvatar(CurveKey curveKey)
+        {
+            if (_avatarDescriptorNullable == null)
+            {
+                return 0;
+            }
+
+            var found = AnimationUtility.GetFloatValue(_avatarDescriptorNullable.gameObject, new EditorCurveBinding
+            {
+                path = curveKey.Path,
+                type = curveKey.Type,
+                propertyName = curveKey.PropertyName
+            }, out var data);
+
+            if (!found)
+            {
+                return 0;
+            }
+
+            return data;
         }
 
         private void AddMissingObjectReferences(HashSet<CurveKey> allApplicableObjectReferences, List<CurveKey> thisObjectReferences, AnimationClip copyOfAnimationClip)
