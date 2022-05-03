@@ -385,15 +385,15 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                         SanitizeName(UnshimName(pta.Resting.name) + " MB " + UnshimName((pta.Squeezing.Clip.name))));
                 case AnimatedBehaviorNature.DualAnalog:
                     DualAnalogAnimatedBehavior da = (DualAnalogAnimatedBehavior)behavior;
-                    return CreateDualBlendTree(da.Resting.Clip, da.BothSqueezing.Clip, da.LeftSqueezing.Clip, da.LeftSqueezing.Clip, SanitizeName(UnshimName(da.BothSqueezing.Clip.name)), _useGestureWeightCorrection, _useSmoothing);
+                    return CreateDualBlendTree(da.Resting.Clip, da.BothSqueezing.Clip, da.LeftSqueezing.Clip, da.RightSqueezing.Clip, SanitizeName(UnshimName(da.BothSqueezing.Clip.name)), _useGestureWeightCorrection, _useSmoothing);
                 case AnimatedBehaviorNature.PuppetToDualAnalog:
                     PuppetToDualAnalogAnimatedBehavior ptda = (PuppetToDualAnalogAnimatedBehavior)behavior;
-                    return CreateDualBlendTree(ptda.Resting, ptda.BothSqueezing.Clip, ptda.LeftSqueezing.Clip, ptda.LeftSqueezing.Clip, SanitizeName(UnshimName(ptda.BothSqueezing.Clip.name)), _useGestureWeightCorrection, _useSmoothing);
+                    return CreateDualBlendTree(ptda.Resting, ptda.BothSqueezing.Clip, ptda.LeftSqueezing.Clip, ptda.RightSqueezing.Clip, SanitizeName(UnshimName(ptda.BothSqueezing.Clip.name)), _useGestureWeightCorrection, _useSmoothing);
                 case AnimatedBehaviorNature.Puppet:
                     return ((PuppetAnimatedBehavior)behavior).Tree;
                 case AnimatedBehaviorNature.UniversalAnalog:
                     UniversalAnalogAnimatedBehavior uaab = (UniversalAnalogAnimatedBehavior)behavior;
-                    return CreateDualBlendTree(uaab.Resting.ToMotion(), uaab.BothSqueezing.Clip, uaab.LeftSqueezing.ToMotion(), uaab.LeftSqueezing.ToMotion(), SanitizeName(UnshimName(uaab.BothSqueezing.Clip.name)), _useGestureWeightCorrection, _useSmoothing);
+                    return CreateDualBlendTree(uaab.Resting.ToMotion(), uaab.BothSqueezing.Clip, uaab.LeftSqueezing.ToMotion(), uaab.RightSqueezing.ToMotion(), SanitizeName(UnshimName(uaab.BothSqueezing.Clip.name)), _useGestureWeightCorrection, _useSmoothing);
                 case AnimatedBehaviorNature.SimpleMassiveBlend:
                 case AnimatedBehaviorNature.TwoDirectionsMassiveBlend:
                 case AnimatedBehaviorNature.ComplexMassiveBlend:
