@@ -15,12 +15,15 @@ namespace Hai.ComboGesture.Scripts.Components
     [Serializable]
     public struct ComboGestureDynamicsItem
     {
+        public ComboGestureDynamicsEffect effect;
         public AnimationClip clip;
         public bool bothEyesClosed;
         public ComboGestureMoodSet moodSet;
-        public ComboGestureDynamicsPhysBoneSource physBoneSource;
+
+        public ComboGestureDynamicsSource source;
         public VRCContactReceiver contactReceiver;
         public VRCPhysBone physBone;
+        public ComboGestureDynamicsPhysBoneSource physBoneSource;
         public string parameterName;
         public ComboGestureDynamicsParameterType parameterType;
         public ComboGestureDynamicsCondition condition;
@@ -41,32 +44,54 @@ namespace Hai.ComboGesture.Scripts.Components
 
         private string DynamicsResolveParameter()
         {
-            return contactReceiver != null
-                ? contactReceiver.parameter
-                : physBone != null
-                    ? $"{physBone.parameter}_{ToSuffix()}"
-                    : parameterName != null
-                        ? parameterName
-                        : throw new ArgumentException();
+            switch (source)
+            {
+                case ComboGestureDynamicsSource.Contact:
+                    return contactReceiver.parameter;
+                case ComboGestureDynamicsSource.PhysBone:
+                    return $"{physBone.parameter}_{ToSuffix()}";
+                case ComboGestureDynamicsSource.Parameter:
+                    return parameterName;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
         private ComboGestureDynamicsParameterType DynamicsResolveParameterType()
         {
-            return contactReceiver != null
-                ? (contactReceiver.receiverType == ContactReceiver.ReceiverType.Proximity
-                    ? ComboGestureDynamicsParameterType.Float
-                    : parameterType)
-                : physBone != null
-                    ? (physBoneSource != ComboGestureDynamicsPhysBoneSource.IsGrabbed
+            switch (source)
+            {
+                case ComboGestureDynamicsSource.Contact:
+                    return contactReceiver.receiverType == ContactReceiver.ReceiverType.Proximity
                         ? ComboGestureDynamicsParameterType.Float
-                        : parameterType)
-                    : parameterType;
+                        : parameterType;
+                case ComboGestureDynamicsSource.PhysBone:
+                    return physBoneSource != ComboGestureDynamicsPhysBoneSource.IsGrabbed
+                        ? ComboGestureDynamicsParameterType.Float
+                        : parameterType;
+                case ComboGestureDynamicsSource.Parameter:
+                    return parameterType;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
         private string ToSuffix()
         {
             return Enum.GetName(typeof(ComboGestureDynamicsPhysBoneSource), physBoneSource);
         }
+    }
+
+    [Serializable]
+    public enum ComboGestureDynamicsEffect
+    {
+        Clip, MoodSet
+    }
+
+    [Serializable]
+    public enum ComboGestureDynamicsSource
+    {
+        Contact, PhysBone, Parameter
     }
 
     [Serializable]

@@ -51,17 +51,19 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         private static IManifest ResolveSelfDynamics(ComboGestureDynamicsItem simpleDynamics, AnimationClip emptyClip, bool universalAnalogSupport)
         {
-            if (simpleDynamics.clip != null)
+            switch (simpleDynamics.effect)
             {
-                return ManifestFromPuppet.FromAnim(simpleDynamics.clip, simpleDynamics.bothEyesClosed, DynamicsTransitionDuration);
+                case ComboGestureDynamicsEffect.Clip:
+                    return simpleDynamics.clip != null
+                        ? ManifestFromPuppet.FromAnim(simpleDynamics.clip, simpleDynamics.bothEyesClosed, DynamicsTransitionDuration)
+                        : ManifestFromActivity.FromNothing(emptyClip);
+                case ComboGestureDynamicsEffect.MoodSet:
+                    return simpleDynamics.moodSet != null
+                        ? FromMoodSet(simpleDynamics.moodSet, emptyClip, universalAnalogSupport)
+                        : ManifestFromActivity.FromNothing(emptyClip);
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
-
-            if (simpleDynamics.moodSet != null)
-            {
-                return FromMoodSet(simpleDynamics.moodSet, emptyClip, universalAnalogSupport);
-            }
-
-            return ManifestFromActivity.FromNothing(emptyClip);
         }
 
         public static IManifest FromMoodSet(ComboGestureMoodSet moodSet, AnimationClip fallbackWhenAnyClipIsNull, bool universalAnalogSupport)
