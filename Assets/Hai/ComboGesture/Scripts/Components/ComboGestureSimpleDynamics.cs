@@ -16,8 +16,7 @@ namespace Hai.ComboGesture.Scripts.Components
     {
         public AnimationClip clip;
         public bool bothEyesClosed;
-        public ComboGestureActivity activity;
-        public ComboGesturePuppet puppet;
+        public ComboGestureMoodSet moodSet;
         public ComboGestureSimpleDynamicsPhysBoneSource physBoneSource;
         public VRCContactReceiver contactReceiver;
         public VRCPhysBone physBone;

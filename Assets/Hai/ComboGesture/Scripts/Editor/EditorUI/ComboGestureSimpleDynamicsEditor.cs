@@ -35,8 +35,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 var element = list.serializedProperty.GetArrayElementAtIndex(list.serializedProperty.arraySize - 1);
                 element.FindPropertyRelative(nameof(ComboGestureSimpleDynamicsItem.clip)).objectReferenceValue = null;
                 element.FindPropertyRelative(nameof(ComboGestureSimpleDynamicsItem.bothEyesClosed)).boolValue = false;
-                element.FindPropertyRelative(nameof(ComboGestureSimpleDynamicsItem.activity)).objectReferenceValue = null;
-                element.FindPropertyRelative(nameof(ComboGestureSimpleDynamicsItem.puppet)).objectReferenceValue = null;
+                element.FindPropertyRelative(nameof(ComboGestureSimpleDynamicsItem.moodSet)).objectReferenceValue = null;
                 element.FindPropertyRelative(nameof(ComboGestureSimpleDynamicsItem.physBoneSource)).intValue = 0;
                 element.FindPropertyRelative(nameof(ComboGestureSimpleDynamicsItem.contactReceiver)).objectReferenceValue = null;
                 element.FindPropertyRelative(nameof(ComboGestureSimpleDynamicsItem.physBone)).objectReferenceValue = null;
@@ -78,22 +77,16 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureSimpleDynamicsItem.bothEyesClosed)));
                 InputChoice(rect, item, line, lineId, element);
             }
-            else if (item.activity != null)
+            else if (item.moodSet != null)
             {
-                EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureSimpleDynamicsItem.activity)));
-                InputChoice(rect, item, line, lineId, element);
-            }
-            else if (item.puppet != null)
-            {
-                EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureSimpleDynamicsItem.puppet)));
+                EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureSimpleDynamicsItem.moodSet)));
                 InputChoice(rect, item, line, lineId, element);
             }
             else
             {
                 EditorGUI.LabelField(Position(rect, line, ref lineId), "Clip, Activity, or Puppet?", EditorStyles.boldLabel);
                 EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureSimpleDynamicsItem.clip)));
-                EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureSimpleDynamicsItem.activity)));
-                EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureSimpleDynamicsItem.puppet)));
+                EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureSimpleDynamicsItem.moodSet)));
             }
         }
 

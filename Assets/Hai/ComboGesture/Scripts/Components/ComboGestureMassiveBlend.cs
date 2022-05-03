@@ -4,7 +4,6 @@ using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Components
 {
-    [AddComponentMenu("")] // Don't promote the use of this component
     public class ComboGestureMassiveBlend : ComboGestureMoodSet
     {
         public CgeMassiveBlendMode mode;

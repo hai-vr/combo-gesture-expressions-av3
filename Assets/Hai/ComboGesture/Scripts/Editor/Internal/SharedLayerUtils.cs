@@ -44,14 +44,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 return ManifestFromPuppet.FromAnim(simpleDynamics.clip, simpleDynamics.bothEyesClosed, DynamicsTransitionDuration);
             }
 
-            if (simpleDynamics.activity != null)
+            if (simpleDynamics.moodSet != null)
             {
-                return ManifestFromActivity.FromActivity(simpleDynamics.activity, emptyClip, universalAnalogSupport);
-            }
-
-            if (simpleDynamics.puppet != null)
-            {
-                return ManifestFromPuppet.FromPuppet(simpleDynamics.puppet);
+                return FromMoodSet(simpleDynamics.moodSet, emptyClip, universalAnalogSupport);
             }
 
             return ManifestFromActivity.FromNothing(emptyClip);
