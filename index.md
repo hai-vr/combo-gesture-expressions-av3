@@ -1,86 +1,90 @@
-*ComboGestureExpressions* is an Unity Editor tool that lets you attach face expressions to hand gestures and take as much advantage of *Avatars 3.0*'s features.
+*ComboGestureExpressions* is an Unity Editor tool that lets you attach face expressions to hand gestures, and make it react to other *Avatars 3.0*'s features, including *Contacts*, *PhysBones* and *OSC*.
 
-It also includes *ExpressionsEditor*, an animation editor that lets you create face expressions with the help of previews.
+It is bundled with *Visual Expressions Editor*, an animation editor that lets you create face expressions with the help of previews.
 
 # [> Download latest version...](https://github.com/hai-vr/combo-gesture-expressions-av3/releases)
 
 - *([Download on github.com](https://github.com/hai-vr/combo-gesture-expressions-av3/releases))*
 - *([Download on booth.pm](https://hai-vr.booth.pm/items/2219616))*
 
+<video controls width="816" autostart="false">
+    <source src="https://hai-vr.github.io/combo-gesture-expressions-av3/videos/cge2-rc-github.mp4" type="video/mp4">
+</video>
 <iframe src="https://streamable.com/e/t19nkm?loop=0" width="408" height="256" frameborder="0" allowfullscreen></iframe> <iframe src="https://streamable.com/e/bg1uoj?loop=0" width="408" height="256" frameborder="0" allowfullscreen></iframe>
 
-<iframe src="https://streamable.com/e/8ysn22?loop=0" width="408" height="256" frameborder="0" allowfullscreen></iframe>
+With *ComboGestureExpressions*:
 
-A common issue with classic avatars are face expressions that conflict when both hands are combined.
-For instance, if a face expression closes the eyes on the left hand, but lowers the eyelids on the other hand, the face will look wrong.
-
-*ComboGestureExpressions* takes advantage of Avatars 3.0 animators to address this issue, but also introduces new features that will expand the expressions of your avatar. It also includes [corrections](corrections.md) to automate things that are tedious to do manually.
-
-- Using the expressions menu, attach multiple expressions on a single gesture by switching between entire sets of face expressions representing different moods.
+- PhysBones, Contacts and OSC can be used to blend in face expressions.
+- The pressure on your controller triggers can be used to animate your face.
+- Attach multiple expressions on a single gesture by switching between different moods using the Expressions Menu.
 - Eyes will no longer blink whenever the avatar has a face expression with eyes closed.
 - Puppets and blend trees are integrated into the tool.
-- Animations are internally recalculated so you don't have to worry about weird conflicts.
-- Animations triggered by squeezing the controller trigger will look smooth to outside observers.
-  - *Note: This feature can be installed independently from ComboGestureExpressions using the [Integrator](integrator.md) if you are managing face expressions on your own.*
-- ...and more tweaks.
+- Animations triggered by squeezing the controller trigger will look smooth to outside observers (see [corrections](corrections.md)).
 
-This tool should NOT be used for:
+*(Most illustrations in this documentation use [Saneko avatar (さねこ) by ひゅうがなつ](https://booth.pm/en/items/2322146))*
 
-- ❌ Animating hand and finger positions.
-  To animate hand and finger positions, use the Avatars 3.0's Gesture layer which is made for this purpose.
+<img src="EeCgeLogo3.png" style="width: 200px; height: 200px" />
 
-# Create a new set of face expressions
+# Installation for V1 users
 
-<iframe src="https://streamable.com/e/iycnko?loop=0" width="816" height="512" frameborder="0" allowfullscreen></iframe>
-*(A [longer tutorial with audio commentary](tutorial.md#create-a-new-set-of-face-expressions-tutorial-with-audio-commentary) is available)*
+The components used in ComboGestureExpressions V1 and V2 are the same. You will not lose your work.
+
+To install ComboGestureExpressions V2, **ComboGestureExpressions V1 must be removed** by hand first if it is installed.
+- Delete the `Assets/Hai/ComboGesture` folder.
+- Delete the `Assets/Hai/ExpressionsEditor` folder.
+
+You can now install *ComboGestureExpressions*.
+
+Remove the preview dummy in the scene, they are no longer needed.
+
+# What's new in V2?
+
+Find out [what's new in V2](v2.0-whats-new.md).
+
+# Having issues? Join my Discord Server
+
+I will try to provide help on the #cge channel when I can.
+
+[Join the Invitation Discord (https://discord.gg/58fWAUTYF8)](https://discord.gg/58fWAUTYF8).
+
+# Set up the prefab and open the CGE Editor
+
+<video controls width="816" autostart="false">
+    <source src="https://hai-vr.github.io/combo-gesture-expressions-av3/videos/sx_2022-05-04_15-59-03_LrodZ6DkxP.mp4" type="video/mp4">
+</video>
 
 Add the prefab to the scene located in `Assets/Hai/ComboGesture/ComboGestureExpressions.prefab`. Right-click on the newly inserted prefab and click <span class="hai-btn">Unpack prefab completely</span>.
-Select the `Default` object which contains a *Combo Gesture Activity* component, then click the <span class="hai-btn">Open editor</span> button in the Inspector.
+Select the `Default` object which contains a *Combo Gesture Activity* component, then click the <span class="hai-btn">Open editor</span> button in the Inspector to open the CGE Editor.
 
-If your avatar is already set up in the scene and visible, click <span class="hai-btn">Automatically setup preview</span>.
-A duplicate of the last avatar and a camera will be created in the scene in order to preview the face expressions.
-The camera position can be adjusted if needed.
+# Visualize your animation files and preview using AnimationViewer
+![NewInV2TagSmall](https://user-images.githubusercontent.com/60819407/167145432-89428be9-9f16-4795-98ce-093a0c96837c.png)
+<video controls width="816" autostart="false">
+    <source src="https://hai-vr.github.io/combo-gesture-expressions-av3/videos/sx_2022-05-04_16-15-03_FyjXwkdmJA.mp4" type="video/mp4">
+</video>
 
-Afterwards, you will be able to click <span class="hai-btn">Generate preview</span> to preview animations.
+Select your avatar which contains your Animator.
 
-<div class="hai-interlude">
-<p>This documentation assumes that you already know how to create face expressions by creating animation clips. In that regard, you may know that face expression animations must normally have least 2 keyframes; this is usually done by duplicating the first keyframe.</p>
-<p>In ComboGestureExpressions, this is not the case: you are allowed to create face expressions with only 1 keyframe, and it will work as if there were 2 keyframes.</p>
-<p><em>(This advice <strong>only</strong> applies to animations used within ComboGestureExpressions, not Avatars 3.0 in general)</em></p>
-</div>
+In the Animator component, click the vertical dots on the right `⋮` and click *Haï AnimationViewer*. You can now see previews of your animations inside your Project view. Move your scene camera to better see your avatar.
 
-*(All illustrations in this documentation use [Saneko avatar (さねこ) by ひゅうがなつ](https://booth.pm/en/items/2322146))*
+This can cost a little bit of performance, so click the *Activate Viewer* button to toggle it on and off.
 
-# Edit or create animations
+For more information, see [AnimationViewer manual](https://hai-vr.notion.site/Animation-Viewer-2a4bc319631c44d383174bd140722e38)
 
-<iframe src="https://streamable.com/e/8ysn22?loop=0" width="816" height="512" frameborder="0" allowfullscreen></iframe>
+# Create a new set of face expressions
+![ChangedInV2TagSmall](https://user-images.githubusercontent.com/60819407/167145687-6fb677af-43e0-473e-ab91-66d000619125.png)
+<video controls width="816" autostart="false">
+    <source src="https://hai-vr.github.io/combo-gesture-expressions-av3/videos/sx_2022-05-04_16-41-26_p2kFer4X67.mp4" type="video/mp4">
+</video>
 
-A tool is included to create and edit face expressions quickly with the help of previews. It is accessible by clicking <span class="hai-btn">ExpressionsEditor</span> on the top right, or on the Unity Editor window menu at the top, click <span class="hai-btn">Window | Haï | EE Animation Editor</span>.
+To assign animations with hand gestures, Drag and drop animation clips from your Project view to the slots in CGE Editor.
 
-You can now select an animation file to preview it, and click the <span class="hai-btn">+</span> and the <span class="hai-btn">Generate previews</span> button to quickly view all the blendshapes of the avatar.
+<span class="hai-v2">To make the CGE Editor display the previews, drag and drop your avatar to the <em>Preview setup</em> field at the top.</span>
 
-For more information, head over to the [ExpressionsEditor documentation](expressions-editor.md).
+Fill the first row completely. The first row contains the animations that play when one hand is doing a gesture, but the other hand is doing a gesture that doesn't exist (i.e. the 🤙 sign).
 
-# Combining hands
+Then, you can click the *Auto-set* button in the diagonal. The diagonal contains the animations that play when both hands are doing the same hand gesture. Feel free to choose another animation.
 
-<iframe src="https://streamable.com/e/44azm7?loop=0" width="816" height="512" frameborder="0" allowfullscreen></iframe>
-*(A [longer tutorial with audio commentary](tutorial.md#combining-hands-tutorial-with-audio-commentary) is available)*
-
-Go to the <span class="hai-btn">Set face expressions >Singles</span> tab, then drag-and-drop or select face expressions for the gestures in the first row. In the second row, do the same for x2 gestures when both hands are doing that gesture. If you want the animation for both hands to be the same, click <span class="hai-btn">Auto-set</span> button.
-
-Remember to click <span class="hai-btn">Generate preview</span> to preview animations.
-
-<div class="hai-interlude">
-<iframe src="https://streamable.com/e/pzbd3w?loop=0" width="408" height="256" frameborder="0" allowfullscreen></iframe>
-
-<p>If by any chance the camera is not aligned, look at the hierarchy of the scene and double-click on the <code>CGEPreviewSetup</code> object. Enable the <code>CGEPreviewCamera</code> object and <code>CGEPreviewDummy</code> object and align the camera to the face of the dummy avatar.</p>
-</div>
-
-Then, go to the <span class="hai-btn">Set face expressions > Combos</span> tab. This is a table of all possible combinations of those gestures. Drag-and-drop or select face expressions for these slots. Alternatively, you can choose to try combining animations by clicking the <span class="hai-btn">+ Combine</span> button.
-
-When combining, you will see a preview of the two animations mixed together. It is very common for the mixed animation to be conflicting, especially when two animations animate the eyes or the mouth in a different way.
-
-Click the buttons on either side to turn some properties on and off, until you find a face expression that makes sense for that combination of gesture. When satisfied with the result, click <span class="hai-btn">Save and assign</span> in the middle. You can choose to rename the animation using the field above the button.
+The empty slots in-between will be filled later in this manual, by using a tool to combine animations.
 
 Gesture names for reference ([VRChat documentation](https://docs.vrchat.com/docs/animator-parameters#gestureleft-and-gestureright-values)):
   - *No gesture* / *None*: 🤙 (*Neutral* in VRChat docs)
@@ -93,12 +97,43 @@ Gesture names for reference ([VRChat documentation](https://docs.vrchat.com/docs
   - ThumbsUp: 👍 
   - *...on both hands* / *x2*: 🙌
 
-The animation defined in *No gesture* will be used on all empty slots.
+# Edit or create animations with Visual Expressions Editor
+![ChangedInV2TagSmall](https://user-images.githubusercontent.com/60819407/167145687-6fb677af-43e0-473e-ab91-66d000619125.png)
+<video controls width="816" autostart="false">
+    <source src="https://hai-vr.github.io/combo-gesture-expressions-av3/videos/sx_2022-05-04_16-51-53_07ZREXTDvt.mp4" type="video/mp4">
+</video>
+
+If you need to create a new face expression animation, click the *Create* button, or click the *Visual Expressions Editor* button on the top right.
+
+<span class="hai-v2">Another way to open this editor is to go in the Animator component, then click the vertical dots on the right</span> `⋮` and click *Haï VisualExpressionsEditor*. <span class="hai-v2">Move your scene camera to better see your avatar.</span>
+
+<span class="hai-v2">In the CGE Editor, at any point, you can click *Regenerate all previews* to refresh the previews.</span>
+
+For more information, head over to the [Visual Expressions Editor documentation](https://hai-vr.notion.site/Visual-Expressions-Editor-262f0ba4cfe24ba38278d99939a2a018).
+
+# Combining hands
+
+<video controls width="816" autostart="false">
+    <source src="https://hai-vr.github.io/combo-gesture-expressions-av3/videos/sx_2022-05-04_17-06-15_fe0loyjRqc.mp4" type="video/mp4">
+</video>
+
+When your left hand and right hand are not making the same gesture, the animation in the corresponding slot will play.
+
+You can choose your own animation, or use a tool to combine the corresponding animations from the left and right hand by clicking the <span class="hai-btn">+ Combine</span> button.
+
+When combining, you will see a preview of the two animations mixed together. It is very common for the mixed animation to be conflicting, especially when two animations animate the eyes or the mouth in a different way.
+
+Click the buttons on either side to turn some properties on and off, until you find a face expression that makes sense for that combination of gesture. When satisfied with the result, click <span class="hai-btn">Save and assign</span> in the middle.
+
+You can choose to rename the animation using the field above the button.
+
+It is highly recommended to fill out all slots.
  
 # Do not blink when eyes are closed
 
-<iframe src="https://streamable.com/e/egz72f?loop=0" width="816" height="512" frameborder="0" allowfullscreen></iframe>
-*(A [longer tutorial with audio commentary](tutorial.md#do-not-blink-when-eyes-are-closed) is available)*
+<video controls width="816" autostart="false">
+    <source src="https://hai-vr.github.io/combo-gesture-expressions-av3/videos/sx_2022-05-04_17-15-52_JWZUi936jq.mp4" type="video/mp4">
+</video>
 
 Go to <span class="hai-btn">Prevent eyes blinking</span> tab. By selecting which animations have both eyes closed, the blinking animation will be disabled as long as that face expression is active.
 
@@ -111,14 +146,17 @@ It is not recommended selecting animations with only one eye closed such as wink
 
 # Apply to the avatar
 
-<iframe src="https://streamable.com/e/igwote?loop=0" width="816" height="512" frameborder="0" allowfullscreen></iframe>
-*(A [longer tutorial with audio commentary](tutorial.md#apply-to-the-avatar-tutorial-with-audio-commentary) is available)*
+<video controls width="816" autostart="false">
+    <source src="https://hai-vr.github.io/combo-gesture-expressions-av3/videos/sx_2022-05-04_17-59-15_rmaiRqGhCH.mp4" type="video/mp4">
+</video>
 
-Select the `ComboGestureExpressions` object of the prefab which contains a *Combo Gesture Compiler* component. In the inspector, assign your [FX playable layer](https://docs.vrchat.com/docs/playable-layers#fx) animator to the `FX Animator Controller` slot. **This asset will be modified: New layers and parameters will be added when synchronizing animations.** I recommend you to **make backups** of that FX Animator Controller!
-
-Drag and drop your avatar in the `Avatar descriptor` slot. The avatar will *not* be modified, this is only required to verify conflicts regarding lipsync and blink blendshape settings.
+Select the `ComboGestureExpressions` object of the prefab which contains a *Combo Gesture Compiler* component. In the inspector:
+- Drag and drop your avatar in the `Avatar descriptor` slot. The avatar will *not* be modified, this is only required to read the default animation values of the avatar, and also read the blink blendshapes in the Avatar Descriptor.
+- Drag and drop your your [FX playable layer](https://docs.vrchat.com/docs/playable-layers#fx) animator to the `FX Animator Controller` slot. **This asset will be modified: New layers and parameters will be added when synchronizing animations.** I recommend you to **make backups** of that FX Animator Controller!
 
 Depending on how your animator is built, choose the correct setting in `FX Playable Mode`: Choose Write Defaults OFF if you are following VRChat recommendations. Try to be consistent throughout your animator.
+
+<span class="hai-v2"><em>If you use MMD worlds that contain dance animations, please read the MMD worlds section later in this manual.</em></span>
 
 You should now be able to press <span class="hai-btn">Synchronize Animator FX layers</span>, which will modify your animator controller.
 
@@ -128,17 +166,26 @@ Whenever you modify any face expression animation or anything related to ComboGe
 
 # Squeezing the trigger
 
-<iframe src="https://streamable.com/e/7eimot?loop=0" width="816" height="512" frameborder="0" allowfullscreen></iframe>
-*(A [longer tutorial with audio commentary](tutorial.md#squeezing-the-trigger-tutorial-with-audio-commentary) is available)*
+<video controls width="816" autostart="false">
+    <source src="https://hai-vr.github.io/combo-gesture-expressions-av3/videos/sx_2022-05-04_18-35-03_yxRmSyqtWe.mp4" type="video/mp4">
+</video>
 
-Fist animations are blended in when squeezing the trigger while the hand is doing a fist. The gesture of the other hand is used as the base animation.
+In VRChat, to play the hand animations, make a fist with your hand, and squeeze the trigger. The animation will be blended in the more your press the trigger.
 
-For example, a `POINT + FIST` will use that animation when the trigger is squeezed, but when the trigger is not squeezed the animation defined in `POINT` will be used instead.
+The gesture of the other hand is used as the base animation. For example, if you are making `Point + Fist` gesture:
+- The `Point + Fist` animation will be used when the trigger is squeezed.
+- The `Point` animation will be used when the trigger is not squeezed.
 
-When both hands are doing a Fist gesture, you are able to define an animation for when the Left trigger is squeezed, another when the Right trigger is squeezed, and another for when both triggers are squeezed.
+When both hands of your hand are making a fist, you can select two additional animations to play:
+- The `Fist X2` animation will be used when both triggers are squeezed.
+- The `Fist X2, LEFT trigger` animation will be used when the left trigger is squeezed.
+- The `Fist X2, RIGHT trigger` animation will be used when the right trigger is squeezed.
+- The `No gesture` animation will be used when none of the triggers are squeezed.
 
 <div class="hai-interlude">
-<iframe src="https://streamable.com/e/hp17ra?loop=0" width="408" height="256" frameborder="0" allowfullscreen></iframe>
+<video controls width="408" autostart loop>
+    <source src="https://hai-vr.github.io/combo-gesture-expressions-av3/videos/hp17ra-demo-analog.mp4" type="video/mp4">
+</video>
 
 <p>Illustration of animation blending in an Analog Fist gesture.</p>
 </div>
@@ -146,6 +193,154 @@ When both hands are doing a Fist gesture, you are able to define an animation fo
 <div class="hai-interlude">
 <p>In your animations, you should <strong>not</strong> animate the Blink blendshape which is used by the Avatars 3.0 descriptor. They will not animate on analog Fist gestures.</p>
 <p>On many avatar bases, the left eyelid and right eyelid can be animated independently. I would suggest you to animate those two blendshapes instead.</p>
+</div>
+
+# Add some Dynamics using PhysBones, Contacts, OSC, and other Avatars 3.0 parameters
+![NewInV2TagSmall](https://user-images.githubusercontent.com/60819407/167145432-89428be9-9f16-4795-98ce-093a0c96837c.png)
+<video controls width="816" autostart="false">
+    <source src="https://hai-vr.github.io/combo-gesture-expressions-av3/videos/sx_2022-05-04_20-10-33_YTbmBZpWFo.mp4" type="video/mp4">
+</video>
+
+To make your face expression react to interactions and other Dynamics, add the prefab to the scene located in `Assets/Hai/ComboGesture/CGEDynamics.prefab`. Right-click on the newly inserted prefab and click <span class="hai-btn">Unpack prefab completely</span>.
+
+This component lets you define Dynamics. Press the `+` button to add a new element in the list.
+
+In the Compiler, define your *Main Dynamics* object above the Mood sets.
+
+You can individually define *Dynamics* objects in each Mood set, which will only apply it to that Mood set. Make sure you don't have duplicate inside your *Main Dynamics* object!
+
+<div class="hai-interlude">
+<video controls width="408" autostart loop>
+    <source src="https://hai-vr.github.io/combo-gesture-expressions-av3/videos/cge-dyn2-f.mp4" type="video/mp4">
+</video>
+
+<p>Illustration of a Dynamics contact.</p>
+</div>
+
+## Select the Dynamic Expression
+
+Select the effect. It can be either a Clip or a Mood set.
+
+After choosing a clip, check the box if both eyes are closed.
+
+For more information about Mood sets, see the *Mood sets* section later in the manual.
+
+## Using a PhysBone as the Dynamic Condition
+
+To use a PhysBone:
+- Configure your PhysBone to have a parameter (see [VRChat documentation](https://docs.vrchat.com/docs/physbones#options))
+- Define the Source to be PhysBone
+- Define the PhysBone object
+- Define the Physbone Source to be either Stretch, Angle, or IsGrabbed
+
+The animation will behave differently depending on the PhysBone source:
+- If it's Stretch (which is a Float value), the animation will be blended in by how much it is stretched. It is strongest when fully stretched.
+  - You can change the *Upper bound* value to a lower value to make it strongest before being fully stretched. A value of 0.75 would make the animation strongest when the Contact is 75% stetched.
+- If it's Angle (which is a Float value), the animation will be blended in by how much the bone is away from the rest position. It is strongest when angled at 180 degrees away from the rest position.
+  - You can change the *Upper bound* value to a lower value to make it strongest at an angle smaller than 180 degrees. A value of 0.75 would make the animation strongest when the angle is 135 degrees (0.75 * 180deg).
+- If it's IsGrabbed, the animation will play when the PhysBone is grabbed.
+
+## Behavior with multiple Dynamic Expressions
+
+<video controls width="816" autostart="false">
+    <source src="https://hai-vr.github.io/combo-gesture-expressions-av3/videos/sx_2022-05-04_21-56-30_f5ToWtGl2m.mp4" type="video/mp4">
+</video>
+
+The order of Dynamics in this list matters: When two or more Dynamic Conditions are active, the one which is higher in the list has priority.
+
+## Using a Contact as the Dynamic Condition
+
+To use a Contact Receiver:
+- Configure your Contact Receiver (see [VRChat documentation](https://docs.vrchat.com/docs/contacts#receiver))
+- Define the Source to be Contact
+- Define the Contact Receiver object
+
+The animation will behave differently depending on the kind of Contact Receiver:
+- If it's Proximity (which is a Float value), the animation will be blended in by the Proximity amount. It is strongest when fully colliding.
+  - You can change the *Upper bound* value to a lower value to make it strongest before fully colliding. A value of 0.75 would make the animation strongest when the Contact is 75% colliding.
+- If it's Constant, the animation will play when the Contact being collided with.
+- If it's OnEnter, the animation will play for a specified duration the moment the Contact is entered above the velocity. Additional options will show up:
+  - Set the animation duration.
+  - If necessary, tweak the curve. The animation will be blended by this curve over the animation duration. Here are some examples of how to use it:
+    - By default, the curve is shaped in a way that makes the animation blend almost instantly and smoothly fade over time:
+![sx_2022-05-06_15-15-17_RLkMuJ8Mue](https://user-images.githubusercontent.com/60819407/167138720-8ffa3446-e2ed-463f-b26a-b8f5d0ae4e01.png)
+    - You can change the shape of the curve to make your animation last longer at full strength before blending out:
+![sx_2022-05-06_15-16-17_R47eUph0Kl](https://user-images.githubusercontent.com/60819407/167138920-48a4d80d-1990-4f93-badb-5a953978e4f5.png)
+    - You can also set the curve not to be at full strength to retain influence from your Mood set face expressions.
+![sx_2022-05-06_15-18-29_PqWy4xstDA](https://user-images.githubusercontent.com/60819407/167139155-fac2caf5-f2b2-4416-a85a-383c29f5d36d.png)
+  - Tweak the enter transition duration of the expression.
+  - *Note: As of version V2.0.0, due to a limitation, you can only have one curve per Contact of type OnEnter. In addition, Dynamic Expressions priorities work slighly differently as a lower priority OnEnter Contact may be able to take over a high priority OnEnter Contact. This may change in future versions.*
+
+## Using OSC or Avatars 3.0 parameter as the Dynamic Condition
+
+To use a OSC or Avatars 3.0 parameter as the Dynamic Condition:
+- Add the parameter in your avatar Expressions Parameters, if it's not a built-in Avatars 3.0 parameter.
+- Define the Parameter Name
+- Choose your Parameter type
+
+The animation will behave differently depending on the Parameter type:
+- If it's a Float, the animation will be blended in the closest the value gets to 1.
+- If it's a Bool or Int, the animation will play when the Bool is true or when the Int value is strictly above 0.
+- If you check *Behaves like OnEnter*, the animation will behave as if this parameter was a Contact of type OnEnter.
+
+## Other options
+
+Dynamics condition with a parameter of type Int, Bool will not blend in.
+
+If it's a Float, it will blend in unless the Hard Threshold option is checked, in which case it will behave like a Bool.
+
+In all of these cases, the dynamic element will be active when the threshold is passed.
+
+For a boolean, *IsAboveThreshold* means the element is active when it's true.
+
+# Using multiple mood sets
+
+<iframe src="https://streamable.com/e/c5x44o?loop=0" width="816" height="512" frameborder="0" allowfullscreen></iframe>
+*(A [longer tutorial with audio commentary](tutorial.md#using-multiple-mood-sets-tutorial-with-audio-commentary) is available)*
+
+Earlier, you set up face expressions within `Default` object of the prefab. This is the default mood set of face expressions of your avatar that is active after loading. However, you can have any number of mood sets and switch between them using the menu to increase the number of face expressions depending on the situation.
+
+The prefab contains another object called `Smiling` as an example, which contains a separate *Combo Gesture Activity* component. Select that object and rename it; It is up to you to organize the mood sets the way you want it (Smiling, Sad, Eccentric, Drunk, Romantic, ...) and it does not necessarily have to be moods (Sign Language, One-handed, Conversation, Dancing, ...)
+
+Select the `ComboGestureExpressions` object of the prefab. In the inspector, set a `Parameter Name` to that new mood set, leaving the first one blank. The blank mood set will be the default mood set that is active when you load your avatar for the first time, or when you deselect a mood set.
+
+In your Expression Parameters, add a new Parameter of type `Bool`.
+
+In your Expression Menu, create a Toggle to control that Parameter.
+
+Add additional mood sets by clicking <span class="hai-btn">+</span> on the list, then drag-and-drop or select another *ComboGestureActivity* component. Just like the second one, choose another `Parameter Name` for that mood set, create an Expression Parameter and a Expression Menu toggle.
+
+*It is not necessary, you can optionally add a `Parameter Name` to the blank mood set. In that case, the first mood set in the list will be default mood set. This will allow you to add a toggle control to the default mood set in order to have an icon for it.*
+
+# Standalone puppets and blend trees
+
+<iframe src="https://streamable.com/e/ai0fzb?loop=0" width="816" height="512" frameborder="0" allowfullscreen></iframe>
+*(A [longer tutorial with audio commentary](tutorial.md#standalone-puppets-and-blend-trees-tutorial-with-audio-commentary) is available)*
+
+So far we have set up *Activity* mood sets. Another type of mood set is available: *Puppet*, which can be controlled by an Expression Menu.
+
+The prefab contains an object called *Puppet* which contains a *Combo Gesture Puppet* component. Select it and click the <span class="hai-btn">Open editor</span> button in the Inspector.
+
+<span class="hai-v2">To make the CGE Editor display the previews, drag and drop your avatar to the <em>Preview setup</em> field at the top.</span>
+
+Create a blend tree using the tool. Select one of the following basic templates: Four directions, Eight directions, Six directions pointing forward, Six directions pointing sideways.
+
+In Joystick center animation, add an animation that will be used when the joystick of the puppet menu is resting at the center. Click <span class="hai-btn">Create a new blend tree asset</span> to select a location where to save that blend tree.
+
+There are two additional options when generating the blend tree that should be left at their default values:
+- Fix joystick snapping creates 4 additional animations for the resting pose near the center. This is because joystick of VR controllers have a dead zone in the middle. This means the animation will snap when exiting that dead zone.
+- Joystick maximum tilt brings the outer animation points slightly closer to the middle. This is because joystick of VR controllers can not always be tilted all the way in every direction. This can also be used to avoid tilting the joystick all the way.
+
+After generating the blend tree, edit it in the inspector to assign the face expressions in it. After it is done, select which face expressions have eyes closed by going to <span class="hai-btn">Prevent eyes blinking</span> tab.
+
+Select the `ComboGestureExpressions` object of the prefab. In the inspector, add a mood set by clicking <span class="hai-btn">+</span> on the list. On the left in the dropdown menu, switch from *Activity* to *Puppet*, then drag-and-drop or select the `Puppet` object. Just like *Activity* mood sets, you can create more *Puppet* mood sets by creating additional *ComboGesturePuppet* components.
+
+I recommend creating two controls in your Expression Menu to control the puppet: A Toggle control to switch to the Puppet mood set, and separate Two-Axis Puppet to control the two parameters of your blend tree.
+
+<div class="hai-interlude">
+<iframe src="https://streamable.com/e/8u2sd5?loop=0" width="408" height="256" frameborder="0" allowfullscreen></iframe>
+
+<p>Illustration of a puppet mood set.</p>
 </div>
 
 # Animate cat ears, wings and more
@@ -176,64 +371,16 @@ Handling the Gesture Playable is very tricky, and extra precautions need to be t
 
 *If you would like to know why an Avatar mask is needed on layers of the FX Playable Layer, [you may find additional information here](writedefaults.md).*
 
-# Using multiple mood sets
-
-<iframe src="https://streamable.com/e/c5x44o?loop=0" width="816" height="512" frameborder="0" allowfullscreen></iframe>
-*(A [longer tutorial with audio commentary](tutorial.md#using-multiple-mood-sets-tutorial-with-audio-commentary) is available)*
-
-Earlier, you set up face expressions within `Default` object of the prefab. This is the default mood set of face expressions of your avatar that is active after loading. However, you can have any number of mood sets and switch between them using the menu to increase the number of face expressions depending on the situation.
-
-The prefab contains another object called `Smiling` as an example, which contains a separate *Combo Gesture Activity* component. Select that object and rename it; It is up to you to organize the mood sets the way you want it (Smiling, Sad, Eccentric, Drunk, Romantic, ...) and it does not necessarily have to be moods (Sign Language, One-handed, Conversation, Dancing, ...)
-
-Select the `ComboGestureExpressions` object of the prefab. In the inspector, set a `Parameter Name` to that new mood set, leaving the first one blank. The blank mood set will be the default mood set that is active when you load your avatar for the first time, or when you deselect a mood set.
-
-In your Expression Parameters, add a new Parameter of type `Bool`.
-
-In your Expression Menu, create a Toggle to control that Parameter.
-
-Add additional mood sets by clicking <span class="hai-btn">+</span> on the list, then drag-and-drop or select another *ComboGestureActivity* component. Just like the second one, choose another `Parameter Name` for that mood set, create an Expression Parameter and a Expression Menu toggle.
-
-*It is not necessary, you can optionally add a `Parameter Name` to the blank mood set. In that case, the first mood set in the list will be default mood set. This will allow you to add a toggle control to the default mood set in order to have an icon for it.*
-
-# Standalone puppets and blend trees
-
-<iframe src="https://streamable.com/e/ai0fzb?loop=0" width="816" height="512" frameborder="0" allowfullscreen></iframe>
-*(A [longer tutorial with audio commentary](tutorial.md#standalone-puppets-and-blend-trees-tutorial-with-audio-commentary) is available)*
-
-So far we have set up *Activity* mood sets. Another type of mood set is available: *Puppet*, which can be controlled by an Expression Menu.
-
-The prefab contains an object called *Puppet* which contains a *Combo Gesture Puppet* component. Select it and click the <span class="hai-btn">Open editor</span> button in the Inspector. Since we already set up a preview earlier when setting up hand gestures, that preview will be reused when you click <span class="hai-btn">Automatically setup preview</span>.
-
-Create a blend tree using the tool. Select one of the following basic templates: Four directions, Eight directions, Six directions pointing forward, Six directions pointing sideways.
-
-In Joystick center animation, add an animation that will be used when the joystick of the puppet menu is resting at the center. Click <span class="hai-btn">Create a new blend tree asset</span> to select a location where to save that blend tree.
-
-There are two additional options when generating the blend tree that should be left at their default values:
-- Fix joystick snapping creates 4 additional animations for the resting pose near the center. This is because joystick of VR controllers have a dead zone in the middle. This means the animation will snap when exiting that dead zone.
-- Joystick maximum tilt brings the outer animation points slightly closer to the middle. This is because joystick of VR controllers can not always be tilted all the way in every direction. This can also be used to avoid tilting the joystick all the way.
-
-After generating the blend tree, edit it in the inspector to assign the face expressions in it. After it is done, select which face expressions have eyes closed by going to <span class="hai-btn">Prevent eyes blinking</span> tab.
-
-Select the `ComboGestureExpressions` object of the prefab. In the inspector, add a mood set by clicking <span class="hai-btn">+</span> on the list. On the left in the dropdown menu, switch from *Activity* to *Puppet*, then drag-and-drop or select the `Puppet` object. Just like *Activity* mood sets, you can create more *Puppet* mood sets by creating additional *ComboGesturePuppet* components.
-
-I recommend creating two controls in your Expression Menu to control the puppet: A Toggle control to switch to the Puppet mood set, and separate Two-Axis Puppet to control the two parameters of your blend tree.
-
-<div class="hai-interlude">
-<iframe src="https://streamable.com/e/8u2sd5?loop=0" width="408" height="256" frameborder="0" allowfullscreen></iframe>
-
-<p>Illustration of a puppet mood set.</p>
-</div>
-
 # Permutations
 
 <iframe src="https://streamable.com/e/2onv8c?loop=0" width="816" height="512" frameborder="0" allowfullscreen></iframe>
 *(A [longer tutorial with audio commentary](tutorial.md#permutations-tutorial-with-audio-commentary) is available)*
 
-For simplicity purposes, we've been using combinations of gestures, meaning that `Left POINT + Right THUMBSUP` will show the same animation as `Left THUMBSUP + Right POINT`. I encourage you [using multiple mood sets](#using-multiple-mood-sets) available in an Expressions menu to expand your expressions repertoire.
+For simplicity purposes, we've been using combinations of gestures, meaning that `Left Point + Right ThumbsUp` will show the same animation as `Left ThumbsUp + Right Point`. I encourage you [using multiple mood sets](#using-multiple-mood-sets) available in an Expressions menu to expand your expressions repertoire.
 
-If you would like to create permutations of gestures, which I do recommend for asymmetric face expressions or hand-specific Fist animations, you may go to <span class="hai-btn">Set face expressions > Permutations</span> tab and click on <span class="hai-btn">Enable permutations for this Activity</span>. You will see a colored table split between Left hand permutations (colored in orange) and Right hand permutations (colored in blue).
+If you would like to create permutations of gestures, which I do recommend for asymmetric face expressions or hand-specific Fist animations, <span class="hai-v2">change the <em>Mode</em> dropdown at the top left and select <em>Permutations</em></span>. You will see a colored table split between Left hand permutations (colored in orange) and Right hand permutations (colored in blue).
 
-When enabling permutations, the Activity will behave as if everything was still a combo: If you don't define a Left hand permutation, the Right hand permutation animation will be used for both.
+<span class="hai-v2">When this mode is selected in the dropdown</span>, the Activity will behave as if everything was still a combo: If you don't define a Left hand permutation, the Right hand permutation animation will be used for both.
 
 # Mix puppets and gestures
 
@@ -250,14 +397,29 @@ When placing a blend tree in a single Fist gesture, the parameter `_AutoGestureW
 
 When placing a blend tree in the Fist x2 slot, the parameters `GestureLeftWeight` and `GestureRightWeight` will be how much the left and right triggers are squeezed respectively.
 
+# MMD worlds compatibility option
+![NewInV2TagSmall](https://user-images.githubusercontent.com/60819407/167145432-89428be9-9f16-4795-98ce-093a0c96837c.png)
+
+MMD worlds are particular in regards to face expressions. If you are a regular user of MMD worlds and need your avatar to be compatible, the avatar needs to be set up in a specific way in order to get face expressions working. **If you don't use MMD worlds, don't bother with this!.**
+
+For MMD worlds specifically, using **Write Defaults ON** is recommended.
+
+In the Compiler at the bottom, define the field called *MMD compatibility toggle parameter*. Create an Expressions Menu toggling that parameter.
+
+In the FX Playable Layer settings, set the FX Playable Mode to *Use Unsupported Write Defaults On*. Do the same for the Gesture Playable Layer if you have one.
+
+![fpl](https://user-images.githubusercontent.com/60819407/167751873-cfc3bcd0-f82f-4670-8e85-a4fe44f40631.png)
+
+When the parameter is active, the face expressions of your avatar will stop playing whenever your avatar is in a chair or a *station*. *Stations* are what MMD worlds use to play animations on the avatar.
+
+*It is possible to use Write Defaults OFF with a big caveat: you won't be able to use the FX layer, therefore no toggles or other avatar gimmicks. CGE's MMD worlds compatibility will not be able to help you with this.*
+
 # Learn more
 
 - [Corrections](corrections.md) - Learn about the various techniques used to fix animations.
 - [Integrator](integrator.md) - Documentation about the Integrator, a module to add Weight Corrections without using ComboGestureExpressions.
-- [Tutorials](tutorial.md) - Video tutorials with audio commentary.
 - [Write Defaults](writedefaults.md) - Explanation of how the Avatar Mask is built.
-- [Unavailable feature: Limited Lipsync](limited-lipsync.md) - An explanation of what *Make lipsync movement subtle* is.
 - [Download on github.com](https://github.com/hai-vr/combo-gesture-expressions-av3/releases) - Main download location.
 - [Download on booth.pm](https://hai-vr.booth.pm/items/2219616) - Alternate download location.
 
-*All illustrations in this documentation use [Saneko avatar (さねこ) by ひゅうがなつ](https://booth.pm/en/items/2322146)*
+*Most illustrations in this documentation use [Saneko avatar (さねこ) by ひゅうがなつ](https://booth.pm/en/items/2322146)*

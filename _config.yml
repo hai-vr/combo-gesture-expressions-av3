@@ -1,3 +1,3 @@
 theme: jekyll-theme-cayman
-title: ExpressionsEditor and<br>ComboGestureExpressions (EE/CGE)
-description: Easily create face expressions animations, and generate Avatars 3.0 animator layers for hand gestures to control face expressions 
+title: ComboGestureExpressions V2
+description: Attach face expressions to hand gestures, and make it react to Avatars 3.0's features, including Contacts, PhysBones and OSC. 
