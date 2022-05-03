@@ -62,6 +62,7 @@ namespace Hai.ComboGesture.Scripts.Components
         public ComboGestureActivity activity; // This can be null even when the kind is an Activity
         public ComboGesturePuppet puppet; // This can be null
         public ComboGestureMassiveBlend massiveBlend; // This can be null
+        public ComboGestureSimpleDynamics dynamics; // This can be null
         public int stageValue;
         public string booleanParameterName;
         public int internalVirtualStageValue; // This is overwritten by the compiler process

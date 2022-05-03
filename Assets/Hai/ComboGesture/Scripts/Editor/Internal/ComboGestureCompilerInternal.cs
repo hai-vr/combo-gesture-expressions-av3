@@ -264,7 +264,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private List<ManifestBinding> CreateManifestBindings(AnimationClip emptyClip)
         {
             var comboLayers = _comboLayers
-                .Select((mapper, layerOrdinal) => ManifestBinding.FromActivity(ToParameterGeneration(mapper),
+                .Select(mapper => ManifestBinding.FromActivity(ToParameterGeneration(mapper),
                     SharedLayerUtils.FromMapper(mapper, emptyClip, _universalAnalogSupport)))
                 .ToList();
             var dynamicsLayers = _dynamicsLayers
@@ -295,9 +295,45 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                     };
                 })
                 .ToList();
+            var comboDynamicsLayers = _comboLayers
+                .SelectMany((mapper, index) =>
+                {
+                    var binding = comboLayers[index]; // Can't use a .Where before the SelectMany because we need the index to match
+                    if (mapper.dynamics == null)
+                    {
+                        return new ManifestBinding[0];
+                    }
+
+                    return mapper.dynamics.items
+                        .Select((simpleDynamics, rank) =>
+                        {
+                            var descriptor = simpleDynamics.ToDescriptor();
+                            if (descriptor.parameterType == ComboGestureSimpleDynamicsParameterType.Float && !descriptor.isHardThreshold)
+                            {
+                                return ManifestBinding.FromActivityBoundAvatarDynamics(
+                                    new CgeDynamicsRankedDescriptor
+                                    {
+                                        descriptor = descriptor,
+                                        rank = rank
+                                    }, SharedLayerUtils.FromMassiveSimpleDynamics(simpleDynamics, emptyClip, _universalAnalogSupport, binding.Manifest),
+                                    binding.StageValue
+                                );
+                            }
+
+                            return ManifestBinding.FromAvatarDynamics(
+                                new CgeDynamicsRankedDescriptor
+                                {
+                                    descriptor = descriptor,
+                                    rank = rank,
+                                }, SharedLayerUtils.FromSimpleDynamics(simpleDynamics, emptyClip, _universalAnalogSupport)
+                            );
+                        })
+                        .ToArray();
+                })
+                .ToList();
 
             // Dynamics layers must be above combo layers -- This will affect layer generation order later on.
-            return dynamicsLayers.Concat(comboLayers).ToList();
+            return dynamicsLayers.Concat(comboDynamicsLayers).Concat(comboLayers).ToList();
         }
 
         private int ToParameterGeneration(GestureComboStageMapper mapper)

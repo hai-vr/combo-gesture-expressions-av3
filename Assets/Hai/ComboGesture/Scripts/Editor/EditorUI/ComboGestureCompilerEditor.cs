@@ -119,6 +119,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 newlyAddedElement.FindPropertyRelative(nameof(GestureComboStageMapper.puppet)).objectReferenceValue = null;
                 serializedObject.ApplyModifiedProperties();
             };
+            comboLayersReorderableList.elementHeight = EditorGUIUtility.singleLineHeight * 2.5f;
 
             _guideIcon16 = ComboGestureIcons.Instance.Guide16;
             _guideIcon32 = ComboGestureIcons.Instance.Guide32;
@@ -174,6 +175,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                     CgeLocale.CGEC_HelpExpressionParameterOptimize,
                     MessageType.Info);
             }
+
+            EditorGUILayout.LabelField(CgeLocale.CGEC_Avatar_Dynamics, EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(simpleDynamics, new GUIContent(CgeLocale.CGEC_Simple_Dynamics));
 
             comboLayersReorderableList.DoLayoutList();
 
@@ -290,9 +294,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                     }
                 }
             }
-
-            EditorGUILayout.LabelField(CgeLocale.CGEC_Avatar_Dynamics, EditorStyles.boldLabel);
-            EditorGUILayout.PropertyField(simpleDynamics, new GUIContent(CgeLocale.CGEC_Simple_Dynamics));
 
             EditorGUILayout.LabelField(CgeLocale.CGEC_FX_Playable_Layer, EditorStyles.boldLabel);
             EditorGUILayout.LabelField(CgeLocale.CGEC_BackupFX, italic);
@@ -684,7 +685,7 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
             var compiler = AsCompiler();
             var onlyOneLayer = compiler.comboLayers.Count <= 1;
             var singleInt = compiler.parameterMode == ParameterMode.SingleInt;
-            var trailingWidth = onlyOneLayer ? 0 : singleInt ? 50 : 140;
+            var trailingWidth = onlyOneLayer ? 0 : singleInt ? rect.width * 0.2f : Mathf.Min(rect.width * 0.3f, 100);
             EditorGUI.PropertyField(
                 new Rect(rect.x + 70, rect.y, rect.width - 70 - 20 - trailingWidth, EditorGUIUtility.singleLineHeight),
                 PropertyForKind(kind, element),
@@ -699,6 +700,15 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
                     GUIContent.none
                 );
             }
+
+            EditorGUI.LabelField(
+                new Rect(rect.x, rect.y + EditorGUIUtility.singleLineHeight, 110, EditorGUIUtility.singleLineHeight),
+                new GUIContent(CgeLocale.CGEC_Simple_Dynamics)
+            );
+            EditorGUI.PropertyField(
+                new Rect(rect.x + 110, rect.y + EditorGUIUtility.singleLineHeight, rect.width - 110 - 20 - trailingWidth, EditorGUIUtility.singleLineHeight),
+                element.FindPropertyRelative(nameof(GestureComboStageMapper.dynamics)),
+                GUIContent.none);
         }
 
         private static SerializedProperty PropertyForKind(GestureComboStageKind kind, SerializedProperty element)
