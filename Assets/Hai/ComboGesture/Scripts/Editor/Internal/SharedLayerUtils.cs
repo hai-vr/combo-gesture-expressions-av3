@@ -38,18 +38,18 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
         }
 
-        public static IManifest FromSimpleDynamics(ComboGestureSimpleDynamicsItem simpleDynamics, AnimationClip emptyClip, bool universalAnalogSupport)
+        public static IManifest FromSimpleDynamics(ComboGestureDynamicsItem simpleDynamics, AnimationClip emptyClip, bool universalAnalogSupport)
         {
             return ResolveSelfDynamics(simpleDynamics, emptyClip, universalAnalogSupport);
         }
 
-        public static IManifest FromMassiveSimpleDynamics(ComboGestureSimpleDynamicsItem simpleDynamics, AnimationClip emptyClip, bool universalAnalogSupport, IManifest zero)
+        public static IManifest FromMassiveSimpleDynamics(ComboGestureDynamicsItem simpleDynamics, AnimationClip emptyClip, bool universalAnalogSupport, IManifest zero)
         {
             var selfDynamics = ResolveSelfDynamics(simpleDynamics, emptyClip, universalAnalogSupport);
             return ManifestFromMassiveBlend.FromDynamics(zero, selfDynamics, simpleDynamics.ToDescriptor().parameter, DynamicsTransitionDuration);
         }
 
-        private static IManifest ResolveSelfDynamics(ComboGestureSimpleDynamicsItem simpleDynamics, AnimationClip emptyClip, bool universalAnalogSupport)
+        private static IManifest ResolveSelfDynamics(ComboGestureDynamicsItem simpleDynamics, AnimationClip emptyClip, bool universalAnalogSupport)
         {
             if (simpleDynamics.clip != null)
             {

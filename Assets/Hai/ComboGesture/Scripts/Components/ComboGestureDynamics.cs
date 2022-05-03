@@ -6,24 +6,24 @@ using VRC.SDK3.Dynamics.PhysBone.Components;
 
 namespace Hai.ComboGesture.Scripts.Components
 {
-    public class ComboGestureSimpleDynamics : MonoBehaviour
+    public class ComboGestureDynamics : MonoBehaviour
     {
         public Animator previewAnimator;
-        public ComboGestureSimpleDynamicsItem[] items;
+        public ComboGestureDynamicsItem[] items;
     }
 
     [Serializable]
-    public struct ComboGestureSimpleDynamicsItem
+    public struct ComboGestureDynamicsItem
     {
         public AnimationClip clip;
         public bool bothEyesClosed;
         public ComboGestureMoodSet moodSet;
-        public ComboGestureSimpleDynamicsPhysBoneSource physBoneSource;
+        public ComboGestureDynamicsPhysBoneSource physBoneSource;
         public VRCContactReceiver contactReceiver;
         public VRCPhysBone physBone;
         public string parameterName;
-        public ComboGestureSimpleDynamicsParameterType parameterType;
-        public ComboGestureSimpleDynamicsCondition condition;
+        public ComboGestureDynamicsParameterType parameterType;
+        public ComboGestureDynamicsCondition condition;
         public float threshold;
         public bool isHardThreshold;
 
@@ -50,39 +50,39 @@ namespace Hai.ComboGesture.Scripts.Components
                         : throw new ArgumentException();
         }
 
-        private ComboGestureSimpleDynamicsParameterType DynamicsResolveParameterType()
+        private ComboGestureDynamicsParameterType DynamicsResolveParameterType()
         {
             return contactReceiver != null
                 ? (contactReceiver.receiverType == ContactReceiver.ReceiverType.Proximity
-                    ? ComboGestureSimpleDynamicsParameterType.Float
+                    ? ComboGestureDynamicsParameterType.Float
                     : parameterType)
                 : physBone != null
-                    ? (physBoneSource != ComboGestureSimpleDynamicsPhysBoneSource.IsGrabbed
-                        ? ComboGestureSimpleDynamicsParameterType.Float
+                    ? (physBoneSource != ComboGestureDynamicsPhysBoneSource.IsGrabbed
+                        ? ComboGestureDynamicsParameterType.Float
                         : parameterType)
                     : parameterType;
         }
 
         private string ToSuffix()
         {
-            return Enum.GetName(typeof(ComboGestureSimpleDynamicsPhysBoneSource), physBoneSource);
+            return Enum.GetName(typeof(ComboGestureDynamicsPhysBoneSource), physBoneSource);
         }
     }
 
     [Serializable]
-    public enum ComboGestureSimpleDynamicsParameterType
+    public enum ComboGestureDynamicsParameterType
     {
         Bool, Int, Float
     }
 
     [Serializable]
-    public enum ComboGestureSimpleDynamicsPhysBoneSource
+    public enum ComboGestureDynamicsPhysBoneSource
     {
         Stretch, Angle, IsGrabbed
     }
 
     [Serializable]
-    public enum ComboGestureSimpleDynamicsCondition
+    public enum ComboGestureDynamicsCondition
     {
         IsAboveThreshold, IsBelowOrEqualThreshold
     }
@@ -97,8 +97,8 @@ namespace Hai.ComboGesture.Scripts.Components
     {
         public string parameter;
         public float threshold;
-        public ComboGestureSimpleDynamicsParameterType parameterType;
-        public ComboGestureSimpleDynamicsCondition condition;
+        public ComboGestureDynamicsParameterType parameterType;
+        public ComboGestureDynamicsCondition condition;
         public bool isHardThreshold;
     }
 }

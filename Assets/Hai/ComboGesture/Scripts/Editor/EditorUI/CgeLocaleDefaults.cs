@@ -164,6 +164,6 @@ The animations may look different when you are not using Vive controllers (such 
 You should disable Vive Advanced Controls Analog if you are not sure of what you're doing.";
 
         internal static string CGEC_Avatar_Dynamics = "Avatar Dynamics";
-        internal static string CGEC_Simple_Dynamics = "Simple Dynamics";
+        internal static string CGEC_Dynamics = "Dynamics";
     }
 }

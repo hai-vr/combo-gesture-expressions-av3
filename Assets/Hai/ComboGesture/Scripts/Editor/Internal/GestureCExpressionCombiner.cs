@@ -134,11 +134,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         {
             switch (descriptor.parameterType)
             {
-                case ComboGestureSimpleDynamicsParameterType.Bool:
+                case ComboGestureDynamicsParameterType.Bool:
                     return _layer.BoolParameter(descriptor.parameter)
-                        .IsEqualTo(descriptor.condition == ComboGestureSimpleDynamicsCondition.IsAboveThreshold);
-                case ComboGestureSimpleDynamicsParameterType.Int:
-                    if (descriptor.condition == ComboGestureSimpleDynamicsCondition.IsAboveThreshold)
+                        .IsEqualTo(descriptor.condition == ComboGestureDynamicsCondition.IsAboveThreshold);
+                case ComboGestureDynamicsParameterType.Int:
+                    if (descriptor.condition == ComboGestureDynamicsCondition.IsAboveThreshold)
                     {
                         return _layer.IntParameter(descriptor.parameter)
                             .IsGreaterThan((int) descriptor.threshold);
@@ -148,8 +148,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                         return _layer.IntParameter(descriptor.parameter)
                             .IsLessThan((int) descriptor.threshold + 1);
                     }
-                case ComboGestureSimpleDynamicsParameterType.Float:
-                    if (descriptor.condition == ComboGestureSimpleDynamicsCondition.IsAboveThreshold)
+                case ComboGestureDynamicsParameterType.Float:
+                    if (descriptor.condition == ComboGestureDynamicsCondition.IsAboveThreshold)
                     {
                         return _layer.FloatParameter(descriptor.parameter)
                             .IsGreaterThan(descriptor.threshold);
@@ -168,11 +168,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         {
             switch (descriptor.parameterType)
             {
-                case ComboGestureSimpleDynamicsParameterType.Bool:
+                case ComboGestureDynamicsParameterType.Bool:
                     return _layer.BoolParameter(descriptor.parameter)
-                        .IsNotEqualTo(descriptor.condition == ComboGestureSimpleDynamicsCondition.IsAboveThreshold);
-                case ComboGestureSimpleDynamicsParameterType.Int:
-                    if (descriptor.condition == ComboGestureSimpleDynamicsCondition.IsAboveThreshold)
+                        .IsNotEqualTo(descriptor.condition == ComboGestureDynamicsCondition.IsAboveThreshold);
+                case ComboGestureDynamicsParameterType.Int:
+                    if (descriptor.condition == ComboGestureDynamicsCondition.IsAboveThreshold)
                     {
                         return _layer.IntParameter(descriptor.parameter)
                             .IsLessThan((int) descriptor.threshold + 1);
@@ -182,8 +182,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                         return _layer.IntParameter(descriptor.parameter)
                             .IsGreaterThan((int) descriptor.threshold);
                     }
-                case ComboGestureSimpleDynamicsParameterType.Float:
-                    if (descriptor.condition == ComboGestureSimpleDynamicsCondition.IsAboveThreshold)
+                case ComboGestureDynamicsParameterType.Float:
+                    if (descriptor.condition == ComboGestureDynamicsCondition.IsAboveThreshold)
                     {
                         return _layer.FloatParameter(descriptor.parameter)
                             .IsLessThan(descriptor.threshold + 0.0001f);

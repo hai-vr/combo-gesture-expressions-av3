@@ -38,14 +38,14 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly bool _useSmoothing;
         private readonly bool _universalAnalogSupport;
         private readonly AvatarMask _nothingMask;
-        private readonly ComboGestureSimpleDynamicsItem[] _dynamicsLayers;
+        private readonly ComboGestureDynamicsItem[] _dynamicsLayers;
 
         public ComboGestureCompilerInternal(
             ComboGestureCompiler compiler,
             AssetContainer assetContainer)
         {
             _comboLayers = compiler.comboLayers;
-            _dynamicsLayers = compiler.simpleDynamics != null ? compiler.simpleDynamics.items : new ComboGestureSimpleDynamicsItem[] { };
+            _dynamicsLayers = compiler.dynamics != null ? compiler.dynamics.items : new ComboGestureDynamicsItem[] { };
             _parameterGeneration = _comboLayers.Count <= 1 ? ParameterGeneration.Unique : (compiler.parameterMode == ParameterMode.SingleInt ? ParameterGeneration.UserDefinedActivity : ParameterGeneration.VirtualActivity);
             switch (_parameterGeneration)
             {
@@ -271,7 +271,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 .SelectMany((simpleDynamics, rank) =>
                 {
                     var descriptor = simpleDynamics.ToDescriptor();
-                    if (descriptor.parameterType == ComboGestureSimpleDynamicsParameterType.Float && !descriptor.isHardThreshold)
+                    if (descriptor.parameterType == ComboGestureDynamicsParameterType.Float && !descriptor.isHardThreshold)
                     {
                         return comboLayers.Select(binding => ManifestBinding.FromActivityBoundAvatarDynamics(
                             new CgeDynamicsRankedDescriptor
@@ -308,7 +308,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                         .Select((simpleDynamics, rank) =>
                         {
                             var descriptor = simpleDynamics.ToDescriptor();
-                            if (descriptor.parameterType == ComboGestureSimpleDynamicsParameterType.Float && !descriptor.isHardThreshold)
+                            if (descriptor.parameterType == ComboGestureDynamicsParameterType.Float && !descriptor.isHardThreshold)
                             {
                                 return ManifestBinding.FromActivityBoundAvatarDynamics(
                                     new CgeDynamicsRankedDescriptor

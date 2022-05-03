@@ -102,5 +102,5 @@
   "CGEE_OneHandMode" : "ワンハンドモード",
   "CGEE_OneHandModeIntro" : "ワンハンドモードでは、コンボは一切使用しません。片方の手だけを使い、もう片方の手は何も操作しません。",
   "CGEC_Avatar_Dynamics" : "Avatar Dynamics",
-  "CGEC_Simple_Dynamics": "Avatar Dynamicsの定義"
+  "CGEC_Dynamics": "Dynamicsの定義"
 }

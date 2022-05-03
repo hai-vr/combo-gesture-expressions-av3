@@ -53,7 +53,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public SerializedProperty editorAdvancedFoldout;
 
         public SerializedProperty useViveAdvancedControlsForNonFistAnalog;
-        public SerializedProperty simpleDynamics;
+        public SerializedProperty dynamics;
 
         private void OnEnable()
         {
@@ -93,7 +93,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             generateNewContainerEveryTime = serializedObject.FindProperty(nameof(ComboGestureCompiler.generateNewContainerEveryTime));
 
             useViveAdvancedControlsForNonFistAnalog = serializedObject.FindProperty(nameof(ComboGestureCompiler.useViveAdvancedControlsForNonFistAnalog));
-            simpleDynamics = serializedObject.FindProperty(nameof(ComboGestureCompiler.simpleDynamics));
+            dynamics = serializedObject.FindProperty(nameof(ComboGestureCompiler.dynamics));
 
             // reference: https://blog.terresquall.com/2020/03/creating-reorderable-lists-in-the-unity-inspector/
             comboLayersReorderableList = new ReorderableList(
@@ -177,7 +177,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             }
 
             EditorGUILayout.LabelField(CgeLocale.CGEC_Avatar_Dynamics, EditorStyles.boldLabel);
-            EditorGUILayout.PropertyField(simpleDynamics, new GUIContent(CgeLocale.CGEC_Simple_Dynamics));
+            EditorGUILayout.PropertyField(dynamics, new GUIContent(CgeLocale.CGEC_Dynamics));
 
             comboLayersReorderableList.DoLayoutList();
 
@@ -703,7 +703,7 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
 
             EditorGUI.LabelField(
                 new Rect(rect.x, rect.y + EditorGUIUtility.singleLineHeight, 110, EditorGUIUtility.singleLineHeight),
-                new GUIContent(CgeLocale.CGEC_Simple_Dynamics)
+                new GUIContent(CgeLocale.CGEC_Dynamics)
             );
             EditorGUI.PropertyField(
                 new Rect(rect.x + 110, rect.y + EditorGUIUtility.singleLineHeight, rect.width - 110 - 20 - trailingWidth, EditorGUIUtility.singleLineHeight),
