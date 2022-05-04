@@ -314,11 +314,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             GUILayout.BeginArea(RectAt(8, 8));
             DrawTransitionEdit();
 
-            if (!GUILayout.Toggle(true, CgeLocale.CGEE_EnablePermutations, GUILayout.ExpandWidth(true), GUILayout.Height(CgeLayoutCommon.SingleLineHeight * 2)))
-            {
-                _editorHandler.SpEnablePermutations().boolValue = false;
-                _editorHandler.SpEditorTool().intValue = 4;
-            }
             GUILayout.EndArea();
         }
 

@@ -234,7 +234,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             {
                 GUILayout.BeginHorizontal();
                 GUILayout.Space(30);
-                EditorGUILayout.PropertyField(_editorHandler.SpActivityMode(), GUIContent.none, GUILayout.Width(200));
+                EditorGUILayout.LabelField(new GUIContent(CgeLocale.CGEE_Mode), GUILayout.Width(100));
+                EditorGUILayout.PropertyField(_editorHandler.SpActivityMode(), GUIContent.none, GUILayout.Width(250));
                 if (_editorHandler.GetActivity().activityMode == ComboGestureActivity.CgeActivityMode.Permutations)
                 {
                     _editorHandler.SpEditorTool().intValue = GUILayout.Toolbar(_editorHandler.SpEditorTool().intValue, new[] {CgeLocale.CGEE_Simplified_view, CgeLocale.CGEE_Complete_view});

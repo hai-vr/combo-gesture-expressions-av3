@@ -157,6 +157,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         internal static string CGED_Threshold => LocalizeOrElse("CGED_Threshold", CgeLocaleDefaults.CGED_Threshold);
         internal static string CGED_Higher_priority => LocalizeOrElse("CGED_Higher_priority", CgeLocaleDefaults.CGED_Higher_priority);
         public static string CGEC_MMD_compatibility_toggle_parameter => LocalizeOrElse("CGEC_MMD_compatibility_toggle_parameter", CgeLocaleDefaults.CGEC_MMD_compatibility_toggle_parameter);
+        public static string CGEE_Mode => LocalizeOrElse("CGEE_Mode", CgeLocaleDefaults.CGEE_Mode);
 
 
 
