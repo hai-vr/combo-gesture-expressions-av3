@@ -220,6 +220,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
             _clipToRender[clip] = render; // TODO: Dimensions
 
             _queue.Enqueue(clip);
+            ScheduleRendering(repaintCallback);
 
             return render;
         }

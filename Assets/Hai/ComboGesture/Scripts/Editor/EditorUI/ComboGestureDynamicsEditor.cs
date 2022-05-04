@@ -202,6 +202,12 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             }
 
             EditorGUILayout.PropertyField(previewAnimator);
+            _renderingCommands.SelectAnimator(((ComboGestureDynamics)target).previewAnimator);
+            if (GUILayout.Button(new GUIContent(CgeLocale.CGEE_Regenerate_all_previews)))
+            {
+                _renderingCommands.Invalidate(Repaint);
+            }
+
             itemReorderableList.DoLayoutList();
 
             serializedObject.ApplyModifiedProperties();
