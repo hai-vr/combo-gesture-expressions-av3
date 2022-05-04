@@ -56,6 +56,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public SerializedProperty useViveAdvancedControlsForNonFistAnalog;
         public SerializedProperty dynamics;
         private SerializedProperty doNotForceBlinkBlendshapes;
+        private SerializedProperty mmdCompatibilityToggleParameter;
 
         private void OnEnable()
         {
@@ -97,6 +98,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             useViveAdvancedControlsForNonFistAnalog = serializedObject.FindProperty(nameof(ComboGestureCompiler.useViveAdvancedControlsForNonFistAnalog));
             dynamics = serializedObject.FindProperty(nameof(ComboGestureCompiler.dynamics));
             doNotForceBlinkBlendshapes = serializedObject.FindProperty(nameof(ComboGestureCompiler.doNotForceBlinkBlendshapes));
+            mmdCompatibilityToggleParameter = serializedObject.FindProperty(nameof(ComboGestureCompiler.mmdCompatibilityToggleParameter));
 
             // reference: https://blog.terresquall.com/2020/03/creating-reorderable-lists-in-the-unity-inspector/
             comboLayersReorderableList = new ReorderableList(
@@ -416,6 +418,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             EditorGUILayout.LabelField(CgeLocale.CGEC_Other_tweaks, EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(analogBlinkingUpperThreshold, new GUIContent(CgeLocale.CGEC_Analog_fist_blinking_threshold, CgeLocale.CGEC_AnalogFist_Popup));
+            EditorGUILayout.PropertyField(mmdCompatibilityToggleParameter, new GUIContent(CgeLocale.CGEC_MMD_compatibility_toggle_parameter));
 
             editorAdvancedFoldout.boolValue = EditorGUILayout.Foldout(editorAdvancedFoldout.boolValue, CgeLocale.CGEC_Advanced);
             if (editorAdvancedFoldout.boolValue)

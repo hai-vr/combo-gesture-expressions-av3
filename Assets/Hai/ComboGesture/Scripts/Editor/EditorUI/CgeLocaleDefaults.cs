@@ -181,5 +181,6 @@ You should disable Vive Advanced Controls Analog if you are not sure of what you
         internal static string CGED_Source = "Source";
         internal static string CGED_Threshold = "Threshold";
         internal static string CGED_Higher_priority = "Dynamic Expressions at the top have a higher priority than the Dynamic Expressions at the bottom.";
+        internal static string CGEC_MMD_compatibility_toggle_parameter = "MMD compatibility toggle parameter";
     }
 }

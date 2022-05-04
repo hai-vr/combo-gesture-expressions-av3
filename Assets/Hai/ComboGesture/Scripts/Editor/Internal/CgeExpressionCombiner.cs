@@ -6,6 +6,7 @@ using Hai.ComboGesture.Scripts.Editor.Internal.CgeAac;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
+using VRC.SDK3.Avatars.Components;
 using Random = UnityEngine.Random;
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal
@@ -20,9 +21,13 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly bool _useGestureWeightCorrection;
         private readonly bool _useSmoothing;
         private readonly CgeAacFlState _defaultState;
+        private readonly string _mmdCompatibilityToggleParameter;
+        private readonly int _layerIndex;
 
         public CgeExpressionCombiner(CgeAssetContainer assetContainer, CgeAacFlLayer layer,
-            List<IComposedBehaviour> composedBehaviours, string activityStageName, bool writeDefaultsForFaceExpressions, bool useGestureWeightCorrection, bool useSmoothing, CgeAacFlState defaultState)
+            List<IComposedBehaviour> composedBehaviours, string activityStageName, bool writeDefaultsForFaceExpressions, bool useGestureWeightCorrection, bool useSmoothing, CgeAacFlState defaultState,
+            string mmdCompatibilityToggleParameter,
+            int layerIndex)
         {
             _assetContainer = assetContainer;
             _layer = layer;
@@ -31,6 +36,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _useGestureWeightCorrection = useGestureWeightCorrection;
             _useSmoothing = useSmoothing;
             _defaultState = defaultState;
+            _mmdCompatibilityToggleParameter = mmdCompatibilityToggleParameter;
+            _layerIndex = layerIndex;
             _composedBehaviours = composedBehaviours;
         }
 
@@ -43,6 +50,34 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             intern.WithExitPosition(1, _composedBehaviours.Count + 1);
 
             _defaultState.CGE_AutomaticallyMovesTo(intern);
+
+            // This must be the first layer for MMD compatiblity to take over everything else
+            if (!string.IsNullOrEmpty(_mmdCompatibilityToggleParameter))
+            {
+                var mmdOn = intern.NewState("MMD Compatibility ON").At(0, -3);
+
+                var onLayerControl = mmdOn.State.AddStateMachineBehaviour<VRCAnimatorLayerControl>();
+                onLayerControl.blendDuration = 0;
+                onLayerControl.goalWeight = 0;
+                onLayerControl.layer = _layerIndex;
+
+                intern.EntryTransitionsTo(mmdOn)
+                    .When(_layer.BoolParameter(_mmdCompatibilityToggleParameter).IsTrue())
+                    .And(_layer.Av3().InStation.IsTrue());
+
+                var mmdOff = intern.NewState("MMD Compatibility OFF");
+
+                var offLayerControl = mmdOff.State.AddStateMachineBehaviour<VRCAnimatorLayerControl>();
+                offLayerControl.blendDuration = 0;
+                offLayerControl.goalWeight = 1;
+                offLayerControl.layer = _layerIndex;
+
+                mmdOn.TransitionsTo(mmdOff)
+                    .When(_layer.BoolParameter(_mmdCompatibilityToggleParameter).IsFalse())
+                    .Or().When(_layer.Av3().InStation.IsFalse());
+
+                mmdOff.Exits().AfterAnimationFinishes();
+            }
 
             var ssms = _composedBehaviours
                 .Select((behaviour, i) =>
@@ -108,6 +143,12 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 intern.WithDefaultState(neutral);
                 intern.EntryTransitionsTo(neutral);
 
+                if (!string.IsNullOrEmpty(_mmdCompatibilityToggleParameter))
+                {
+                    neutral.Exits()
+                        .When(_layer.BoolParameter(_mmdCompatibilityToggleParameter).IsTrue())
+                        .And(_layer.Av3().InStation.IsTrue());
+                }
                 foreach (var composed in _composedBehaviours)
                 {
                     neutral.Exits()
@@ -231,6 +272,13 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                         .WithTransitionDurationSeconds(composed.TransitionDuration)
                         .When(gestureLeftParam.IsNotEqualTo((int) permutation.Left))
                         .Or().When(gestureRightParam.IsNotEqualTo((int) permutation.Right));
+                    if (!string.IsNullOrEmpty(_mmdCompatibilityToggleParameter))
+                    {
+                        state.Exits()
+                            .WithTransitionDurationSeconds(composed.TransitionDuration)
+                            .When(_layer.BoolParameter(_mmdCompatibilityToggleParameter).IsTrue())
+                            .And(_layer.Av3().InStation.IsTrue());
+                    }
                     if (composed.IsAvatarDynamics)
                     {
                         state.Exits()
@@ -272,6 +320,13 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 state.Exits()
                     .WithTransitionDurationSeconds(composed.TransitionDuration)
                     .When(which.IsNotEqualTo((int) handPose));
+                if (!string.IsNullOrEmpty(_mmdCompatibilityToggleParameter))
+                {
+                    state.Exits()
+                        .WithTransitionDurationSeconds(composed.TransitionDuration)
+                        .When(_layer.BoolParameter(_mmdCompatibilityToggleParameter).IsTrue())
+                        .And(_layer.Av3().InStation.IsTrue());
+                }
                 if (composed.IsAvatarDynamics)
                 {
                     state.Exits()
@@ -301,6 +356,13 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             var state = AppendToSsm(ssm, composed.Behavior);
             state.State.name = $"Single";
             ssm.EntryTransitionsTo(state);
+            if (!string.IsNullOrEmpty(_mmdCompatibilityToggleParameter))
+            {
+                state.Exits()
+                    .WithTransitionDurationSeconds(composed.TransitionDuration)
+                    .When(_layer.BoolParameter(_mmdCompatibilityToggleParameter).IsTrue())
+                    .And(_layer.Av3().InStation.IsTrue());
+            }
             if (composed.IsAvatarDynamics)
             {
                 state.Exits()

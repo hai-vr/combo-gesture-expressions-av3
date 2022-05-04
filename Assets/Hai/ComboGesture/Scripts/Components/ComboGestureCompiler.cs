@@ -50,6 +50,8 @@ namespace Hai.ComboGesture.Scripts.Components
         public ComboGestureDynamics dynamics;
         public bool doNotForceBlinkBlendshapes;
 
+        public string mmdCompatibilityToggleParameter;
+
         public bool WillUseGestureWeightCorrection()
         {
             return weightCorrectionMode != WeightCorrectionMode.UseNativeWeight;

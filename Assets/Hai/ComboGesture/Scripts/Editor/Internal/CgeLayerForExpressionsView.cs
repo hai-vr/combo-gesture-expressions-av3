@@ -28,6 +28,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly List<CgeManifestBinding> _manifestBindings;
         private readonly VRCAvatarDescriptor _avatarDescriptorNullable;
         private readonly bool _doNotForceBlinkBlendshapes;
+        private readonly string _mmdCompatibilityToggleParameter;
 
         public CgeLayerForExpressionsView(CgeFeatureToggles featuresToggles,
             AvatarMask expressionsAvatarMask,
@@ -43,7 +44,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             bool useSmoothing,
             List<CgeManifestBinding> manifestBindings,
             VRCAvatarDescriptor avatarDescriptorNullable,
-            bool doNotForceBlinkBlendshapes)
+            bool doNotForceBlinkBlendshapes,
+            string mmdCompatibilityToggleParameter)
         {
             _featuresToggles = featuresToggles;
             _expressionsAvatarMask = expressionsAvatarMask;
@@ -60,6 +62,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _manifestBindings = manifestBindings;
             _avatarDescriptorNullable = avatarDescriptorNullable;
             _doNotForceBlinkBlendshapes = doNotForceBlinkBlendshapes;
+            _mmdCompatibilityToggleParameter = mmdCompatibilityToggleParameter;
         }
 
         public void Create()
@@ -120,7 +123,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 _conflictPrevention.ShouldWriteDefaults,
                 _useGestureWeightCorrection,
                 _useSmoothing,
-                defaultState
+                defaultState,
+                _mmdCompatibilityToggleParameter,
+                _animatorController.layers.ToList().FindIndex(ctrl => ctrl.name == "Hai_GestureExp")
             ).Populate();
         }
 
