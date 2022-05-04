@@ -3,16 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.Internal.CgeAac;
-using Hai.ComboGesture.Scripts.Editor.Internal.Model;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
-    internal class GestureCExpressionCombiner
+    internal class CgeExpressionCombiner
     {
-        private readonly AssetContainer _assetContainer;
+        private readonly CgeAssetContainer _assetContainer;
         private CgeAacFlLayer _layer;
         private readonly List<IComposedBehaviour> _composedBehaviours;
         private readonly string _activityStageName;
@@ -21,7 +21,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly bool _useSmoothing;
         private readonly CgeAacFlState _defaultState;
 
-        public GestureCExpressionCombiner(AssetContainer assetContainer, CgeAacFlLayer layer,
+        public CgeExpressionCombiner(CgeAssetContainer assetContainer, CgeAacFlLayer layer,
             List<IComposedBehaviour> composedBehaviours, string activityStageName, bool writeDefaultsForFaceExpressions, bool useGestureWeightCorrection, bool useSmoothing, CgeAacFlState defaultState)
         {
             _assetContainer = assetContainer;
@@ -200,14 +200,14 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         private void BuildPcb(CgeAacFlStateMachine ssm, PermutationComposedBehaviour composed, CgeDynamicsDescriptor[] dynamicsExiters)
         {
-            var GL = _layer.Av3().GestureLeft;
-            var GT = _layer.Av3().GestureRight;
-            var ASN = _activityStageName != null ? _layer.IntParameter(_activityStageName) : null;
+            var gestureLeftParam = _layer.Av3().GestureLeft;
+            var gestureRightParam = _layer.Av3().GestureRight;
+            var activityStageNameParam = _activityStageName != null ? _layer.IntParameter(_activityStageName) : null;
 
-            foreach (HandPose right in Enum.GetValues(typeof(HandPose)))
+            foreach (CgeHandPose right in Enum.GetValues(typeof(CgeHandPose)))
             {
                 var rightSsm = ssm.NewSubStateMachine($"Right {right}").At((int) right, 0);
-                ssm.EntryTransitionsTo(rightSsm).When(GT.IsEqualTo((int) right));
+                ssm.EntryTransitionsTo(rightSsm).When(gestureRightParam.IsEqualTo((int) right));
 
                 // Short Restarts are no longer possible with Avatar Dynamics
                 // var restartCondition = rightSsm.Restarts().When(_layer.Av3().GestureRight.IsEqualTo((int) right));
@@ -219,18 +219,18 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 rightSsm.WithEntryPosition(-1, -1);
                 rightSsm.WithExitPosition(1, 8);
 
-                foreach (HandPose left in Enum.GetValues(typeof(HandPose)))
+                foreach (CgeHandPose left in Enum.GetValues(typeof(CgeHandPose)))
                 {
-                    var permutation = Permutation.LeftRight(left, right);
+                    var permutation = CgePermutation.LeftRight(left, right);
                     var state = AppendToSsm(rightSsm, composed.Behaviors[permutation]).At((int)permutation.Right, (int)permutation.Left);
                     state.State.name = $"Left {left}";
 
                     rightSsm.EntryTransitionsTo(state)
-                        .When(GL.IsEqualTo((int) permutation.Left));
+                        .When(gestureLeftParam.IsEqualTo((int) permutation.Left));
                     state.Exits()
                         .WithTransitionDurationSeconds(composed.TransitionDuration)
-                        .When(GL.IsNotEqualTo((int) permutation.Left))
-                        .Or().When(GT.IsNotEqualTo((int) permutation.Right));
+                        .When(gestureLeftParam.IsNotEqualTo((int) permutation.Left))
+                        .Or().When(gestureRightParam.IsNotEqualTo((int) permutation.Right));
                     if (composed.IsAvatarDynamics)
                     {
                         state.Exits()
@@ -241,7 +241,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                     {
                         state.Exits()
                             .WithTransitionDurationSeconds(composed.TransitionDuration)
-                            .When(ASN.IsNotEqualTo(composed.StageValue));
+                            // ReSharper disable once PossibleNullReferenceException
+                            .When(activityStageNameParam.IsNotEqualTo(composed.StageValue));
                     }
                     foreach (var dynamics in dynamicsExiters)
                     {
@@ -320,97 +321,95 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
         }
 
-        private CgeAacFlState AppendToSsm(CgeAacFlStateMachine ssm, IAnimatedBehavior behaviour)
+        private CgeAacFlState AppendToSsm(CgeAacFlStateMachine ssm, ICgeAnimatedBehavior behaviour)
         {
             switch (behaviour.Nature())
             {
-                case AnimatedBehaviorNature.Single:
-                    var sab = (SingleAnimatedBehavior)behaviour;
+                case CgeAnimatedBehaviorNature.Single:
+                    var sab = (CgeSingleAnimatedBehavior)behaviour;
                     return ForSingle(ssm, sab);
-                case AnimatedBehaviorNature.Analog:
-                    AnalogAnimatedBehavior aab = (AnalogAnimatedBehavior)behaviour;
+                case CgeAnimatedBehaviorNature.Analog:
+                    CgeAnalogAnimatedBehavior aab = (CgeAnalogAnimatedBehavior)behaviour;
                     return ForAnalog(ssm, aab.Squeezing.Clip, aab.Resting.Clip, aab.HandSide);
-                case AnimatedBehaviorNature.PuppetToAnalog:
-                    PuppetToAnalogAnimatedBehavior ptaab = (PuppetToAnalogAnimatedBehavior)behaviour;
+                case CgeAnimatedBehaviorNature.PuppetToAnalog:
+                    CgePuppetToAnalogAnimatedBehavior ptaab = (CgePuppetToAnalogAnimatedBehavior)behaviour;
                     return ForAnalog(ssm, ptaab.Squeezing.Clip, ptaab.Resting, ptaab.HandSide);
-                case AnimatedBehaviorNature.DualAnalog:
-                    DualAnalogAnimatedBehavior daab = (DualAnalogAnimatedBehavior)behaviour;
+                case CgeAnimatedBehaviorNature.DualAnalog:
+                    CgeDualAnalogAnimatedBehavior daab = (CgeDualAnalogAnimatedBehavior)behaviour;
                     return ForDualAnalog(ssm, daab.BothSqueezing.Clip, daab.Resting.Clip, daab.LeftSqueezing.Clip, daab.RightSqueezing.Clip);
-                case AnimatedBehaviorNature.PuppetToDualAnalog:
-                    PuppetToDualAnalogAnimatedBehavior ptdaab = (PuppetToDualAnalogAnimatedBehavior)behaviour;
+                case CgeAnimatedBehaviorNature.PuppetToDualAnalog:
+                    CgePuppetToDualAnalogAnimatedBehavior ptdaab = (CgePuppetToDualAnalogAnimatedBehavior)behaviour;
                     return ForDualAnalog(ssm, ptdaab.BothSqueezing.Clip, ptdaab.Resting, ptdaab.LeftSqueezing.Clip, ptdaab.RightSqueezing.Clip);
-                case AnimatedBehaviorNature.Puppet:
-                    var pab = (PuppetAnimatedBehavior)behaviour;
+                case CgeAnimatedBehaviorNature.Puppet:
+                    var pab = (CgePuppetAnimatedBehavior)behaviour;
                     return ForPuppet(ssm, pab);
-                case AnimatedBehaviorNature.SimpleMassiveBlend:
-                    SimpleMassiveBlendAnimatedBehavior smbab = (SimpleMassiveBlendAnimatedBehavior)behaviour;
+                case CgeAnimatedBehaviorNature.SimpleMassiveBlend:
+                    CgeSimpleMassiveBlendAnimatedBehavior smbab = (CgeSimpleMassiveBlendAnimatedBehavior)behaviour;
                     return ForSimpleMassiveBlend(ssm, smbab.Zero, smbab.One, smbab.ParameterName);
-                case AnimatedBehaviorNature.TwoDirectionsMassiveBlend:
-                    TwoDirectionsMassiveBlendAnimatedBehavior tdmb = (TwoDirectionsMassiveBlendAnimatedBehavior)behaviour;
+                case CgeAnimatedBehaviorNature.TwoDirectionsMassiveBlend:
+                    CgeTwoDirectionsMassiveBlendAnimatedBehavior tdmb = (CgeTwoDirectionsMassiveBlendAnimatedBehavior)behaviour;
                     return ForTwoDirectionsMassiveBlend(ssm, tdmb.Zero, tdmb.One, tdmb.MinusOne, tdmb.ParameterName);
-                case AnimatedBehaviorNature.ComplexMassiveBlend:
-                    ComplexMassiveBlendAnimatedBehavior cbtmbab = (ComplexMassiveBlendAnimatedBehavior)behaviour;
+                case CgeAnimatedBehaviorNature.ComplexMassiveBlend:
+                    CgeComplexMassiveBlendAnimatedBehavior cbtmbab = (CgeComplexMassiveBlendAnimatedBehavior)behaviour;
                     return ForComplexMassiveBlend(ssm, cbtmbab.Behaviors, cbtmbab.OriginalBlendTreeTemplate);
-                case AnimatedBehaviorNature.UniversalAnalog:
-                    UniversalAnalogAnimatedBehavior uaab = (UniversalAnalogAnimatedBehavior)behaviour;
+                case CgeAnimatedBehaviorNature.UniversalAnalog:
+                    CgeUniversalAnalogAnimatedBehavior uaab = (CgeUniversalAnalogAnimatedBehavior)behaviour;
                     return ForDualAnalog(ssm, uaab.BothSqueezing.Clip, uaab.Resting.ToMotion(), uaab.LeftSqueezing.ToMotion(), uaab.RightSqueezing.ToMotion());
                 default:
                     throw new ArgumentOutOfRangeException();
             }
         }
 
-        private Motion Derive(IAnimatedBehavior behavior)
+        private Motion Derive(ICgeAnimatedBehavior behavior)
         {
             switch (behavior.Nature())
             {
-                case AnimatedBehaviorNature.Single:
-                    return ((SingleAnimatedBehavior)behavior).Posing.Clip;
-                case AnimatedBehaviorNature.Analog:
-                    AnalogAnimatedBehavior aab = (AnalogAnimatedBehavior)behavior;
+                case CgeAnimatedBehaviorNature.Single:
+                    return ((CgeSingleAnimatedBehavior)behavior).Posing.Clip;
+                case CgeAnimatedBehaviorNature.Analog:
+                    CgeAnalogAnimatedBehavior aab = (CgeAnalogAnimatedBehavior)behavior;
                     return CreateBlendTree(
                         aab.Resting.Clip,
                         aab.Squeezing.Clip,
-                        aab.HandSide == HandSide.LeftHand
+                        aab.HandSide == CgeHandSide.LeftHand
                             ? LeftParam(_useGestureWeightCorrection, _useSmoothing)
-                            : RightParam(_useGestureWeightCorrection, _useSmoothing),
-                        SanitizeName(UnshimName(aab.Resting.Clip.name) + " MB " + UnshimName((aab.Squeezing.Clip.name))));
-                case AnimatedBehaviorNature.PuppetToAnalog:
-                    PuppetToAnalogAnimatedBehavior pta = (PuppetToAnalogAnimatedBehavior)behavior;
+                            : RightParam(_useGestureWeightCorrection, _useSmoothing));
+                case CgeAnimatedBehaviorNature.PuppetToAnalog:
+                    CgePuppetToAnalogAnimatedBehavior pta = (CgePuppetToAnalogAnimatedBehavior)behavior;
                     return CreateBlendTree(
                         pta.Resting,
                         pta.Squeezing.Clip,
-                        pta.HandSide == HandSide.LeftHand
+                        pta.HandSide == CgeHandSide.LeftHand
                             ? LeftParam(_useGestureWeightCorrection, _useSmoothing)
-                            : RightParam(_useGestureWeightCorrection, _useSmoothing),
-                        SanitizeName(UnshimName(pta.Resting.name) + " MB " + UnshimName((pta.Squeezing.Clip.name))));
-                case AnimatedBehaviorNature.DualAnalog:
-                    DualAnalogAnimatedBehavior da = (DualAnalogAnimatedBehavior)behavior;
-                    return CreateDualBlendTree(da.Resting.Clip, da.BothSqueezing.Clip, da.LeftSqueezing.Clip, da.RightSqueezing.Clip, SanitizeName(UnshimName(da.BothSqueezing.Clip.name)), _useGestureWeightCorrection, _useSmoothing);
-                case AnimatedBehaviorNature.PuppetToDualAnalog:
-                    PuppetToDualAnalogAnimatedBehavior ptda = (PuppetToDualAnalogAnimatedBehavior)behavior;
-                    return CreateDualBlendTree(ptda.Resting, ptda.BothSqueezing.Clip, ptda.LeftSqueezing.Clip, ptda.RightSqueezing.Clip, SanitizeName(UnshimName(ptda.BothSqueezing.Clip.name)), _useGestureWeightCorrection, _useSmoothing);
-                case AnimatedBehaviorNature.Puppet:
-                    return ((PuppetAnimatedBehavior)behavior).Tree;
-                case AnimatedBehaviorNature.UniversalAnalog:
-                    UniversalAnalogAnimatedBehavior uaab = (UniversalAnalogAnimatedBehavior)behavior;
-                    return CreateDualBlendTree(uaab.Resting.ToMotion(), uaab.BothSqueezing.Clip, uaab.LeftSqueezing.ToMotion(), uaab.RightSqueezing.ToMotion(), SanitizeName(UnshimName(uaab.BothSqueezing.Clip.name)), _useGestureWeightCorrection, _useSmoothing);
-                case AnimatedBehaviorNature.SimpleMassiveBlend:
-                case AnimatedBehaviorNature.TwoDirectionsMassiveBlend:
-                case AnimatedBehaviorNature.ComplexMassiveBlend:
+                            : RightParam(_useGestureWeightCorrection, _useSmoothing));
+                case CgeAnimatedBehaviorNature.DualAnalog:
+                    CgeDualAnalogAnimatedBehavior da = (CgeDualAnalogAnimatedBehavior)behavior;
+                    return CreateDualBlendTree(da.Resting.Clip, da.BothSqueezing.Clip, da.LeftSqueezing.Clip, da.RightSqueezing.Clip, _useGestureWeightCorrection, _useSmoothing);
+                case CgeAnimatedBehaviorNature.PuppetToDualAnalog:
+                    CgePuppetToDualAnalogAnimatedBehavior ptda = (CgePuppetToDualAnalogAnimatedBehavior)behavior;
+                    return CreateDualBlendTree(ptda.Resting, ptda.BothSqueezing.Clip, ptda.LeftSqueezing.Clip, ptda.RightSqueezing.Clip, _useGestureWeightCorrection, _useSmoothing);
+                case CgeAnimatedBehaviorNature.Puppet:
+                    return ((CgePuppetAnimatedBehavior)behavior).Tree;
+                case CgeAnimatedBehaviorNature.UniversalAnalog:
+                    CgeUniversalAnalogAnimatedBehavior uaab = (CgeUniversalAnalogAnimatedBehavior)behavior;
+                    return CreateDualBlendTree(uaab.Resting.ToMotion(), uaab.BothSqueezing.Clip, uaab.LeftSqueezing.ToMotion(), uaab.RightSqueezing.ToMotion(), _useGestureWeightCorrection, _useSmoothing);
+                case CgeAnimatedBehaviorNature.SimpleMassiveBlend:
+                case CgeAnimatedBehaviorNature.TwoDirectionsMassiveBlend:
+                case CgeAnimatedBehaviorNature.ComplexMassiveBlend:
                     throw new ArgumentOutOfRangeException();
                 default:
                     throw new ArgumentOutOfRangeException();
             }
         }
 
-        private CgeAacFlState ForSimpleMassiveBlend(CgeAacFlStateMachine ssm, IAnimatedBehavior zero, IAnimatedBehavior one, string parameterName)
+        private CgeAacFlState ForSimpleMassiveBlend(CgeAacFlStateMachine ssm, ICgeAnimatedBehavior zero, ICgeAnimatedBehavior one, string parameterName)
         {
             var zeroMotion = Derive(zero);
             var oneMotion = Derive(one);
             return CreateSimpleMassiveBlendState(zeroMotion, oneMotion, parameterName, ssm);
         }
 
-        private CgeAacFlState ForTwoDirectionsMassiveBlend(CgeAacFlStateMachine ssm, IAnimatedBehavior zero, IAnimatedBehavior one, IAnimatedBehavior minusOne, string parameterName)
+        private CgeAacFlState ForTwoDirectionsMassiveBlend(CgeAacFlStateMachine ssm, ICgeAnimatedBehavior zero, ICgeAnimatedBehavior one, ICgeAnimatedBehavior minusOne, string parameterName)
         {
             var zeroMotion = Derive(zero);
             var oneMotion = Derive(one);
@@ -418,7 +417,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             return CreateTwoDirectionsMassiveBlendState(zeroMotion, oneMotion, minusOneMotion, parameterName, ssm);
         }
 
-        private CgeAacFlState ForComplexMassiveBlend(CgeAacFlStateMachine ssm, List<IAnimatedBehavior> behaviors, BlendTree originalBlendTreeTemplate)
+        private CgeAacFlState ForComplexMassiveBlend(CgeAacFlStateMachine ssm, List<ICgeAnimatedBehavior> behaviors, BlendTree originalBlendTreeTemplate)
         {
             var motions = behaviors.Select(Derive).ToList();
             return CreateComplexMassiveBlendState(motions, originalBlendTreeTemplate, ssm);
@@ -426,22 +425,19 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         private CgeAacFlState CreateSimpleMassiveBlendState(Motion zero, Motion one, string parameterName, CgeAacFlStateMachine ssm)
         {
-            var clipName = UnshimName(zero.name) + " massive " + UnshimName(one.name);
-            return ssm.NewState(SanitizeName(clipName))
+            return ssm.NewState(ThisStringWillBeDiscardedLater())
                 .WithAnimation(CreateBlendTree(
                     zero,
                     one,
-                    parameterName,
-                    clipName))
+                    parameterName))
                 .WithWriteDefaultsSetTo(_writeDefaultsForFaceExpressions);
         }
 
         private CgeAacFlState CreateTwoDirectionsMassiveBlendState(Motion zero, Motion one, Motion minusOne, string parameterName, CgeAacFlStateMachine ssm)
         {
-            var clipName = UnshimName(zero.name) + " - " + UnshimName(one.name) + " - " + UnshimName(minusOne.name);
             var blendTree = new BlendTree
             {
-                name = "autoBT_" + clipName,
+                name = "autoBT_" + ThisStringWillBeDiscardedLater(),
                 blendParameter = parameterName,
                 blendType = BlendTreeType.Simple1D,
                 minThreshold = -1,
@@ -454,20 +450,18 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
             RegisterBlendTreeAsAsset(blendTree);
 
-            return ssm.NewState(SanitizeName(clipName))
+            return ssm.NewState(ThisStringWillBeDiscardedLater())
                 .WithAnimation(blendTree)
                 .WithWriteDefaultsSetTo(_writeDefaultsForFaceExpressions);
         }
 
-        private CgeAacFlState ForSingle(CgeAacFlStateMachine ssm, SingleAnimatedBehavior intermediateAnimationGroup)
+        private CgeAacFlState ForSingle(CgeAacFlStateMachine ssm, CgeSingleAnimatedBehavior intermediateAnimationGroup)
         {
             return CreateMotionState(intermediateAnimationGroup.Posing.Clip, ssm);
         }
 
         private CgeAacFlState CreateComplexMassiveBlendState(List<Motion> motions, BlendTree originalBlendTreeTemplate, CgeAacFlStateMachine ssm)
         {
-            var clipName = UnshimName(originalBlendTreeTemplate.name) + " complex";
-
             var newBlendTree = CopyTreeIdentically(originalBlendTreeTemplate);
             newBlendTree.children = newBlendTree.children
                 .Select((childMotion, index) =>
@@ -480,7 +474,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
             RegisterBlendTreeAsAsset(newBlendTree);
 
-            return ssm.NewState(SanitizeName(clipName))
+            return ssm.NewState(ThisStringWillBeDiscardedLater())
                 .WithAnimation(newBlendTree)
                 .WithWriteDefaultsSetTo(_writeDefaultsForFaceExpressions);
         }
@@ -520,9 +514,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             return newTree;
         }
 
-        private CgeAacFlState ForAnalog(CgeAacFlStateMachine ssm, Motion squeezing, Motion resting, HandSide handSide)
+        private CgeAacFlState ForAnalog(CgeAacFlStateMachine ssm, Motion squeezing, Motion resting, CgeHandSide handSide)
         {
-            return CreateSidedBlendState(squeezing, resting, handSide == HandSide.LeftHand, ssm);
+            return CreateSidedBlendState(squeezing, resting, handSide == CgeHandSide.LeftHand, ssm);
         }
 
         private CgeAacFlState ForDualAnalog(CgeAacFlStateMachine ssm, Motion bothSqueezing, Motion resting, Motion leftSqueezingClip, Motion rightSqueezingClip)
@@ -532,39 +526,37 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 leftSqueezingClip, rightSqueezingClip, ssm);
         }
 
-        private CgeAacFlState ForPuppet(CgeAacFlStateMachine ssm, PuppetAnimatedBehavior intermediateAnimationGroup)
+        private CgeAacFlState ForPuppet(CgeAacFlStateMachine ssm, CgePuppetAnimatedBehavior intermediateAnimationGroup)
         {
             return CreatePuppetState(intermediateAnimationGroup.Tree, ssm);
         }
 
         private CgeAacFlState CreateMotionState(AnimationClip clip, CgeAacFlStateMachine ssm)
         {
-            return ssm.NewState(SanitizeName(UnshimName(clip.name)))
+            return ssm.NewState(ThisStringWillBeDiscardedLater())
                 .WithAnimation(clip)
                 .WithWriteDefaultsSetTo(_writeDefaultsForFaceExpressions);
         }
 
         private CgeAacFlState CreateSidedBlendState(Motion squeezing, Motion resting, bool isLeftSide, CgeAacFlStateMachine ssm)
         {
-            var clipName = UnshimName(squeezing.name) + " " + (isLeftSide ? "BlendLeft" : "BlendRight") + " " + UnshimName(resting.name);
-            return ssm.NewState(SanitizeName(clipName))
+            return ssm.NewState(ThisStringWillBeDiscardedLater())
                 .WithAnimation(CreateBlendTree(
                     resting,
                     squeezing,
                     _layer.FloatParameter(isLeftSide
                         ? LeftParam(_useGestureWeightCorrection, _useSmoothing)
-                        : RightParam(_useGestureWeightCorrection, _useSmoothing)).Name,
-                    clipName))
+                        : RightParam(_useGestureWeightCorrection, _useSmoothing)).Name))
                 .WithWriteDefaultsSetTo(_writeDefaultsForFaceExpressions);
         }
 
         private static string LeftParam(bool useGestureWeightCorrection, bool useSmoothing)
         {
             if (useSmoothing)
-                return SharedLayerUtils.HaiGestureComboLeftWeightSmoothing;
+                return CgeSharedLayerUtils.HaiGestureComboLeftWeightSmoothing;
 
             if (useGestureWeightCorrection)
-                return SharedLayerUtils.HaiGestureComboLeftWeightProxy;
+                return CgeSharedLayerUtils.HaiGestureComboLeftWeightProxy;
 
             return "GestureLeftWeight";
         }
@@ -572,35 +564,33 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private static string RightParam(bool useGestureWeightCorrection, bool useSmoothing)
         {
             if (useSmoothing)
-                return SharedLayerUtils.HaiGestureComboRightWeightSmoothing;
+                return CgeSharedLayerUtils.HaiGestureComboRightWeightSmoothing;
 
             if (useGestureWeightCorrection)
-                return SharedLayerUtils.HaiGestureComboRightWeightProxy;
+                return CgeSharedLayerUtils.HaiGestureComboRightWeightProxy;
 
             return "GestureRightWeight";
         }
 
         private CgeAacFlState CreateDualBlendState(Motion clip, Motion resting, Motion posingLeft, Motion posingRight, CgeAacFlStateMachine ssm)
         {
-            var clipName = UnshimName(clip.name) + " Dual " + UnshimName(resting.name);
-            return ssm.NewState(SanitizeName(clipName))
-                .WithAnimation(CreateDualBlendTree(resting, clip, posingLeft, posingRight, clipName, _useGestureWeightCorrection, _useSmoothing))
+            return ssm.NewState(ThisStringWillBeDiscardedLater())
+                .WithAnimation(CreateDualBlendTree(resting, clip, posingLeft, posingRight, _useGestureWeightCorrection, _useSmoothing))
                 .WithWriteDefaultsSetTo(_writeDefaultsForFaceExpressions);
         }
 
         private CgeAacFlState CreatePuppetState(BlendTree tree, CgeAacFlStateMachine ssm)
         {
-            var clipName = UnshimName(tree.name) + " Puppet";
-            return ssm.NewState(SanitizeName(clipName))
+            return ssm.NewState(ThisStringWillBeDiscardedLater())
                 .WithAnimation(tree)
                 .WithWriteDefaultsSetTo(_writeDefaultsForFaceExpressions);
         }
 
-        public Motion CreateBlendTree(Motion atZero, Motion atOne, string weight, string clipName)
+        private Motion CreateBlendTree(Motion atZero, Motion atOne, string weight)
         {
             var blendTree = new BlendTree
             {
-                name = "autoBT_" + clipName,
+                name = "autoBT_" + ThisStringWillBeDiscardedLater(),
                 blendParameter = weight,
                 blendType = BlendTreeType.Simple1D,
                 minThreshold = 0,
@@ -616,7 +606,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             return blendTree;
         }
 
-        private Motion CreateDualBlendTree(Motion atZero, Motion atOne, Motion atLeft, Motion atRight, string clipName, bool useGestureWeightCorrection, bool useSmoothing)
+        private Motion CreateDualBlendTree(Motion atZero, Motion atOne, Motion atLeft, Motion atRight, bool useGestureWeightCorrection, bool useSmoothing)
         {
             ChildMotion[] motions = {
                 new ChildMotion {motion = atZero, timeScale = 1, position = Vector2.zero},
@@ -627,7 +617,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
             var blendTree = new BlendTree
             {
-                name = "autoBT_" + clipName,
+                name = "autoBT_" + ThisStringWillBeDiscardedLater(),
                 blendParameter = LeftParam(useGestureWeightCorrection, useSmoothing),
                 blendParameterY = RightParam(useGestureWeightCorrection, useSmoothing),
                 blendType = BlendTreeType.FreeformDirectional2D,
@@ -640,27 +630,15 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             return blendTree;
         }
 
+        private static string ThisStringWillBeDiscardedLater()
+        {
+            // The functions need a string, but this string will be overriden later.
+            return "" + Random.Range(0, Int32.MaxValue);
+        }
+
         private void RegisterBlendTreeAsAsset(BlendTree blendTree)
         {
             _assetContainer.ExposeCgeAac().CGE_StoringMotion(blendTree);
-        }
-
-        private static string UnshimName(string shimmedName)
-        {
-            return shimmedName
-                .Replace("zAutogeneratedExp_", "")
-                .Replace("zAutogeneratedPup_", "")
-                .Replace("_DO_NOT_EDIT", "");
-        }
-
-        private static string SanitizeName(string clipName)
-        {
-            clipName = clipName
-                .Replace("Hai_ComboGesture_EmptyClip", "empty")
-                .Replace("cge_", "")
-                .Replace("__combined__", "+");
-
-            return clipName.Length <= 16 ? clipName : clipName.Substring(0, 16);
         }
     }
 }

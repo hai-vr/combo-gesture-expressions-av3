@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.Internal.CgeAac;
-using Hai.ComboGesture.Scripts.Editor.Internal.Model;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
@@ -12,37 +11,37 @@ using VRC.SDK3.Avatars.Components;
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
-    internal class LayerForExpressionsView
+    internal class CgeLayerForExpressionsView
     {
-        private readonly FeatureToggles _featuresToggles;
+        private readonly CgeFeatureToggles _featuresToggles;
         private readonly AvatarMask _expressionsAvatarMask;
         private readonly AnimationClip _emptyClip;
         private readonly string _activityStageName;
-        private readonly ConflictPrevention _conflictPrevention;
-        private readonly AssetContainer _assetContainer;
+        private readonly CgeConflictPrevention _conflictPrevention;
+        private readonly CgeAssetContainer _assetContainer;
         private readonly ConflictFxLayerMode _compilerConflictFxLayerMode;
         private readonly AnimationClip _compilerIgnoreParamList;
         private readonly AnimationClip _compilerFallbackParamList;
         private readonly AnimatorController _animatorController;
         private readonly bool _useGestureWeightCorrection;
         private readonly bool _useSmoothing;
-        private readonly List<ManifestBinding> _manifestBindings;
+        private readonly List<CgeManifestBinding> _manifestBindings;
         private readonly VRCAvatarDescriptor _avatarDescriptorNullable;
         private readonly bool _doNotForceBlinkBlendshapes;
 
-        public LayerForExpressionsView(FeatureToggles featuresToggles,
+        public CgeLayerForExpressionsView(CgeFeatureToggles featuresToggles,
             AvatarMask expressionsAvatarMask,
             AnimationClip emptyClip,
             string activityStageName,
-            ConflictPrevention conflictPrevention,
-            AssetContainer assetContainer,
+            CgeConflictPrevention conflictPrevention,
+            CgeAssetContainer assetContainer,
             ConflictFxLayerMode compilerConflictFxLayerMode,
             AnimationClip compilerIgnoreParamList,
             AnimationClip compilerFallbackParamList,
             AnimatorController animatorController,
             bool useGestureWeightCorrection,
             bool useSmoothing,
-            List<ManifestBinding> manifestBindings,
+            List<CgeManifestBinding> manifestBindings,
             VRCAvatarDescriptor avatarDescriptorNullable,
             bool doNotForceBlinkBlendshapes)
         {
@@ -76,7 +75,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 _assetContainer,
                 _conflictPrevention.ShouldGenerateExhaustiveAnimations,
                 _emptyClip,
-                Feature(FeatureToggles.DoNotFixSingleKeyframes),
+                Feature(CgeFeatureToggles.DoNotFixSingleKeyframes),
                 _avatarDescriptorNullable,
                 _doNotForceBlinkBlendshapes
             );
@@ -96,7 +95,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
             EditorUtility.DisplayProgressBar("ComboGestureExpressions", "Saving", 0f);
 
-            AssetContainer.GlobalSave();
+            CgeAssetContainer.GlobalSave();
 
             EditorUtility.DisplayProgressBar("ComboGestureExpressions", "Creating blend trees", 0f);
 
@@ -112,9 +111,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
             EditorUtility.DisplayProgressBar("ComboGestureExpressions", "Decomposing", 0f);
 
-            var combinator = new IntermediateCombinator(activityManifests);
+            var combinator = new CgeIntermediateCombinator(activityManifests);
 
-            new GestureCExpressionCombiner(_assetContainer,
+            new CgeExpressionCombiner(_assetContainer,
                 layer,
                 combinator.ComposedBehaviours,
                 _activityStageName,
@@ -125,14 +124,14 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             ).Populate();
         }
 
-        private static List<string> AllParametersUsedByManifests(List<ManifestBinding> activityManifests)
+        private static List<string> AllParametersUsedByManifests(List<CgeManifestBinding> activityManifests)
         {
             return AllParametersUsedByBlendTrees(activityManifests)
                 .Concat(AllParametersUsedByMassiveBlends(activityManifests))
                 .ToList();
         }
 
-        private static List<string> AllParametersUsedByBlendTrees(List<ManifestBinding> activityManifests)
+        private static List<string> AllParametersUsedByBlendTrees(List<CgeManifestBinding> activityManifests)
         {
             return activityManifests
                 .SelectMany(binding => binding.Manifest.AllBlendTreesFoundRecursively())
@@ -141,13 +140,13 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 .ToList();
         }
 
-        private static List<string> AllParametersUsedByMassiveBlends(List<ManifestBinding> activityManifests)
+        private static List<string> AllParametersUsedByMassiveBlends(List<CgeManifestBinding> activityManifests)
         {
             return activityManifests
-                .Where(binding => binding.Manifest.Kind() == ManifestKind.Massive)
+                .Where(binding => binding.Manifest.Kind() == CgeManifestKind.Massive)
                 .SelectMany(binding =>
                 {
-                    var manifest = (MassiveBlendManifest)binding.Manifest;
+                    var manifest = (CgeMassiveBlendManifest)binding.Manifest;
                     switch (manifest.Mode)
                     {
                         case CgeMassiveBlendMode.Simple:
@@ -188,7 +187,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 .WithAvatarMask(avatarMaskNullable != null ? avatarMaskNullable : _expressionsAvatarMask);
         }
 
-        private bool Feature(FeatureToggles feature)
+        private bool Feature(CgeFeatureToggles feature)
         {
             return (_featuresToggles & feature) == feature;
         }

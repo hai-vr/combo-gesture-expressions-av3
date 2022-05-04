@@ -1,15 +1,15 @@
 ﻿using UnityEngine;
 
-namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
+namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
         /**
          * A qualified animation is an animation clip with expression metadata: Are eyes blinking? What shape is the mouth?
          * A single animation file may be qualified differently in different places.
          * Usually, the animation file qualification is consistent within a single Manifest, and may vary across other Manifests.
          */
-        public readonly struct QualifiedAnimation
+        public readonly struct CgeQualifiedAnimation
         {
-            public QualifiedAnimation(AnimationClip clip, Qualification qualification)
+            public CgeQualifiedAnimation(AnimationClip clip, Qualification qualification)
             {
                 Clip = clip;
                 Qualification = qualification;
@@ -18,14 +18,14 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
             public AnimationClip Clip { get; }
             public Qualification Qualification { get; }
 
-            public bool Equals(QualifiedAnimation other)
+            public bool Equals(CgeQualifiedAnimation other)
             {
                 return Equals(Clip, other.Clip) && Qualification.Equals(other.Qualification);
             }
 
             public override bool Equals(object obj)
             {
-                return obj is QualifiedAnimation other && Equals(other);
+                return obj is CgeQualifiedAnimation other && Equals(other);
             }
 
             public override int GetHashCode()
@@ -36,19 +36,19 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
                 }
             }
 
-            public static bool operator ==(QualifiedAnimation left, QualifiedAnimation right)
+            public static bool operator ==(CgeQualifiedAnimation left, CgeQualifiedAnimation right)
             {
                 return left.Equals(right);
             }
 
-            public static bool operator !=(QualifiedAnimation left, QualifiedAnimation right)
+            public static bool operator !=(CgeQualifiedAnimation left, CgeQualifiedAnimation right)
             {
                 return !left.Equals(right);
             }
 
-            public QualifiedAnimation NewInstanceWithClip(AnimationClip clip)
+            public CgeQualifiedAnimation NewInstanceWithClip(AnimationClip clip)
             {
-                return new QualifiedAnimation(clip, Qualification);
+                return new CgeQualifiedAnimation(clip, Qualification);
             }
 
             public override string ToString()

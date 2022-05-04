@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using Hai.ComboGesture.Scripts.Components;
-using Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
@@ -13,28 +12,28 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
         private readonly CgeLayoutCommon _common;
         private readonly CgeActivityEditorDriver _driver;
         private readonly CgeLayoutFaceExpressionCombiner _layoutFaceExpressionCombiner; // FIXME: It is not normal to have the layout combiner here
-        private readonly CgeEditorEffector _editorEffector;
+        private readonly CgeEditorHandler _editorHandler;
         private readonly Action _repaintCallback;
-        private readonly CgeBlendTreeEffector _blendTreeEffector;
+        private readonly CgeBlendTreeHandler _blendTreeHandler;
 
-        public CgeLayoutSetFaceExpressions(CgeLayoutCommon common, CgeActivityEditorDriver driver, CgeLayoutFaceExpressionCombiner layoutFaceExpressionCombiner, CgeEditorEffector editorEffector, Action repaintCallback, CgeBlendTreeEffector blendTreeEffector)
+        public CgeLayoutSetFaceExpressions(CgeLayoutCommon common, CgeActivityEditorDriver driver, CgeLayoutFaceExpressionCombiner layoutFaceExpressionCombiner, CgeEditorHandler editorHandler, Action repaintCallback, CgeBlendTreeHandler blendTreeHandler)
         {
             _common = common;
             _driver = driver;
             _layoutFaceExpressionCombiner = layoutFaceExpressionCombiner;
-            _editorEffector = editorEffector;
+            _editorHandler = editorHandler;
             _repaintCallback = repaintCallback;
-            _blendTreeEffector = blendTreeEffector;
+            _blendTreeHandler = blendTreeHandler;
         }
 
         public void Layout(Rect position)
         {
-            var mode = _editorEffector.GetActivity().activityMode;
+            var mode = _editorHandler.GetActivity().activityMode;
             if (mode == ComboGestureActivity.CgeActivityMode.LeftHandOnly || mode == ComboGestureActivity.CgeActivityMode.RightHandOnly)
             {
                 LayoutOneHandEditor(position);
             }
-            else if (_editorEffector.GetActivity().activityMode == ComboGestureActivity.CgeActivityMode.Permutations)
+            else if (_editorHandler.GetActivity().activityMode == ComboGestureActivity.CgeActivityMode.Permutations)
             {
                 LayoutPermutationEditor(position);
             }
@@ -91,19 +90,19 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
 
             GUILayout.Space(15);
             GUILayout.Label(CgeLocale.CGEE_ConfirmUsePermutations, _common.LargeFont);
-            var prev = _editorEffector.SpEnablePermutations().boolValue;
+            var prev = _editorHandler.SpEnablePermutations().boolValue;
             var current = GUILayout.Toggle(prev, CgeLocale.CGEE_Enable_permutations_for_this_Activity, GUILayout.Width(300));
             if (current != prev)
             {
                 if (current)
                 {
-                    _editorEffector.SpEnablePermutations().boolValue = true;
-                    _editorEffector.SpEditorTool().intValue = 2;
+                    _editorHandler.SpEnablePermutations().boolValue = true;
+                    _editorHandler.SpEditorTool().intValue = 2;
                 }
                 else
                 {
-                    _editorEffector.SpEnablePermutations().boolValue = false;
-                    _editorEffector.SpEditorTool().intValue = 1;
+                    _editorHandler.SpEnablePermutations().boolValue = false;
+                    _editorHandler.SpEditorTool().intValue = 1;
                 }
             }
 
@@ -132,26 +131,26 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
 
         private void DrawOneHandModeSwitcher()
         {
-            var previousValue = _editorEffector.SpOneHandMode().intValue;
-            EditorGUILayout.PropertyField(_editorEffector.SpOneHandMode(), GUILayout.Width(800));
-            var newValue = _editorEffector.SpOneHandMode().intValue;
+            var previousValue = _editorHandler.SpOneHandMode().intValue;
+            EditorGUILayout.PropertyField(_editorHandler.SpOneHandMode(), GUILayout.Width(800));
+            var newValue = _editorHandler.SpOneHandMode().intValue;
             if (previousValue != newValue)
             {
                 if (previousValue == 0 && newValue != 0)
                 {
-                    _editorEffector.SpEditorTool().intValue = 0;
+                    _editorHandler.SpEditorTool().intValue = 0;
                 }
 
                 if (previousValue != 0 && newValue == 0)
                 {
-                    _editorEffector.SpEditorTool().intValue = 5;
+                    _editorHandler.SpEditorTool().intValue = 5;
                 }
             }
         }
 
         private void LayoutPermutationEditor(Rect position)
         {
-            switch (_editorEffector.SpEditorTool().intValue)
+            switch (_editorHandler.SpEditorTool().intValue)
             {
                 case 0:
                     BeginPermutationLayoutUsing(position);
@@ -317,8 +316,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
 
             if (!GUILayout.Toggle(true, CgeLocale.CGEE_EnablePermutations, GUILayout.ExpandWidth(true), GUILayout.Height(CgeLayoutCommon.SingleLineHeight * 2)))
             {
-                _editorEffector.SpEnablePermutations().boolValue = false;
-                _editorEffector.SpEditorTool().intValue = 4;
+                _editorHandler.SpEnablePermutations().boolValue = false;
+                _editorHandler.SpEditorTool().intValue = 4;
             }
             GUILayout.EndArea();
         }
@@ -356,8 +355,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
         private void DrawInner(string propertyPath, string oppositePath = null, bool partial = false)
         {
             var usePermutations = oppositePath != null;
-            var property = _editorEffector.SpProperty(propertyPath);
-            var oppositeProperty = usePermutations ? _editorEffector.SpProperty(oppositePath) : null;
+            var property = _editorHandler.SpProperty(propertyPath);
+            var oppositeProperty = usePermutations ? _editorHandler.SpProperty(oppositePath) : null;
             var isLeftHand = String.Compare(propertyPath, oppositePath, StringComparison.Ordinal) > 0;
             if (usePermutations)
             {
@@ -531,7 +530,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             else if (element == null && _driver.IsAutoSettable(propertyPath))
             {
                 var propertyPathToCopyFrom = _driver.GetAutoSettableSource(propertyPath);
-                var animationToBeCopied = _editorEffector.SpProperty(propertyPathToCopyFrom).objectReferenceValue;
+                var animationToBeCopied = _editorHandler.SpProperty(propertyPathToCopyFrom).objectReferenceValue;
 
                 EditorGUI.BeginDisabledGroup(animationToBeCopied == null);
                 GUILayout.BeginArea(new Rect(-3 + CgeLayoutCommon.GuiSquareWidth - 100, CgeLayoutCommon.PictureHeight - CgeLayoutCommon.SingleLineHeight * 1.75f, 100, CgeLayoutCommon.SingleLineHeight * 1.5f));
@@ -545,7 +544,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             else if (element == null && _driver.AreCombinationSourcesIdentical(propertyPath))
             {
                 var propertyPathToCopyFrom = _driver.ProvideCombinationPropertySources(propertyPath, usePermutations).Left;
-                var animationToBeCopied = _editorEffector.SpProperty(propertyPathToCopyFrom).objectReferenceValue;
+                var animationToBeCopied = _editorHandler.SpProperty(propertyPathToCopyFrom).objectReferenceValue;
 
                 EditorGUI.BeginDisabledGroup(animationToBeCopied == null);
                 GUILayout.BeginArea(new Rect(-3 + CgeLayoutCommon.GuiSquareWidth - 100, CgeLayoutCommon.PictureHeight - CgeLayoutCommon.SingleLineHeight * 1.75f, 100, CgeLayoutCommon.SingleLineHeight * 1.5f));
@@ -569,14 +568,14 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
 
         private void EditAnimation(AnimationClip clip)
         {
-            CgeEditorWindow.ShowExpressionsEditor(_editorEffector, clip);
+            CgeEditorWindow.ShowExpressionsEditor(_editorHandler, clip);
             EditorGUIUtility.PingObject(clip);
             Selection.SetActiveObjectWithContext(clip, null);
         }
 
         private void CreateNewAnimation(string propertyPath)
         {
-            var animations = _editorEffector.AllDistinctAnimations();
+            var animations = _editorHandler.AllDistinctAnimations();
             var folder = animations.Count > 0 ? AssetDatabase.GetAssetPath(animations[0]).Replace(Path.GetFileName(AssetDatabase.GetAssetPath(animations[0])), "") : "Assets/";
 
             var finalFilename = "CGE_NewAnimation__" + DateTime.Now.ToString("yyyy'-'MM'-'dd'_'HHmmss") + ".anim";
@@ -586,17 +585,17 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             AssetDatabase.CreateAsset(clip, finalPath);
             AssetDatabase.LoadAssetAtPath<AnimationClip>(finalPath);
 
-            _editorEffector.SpProperty(propertyPath).objectReferenceValue = clip;
-            _editorEffector.ApplyModifiedProperties();
+            _editorHandler.SpProperty(propertyPath).objectReferenceValue = clip;
+            _editorHandler.ApplyModifiedProperties();
 
-            CgeEditorWindow.ShowExpressionsEditor(_editorEffector, clip);
+            CgeEditorWindow.ShowExpressionsEditor(_editorHandler, clip);
             EditorGUIUtility.PingObject(clip);
             Selection.SetActiveObjectWithContext(clip, null);
         }
 
         private void DrawInnerReversal(string propertyPath)
         {
-            var property = _editorEffector.SpProperty(propertyPath);
+            var property = _editorHandler.SpProperty(propertyPath);
 
             var edge = CgeLayoutCommon.GuiSquareWidth - CgeLayoutCommon.PictureWidth;
             GUILayout.BeginArea(new Rect(edge, CgeLayoutCommon.SingleLineHeight, CgeLayoutCommon.PictureWidth - edge, CgeLayoutCommon.PictureHeight - CgeLayoutCommon.SingleLineHeight));
@@ -609,7 +608,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
         {
             GUILayout.BeginArea(new Rect((CgeLayoutCommon.GuiSquareWidth - CgeLayoutCommon.PictureWidth) / 2, CgeLayoutCommon.SingleLineHeight, CgeLayoutCommon.PictureWidth, CgeLayoutCommon.PictureHeight));
             GUILayout.Label(CgeLocale.CGEE_Transition_duration_in_seconds);
-            EditorGUILayout.Slider(_editorEffector.SpTransitionDuration(), 0f, 1f, GUIContent.none);
+            EditorGUILayout.Slider(_editorHandler.SpTransitionDuration(), 0f, 1f, GUIContent.none);
             GUILayout.EndArea();
             GUILayout.Space(CgeLayoutCommon.PictureHeight);
         }
@@ -626,8 +625,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
 
         private void OpenMergeWindowFor(string left, string right, string propertyPath, bool usePermutations)
         {
-            var leftAnim = _editorEffector.SpProperty(left).objectReferenceValue;
-            var rightAnim = _editorEffector.SpProperty(right).objectReferenceValue;
+            var leftAnim = _editorHandler.SpProperty(left).objectReferenceValue;
+            var rightAnim = _editorHandler.SpProperty(right).objectReferenceValue;
 
             var areBothAnimations = leftAnim is AnimationClip && rightAnim is AnimationClip;
             if (!areBothAnimations) return;
@@ -637,37 +636,37 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
 
         private void OpenBlendTreeAt(string propertyPath)
         {
-            var blendTree = (BlendTree)_editorEffector.SpProperty(propertyPath).objectReferenceValue;
-            _blendTreeEffector.BlendTreeBeingEdited = blendTree;
-            _editorEffector.SwitchAdditionalEditorTo(AdditionalEditorsMode.ViewBlendTrees);
-            if (_editorEffector.GetCurrentlyEditing() == CurrentlyEditing.Activity)
+            var blendTree = (BlendTree)_editorHandler.SpProperty(propertyPath).objectReferenceValue;
+            _blendTreeHandler.BlendTreeBeingEdited = blendTree;
+            _editorHandler.SwitchAdditionalEditorTo(AdditionalEditorsMode.ViewBlendTrees);
+            if (_editorHandler.GetCurrentlyEditing() == CurrentlyEditing.Activity)
             {
-                _editorEffector.SwitchTo(ActivityEditorMode.AdditionalEditors);
+                _editorHandler.SwitchTo(ActivityEditorMode.AdditionalEditors);
             }
         }
 
         private void AutoSet(string propertyPath, string propertyPathToCopyFrom)
         {
-            _editorEffector.SpProperty(propertyPath).objectReferenceValue = _editorEffector.SpProperty(propertyPathToCopyFrom).objectReferenceValue;
-            _editorEffector.ApplyModifiedProperties();
+            _editorHandler.SpProperty(propertyPath).objectReferenceValue = _editorHandler.SpProperty(propertyPathToCopyFrom).objectReferenceValue;
+            _editorHandler.ApplyModifiedProperties();
         }
 
         private void Swap(string propertyPath, string oppositePath)
         {
-            var aProp = _editorEffector.SpProperty(propertyPath);
-            var bProp = _editorEffector.SpProperty(oppositePath);
+            var aProp = _editorHandler.SpProperty(propertyPath);
+            var bProp = _editorHandler.SpProperty(oppositePath);
             var a = aProp.objectReferenceValue;
             var b = bProp.objectReferenceValue;
 
             aProp.objectReferenceValue = b;
             bProp.objectReferenceValue = a;
-            _editorEffector.ApplyModifiedProperties();
+            _editorHandler.ApplyModifiedProperties();
         }
 
         private void Simplify(string pathToClear)
         {
-            _editorEffector.SpProperty(pathToClear).objectReferenceValue = null;
-            _editorEffector.ApplyModifiedProperties();
+            _editorHandler.SpProperty(pathToClear).objectReferenceValue = null;
+            _editorHandler.ApplyModifiedProperties();
         }
 
         private static T ColoredBackground<T>(bool isActive, Color bgColor, Func<T> inside)

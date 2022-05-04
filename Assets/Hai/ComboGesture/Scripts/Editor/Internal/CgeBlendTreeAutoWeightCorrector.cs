@@ -1,22 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Hai.ComboGesture.Scripts.Editor.Internal.Model;
 using UnityEditor.Animations;
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
-    internal class CgeBlendTreeAutoWeightCorrector : List<ManifestBinding>
+    internal class CgeBlendTreeAutoWeightCorrector : List<CgeManifestBinding>
     {
         public const string AutoGestureWeightParam = "_AutoGestureWeight";
         public const string AutoGestureWeightParam_UniversalLeft = "_AutoGestureLeftWeight";
         public const string AutoGestureWeightParam_UniversalRight = "_AutoGestureRightWeight";
-        private readonly List<ManifestBinding> _activityManifests;
+        private readonly List<CgeManifestBinding> _activityManifests;
         private readonly bool _useGestureWeightCorrection;
         private readonly bool _useSmoothing;
-        private readonly AssetContainer _assetContainer;
+        private readonly CgeAssetContainer _assetContainer;
 
-        public CgeBlendTreeAutoWeightCorrector(List<ManifestBinding> activityManifests, bool useGestureWeightCorrection, bool useSmoothing, AssetContainer assetContainer)
+        public CgeBlendTreeAutoWeightCorrector(List<CgeManifestBinding> activityManifests, bool useGestureWeightCorrection, bool useSmoothing, CgeAssetContainer assetContainer)
         {
             _activityManifests = activityManifests;
             _useGestureWeightCorrection = useGestureWeightCorrection;
@@ -24,9 +23,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _assetContainer = assetContainer;
         }
 
-        public List<ManifestBinding> MutateAndCorrectExistingBlendTrees()
+        public List<CgeManifestBinding> MutateAndCorrectExistingBlendTrees()
         {
-            var remappables = new HashSet<ManifestKind>(new[] {ManifestKind.Permutation, ManifestKind.Massive, ManifestKind.OneHand});
+            var remappables = new HashSet<CgeManifestKind>(new[] {CgeManifestKind.Permutation, CgeManifestKind.Massive, CgeManifestKind.OneHand});
             var mappings = _activityManifests
                 .Where(binding => remappables.Contains(binding.Manifest.Kind()))
                 .SelectMany(binding => binding.Manifest.AllBlendTreesFoundRecursively())
@@ -49,11 +48,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 })
                 .Select(originalTree =>
                 {
-                    var newTreeForLeftSide = CopyTreeIdentically(originalTree, Side.Left);
-                    var newTreeForRightSide = CopyTreeIdentically(originalTree, Side.Right);
+                    var newTreeForLeftSide = CopyTreeIdentically(originalTree, CgeSide.Left);
+                    var newTreeForRightSide = CopyTreeIdentically(originalTree, CgeSide.Right);
                     _assetContainer.AddBlendTree(newTreeForLeftSide);
                     _assetContainer.AddBlendTree(newTreeForRightSide);
-                    return new AutoWeightTreeMapping(originalTree, newTreeForLeftSide, newTreeForRightSide);
+                    return new CgeAutoWeightTreeMapping(originalTree, newTreeForLeftSide, newTreeForRightSide);
                 })
                 .ToDictionary(mapping => mapping.Original, mapping => mapping);
 
@@ -70,13 +69,13 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 }).ToList();
         }
 
-        private static ManifestBinding RemapManifest(ManifestBinding manifestBinding, Dictionary<BlendTree, AutoWeightTreeMapping> autoWeightRemapping)
+        private static CgeManifestBinding RemapManifest(CgeManifestBinding manifestBinding, Dictionary<BlendTree, CgeAutoWeightTreeMapping> autoWeightRemapping)
         {
             var remappedManifest = manifestBinding.Manifest.UsingRemappedWeights(autoWeightRemapping);
-            return ManifestBinding.Remapping(manifestBinding, remappedManifest);
+            return CgeManifestBinding.Remapping(manifestBinding, remappedManifest);
         }
 
-        private BlendTree CopyTreeIdentically(BlendTree originalTree, Side side)
+        private BlendTree CopyTreeIdentically(BlendTree originalTree, CgeSide side)
         {
             var newTree = new BlendTree();
 
@@ -115,12 +114,12 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             return newTree;
         }
 
-        private static string RemapAutoWeightOrElse(Side side, string originalParameterName)
+        private static string RemapAutoWeightOrElse(CgeSide side, string originalParameterName)
         {
             switch (originalParameterName)
             {
                 case AutoGestureWeightParam:
-                    return side == Side.Left ? "GestureLeftWeight" : "GestureRightWeight";
+                    return side == CgeSide.Left ? "GestureLeftWeight" : "GestureRightWeight";
                 case AutoGestureWeightParam_UniversalLeft:
                     return "GestureLeftWeight";
                 case AutoGestureWeightParam_UniversalRight:
@@ -141,16 +140,16 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             switch (originalTreeBlendParameter)
             {
                 case "GestureLeftWeight":
-                    return _useSmoothing ? SharedLayerUtils.HaiGestureComboLeftWeightSmoothing : SharedLayerUtils.HaiGestureComboLeftWeightProxy;
+                    return _useSmoothing ? CgeSharedLayerUtils.HaiGestureComboLeftWeightSmoothing : CgeSharedLayerUtils.HaiGestureComboLeftWeightProxy;
                 case "GestureRightWeight":
-                    return _useSmoothing ? SharedLayerUtils.HaiGestureComboRightWeightSmoothing : SharedLayerUtils.HaiGestureComboRightWeightProxy;
+                    return _useSmoothing ? CgeSharedLayerUtils.HaiGestureComboRightWeightSmoothing : CgeSharedLayerUtils.HaiGestureComboRightWeightProxy;
                 default:
                     return originalTreeBlendParameter;
             }
         }
     }
 
-    internal enum Side
+    internal enum CgeSide
     {
         Left, Right
     }

@@ -1,5 +1,4 @@
 ﻿using System;
-using Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors;
 using UnityEditor;
 using UnityEngine;
 
@@ -8,17 +7,17 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
     public class CgeLayoutPreventEyesBlinking
     {
         private readonly CgeLayoutCommon _common;
-        private readonly CgeEditorEffector _editorEffector;
+        private readonly CgeEditorHandler _editorHandler;
 
-        public CgeLayoutPreventEyesBlinking(CgeLayoutCommon common, CgeEditorEffector editorEffector)
+        public CgeLayoutPreventEyesBlinking(CgeLayoutCommon common, CgeEditorHandler editorHandler)
         {
             _common = common;
-            _editorEffector = editorEffector;
+            _editorHandler = editorHandler;
         }
 
         public void Layout(Rect position)
         {
-            var allClips = _editorEffector.AllDistinctAnimations();
+            var allClips = _editorHandler.AllDistinctAnimations();
             var mod = Math.Max(3, Math.Min(8, (int)Math.Sqrt(allClips.Count)));
 
             var width = CgeLayoutCommon.GuiSquareHeight + CgeLayoutCommon.GuiSquareHeight * mod + CgeLayoutCommon.SingleLineHeight * 2;
@@ -44,7 +43,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
 
         private void DrawBlinkingSwitch(AnimationClip element)
         {
-            var isRegisteredAsBlinking = _editorEffector.BlinkingContains(element);
+            var isRegisteredAsBlinking = _editorHandler.BlinkingContains(element);
 
             if (isRegisteredAsBlinking)
             {
@@ -62,11 +61,11 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             {
                 if (isRegisteredAsBlinking)
                 {
-                    _editorEffector.RemoveFromBlinking(element);
+                    _editorHandler.RemoveFromBlinking(element);
                 }
                 else
                 {
-                    _editorEffector.AddToBlinking(element);
+                    _editorHandler.AddToBlinking(element);
                 }
             }
         }

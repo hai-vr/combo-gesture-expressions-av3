@@ -657,9 +657,9 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
             }
         }
 
-        private static AssetContainer CreateContainerIfNotExists(ComboGestureCompiler compiler, string folderToCreateAssetIn)
+        private static CgeAssetContainer CreateContainerIfNotExists(ComboGestureCompiler compiler, string folderToCreateAssetIn)
         {
-            return compiler.assetContainer == null ? AssetContainer.CreateNew(folderToCreateAssetIn) : AssetContainer.FromExisting(compiler.assetContainer);
+            return compiler.assetContainer == null ? CgeAssetContainer.CreateNew(folderToCreateAssetIn) : CgeAssetContainer.FromExisting(compiler.assetContainer);
         }
 
         private static string ResolveFolderToCreateNeutralizedAssetsIn(RuntimeAnimatorController preferredChoice, RuntimeAnimatorController defaultChoice)

@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Hai.ComboGesture.Scripts.Components;
-using Hai.ComboGesture.Scripts.Editor.Internal.Processing;
+using Hai.ComboGesture.Scripts.Editor.Internal;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
 using VRC.SDK3.Avatars.Components;
 
-namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
+namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 {
     interface IActivityAccessor
     {
@@ -26,7 +26,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
             _activity = activity;
         }
 
-        public List<AnimationClip> AllDistinctAnimations => CgeEditorEffector.AllDistinctAnimations(_activity);
+        public List<AnimationClip> AllDistinctAnimations => CgeEditorHandler.AllDistinctAnimations(_activity);
         public List<AnimationClip> Blinking => _activity.blinking;
         public void RecordMutation()
         {
@@ -49,7 +49,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
             _puppet = puppet;
         }
 
-        public List<AnimationClip> AllDistinctAnimations => ManifestFromPuppet.AllDistinctAnimations(_puppet);
+        public List<AnimationClip> AllDistinctAnimations => CgeManifestFromSingle.AllDistinctAnimations(_puppet);
         public List<AnimationClip> Blinking => _puppet.blinking;
         public Animator PreviewSetup
         {
@@ -78,11 +78,11 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
         public bool FirstTimeSetup;
     }
 
-    public class CgeEditorEffector
+    public class CgeEditorHandler
     {
         private readonly CgeEditorState _state;
 
-        public CgeEditorEffector(CgeEditorState state)
+        public CgeEditorHandler(CgeEditorState state)
         {
             _state = state;
         }
@@ -261,7 +261,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
                 .ToList();
             var insideBlends = cga.AllMotions()
                 .OfType<BlendTree>()
-                .SelectMany(ManifestFromPuppet.AllAnimationsOf)
+                .SelectMany(CgeManifestFromSingle.AllAnimationsOf)
                 .ToList();
 
             return direct.Concat(insideBlends)

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Hai.ComboGesture.Scripts.Components;
-using Hai.ComboGesture.Scripts.Editor.Internal.Model;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
@@ -13,24 +12,24 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
     class AnimationNeutralizer
     {
-        private readonly List<ManifestBinding> _originalBindings;
+        private readonly List<CgeManifestBinding> _originalBindings;
         private readonly ConflictFxLayerMode _compilerConflictFxLayerMode;
-        private readonly HashSet<CurveKey> _ignoreCurveKeys;
-        private readonly HashSet<CurveKey> _ignoreObjectReferences;
-        private readonly Dictionary<CurveKey, float> _curveKeyToFallbackValue;
-        private readonly Dictionary<CurveKey, Object> _objectReferenceToFallbackValue;
-        private readonly AssetContainer _assetContainer;
+        private readonly HashSet<CgeCurveKey> _ignoreCurveKeys;
+        private readonly HashSet<CgeCurveKey> _ignoreObjectReferences;
+        private readonly Dictionary<CgeCurveKey, float> _curveKeyToFallbackValue;
+        private readonly Dictionary<CgeCurveKey, Object> _objectReferenceToFallbackValue;
+        private readonly CgeAssetContainer _assetContainer;
         private readonly bool _useExhaustiveAnimations;
         private readonly AnimationClip _emptyClip;
         private readonly bool _doNotFixSingleKeyframes;
         private readonly VRCAvatarDescriptor _avatarDescriptorNullable;
         private readonly bool _doNotForceBlinkBlendshapes;
 
-        public AnimationNeutralizer(List<ManifestBinding> originalBindings,
+        public AnimationNeutralizer(List<CgeManifestBinding> originalBindings,
             ConflictFxLayerMode compilerConflictFxLayerMode,
             AnimationClip compilerIgnoreParamList,
             AnimationClip compilerFallbackParamList,
-            AssetContainer assetContainer,
+            CgeAssetContainer assetContainer,
             bool useExhaustiveAnimations,
             AnimationClip emptyClip,
             bool doNotFixSingleKeyframes,
@@ -39,10 +38,10 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         {
             _originalBindings = originalBindings;
             _compilerConflictFxLayerMode = compilerConflictFxLayerMode;
-            _ignoreCurveKeys = compilerIgnoreParamList == null ? new HashSet<CurveKey>() : ExtractAllCurvesOf(compilerIgnoreParamList);
-            _ignoreObjectReferences = compilerIgnoreParamList == null ? new HashSet<CurveKey>() : ExtractAllObjectReferencesOf(compilerIgnoreParamList);
-            _curveKeyToFallbackValue = compilerFallbackParamList == null ? new Dictionary<CurveKey, float>() : ExtractFirstKeyframeValueOf(compilerFallbackParamList);
-            _objectReferenceToFallbackValue = compilerFallbackParamList == null ? new Dictionary<CurveKey, Object>() : ExtractFirstKeyframeObjectReferenceOf(compilerFallbackParamList);
+            _ignoreCurveKeys = compilerIgnoreParamList == null ? new HashSet<CgeCurveKey>() : ExtractAllCurvesOf(compilerIgnoreParamList);
+            _ignoreObjectReferences = compilerIgnoreParamList == null ? new HashSet<CgeCurveKey>() : ExtractAllObjectReferencesOf(compilerIgnoreParamList);
+            _curveKeyToFallbackValue = compilerFallbackParamList == null ? new Dictionary<CgeCurveKey, float>() : ExtractFirstKeyframeValueOf(compilerFallbackParamList);
+            _objectReferenceToFallbackValue = compilerFallbackParamList == null ? new Dictionary<CgeCurveKey, Object>() : ExtractFirstKeyframeObjectReferenceOf(compilerFallbackParamList);
             _assetContainer = assetContainer;
             _useExhaustiveAnimations = useExhaustiveAnimations;
             _emptyClip = emptyClip;
@@ -51,49 +50,49 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _doNotForceBlinkBlendshapes = doNotForceBlinkBlendshapes;
         }
 
-        private static HashSet<CurveKey> ExtractAllCurvesOf(AnimationClip clip)
+        private static HashSet<CgeCurveKey> ExtractAllCurvesOf(AnimationClip clip)
         {
-            return new HashSet<CurveKey>(AnimationUtility.GetCurveBindings(clip).Select(CurveKey.FromBinding));
+            return new HashSet<CgeCurveKey>(AnimationUtility.GetCurveBindings(clip).Select(CgeCurveKey.FromBinding));
         }
 
-        private static HashSet<CurveKey> ExtractAllObjectReferencesOf(AnimationClip clip)
+        private static HashSet<CgeCurveKey> ExtractAllObjectReferencesOf(AnimationClip clip)
         {
-            return new HashSet<CurveKey>(AnimationUtility.GetObjectReferenceCurveBindings(clip).Select(CurveKey.FromBinding));
+            return new HashSet<CgeCurveKey>(AnimationUtility.GetObjectReferenceCurveBindings(clip).Select(CgeCurveKey.FromBinding));
         }
 
-        private static Dictionary<CurveKey, float> ExtractFirstKeyframeValueOf(AnimationClip clip)
+        private static Dictionary<CgeCurveKey, float> ExtractFirstKeyframeValueOf(AnimationClip clip)
         {
-            var curveKeyToFallbackValue = new Dictionary<CurveKey, float>();
+            var curveKeyToFallbackValue = new Dictionary<CgeCurveKey, float>();
             foreach (var editorCurveBinding in AnimationUtility.GetCurveBindings(clip))
             {
                 var curve = AnimationUtility.GetEditorCurve(clip, editorCurveBinding);
 
                 if (curve.keys.Length > 0)
                 {
-                    curveKeyToFallbackValue.Add(CurveKey.FromBinding(editorCurveBinding), curve.keys[0].value);
+                    curveKeyToFallbackValue.Add(CgeCurveKey.FromBinding(editorCurveBinding), curve.keys[0].value);
                 }
             }
 
             return curveKeyToFallbackValue;
         }
 
-        private static Dictionary<CurveKey, Object> ExtractFirstKeyframeObjectReferenceOf(AnimationClip clip)
+        private static Dictionary<CgeCurveKey, Object> ExtractFirstKeyframeObjectReferenceOf(AnimationClip clip)
         {
-            var curveKeyToFallbackValue = new Dictionary<CurveKey, Object>();
+            var curveKeyToFallbackValue = new Dictionary<CgeCurveKey, Object>();
             foreach (var editorCurveBinding in AnimationUtility.GetObjectReferenceCurveBindings(clip))
             {
                 var curve = AnimationUtility.GetObjectReferenceCurve(clip, editorCurveBinding);
 
                 if (curve.Length > 0)
                 {
-                    curveKeyToFallbackValue.Add(CurveKey.FromBinding(editorCurveBinding), curve[0].value);
+                    curveKeyToFallbackValue.Add(CgeCurveKey.FromBinding(editorCurveBinding), curve[0].value);
                 }
             }
 
             return curveKeyToFallbackValue;
         }
 
-        internal List<ManifestBinding> NeutralizeManifestAnimationsInsideContainer()
+        internal List<CgeManifestBinding> NeutralizeManifestAnimationsInsideContainer()
         {
             var allQualifiedAnimations = QualifyAllAnimations();
             var allApplicableCurveKeys = FindAllApplicableCurveKeys(new HashSet<AnimationClip>(allQualifiedAnimations.Select(animation => animation.Clip).ToList()));
@@ -139,7 +138,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             return avatarMaskNullable;
         }
 
-        private AvatarMask GenerateAvatarMaskIntoContainerIfApplicableOrNull(HashSet<CurveKey> allApplicableObjectReferences)
+        private AvatarMask GenerateAvatarMaskIntoContainerIfApplicableOrNull(HashSet<CgeCurveKey> allApplicableObjectReferences)
         {
             if (allApplicableObjectReferences.Count <= 0) return null;
 
@@ -152,7 +151,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             return mask;
         }
 
-        private static BlendTree RemapAnimationsOfBlendTree(BlendTree originalTree, Dictionary<QualifiedAnimation, AnimationClip> remapping, List<QualifiedAnimation> qualifiedAnimations, Dictionary<BlendTree, BlendTree> biTreesReferences)
+        private static BlendTree RemapAnimationsOfBlendTree(BlendTree originalTree, Dictionary<CgeQualifiedAnimation, AnimationClip> remapping, List<CgeQualifiedAnimation> qualifiedAnimations, Dictionary<BlendTree, BlendTree> biTreesReferences)
         {
             // Object.Instantiate(...) is triggering some weird issues about assertions failures.
             // Copy the blend tree manually
@@ -186,7 +185,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             return newTree;
         }
 
-        private static Motion RemapMotion(Dictionary<QualifiedAnimation, AnimationClip> remapping, List<QualifiedAnimation> qualifiedAnimations, Dictionary<BlendTree, BlendTree> biTreesReferences, ChildMotion copyOfChild)
+        private static Motion RemapMotion(Dictionary<CgeQualifiedAnimation, AnimationClip> remapping, List<CgeQualifiedAnimation> qualifiedAnimations, Dictionary<BlendTree, BlendTree> biTreesReferences, ChildMotion copyOfChild)
         {
             switch (copyOfChild.motion)
             {
@@ -199,20 +198,20 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
         }
 
-        private HashSet<QualifiedAnimation> QualifyAllAnimations()
+        private HashSet<CgeQualifiedAnimation> QualifyAllAnimations()
         {
-            return new HashSet<QualifiedAnimation>(_originalBindings
+            return new HashSet<CgeQualifiedAnimation>(_originalBindings
                 .SelectMany(binding => binding.Manifest.AllQualifiedAnimations())
                 .ToList());
         }
 
-        private static ManifestBinding RemapManifest(ManifestBinding manifestBinding, Dictionary<QualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendToRemappedBlend)
+        private static CgeManifestBinding RemapManifest(CgeManifestBinding manifestBinding, Dictionary<CgeQualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendToRemappedBlend)
         {
             var remappedManifest = manifestBinding.Manifest.NewFromRemappedAnimations(remapping, blendToRemappedBlend);
-            return ManifestBinding.Remapping(manifestBinding, remappedManifest);
+            return CgeManifestBinding.Remapping(manifestBinding, remappedManifest);
         }
 
-        private Dictionary<QualifiedAnimation, AnimationClip> GenerateNeutralizedAnimationsIntoContainer(HashSet<QualifiedAnimation> allQualifiedAnimations, HashSet<CurveKey> allApplicableCurveKeys, HashSet<CurveKey> allApplicableObjectReferences)
+        private Dictionary<CgeQualifiedAnimation, AnimationClip> GenerateNeutralizedAnimationsIntoContainer(HashSet<CgeQualifiedAnimation> allQualifiedAnimations, HashSet<CgeCurveKey> allApplicableCurveKeys, HashSet<CgeCurveKey> allApplicableObjectReferences)
         {
             var shouldGenerateAnimatedAnimatorParameters = _compilerConflictFxLayerMode != ConflictFxLayerMode.KeepOnlyTransformsAndMuscles && _compilerConflictFxLayerMode != ConflictFxLayerMode.KeepOnlyTransforms;
 
@@ -220,7 +219,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             technicalCommonEmptyClip.name = "zAutogeneratedExp_EmptyTechnical_DO_NOT_EDIT";
             _assetContainer.AddAnimation(technicalCommonEmptyClip);
 
-            var remapping = new Dictionary<QualifiedAnimation, AnimationClip>();
+            var remapping = new Dictionary<CgeQualifiedAnimation, AnimationClip>();
 
             foreach (var qualifiedAnimation in allQualifiedAnimations)
             {
@@ -266,7 +265,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
         }
 
-        private void MutateCurvesForAnimatedAnimatorParameters(AnimationClip neutralizedAnimation, QualifiedAnimation qualifiedAnimation)
+        private void MutateCurvesForAnimatedAnimatorParameters(AnimationClip neutralizedAnimation, CgeQualifiedAnimation qualifiedAnimation)
         {
             var blinking = qualifiedAnimation.Qualification.IsBlinking ? 1 : 0;
             neutralizedAnimation.SetCurve("", typeof(Animator), "_Hai_GestureAnimBlink", AnimationCurve.Constant(0, 1 / 60f, blinking));
@@ -309,7 +308,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
         }
 
-        private AnimationClip CopyAndNeutralize(AnimationClip animationClipToBePreserved, HashSet<CurveKey> allApplicableCurveKeys, HashSet<CurveKey> allApplicableObjectReferences, bool useExhaustiveAnimations)
+        private AnimationClip CopyAndNeutralize(AnimationClip animationClipToBePreserved, HashSet<CgeCurveKey> allApplicableCurveKeys, HashSet<CgeCurveKey> allApplicableObjectReferences, bool useExhaustiveAnimations)
         {
             var copyOfAnimationClip = new AnimationClip {name = "zAutogeneratedExp_" + animationClipToBePreserved.name + "_DO_NOT_EDIT"};
 
@@ -320,12 +319,12 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             if (useExhaustiveAnimations)
             {
                 var thisAnimationPaths = AnimationUtility.GetCurveBindings(animationClipToBePreserved)
-                    .Select(CurveKey.FromBinding)
+                    .Select(CgeCurveKey.FromBinding)
                     .ToList();
                 AddMissingCurveKeys(allApplicableCurveKeys, thisAnimationPaths, copyOfAnimationClip);
 
                 var thisAnimationObjectReferences = AnimationUtility.GetObjectReferenceCurveBindings(animationClipToBePreserved)
-                    .Select(CurveKey.FromBinding)
+                    .Select(CgeCurveKey.FromBinding)
                     .ToList();
                 AddMissingObjectReferences(allApplicableObjectReferences, thisAnimationObjectReferences, copyOfAnimationClip);
             }
@@ -338,7 +337,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             var originalBindings = AnimationUtility.GetCurveBindings(animationClipToBePreserved);
             foreach (var binding in originalBindings)
             {
-                var curveKey = CurveKey.FromBinding(binding);
+                var curveKey = CgeCurveKey.FromBinding(binding);
                 var canCopyCurve = _compilerConflictFxLayerMode == ConflictFxLayerMode.KeepBoth || !ShouldRemoveCurve(curveKey);
                 if (canCopyCurve)
                 {
@@ -404,7 +403,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             return originalKeyframeIsZero ? new[] {originalKeyframe, newKeyframe} : new[] {newKeyframe, originalKeyframe};
         }
 
-        private bool ShouldRemoveCurve(CurveKey curveKey)
+        private bool ShouldRemoveCurve(CgeCurveKey curveKey)
         {
             switch (_compilerConflictFxLayerMode)
             {
@@ -420,7 +419,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
         }
 
-        private void AddMissingCurveKeys(HashSet<CurveKey> allApplicableCurveKeys, List<CurveKey> thisAnimationPaths, AnimationClip copyOfAnimationClip)
+        private void AddMissingCurveKeys(HashSet<CgeCurveKey> allApplicableCurveKeys, List<CgeCurveKey> thisAnimationPaths, AnimationClip copyOfAnimationClip)
         {
             foreach (var curveKey in allApplicableCurveKeys)
             {
@@ -435,7 +434,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
         }
 
-        private float FindFallbackInAvatar(CurveKey curveKey)
+        private float FindFallbackInAvatar(CgeCurveKey curveKey)
         {
             if (_avatarDescriptorNullable == null)
             {
@@ -457,7 +456,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             return data;
         }
 
-        private void AddMissingObjectReferences(HashSet<CurveKey> allApplicableObjectReferences, List<CurveKey> thisObjectReferences, AnimationClip copyOfAnimationClip)
+        private void AddMissingObjectReferences(HashSet<CgeCurveKey> allApplicableObjectReferences, List<CgeCurveKey> thisObjectReferences, AnimationClip copyOfAnimationClip)
         {
             foreach (var curveKey in allApplicableObjectReferences)
             {
@@ -492,11 +491,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
         }
 
-        private HashSet<CurveKey> FindAllApplicableCurveKeys(HashSet<AnimationClip> allAnimationClips)
+        private HashSet<CgeCurveKey> FindAllApplicableCurveKeys(HashSet<AnimationClip> allAnimationClips)
         {
             var allCurveKeysFromAnimations = allAnimationClips
                 .SelectMany(AnimationUtility.GetCurveBindings)
-                .Select(CurveKey.FromBinding)
+                .Select(CgeCurveKey.FromBinding)
                 .ToList();
 
             var curveKeys = new[]{allCurveKeysFromAnimations}
@@ -516,26 +515,26 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 })
                 .ToList();
 
-            return new HashSet<CurveKey>(curveKeys);
+            return new HashSet<CgeCurveKey>(curveKeys);
         }
 
-        private HashSet<CurveKey> FindAllApplicableObjectReferences(HashSet<AnimationClip> allAnimationClips)
+        private HashSet<CgeCurveKey> FindAllApplicableObjectReferences(HashSet<AnimationClip> allAnimationClips)
         {
             if (_compilerConflictFxLayerMode == ConflictFxLayerMode.KeepOnlyTransforms || _compilerConflictFxLayerMode == ConflictFxLayerMode.KeepOnlyTransformsAndMuscles)
             {
-                return new HashSet<CurveKey>();
+                return new HashSet<CgeCurveKey>();
             }
 
             var allObjectReferencesFromAnimations = allAnimationClips
                 .SelectMany(AnimationUtility.GetObjectReferenceCurveBindings)
-                .Select(CurveKey.FromBinding)
+                .Select(CgeCurveKey.FromBinding)
                 .ToList();
 
             var objectReferences = allObjectReferencesFromAnimations
                 .Where(curveKey => !_ignoreObjectReferences.Contains(curveKey))
                 .ToList();
 
-            return new HashSet<CurveKey>(objectReferences);
+            return new HashSet<CgeCurveKey>(objectReferences);
         }
     }
 }

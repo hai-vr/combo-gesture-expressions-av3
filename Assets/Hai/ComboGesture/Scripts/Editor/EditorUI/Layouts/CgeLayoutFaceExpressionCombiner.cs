@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Hai.ComboGesture.Scripts.Components;
-using Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors;
 using Hai.ComboGesture.Scripts.Editor.Internal;
 using UnityEditor;
 using UnityEngine;
@@ -19,9 +18,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
         public bool CombinerIsLikelyEyesClosed;
         public bool CombinerIsAPermutation;
 
-        public void DoSetCombiner(ComboGestureActivity activity, AnimationClip leftAnim, AnimationClip rightAnim, string propertyPath, bool usePermutations, Action repaintCallback, CgeEditorEffector editorEffector, EeRenderingCommands previewController)
+        public void DoSetCombiner(ComboGestureActivity activity, AnimationClip leftAnim, AnimationClip rightAnim, string propertyPath, bool usePermutations, Action repaintCallback, CgeEditorHandler editorHandler, EeRenderingCommands previewController)
         {
-            Combiner = new CgeActivityEditorCombiner(leftAnim, rightAnim, repaintCallback, editorEffector /* FIXME: it is not normal to pass the effector here*/, previewController);
+            Combiner = new CgeActivityEditorCombiner(leftAnim, rightAnim, repaintCallback, editorHandler /* FIXME: it is not normal to pass the Handler here*/, previewController);
             Combiner.Prepare();
 
             CombinerTarget = propertyPath;
@@ -37,23 +36,23 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
         private readonly CgeLayoutCommon _common;
         private readonly CgeActivityEditorDriver _driver;
         private readonly CombinerState _combinerState = new CombinerState();
-        private readonly CgeEditorEffector _editorEffector;
+        private readonly CgeEditorHandler _editorHandler;
         private readonly EeRenderingCommands _renderingCommands;
 
-        public CgeLayoutFaceExpressionCombiner(CgeLayoutCommon common, CgeActivityEditorDriver driver, CgeEditorEffector editorEffector, EeRenderingCommands renderingCommands)
+        public CgeLayoutFaceExpressionCombiner(CgeLayoutCommon common, CgeActivityEditorDriver driver, CgeEditorHandler editorHandler, EeRenderingCommands renderingCommands)
         {
             _common = common;
             _driver = driver;
-            _editorEffector = editorEffector;
+            _editorHandler = editorHandler;
             _renderingCommands = renderingCommands;
         }
 
         public void DoSetCombiner(AnimationClip leftAnim, AnimationClip rightAnim, String propertyPath, bool usePermutations, Action repaintCallback)
         {
-            _combinerState.DoSetCombiner(_editorEffector.GetActivity(), leftAnim, rightAnim, propertyPath, usePermutations, repaintCallback, _editorEffector, _renderingCommands);
+            _combinerState.DoSetCombiner(_editorHandler.GetActivity(), leftAnim, rightAnim, propertyPath, usePermutations, repaintCallback, _editorHandler, _renderingCommands);
 
-            _editorEffector.SwitchAdditionalEditorTo(AdditionalEditorsMode.CombineFaceExpressions);
-            _editorEffector.SwitchTo(ActivityEditorMode.AdditionalEditors);
+            _editorHandler.SwitchAdditionalEditorTo(AdditionalEditorsMode.CombineFaceExpressions);
+            _editorHandler.SwitchTo(ActivityEditorMode.AdditionalEditors);
         }
 
         public void Layout(Action repaintCallback)
@@ -100,15 +99,15 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             var savedClip = _combinerState.Combiner.SaveTo(_combinerState.CombinerCandidateFileName);
             _renderingCommands.InvalidateSome(repaintCallback, savedClip);
 
-            _editorEffector.SpProperty(_combinerState.CombinerTarget).objectReferenceValue = savedClip;
-            _editorEffector.ApplyModifiedProperties();
+            _editorHandler.SpProperty(_combinerState.CombinerTarget).objectReferenceValue = savedClip;
+            _editorHandler.ApplyModifiedProperties();
 
             if (_combinerState.CombinerIsLikelyEyesClosed)
             {
-                _editorEffector.GetActivity().blinking.Add(savedClip);
+                _editorHandler.GetActivity().blinking.Add(savedClip);
             }
 
-            _editorEffector.SwitchTo(ActivityEditorMode.SetFaceExpressions);
+            _editorHandler.SwitchTo(ActivityEditorMode.SetFaceExpressions);
         }
 
         private void LayoutSideDecider(List<SideDecider> sideDeciders, Side side)
@@ -229,7 +228,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             }
         }
 
-        private static string ToFormattedName(CurveKey key, bool value, bool showFullPath)
+        private static string ToFormattedName(CgeCurveKey key, bool value, bool showFullPath)
         {
             var propertyName =
                 key.PropertyName

@@ -1,6 +1,6 @@
 ﻿using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts;
-using Hai.ComboGesture.Scripts.Editor.Internal.Model;
+using Hai.ComboGesture.Scripts.Editor.Internal;
 using UnityEditor;
 using UnityEngine;
 
@@ -69,7 +69,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public readonly Texture Guide16 = LoadGuid("90dc72f3fb374d94e821a6ad173b5275");
         public readonly Texture Help16 = LoadGuid("56b8fe77cebd7fd449c4e2101ecb4744");
 
-        public Texture Gesture(HandPose pose)
+        public Texture Gesture(CgeHandPose pose)
         {
             return _gestures[(int) pose];
         }

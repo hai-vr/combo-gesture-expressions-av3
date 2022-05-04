@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors;
 using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Editor.EditorUI
@@ -274,11 +273,11 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             "p_anim00", "p_anim11", "p_anim11_L", "p_anim11_R", "p_anim22", "p_anim33", "p_anim44", "p_anim55", "p_anim66", "p_anim77"
         });
 
-        private readonly CgeEditorEffector _editorEffector;
+        private readonly CgeEditorHandler _editorHandler;
 
-        public CgeActivityEditorDriver(CgeEditorEffector editorEffector)
+        public CgeActivityEditorDriver(CgeEditorHandler editorHandler)
         {
-            _editorEffector = editorEffector;
+            _editorHandler = editorHandler;
         }
 
         public bool IsSymmetrical(string propertyPath)
@@ -304,8 +303,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             }
 
             var mergePair = ParameterToMerge[propertyPath];
-            var left = _editorEffector.SpProperty(mergePair.Left).objectReferenceValue;
-            var right = _editorEffector.SpProperty(mergePair.Right).objectReferenceValue;
+            var left = _editorHandler.SpProperty(mergePair.Left).objectReferenceValue;
+            var right = _editorHandler.SpProperty(mergePair.Right).objectReferenceValue;
 
             return left is AnimationClip && right is AnimationClip && left != right;
         }
@@ -323,8 +322,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             }
 
             var mergePair = ParameterToMergeDiagonally[propertyPath];
-            var left = _editorEffector.SpProperty(mergePair.Left).objectReferenceValue;
-            var right = _editorEffector.SpProperty(mergePair.Right).objectReferenceValue;
+            var left = _editorHandler.SpProperty(mergePair.Left).objectReferenceValue;
+            var right = _editorHandler.SpProperty(mergePair.Right).objectReferenceValue;
 
             return left is AnimationClip && right is AnimationClip && left != right;
         }
@@ -337,8 +336,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             }
 
             var mergePair = ParameterToMerge[propertyPath];
-            var left = _editorEffector.SpProperty(mergePair.Left).objectReferenceValue;
-            var right = _editorEffector.SpProperty(mergePair.Right).objectReferenceValue;
+            var left = _editorHandler.SpProperty(mergePair.Left).objectReferenceValue;
+            var right = _editorHandler.SpProperty(mergePair.Right).objectReferenceValue;
 
             return left != null && right != null && left == right;
         }

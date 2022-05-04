@@ -7,17 +7,17 @@ using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
-    internal class LayerForBooleansToVirtualActivity
+    internal class CgeLayerForVirtualActivity
     {
         private const string VirtualActivityLayerName = "Hai_GestureVirtualActivity";
 
-        private readonly AssetContainer _assetContainer;
+        private readonly CgeAssetContainer _assetContainer;
         private readonly AnimatorController _controller;
         private readonly AvatarMask _logicalAvatarMask;
         private readonly bool _writeDefaultsForLogicalStates;
         private readonly List<GestureComboStageMapper> _comboLayers;
 
-        public LayerForBooleansToVirtualActivity(AssetContainer assetContainer, AnimatorController controller, AvatarMask logicalAvatarMask, bool writeDefaults, List<GestureComboStageMapper> comboLayers)
+        public CgeLayerForVirtualActivity(CgeAssetContainer assetContainer, AnimatorController controller, AvatarMask logicalAvatarMask, bool writeDefaults, List<GestureComboStageMapper> comboLayers)
         {
             _assetContainer = assetContainer;
             _controller = controller;
@@ -36,7 +36,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             var init = layer.NewState("Init", 3, 3)
                 .WithWriteDefaultsSetTo(_writeDefaultsForLogicalStates);
 
-            var virtualActivity = layer.IntParameter(SharedLayerUtils.HaiVirtualActivity);
+            var virtualActivity = layer.IntParameter(CgeSharedLayerUtils.HaiVirtualActivity);
 
             CgeAacFlState defaultState = null;
             foreach (var comboLayer in _comboLayers)
@@ -92,7 +92,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 .WithAvatarMask(_logicalAvatarMask);
         }
 
-        public static void Delete(AssetContainer assetContainer, AnimatorController animatorController)
+        public static void Delete(CgeAssetContainer assetContainer, AnimatorController animatorController)
         {
             assetContainer.ExposeCgeAac().CGE_RemoveSupportingArbitraryControllerLayer(animatorController, VirtualActivityLayerName);
         }

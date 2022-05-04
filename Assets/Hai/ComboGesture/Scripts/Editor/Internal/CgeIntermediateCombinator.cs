@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Hai.ComboGesture.Scripts.Components;
-using Hai.ComboGesture.Scripts.Editor.Internal.Model;
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
@@ -23,7 +22,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         public bool IsAvatarDynamics { get; set; }
         public CgeDynamicsRankedDescriptor DynamicsDescriptor { get; set; }
 
-        public Dictionary<Permutation, IAnimatedBehavior> Behaviors;
+        public Dictionary<CgePermutation, ICgeAnimatedBehavior> Behaviors;
     }
 
     public class OneHandComposedBehaviour : IComposedBehaviour
@@ -33,7 +32,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         public float TransitionDuration { get; set; }
         public bool IsAvatarDynamics { get; set; }
         public CgeDynamicsRankedDescriptor DynamicsDescriptor { get; set; }
-        public Dictionary<HandPose, IAnimatedBehavior> Behaviors;
+        public Dictionary<CgeHandPose, ICgeAnimatedBehavior> Behaviors;
         public bool IsLeftHand;
     }
 
@@ -44,20 +43,20 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         public float TransitionDuration { get; set; }
         public bool IsAvatarDynamics { get; set; }
         public CgeDynamicsRankedDescriptor DynamicsDescriptor { get; set; }
-        public IAnimatedBehavior Behavior;
+        public ICgeAnimatedBehavior Behavior;
     }
 
-    internal class IntermediateCombinator
+    internal class CgeIntermediateCombinator
     {
-        public List<IComposedBehaviour> ComposedBehaviours;
+        public readonly List<IComposedBehaviour> ComposedBehaviours;
 
-        public IntermediateCombinator(List<ManifestBinding> activityManifests)
+        public CgeIntermediateCombinator(List<CgeManifestBinding> activityManifests)
         {
             ComposedBehaviours = activityManifests.Select(binding =>
             {
                 switch (binding.Manifest)
                 {
-                    case PermutationManifest permutationManifest:
+                    case CgePermutationManifest permutationManifest:
                         return (IComposedBehaviour)new PermutationComposedBehaviour
                         {
                             IsActivityBound = binding.IsActivityBound,
@@ -65,9 +64,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                             TransitionDuration = permutationManifest.TransitionDuration(),
                             IsAvatarDynamics = binding.IsAvatarDynamics,
                             DynamicsDescriptor = binding.DynamicsDescriptor,
-                            Behaviors = new Dictionary<Permutation, IAnimatedBehavior>(permutationManifest.Poses)
+                            Behaviors = new Dictionary<CgePermutation, ICgeAnimatedBehavior>(permutationManifest.Poses)
                         };
-                    case SingleManifest puppetManifest:
+                    case CgeSingleManifest puppetManifest:
                         return new SingularComposedBehaviour
                         {
                             IsActivityBound = binding.IsActivityBound,
@@ -77,7 +76,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                             DynamicsDescriptor = binding.DynamicsDescriptor,
                             Behavior = puppetManifest.Behavior
                         };
-                    case MassiveBlendManifest massiveManifest:
+                    case CgeMassiveBlendManifest massiveManifest:
                         return new PermutationComposedBehaviour
                         {
                             IsActivityBound = binding.IsActivityBound,
@@ -87,7 +86,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                             DynamicsDescriptor = binding.DynamicsDescriptor,
                             Behaviors = DecomposeMassiveIntoBehaviors(massiveManifest)
                         };
-                    case OneHandManifest oneHandManifest:
+                    case CgeOneHandManifest oneHandManifest:
                         return new OneHandComposedBehaviour
                         {
                             IsActivityBound = binding.IsActivityBound,
@@ -95,7 +94,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                             TransitionDuration = oneHandManifest.TransitionDuration(),
                             IsAvatarDynamics = binding.IsAvatarDynamics,
                             DynamicsDescriptor = binding.DynamicsDescriptor,
-                            Behaviors = new Dictionary<HandPose, IAnimatedBehavior>(oneHandManifest.Poses),
+                            Behaviors = new Dictionary<CgeHandPose, ICgeAnimatedBehavior>(oneHandManifest.Poses),
                             IsLeftHand = oneHandManifest.IsLeftHand
                         };
                     default:
@@ -104,15 +103,15 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }).ToList();
         }
 
-        private static Dictionary<Permutation, IAnimatedBehavior> DecomposeMassiveIntoBehaviors(MassiveBlendManifest massiveManifest)
+        private static Dictionary<CgePermutation, ICgeAnimatedBehavior> DecomposeMassiveIntoBehaviors(CgeMassiveBlendManifest massiveManifest)
         {
-            return Permutation.All().ToDictionary(
+            return CgePermutation.All().ToDictionary(
                 permutation => permutation,
                 permutation => MassiveBlendToAnimatedBehavior(massiveManifest, permutation)
             );
         }
 
-        private static IAnimatedBehavior MassiveBlendToAnimatedBehavior(MassiveBlendManifest manifest, Permutation currentPermutation)
+        private static ICgeAnimatedBehavior MassiveBlendToAnimatedBehavior(CgeMassiveBlendManifest manifest, CgePermutation currentPermutation)
         {
             switch (manifest.Mode)
             {
@@ -127,53 +126,25 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
         }
 
-        private static IAnimatedBehavior OfSimple(MassiveBlendManifest manifest, Permutation currentPermutation)
+        private static ICgeAnimatedBehavior OfSimple(CgeMassiveBlendManifest manifest, CgePermutation currentPermutation)
         {
             var zero = manifest.EquatedManifests[0].Poses[currentPermutation];
             var one = manifest.EquatedManifests[1].Poses[currentPermutation];
-            return SimpleMassiveBlendAnimatedBehavior.Maybe(zero, one, manifest.SimpleParameterName);
+            return CgeSimpleMassiveBlendAnimatedBehavior.Maybe(zero, one, manifest.SimpleParameterName);
         }
 
-        private static IAnimatedBehavior OfTwoDirections(MassiveBlendManifest manifest, Permutation currentPermutation)
+        private static ICgeAnimatedBehavior OfTwoDirections(CgeMassiveBlendManifest manifest, CgePermutation currentPermutation)
         {
             var zero = manifest.EquatedManifests[0].Poses[currentPermutation];
             var one = manifest.EquatedManifests[1].Poses[currentPermutation];
             var minusOne = manifest.EquatedManifests[2].Poses[currentPermutation];
-            return TwoDirectionsMassiveBlendAnimatedBehavior.Maybe(zero, one, minusOne, manifest.SimpleParameterName);
+            return CgeTwoDirectionsMassiveBlendAnimatedBehavior.Maybe(zero, one, minusOne, manifest.SimpleParameterName);
         }
 
-        private static IAnimatedBehavior OfComplexBlendTree(MassiveBlendManifest manifest, Permutation currentPermutation)
+        private static ICgeAnimatedBehavior OfComplexBlendTree(CgeMassiveBlendManifest manifest, CgePermutation currentPermutation)
         {
             var poses = manifest.EquatedManifests.Select(permutationManifest => permutationManifest.Poses[currentPermutation]).ToList();
-            return ComplexMassiveBlendAnimatedBehavior.Of(poses, manifest.BlendTree);
-        }
-    }
-
-    internal abstract class TransitionCondition
-    {
-        public float TransitionDuration { get; }
-        public Permutation PermutationNullable { get; }
-        public int StageValue { get; }
-
-        private TransitionCondition(float transitionDuration, Permutation permutationNullable, int stageValue)
-        {
-            TransitionDuration = transitionDuration;
-            PermutationNullable = permutationNullable;
-            StageValue = stageValue;
-        }
-
-        internal class ActivityBoundTransitionCondition : TransitionCondition
-        {
-            public ActivityBoundTransitionCondition(int stageValue, float transitionDuration, Permutation permutationNullable) : base(transitionDuration, permutationNullable, stageValue)
-            {
-            }
-        }
-
-        internal class PuppetBoundTransitionCondition : TransitionCondition
-        {
-            public PuppetBoundTransitionCondition(int stageValue, float transitionDuration) : base(transitionDuration, null, stageValue)
-            {
-            }
+            return CgeComplexMassiveBlendAnimatedBehavior.Of(poses, manifest.BlendTree);
         }
     }
 }

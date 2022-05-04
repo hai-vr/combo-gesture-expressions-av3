@@ -5,18 +5,18 @@ using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
-    internal class LayerForWeightCorrection
+    internal class CgeLayerForWeightCorrection
     {
         private const string WeightCorrectionLeftLayerName = "Hai_GestureWeightLeft";
         private const string WeightCorrectionRightLayerName = "Hai_GestureWeightRight";
 
-        private readonly AssetContainer _assetContainer;
+        private readonly CgeAssetContainer _assetContainer;
         private readonly AvatarMask _weightCorrectionAvatarMask;
         private readonly bool _writeDefaultsForAnimatedAnimatorParameterStates;
         private readonly bool _universalAnalogSupport;
         private readonly AnimatorController _animatorController;
 
-        public LayerForWeightCorrection(AssetContainer assetContainer, AnimatorController animatorController, AvatarMask weightCorrectionAvatarMask, bool writeDefaults, bool universalAnalogSupport)
+        public CgeLayerForWeightCorrection(CgeAssetContainer assetContainer, AnimatorController animatorController, AvatarMask weightCorrectionAvatarMask, bool writeDefaults, bool universalAnalogSupport)
         {
             _assetContainer = assetContainer;
             _animatorController = animatorController;
@@ -31,14 +31,14 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             InitializeMachineFor(
                 _assetContainer.ExposeCgeAac().CreateSupportingArbitraryControllerLayer(_animatorController, WeightCorrectionLeftLayerName)
                     .WithAvatarMask(_weightCorrectionAvatarMask),
-                SharedLayerUtils.HaiGestureComboLeftWeightProxy,
+                CgeSharedLayerUtils.HaiGestureComboLeftWeightProxy,
                 "GestureLeftWeight",
                 "GestureLeft"
             );
             InitializeMachineFor(
                 _assetContainer.ExposeCgeAac().CreateSupportingArbitraryControllerLayer(_animatorController, WeightCorrectionRightLayerName)
                     .WithAvatarMask(_weightCorrectionAvatarMask),
-                SharedLayerUtils.HaiGestureComboRightWeightProxy,
+                CgeSharedLayerUtils.HaiGestureComboRightWeightProxy,
                 "GestureRightWeight",
                 "GestureRight"
             );
@@ -82,7 +82,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             });
         }
 
-        public static void Delete(AssetContainer assetContainer, AnimatorController controller)
+        public static void Delete(CgeAssetContainer assetContainer, AnimatorController controller)
         {
             assetContainer.ExposeCgeAac().CGE_RemoveSupportingArbitraryControllerLayer(controller, WeightCorrectionLeftLayerName);
             assetContainer.ExposeCgeAac().CGE_RemoveSupportingArbitraryControllerLayer(controller, WeightCorrectionRightLayerName);

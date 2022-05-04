@@ -3,28 +3,26 @@ using Hai.ComboGesture.Scripts.Components;
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
-    public class ConflictPrevention
+    public class CgeConflictPrevention
     {
         public bool ShouldGenerateExhaustiveAnimations { get; }
         public bool ShouldWriteDefaults { get; }
 
-        private static readonly ConflictPrevention GenerateExhaustiveAnimationsWithWriteDefaults = new ConflictPrevention(true, true);
-        private static readonly ConflictPrevention GenerateExhaustiveAnimationsWithoutWriteDefaults = new ConflictPrevention(true, false);
+        private static readonly CgeConflictPrevention GenerateExhaustiveAnimationsWithWriteDefaults = new CgeConflictPrevention(true, true);
+        private static readonly CgeConflictPrevention GenerateExhaustiveAnimationsWithoutWriteDefaults = new CgeConflictPrevention(true, false);
 
-        // As the purpose of this class is to describe an enumeration,
-        // the boolean parameter coding convention is purposefully broken here.
-        private ConflictPrevention(bool shouldGenerateExhaustiveAnimations, bool shouldWriteDefaults)
+        private CgeConflictPrevention(bool shouldGenerateExhaustiveAnimations, bool shouldWriteDefaults)
         {
             ShouldGenerateExhaustiveAnimations = shouldGenerateExhaustiveAnimations;
             ShouldWriteDefaults = shouldWriteDefaults;
         }
 
-        public static ConflictPrevention OfIntegrator(bool writeDefaults)
+        public static CgeConflictPrevention OfIntegrator(bool writeDefaults)
         {
-            return new ConflictPrevention(false, writeDefaults);
+            return new CgeConflictPrevention(false, writeDefaults);
         }
 
-        public static ConflictPrevention OfFxLayer(WriteDefaultsRecommendationMode mode)
+        public static CgeConflictPrevention OfFxLayer(WriteDefaultsRecommendationMode mode)
         {
             switch (mode)
             {
@@ -37,9 +35,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
         }
 
-        public static ConflictPrevention OfGestureLayer(WriteDefaultsRecommendationMode compilerWriteDefaultsRecommendationModeGesture, GestureLayerTransformCapture compilerGestureLayerTransformCapture)
+        public static CgeConflictPrevention OfGestureLayer(WriteDefaultsRecommendationMode compilerWriteDefaultsRecommendationModeGesture, GestureLayerTransformCapture compilerGestureLayerTransformCapture)
         {
-            return new ConflictPrevention(
+            return new CgeConflictPrevention(
                 compilerGestureLayerTransformCapture == GestureLayerTransformCapture.CaptureDefaultTransformsFromAvatar,
                 compilerWriteDefaultsRecommendationModeGesture == WriteDefaultsRecommendationMode.UseUnsupportedWriteDefaultsOn);
         }

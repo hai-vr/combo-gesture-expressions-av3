@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors;
 using Hai.ComboGesture.Scripts.Editor.Internal;
 using UnityEditor;
 using UnityEngine;
@@ -29,21 +28,21 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
     public struct SideDecider
     {
-        public SideDecider(CurveKey key, float sampleValue, bool choice)
+        public SideDecider(CgeCurveKey key, float sampleValue, bool choice)
         {
             Key = key;
             SampleValue = sampleValue;
             Choice = choice;
         }
 
-        public CurveKey Key { get; }
+        public CgeCurveKey Key { get; }
         public float SampleValue { get; }
         public bool Choice { get; set; }
     }
 
     public struct IntersectionDecider
     {
-        public IntersectionDecider(CurveKey key, float sampleLeftValue, float sampleRightValue, IntersectionChoice choice)
+        public IntersectionDecider(CgeCurveKey key, float sampleLeftValue, float sampleRightValue, IntersectionChoice choice)
         {
             Key = key;
             SampleLeftValue = sampleLeftValue;
@@ -51,7 +50,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             Choice = choice;
         }
 
-        public CurveKey Key { get; }
+        public CgeCurveKey Key { get; }
         public float SampleLeftValue { get; }
         public float SampleRightValue { get; }
         public IntersectionChoice Choice { get; set; }
@@ -71,12 +70,12 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         private readonly AnimationClip _leftAnim;
         private readonly AnimationClip _rightAnim;
         private readonly Action _repaintCallback;
-        private readonly CgeEditorEffector _editorEffector;
+        private readonly CgeEditorHandler _editorHandler;
         private readonly EeRenderingCommands _renderingCommands;
         private CgeDecider _cgeDecider;
         private AnimationClip _combinedAnim;
 
-        public CgeActivityEditorCombiner(AnimationClip leftAnim, AnimationClip rightAnim, Action repaintCallback, CgeEditorEffector editorEffector, EeRenderingCommands renderingCommands)
+        public CgeActivityEditorCombiner(AnimationClip leftAnim, AnimationClip rightAnim, Action repaintCallback, CgeEditorHandler editorHandler, EeRenderingCommands renderingCommands)
         {
             _leftPreview = EeRenderingCommands.NewPreviewTexture2D(CombinerPreviewWidth, CombinerPreviewHeight);
             _rightPreview = EeRenderingCommands.NewPreviewTexture2D(CombinerPreviewWidth, CombinerPreviewHeight);
@@ -85,7 +84,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             _rightAnim = rightAnim;
             _combinedAnim = new AnimationClip();
             _repaintCallback = repaintCallback;
-            _editorEffector = editorEffector;
+            _editorHandler = editorHandler;
             _renderingCommands = renderingCommands;
         }
 
@@ -136,10 +135,10 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             return generatedClip;
         }
 
-        private void MutateClipUsing(AnimationClip source, AnimationClip destination, IEnumerable<CurveKey> curvesToKeep)
+        private void MutateClipUsing(AnimationClip source, AnimationClip destination, IEnumerable<CgeCurveKey> curvesToKeep)
         {
             AnimationUtility.GetCurveBindings(source)
-                .Where(binding => curvesToKeep.Contains(CurveKey.FromBinding(binding)))
+                .Where(binding => curvesToKeep.Contains(CgeCurveKey.FromBinding(binding)))
                 .ToList()
                 .ForEach(binding =>
                 {
@@ -148,7 +147,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 });
         }
 
-        private List<CurveKey> AllIntersectOf(IntersectionChoice intersectionChoice)
+        private List<CgeCurveKey> AllIntersectOf(IntersectionChoice intersectionChoice)
         {
             return _cgeDecider.Intersection
                 .Where(decider => decider.Choice == intersectionChoice)
@@ -156,7 +155,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 .ToList();
         }
 
-        private List<CurveKey> AllActiveOf(List<SideDecider> sideDeciders)
+        private List<CgeCurveKey> AllActiveOf(List<SideDecider> sideDeciders)
         {
             return sideDeciders
                 .Where(decider => decider.Choice)
@@ -164,10 +163,10 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 .ToList();
         }
 
-        private static CgeDecider CreateDeciders(HashSet<SampledCurveKey> leftCurves, HashSet<SampledCurveKey> rightCurves)
+        private static CgeDecider CreateDeciders(HashSet<CgeSampledCurveKey> leftCurves, HashSet<CgeSampledCurveKey> rightCurves)
         {
-            var leftUniques = new HashSet<CurveKey>(leftCurves.Select(key => key.CurveKey).ToList());
-            var rightUniques = new HashSet<CurveKey>(rightCurves.Select(key => key.CurveKey).ToList());
+            var leftUniques = new HashSet<CgeCurveKey>(leftCurves.Select(key => key.CurveKey).ToList());
+            var rightUniques = new HashSet<CgeCurveKey>(rightCurves.Select(key => key.CurveKey).ToList());
 
             var leftDecidersUnsorted = leftCurves
                 .Where(key => !rightUniques.Contains(key.CurveKey))
@@ -223,7 +222,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             return _cgeDecider;
         }
 
-        public void UpdateSide(Side side, CurveKey keyToUpdate, float sampleValue, bool newChoice)
+        public void UpdateSide(Side side, CgeCurveKey keyToUpdate, float sampleValue, bool newChoice)
         {
             var sideDeciders = PickSide(side);
             var index = sideDeciders.FindIndex(decider => decider.Key == keyToUpdate);
@@ -253,10 +252,10 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             }
         }
 
-        private HashSet<SampledCurveKey> FilterAnimationClip(AnimationClip clip)
+        private HashSet<CgeSampledCurveKey> FilterAnimationClip(AnimationClip clip)
         {
-            return new HashSet<SampledCurveKey>(AnimationUtility.GetCurveBindings(clip)
-                .Select(binding => new SampledCurveKey(CurveKey.FromBinding(binding), AnimationUtility.GetEditorCurve(clip, binding).keys[0].value))
+            return new HashSet<CgeSampledCurveKey>(AnimationUtility.GetCurveBindings(clip)
+                .Select(binding => new CgeSampledCurveKey(CgeCurveKey.FromBinding(binding), AnimationUtility.GetEditorCurve(clip, binding).keys[0].value))
                 .Where(sampledCurveKey => !sampledCurveKey.CurveKey.IsMuscleCurve())
                 .Where(sampledCurveKey => sampledCurveKey.CurveKey.Path != "_ignored")
                 .ToList());
@@ -264,7 +263,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         private void CreatePreviews()
         {
-            if (!_editorEffector.IsPreviewSetupValid()) return;
+            if (!_editorHandler.IsPreviewSetupValid()) return;
 
             _leftPreview = _renderingCommands.RequireRender(_leftAnim, _repaintCallback).Normal;
             _rightPreview = _renderingCommands.RequireRender(_rightAnim, _repaintCallback).Normal;
@@ -276,7 +275,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         private void RegenerateCombinedPreview()
         {
-            if (!_editorEffector.IsPreviewSetupValid()) return;
+            if (!_editorHandler.IsPreviewSetupValid()) return;
 
             RegenerateCombinedClip();
             _combinedPreview = _renderingCommands.RequireRender(_combinedAnim, _repaintCallback, true).Normal;

@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors
+namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 {
     public class ComboGestureViewerGenerator
     {

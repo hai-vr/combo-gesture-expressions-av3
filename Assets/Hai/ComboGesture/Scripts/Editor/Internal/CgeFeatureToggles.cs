@@ -3,7 +3,7 @@
 namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
     [Flags]
-    public enum FeatureToggles
+    public enum CgeFeatureToggles
     {
         None = 0,
         // ExposeDisableExpressions = 1,

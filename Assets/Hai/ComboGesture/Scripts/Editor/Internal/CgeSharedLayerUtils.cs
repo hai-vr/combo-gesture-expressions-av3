@@ -2,15 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using Hai.ComboGesture.Scripts.Components;
-using Hai.ComboGesture.Scripts.Editor.Internal.Model;
-using Hai.ComboGesture.Scripts.Editor.Internal.Processing;
 using UnityEditor.Animations;
 using UnityEngine;
-using VRC.Dynamics;
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
-    internal class SharedLayerUtils
+    internal static class CgeSharedLayerUtils
     {
         private const float DynamicsTransitionDuration = 0.1f;
 
@@ -21,63 +18,63 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         internal const string HaiGestureComboRightWeightSmoothing = "_Hai_GestureRWSmoothing";
         internal const string HaiGestureComboSmoothingFactor = "_Hai_GestureSmoothingFactor";
 
-        public static IManifest FromMapper(GestureComboStageMapper mapper, AnimationClip fallbackWhenAnyClipIsNull, bool universalAnalogSupport)
+        public static ICgeManifest FromMapper(GestureComboStageMapper mapper, AnimationClip fallbackWhenAnyClipIsNull, bool universalAnalogSupport)
         {
             switch (mapper.kind)
             {
                 case GestureComboStageKind.Activity:
                     return mapper.activity == null
-                        ? ManifestFromActivity.FromNothing(fallbackWhenAnyClipIsNull) // TODO: It may be possible to create a specific manifest for that
-                        : ManifestFromActivity.FromActivity(mapper.activity, fallbackWhenAnyClipIsNull, universalAnalogSupport);
+                        ? CgeManifestFromActivity.FromNothing(fallbackWhenAnyClipIsNull) // TODO: It may be possible to create a specific manifest for that
+                        : CgeManifestFromActivity.FromActivity(mapper.activity, fallbackWhenAnyClipIsNull, universalAnalogSupport);
                 case GestureComboStageKind.Puppet:
-                    return ManifestFromPuppet.FromPuppet(mapper.puppet);
+                    return CgeManifestFromSingle.FromPuppet(mapper.puppet);
                 case GestureComboStageKind.Massive:
-                    return ManifestFromMassiveBlend.FromMassiveBlend(mapper.massiveBlend, fallbackWhenAnyClipIsNull, universalAnalogSupport);
+                    return CgeManifestFromMassiveBlend.FromMassiveBlend(mapper.massiveBlend, fallbackWhenAnyClipIsNull, universalAnalogSupport);
                 default:
                     throw new ArgumentOutOfRangeException();
             }
         }
 
-        public static IManifest FromSimpleDynamics(ComboGestureDynamicsItem simpleDynamics, AnimationClip emptyClip, bool universalAnalogSupport)
+        public static ICgeManifest FromSimpleDynamics(ComboGestureDynamicsItem simpleDynamics, AnimationClip emptyClip, bool universalAnalogSupport)
         {
             return ResolveSelfDynamics(simpleDynamics, emptyClip, universalAnalogSupport);
         }
 
-        public static IManifest FromMassiveSimpleDynamics(ComboGestureDynamicsItem simpleDynamics, AnimationClip emptyClip, bool universalAnalogSupport, IManifest zero)
+        public static ICgeManifest FromMassiveSimpleDynamics(ComboGestureDynamicsItem simpleDynamics, AnimationClip emptyClip, bool universalAnalogSupport, ICgeManifest zero)
         {
             var selfDynamics = ResolveSelfDynamics(simpleDynamics, emptyClip, universalAnalogSupport);
-            return ManifestFromMassiveBlend.FromDynamics(zero, selfDynamics, simpleDynamics.ToDescriptor().parameter, DynamicsTransitionDuration);
+            return CgeManifestFromMassiveBlend.FromDynamics(zero, selfDynamics, simpleDynamics.ToDescriptor().parameter, DynamicsTransitionDuration);
         }
 
-        private static IManifest ResolveSelfDynamics(ComboGestureDynamicsItem simpleDynamics, AnimationClip emptyClip, bool universalAnalogSupport)
+        private static ICgeManifest ResolveSelfDynamics(ComboGestureDynamicsItem simpleDynamics, AnimationClip emptyClip, bool universalAnalogSupport)
         {
             switch (simpleDynamics.effect)
             {
                 case ComboGestureDynamicsEffect.Clip:
                     return simpleDynamics.clip != null
-                        ? ManifestFromPuppet.FromAnim(simpleDynamics.clip, simpleDynamics.bothEyesClosed, DynamicsTransitionDuration)
-                        : ManifestFromActivity.FromNothing(emptyClip);
+                        ? CgeManifestFromSingle.FromAnim(simpleDynamics.clip, simpleDynamics.bothEyesClosed, DynamicsTransitionDuration)
+                        : CgeManifestFromActivity.FromNothing(emptyClip);
                 case ComboGestureDynamicsEffect.MoodSet:
                     return simpleDynamics.moodSet != null
                         ? FromMoodSet(simpleDynamics.moodSet, emptyClip, universalAnalogSupport)
-                        : ManifestFromActivity.FromNothing(emptyClip);
+                        : CgeManifestFromActivity.FromNothing(emptyClip);
                 default:
                     throw new ArgumentOutOfRangeException();
             }
         }
 
-        public static IManifest FromMoodSet(ComboGestureMoodSet moodSet, AnimationClip fallbackWhenAnyClipIsNull, bool universalAnalogSupport)
+        public static ICgeManifest FromMoodSet(ComboGestureMoodSet moodSet, AnimationClip fallbackWhenAnyClipIsNull, bool universalAnalogSupport)
         {
             switch (moodSet)
             {
                 case ComboGestureActivity activity:
                     return activity == null
-                        ? ManifestFromActivity.FromNothing(fallbackWhenAnyClipIsNull) // TODO: It may be possible to create a specific manifest for that
-                        : ManifestFromActivity.FromActivity(activity, fallbackWhenAnyClipIsNull, universalAnalogSupport);
+                        ? CgeManifestFromActivity.FromNothing(fallbackWhenAnyClipIsNull) // TODO: It may be possible to create a specific manifest for that
+                        : CgeManifestFromActivity.FromActivity(activity, fallbackWhenAnyClipIsNull, universalAnalogSupport);
                 case ComboGesturePuppet puppet:
-                    return ManifestFromPuppet.FromPuppet(puppet);
+                    return CgeManifestFromSingle.FromPuppet(puppet);
                 case ComboGestureMassiveBlend massive:
-                    return ManifestFromMassiveBlend.FromMassiveBlend(massive, fallbackWhenAnyClipIsNull, universalAnalogSupport);
+                    return CgeManifestFromMassiveBlend.FromMassiveBlend(massive, fallbackWhenAnyClipIsNull, universalAnalogSupport);
                 default:
                     throw new ArgumentOutOfRangeException();
             }

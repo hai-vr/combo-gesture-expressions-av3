@@ -2,35 +2,34 @@
 using System.Collections.Generic;
 using System.Linq;
 using Hai.ComboGesture.Scripts.Components;
-using Hai.ComboGesture.Scripts.Editor.Internal.Model;
 using UnityEditor.Animations;
 using UnityEngine;
 
-namespace Hai.ComboGesture.Scripts.Editor.Internal.Processing
+namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
-    public static class ManifestFromPuppet
+    public static class CgeManifestFromSingle
     {
-        public static IManifest FromPuppet(ComboGesturePuppet puppet)
+        public static ICgeManifest FromPuppet(ComboGesturePuppet puppet)
         {
             var animations = AllDistinctAnimations(puppet);
-            var qualifications = animations.Select(clip => new QualifiedAnimation(
+            var qualifications = animations.Select(clip => new CgeQualifiedAnimation(
                     clip,
                     new Qualification(puppet.blinking.Contains(clip))
                 ))
                 .Distinct()
                 .ToList();
 
-            return new SingleManifest(
+            return new CgeSingleManifest(
                 puppet.transitionDuration,
-                PuppetAnimatedBehavior.Of((BlendTree)puppet.mainTree, qualifications)
+                CgePuppetAnimatedBehavior.Of((BlendTree)puppet.mainTree, qualifications)
             );
         }
 
-        public static IManifest FromAnim(AnimationClip clip, bool bothEyesClosed, float transitionDuration)
+        public static ICgeManifest FromAnim(AnimationClip clip, bool bothEyesClosed, float transitionDuration)
         {
-            return new SingleManifest(
+            return new CgeSingleManifest(
                 transitionDuration,
-                SingleAnimatedBehavior.Of(new QualifiedAnimation(clip, new Qualification(bothEyesClosed)))
+                CgeSingleAnimatedBehavior.Of(new CgeQualifiedAnimation(clip, new Qualification(bothEyesClosed)))
             );
         }
 

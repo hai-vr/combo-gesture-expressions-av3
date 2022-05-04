@@ -5,22 +5,22 @@ using System.Linq;
 using UnityEditor.Animations;
 using UnityEngine;
 
-namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
+namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
-    public interface IManifest
+    public interface ICgeManifest
     {
-        ManifestKind Kind();
+        CgeManifestKind Kind();
         bool RequiresBlinking();
-        IEnumerable<QualifiedAnimation> AllQualifiedAnimations();
+        IEnumerable<CgeQualifiedAnimation> AllQualifiedAnimations();
         IEnumerable<BlendTree> AllBlendTreesFoundRecursively();
-        IManifest NewFromRemappedAnimations(Dictionary<QualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendToRemappedBlend);
-        IManifest UsingRemappedWeights(Dictionary<BlendTree,AutoWeightTreeMapping> autoWeightRemapping);
-        PermutationManifest ToEquatedPermutation();
+        ICgeManifest NewFromRemappedAnimations(Dictionary<CgeQualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendToRemappedBlend);
+        ICgeManifest UsingRemappedWeights(Dictionary<BlendTree,CgeAutoWeightTreeMapping> autoWeightRemapping);
+        CgePermutationManifest ToEquatedPermutation();
     }
 
-    public readonly struct AutoWeightTreeMapping
+    public readonly struct CgeAutoWeightTreeMapping
     {
-        public AutoWeightTreeMapping(BlendTree original, BlendTree leftHand, BlendTree rightHand)
+        public CgeAutoWeightTreeMapping(BlendTree original, BlendTree leftHand, BlendTree rightHand)
         {
             Original = original;
             LeftHand = leftHand;
@@ -32,28 +32,28 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
         public BlendTree RightHand { get; }
     }
 
-    public enum ManifestKind
+    public enum CgeManifestKind
     {
         Permutation, Puppet, Massive, OneHand
     }
 
-    public class OneHandManifest : IManifest
+    public class CgeOneHandManifest : ICgeManifest
     {
-        public ReadOnlyDictionary<HandPose, IAnimatedBehavior> Poses { get; }
+        public ReadOnlyDictionary<CgeHandPose, ICgeAnimatedBehavior> Poses { get; }
         public bool IsLeftHand;
 
         private readonly float _transitionDuration;
 
-        public OneHandManifest(Dictionary<HandPose, IAnimatedBehavior> poses, float transitionDuration, bool isLeftHand)
+        public CgeOneHandManifest(Dictionary<CgeHandPose, ICgeAnimatedBehavior> poses, float transitionDuration, bool isLeftHand)
         {
-            Poses = new ReadOnlyDictionary<HandPose, IAnimatedBehavior>(poses);
+            Poses = new ReadOnlyDictionary<CgeHandPose, ICgeAnimatedBehavior>(poses);
             IsLeftHand = isLeftHand;
             _transitionDuration = transitionDuration;
         }
 
-        public ManifestKind Kind()
+        public CgeManifestKind Kind()
         {
-            return ManifestKind.OneHand;
+            return CgeManifestKind.OneHand;
         }
 
         public float TransitionDuration()
@@ -66,7 +66,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
             return Poses.Values.Any(behavior => behavior.QualifiedAnimations().Any(animation => animation.Qualification.IsBlinking));
         }
 
-        public IEnumerable<QualifiedAnimation> AllQualifiedAnimations()
+        public IEnumerable<CgeQualifiedAnimation> AllQualifiedAnimations()
         {
             return Poses.Values.SelectMany(behavior => behavior.QualifiedAnimations()).ToList();
         }
@@ -76,59 +76,59 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
             return Poses.Values.SelectMany(behavior => behavior.AllBlendTreesFoundRecursively()).Distinct().ToList();
         }
 
-        public IManifest NewFromRemappedAnimations(Dictionary<QualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)
+        public ICgeManifest NewFromRemappedAnimations(Dictionary<CgeQualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)
         {
-            var newPoses = new Dictionary<HandPose, IAnimatedBehavior>(Poses);
+            var newPoses = new Dictionary<CgeHandPose, ICgeAnimatedBehavior>(Poses);
             foreach (var handPose in newPoses.Keys.ToList())
             {
                 newPoses[handPose] = newPoses[handPose].Remapping(remapping, blendRemapping);
             }
 
-            return new OneHandManifest(newPoses, _transitionDuration, IsLeftHand);
+            return new CgeOneHandManifest(newPoses, _transitionDuration, IsLeftHand);
         }
 
-        public IManifest UsingRemappedWeights(Dictionary<BlendTree, AutoWeightTreeMapping> autoWeightRemapping)
+        public ICgeManifest UsingRemappedWeights(Dictionary<BlendTree, CgeAutoWeightTreeMapping> autoWeightRemapping)
         {
             var remappingLeft = autoWeightRemapping.ToDictionary(pair => pair.Key, pair => pair.Value.LeftHand);
             var remappingRight = autoWeightRemapping.ToDictionary(pair => pair.Key, pair => pair.Value.RightHand);
-            var emptyDict = new Dictionary<QualifiedAnimation, AnimationClip>();
+            var emptyDict = new Dictionary<CgeQualifiedAnimation, AnimationClip>();
 
-            var newPoses = new Dictionary<HandPose, IAnimatedBehavior>(Poses);
+            var newPoses = new Dictionary<CgeHandPose, ICgeAnimatedBehavior>(Poses);
             foreach (var pair in Poses)
             {
                 newPoses[pair.Key] = pair.Value.Remapping(emptyDict, IsLeftHand ? remappingLeft : remappingRight);
             }
 
-            return new OneHandManifest(newPoses, _transitionDuration, IsLeftHand);
+            return new CgeOneHandManifest(newPoses, _transitionDuration, IsLeftHand);
         }
 
-        public PermutationManifest ToEquatedPermutation()
+        public CgePermutationManifest ToEquatedPermutation()
         {
-            var dict = new Dictionary<Permutation, IAnimatedBehavior>();
+            var dict = new Dictionary<CgePermutation, ICgeAnimatedBehavior>();
 
-            foreach (var permutation in Permutation.All())
+            foreach (var permutation in CgePermutation.All())
             {
                 dict.Add(permutation, IsLeftHand ? Poses[permutation.Left] : Poses[permutation.Right]);
             }
 
-            return new PermutationManifest(dict, _transitionDuration);
+            return new CgePermutationManifest(dict, _transitionDuration);
         }
     }
 
-    public class PermutationManifest : IManifest
+    public class CgePermutationManifest : ICgeManifest
     {
-        public ReadOnlyDictionary<Permutation, IAnimatedBehavior> Poses { get; }
+        public ReadOnlyDictionary<CgePermutation, ICgeAnimatedBehavior> Poses { get; }
         private readonly float _transitionDuration;
 
-        public PermutationManifest(Dictionary<Permutation, IAnimatedBehavior> poses, float transitionDuration)
+        public CgePermutationManifest(Dictionary<CgePermutation, ICgeAnimatedBehavior> poses, float transitionDuration)
         {
-            Poses = new ReadOnlyDictionary<Permutation, IAnimatedBehavior>(poses);
+            Poses = new ReadOnlyDictionary<CgePermutation, ICgeAnimatedBehavior>(poses);
             _transitionDuration = transitionDuration;
         }
 
-        public ManifestKind Kind()
+        public CgeManifestKind Kind()
         {
-            return ManifestKind.Permutation;
+            return CgeManifestKind.Permutation;
         }
 
         public float TransitionDuration()
@@ -141,7 +141,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
             return Poses.Values.Any(behavior => behavior.QualifiedAnimations().Any(animation => animation.Qualification.IsBlinking));
         }
 
-        public IEnumerable<QualifiedAnimation> AllQualifiedAnimations()
+        public IEnumerable<CgeQualifiedAnimation> AllQualifiedAnimations()
         {
             return Poses.Values.SelectMany(behavior => behavior.QualifiedAnimations()).ToList();
         }
@@ -151,24 +151,24 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
             return Poses.Values.SelectMany(behavior => behavior.AllBlendTreesFoundRecursively()).Distinct().ToList();
         }
 
-        public IManifest NewFromRemappedAnimations(Dictionary<QualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)
+        public ICgeManifest NewFromRemappedAnimations(Dictionary<CgeQualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)
         {
-            var newPoses = new Dictionary<Permutation, IAnimatedBehavior>(Poses);
+            var newPoses = new Dictionary<CgePermutation, ICgeAnimatedBehavior>(Poses);
             foreach (var permutation in newPoses.Keys.ToList())
             {
                 newPoses[permutation] = newPoses[permutation].Remapping(remapping, blendRemapping);
             }
 
-            return new PermutationManifest(newPoses, _transitionDuration);
+            return new CgePermutationManifest(newPoses, _transitionDuration);
         }
 
-        public IManifest UsingRemappedWeights(Dictionary<BlendTree, AutoWeightTreeMapping> autoWeightRemapping)
+        public ICgeManifest UsingRemappedWeights(Dictionary<BlendTree, CgeAutoWeightTreeMapping> autoWeightRemapping)
         {
             var remappingLeft = autoWeightRemapping.ToDictionary(pair => pair.Key, pair => pair.Value.LeftHand);
             var remappingRight = autoWeightRemapping.ToDictionary(pair => pair.Key, pair => pair.Value.RightHand);
-            var emptyDict = new Dictionary<QualifiedAnimation, AnimationClip>();
+            var emptyDict = new Dictionary<CgeQualifiedAnimation, AnimationClip>();
 
-            var newPoses = new Dictionary<Permutation, IAnimatedBehavior>(Poses);
+            var newPoses = new Dictionary<CgePermutation, ICgeAnimatedBehavior>(Poses);
             foreach (var pair in Poses)
             {
                 if (!pair.Key.IsSymmetrical()) {
@@ -183,24 +183,24 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
                 }
             }
 
-            return new PermutationManifest(newPoses, _transitionDuration);
+            return new CgePermutationManifest(newPoses, _transitionDuration);
         }
 
-        public PermutationManifest ToEquatedPermutation()
+        public CgePermutationManifest ToEquatedPermutation()
         {
             return this;
         }
     }
 
-    public interface IAnimatedBehavior
+    public interface ICgeAnimatedBehavior
     {
-        AnimatedBehaviorNature Nature();
-        IEnumerable<QualifiedAnimation> QualifiedAnimations();
+        CgeAnimatedBehaviorNature Nature();
+        IEnumerable<CgeQualifiedAnimation> QualifiedAnimations();
         IEnumerable<BlendTree> AllBlendTreesFoundRecursively();
-        IAnimatedBehavior Remapping(Dictionary<QualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping);
+        ICgeAnimatedBehavior Remapping(Dictionary<CgeQualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping);
     }
 
-    public enum AnimatedBehaviorNature
+    public enum CgeAnimatedBehaviorNature
     {
         Single,
         Analog,
@@ -214,26 +214,26 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
         UniversalAnalog
     }
 
-    class SingleAnimatedBehavior : IAnimatedBehavior
+    class CgeSingleAnimatedBehavior : ICgeAnimatedBehavior
     {
-        public QualifiedAnimation Posing { get; }
+        public CgeQualifiedAnimation Posing { get; }
 
-        private SingleAnimatedBehavior(QualifiedAnimation posing)
+        private CgeSingleAnimatedBehavior(CgeQualifiedAnimation posing)
         {
             Posing = posing;
         }
 
-        public static IAnimatedBehavior Of(QualifiedAnimation posing)
+        public static ICgeAnimatedBehavior Of(CgeQualifiedAnimation posing)
         {
-            return new SingleAnimatedBehavior(posing);
+            return new CgeSingleAnimatedBehavior(posing);
         }
 
-        AnimatedBehaviorNature IAnimatedBehavior.Nature()
+        CgeAnimatedBehaviorNature ICgeAnimatedBehavior.Nature()
         {
-            return AnimatedBehaviorNature.Single;
+            return CgeAnimatedBehaviorNature.Single;
         }
 
-        public IEnumerable<QualifiedAnimation> QualifiedAnimations()
+        public IEnumerable<CgeQualifiedAnimation> QualifiedAnimations()
         {
             return new[] {Posing};
         }
@@ -243,24 +243,24 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
             return new List<BlendTree>();
         }
 
-        public IAnimatedBehavior Remapping(Dictionary<QualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)
+        public ICgeAnimatedBehavior Remapping(Dictionary<CgeQualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)
         {
             return Of(Remap(remapping, Posing));
         }
 
-        internal static QualifiedAnimation Remap(Dictionary<QualifiedAnimation, AnimationClip> remapping, QualifiedAnimation key)
+        internal static CgeQualifiedAnimation Remap(Dictionary<CgeQualifiedAnimation, AnimationClip> remapping, CgeQualifiedAnimation key)
         {
             return remapping.ContainsKey(key) ? key.NewInstanceWithClip(remapping[key]) : key;
         }
     }
 
-    class AnalogAnimatedBehavior : IAnimatedBehavior
+    class CgeAnalogAnimatedBehavior : ICgeAnimatedBehavior
     {
-        public QualifiedAnimation Resting { get; }
-        public QualifiedAnimation Squeezing { get; }
-        public HandSide HandSide { get; }
+        public CgeQualifiedAnimation Resting { get; }
+        public CgeQualifiedAnimation Squeezing { get; }
+        public CgeHandSide HandSide { get; }
 
-        private AnalogAnimatedBehavior(QualifiedAnimation resting, QualifiedAnimation squeezing, HandSide handSide)
+        private CgeAnalogAnimatedBehavior(CgeQualifiedAnimation resting, CgeQualifiedAnimation squeezing, CgeHandSide handSide)
         {
             if (resting == squeezing)
             {
@@ -272,12 +272,12 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
             HandSide = handSide;
         }
 
-        AnimatedBehaviorNature IAnimatedBehavior.Nature()
+        CgeAnimatedBehaviorNature ICgeAnimatedBehavior.Nature()
         {
-            return AnimatedBehaviorNature.Analog;
+            return CgeAnimatedBehaviorNature.Analog;
         }
 
-        public IEnumerable<QualifiedAnimation> QualifiedAnimations()
+        public IEnumerable<CgeQualifiedAnimation> QualifiedAnimations()
         {
             return new[] {Resting, Squeezing};
         }
@@ -287,39 +287,39 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
             return new List<BlendTree>();
         }
 
-        public IAnimatedBehavior Remapping(Dictionary<QualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)
+        public ICgeAnimatedBehavior Remapping(Dictionary<CgeQualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)
         {
             return Maybe(
-                SingleAnimatedBehavior.Remap(remapping, Resting),
-                SingleAnimatedBehavior.Remap(remapping, Squeezing),
+                CgeSingleAnimatedBehavior.Remap(remapping, Resting),
+                CgeSingleAnimatedBehavior.Remap(remapping, Squeezing),
                 HandSide
             );
         }
 
-        public static AnalogAnimatedBehavior Of(QualifiedAnimation resting, QualifiedAnimation squeezing, HandSide handSide)
+        public static CgeAnalogAnimatedBehavior Of(CgeQualifiedAnimation resting, CgeQualifiedAnimation squeezing, CgeHandSide handSide)
         {
-            return new AnalogAnimatedBehavior(resting, squeezing, handSide);
+            return new CgeAnalogAnimatedBehavior(resting, squeezing, handSide);
         }
 
-        public static IAnimatedBehavior Maybe(QualifiedAnimation resting, QualifiedAnimation squeezing, HandSide handSide)
+        public static ICgeAnimatedBehavior Maybe(CgeQualifiedAnimation resting, CgeQualifiedAnimation squeezing, CgeHandSide handSide)
         {
             if (resting == squeezing)
             {
-                return SingleAnimatedBehavior.Of(squeezing);
+                return CgeSingleAnimatedBehavior.Of(squeezing);
             }
 
-            return AnalogAnimatedBehavior.Of(resting, squeezing, handSide);
+            return CgeAnalogAnimatedBehavior.Of(resting, squeezing, handSide);
         }
     }
 
-    class DualAnalogAnimatedBehavior : IAnimatedBehavior
+    class CgeDualAnalogAnimatedBehavior : ICgeAnimatedBehavior
     {
-        public QualifiedAnimation Resting { get; }
-        public QualifiedAnimation LeftSqueezing { get; }
-        public QualifiedAnimation RightSqueezing { get; }
-        public QualifiedAnimation BothSqueezing { get; }
+        public CgeQualifiedAnimation Resting { get; }
+        public CgeQualifiedAnimation LeftSqueezing { get; }
+        public CgeQualifiedAnimation RightSqueezing { get; }
+        public CgeQualifiedAnimation BothSqueezing { get; }
 
-        private DualAnalogAnimatedBehavior(QualifiedAnimation resting, QualifiedAnimation leftSqueezing, QualifiedAnimation rightSqueezing, QualifiedAnimation bothSqueezing)
+        private CgeDualAnalogAnimatedBehavior(CgeQualifiedAnimation resting, CgeQualifiedAnimation leftSqueezing, CgeQualifiedAnimation rightSqueezing, CgeQualifiedAnimation bothSqueezing)
         {
             if (AreAllIdentical(resting, leftSqueezing, rightSqueezing, bothSqueezing))
             {
@@ -332,12 +332,12 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
             BothSqueezing = bothSqueezing;
         }
 
-        AnimatedBehaviorNature IAnimatedBehavior.Nature()
+        CgeAnimatedBehaviorNature ICgeAnimatedBehavior.Nature()
         {
-            return AnimatedBehaviorNature.DualAnalog;
+            return CgeAnimatedBehaviorNature.DualAnalog;
         }
 
-        public IEnumerable<QualifiedAnimation> QualifiedAnimations()
+        public IEnumerable<CgeQualifiedAnimation> QualifiedAnimations()
         {
             return new[] {Resting, LeftSqueezing, RightSqueezing, BothSqueezing};
         }
@@ -347,69 +347,69 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
             return new List<BlendTree>();
         }
 
-        public IAnimatedBehavior Remapping(Dictionary<QualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)
+        public ICgeAnimatedBehavior Remapping(Dictionary<CgeQualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)
         {
             return Maybe(
-                SingleAnimatedBehavior.Remap(remapping, Resting),
-                SingleAnimatedBehavior.Remap(remapping, LeftSqueezing),
-                SingleAnimatedBehavior.Remap(remapping, RightSqueezing),
-                SingleAnimatedBehavior.Remap(remapping, BothSqueezing)
+                CgeSingleAnimatedBehavior.Remap(remapping, Resting),
+                CgeSingleAnimatedBehavior.Remap(remapping, LeftSqueezing),
+                CgeSingleAnimatedBehavior.Remap(remapping, RightSqueezing),
+                CgeSingleAnimatedBehavior.Remap(remapping, BothSqueezing)
             );
         }
 
-        public static DualAnalogAnimatedBehavior Of(QualifiedAnimation resting, QualifiedAnimation leftSqueezing, QualifiedAnimation rightSqueezing, QualifiedAnimation bothSqueezing)
+        public static CgeDualAnalogAnimatedBehavior Of(CgeQualifiedAnimation resting, CgeQualifiedAnimation leftSqueezing, CgeQualifiedAnimation rightSqueezing, CgeQualifiedAnimation bothSqueezing)
         {
-            return new DualAnalogAnimatedBehavior(resting, leftSqueezing, rightSqueezing, bothSqueezing);
+            return new CgeDualAnalogAnimatedBehavior(resting, leftSqueezing, rightSqueezing, bothSqueezing);
         }
 
-        public static IAnimatedBehavior Maybe(QualifiedAnimation resting, QualifiedAnimation leftSqueezing, QualifiedAnimation rightSqueezing, QualifiedAnimation bothSqueezing)
+        public static ICgeAnimatedBehavior Maybe(CgeQualifiedAnimation resting, CgeQualifiedAnimation leftSqueezing, CgeQualifiedAnimation rightSqueezing, CgeQualifiedAnimation bothSqueezing)
         {
             if (AreAllIdentical(resting, leftSqueezing, rightSqueezing, bothSqueezing))
             {
-                return SingleAnimatedBehavior.Of(bothSqueezing);
+                return CgeSingleAnimatedBehavior.Of(bothSqueezing);
             }
 
             return Of(resting, leftSqueezing, rightSqueezing, bothSqueezing);
         }
 
-        private static bool AreAllIdentical(QualifiedAnimation resting, QualifiedAnimation leftSqueezing, QualifiedAnimation rightSqueezing, QualifiedAnimation bothSqueezing)
+        private static bool AreAllIdentical(CgeQualifiedAnimation resting, CgeQualifiedAnimation leftSqueezing, CgeQualifiedAnimation rightSqueezing, CgeQualifiedAnimation bothSqueezing)
         {
             return resting == bothSqueezing && leftSqueezing == bothSqueezing && rightSqueezing == bothSqueezing;
         }
     }
 
-    public class PuppetAnimatedBehavior : IAnimatedBehavior
+    public class CgePuppetAnimatedBehavior : ICgeAnimatedBehavior
     {
         public readonly BlendTree Tree;
-        private readonly HashSet<QualifiedAnimation> _qualifications;
+        private readonly HashSet<CgeQualifiedAnimation> _qualifications;
 
-        private PuppetAnimatedBehavior(BlendTree tree, List<QualifiedAnimation> qualifications)
+        private CgePuppetAnimatedBehavior(BlendTree tree, List<CgeQualifiedAnimation> qualifications)
         {
             Tree = tree;
-            _qualifications = new HashSet<QualifiedAnimation>(qualifications);
+            _qualifications = new HashSet<CgeQualifiedAnimation>(qualifications);
         }
 
-        public static PuppetAnimatedBehavior Of(BlendTree blendTree, List<QualifiedAnimation> qualifications)
+        public static CgePuppetAnimatedBehavior Of(BlendTree blendTree, List<CgeQualifiedAnimation> qualifications)
         {
-            return new PuppetAnimatedBehavior(blendTree, qualifications);
+            return new CgePuppetAnimatedBehavior(blendTree, qualifications);
         }
 
-        public AnimatedBehaviorNature Nature()
+        public CgeAnimatedBehaviorNature Nature()
         {
-            return AnimatedBehaviorNature.Puppet;
+            return CgeAnimatedBehaviorNature.Puppet;
         }
 
-        public IEnumerable<QualifiedAnimation> QualifiedAnimations()
+        public IEnumerable<CgeQualifiedAnimation> QualifiedAnimations()
         {
             return _qualifications.ToList();
         }
 
         public IEnumerable<BlendTree> AllBlendTreesFoundRecursively()
         {
-            return SingleManifest.FindAllBlendTreesIncludingItself(Tree);
+            return CgeSingleManifest.FindAllBlendTreesIncludingItself(Tree);
         }
 
-        public IAnimatedBehavior Remapping(Dictionary<QualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)
+        public ICgeAnimatedBehavior Remapping(Dictionary<CgeQualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)
         {
             var newQualifications = _qualifications
                 .Select(qualification => remapping.ContainsKey(qualification)
@@ -421,14 +421,14 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
         }
     }
 
-    class PuppetToAnalogAnimatedBehavior : IAnimatedBehavior
+    class CgePuppetToAnalogAnimatedBehavior : ICgeAnimatedBehavior
     {
         public BlendTree Resting { get; }
-        public QualifiedAnimation Squeezing { get; }
-        public List<QualifiedAnimation> QualificationsOfTree { get; }
-        public HandSide HandSide { get; }
+        public CgeQualifiedAnimation Squeezing { get; }
+        public List<CgeQualifiedAnimation> QualificationsOfTree { get; }
+        public CgeHandSide HandSide { get; }
 
-        private PuppetToAnalogAnimatedBehavior(BlendTree resting, QualifiedAnimation squeezing, List<QualifiedAnimation> qualificationsOfTreeOfTree, HandSide handSide)
+        private CgePuppetToAnalogAnimatedBehavior(BlendTree resting, CgeQualifiedAnimation squeezing, List<CgeQualifiedAnimation> qualificationsOfTreeOfTree, CgeHandSide handSide)
         {
             Resting = resting;
             Squeezing = squeezing;
@@ -436,22 +436,22 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
             HandSide = handSide;
         }
 
-        public AnimatedBehaviorNature Nature()
+        public CgeAnimatedBehaviorNature Nature()
         {
-            return AnimatedBehaviorNature.PuppetToAnalog;
+            return CgeAnimatedBehaviorNature.PuppetToAnalog;
         }
 
-        public IEnumerable<QualifiedAnimation> QualifiedAnimations()
+        public IEnumerable<CgeQualifiedAnimation> QualifiedAnimations()
         {
             return new [] {Squeezing}.Concat(QualificationsOfTree).ToList();
         }
 
         public IEnumerable<BlendTree> AllBlendTreesFoundRecursively()
         {
-            return SingleManifest.FindAllBlendTreesIncludingItself(Resting);
+            return CgeSingleManifest.FindAllBlendTreesIncludingItself(Resting);
         }
 
-        public IAnimatedBehavior Remapping(Dictionary<QualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)
+        public ICgeAnimatedBehavior Remapping(Dictionary<CgeQualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)
         {
             var newQualificationsOfTree = QualificationsOfTree
                 .Select(qualification => remapping.ContainsKey(qualification)
@@ -464,21 +464,21 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
             return Of(newBlendRemapping, newSqueezing, newQualificationsOfTree, HandSide);
         }
 
-        public static PuppetToAnalogAnimatedBehavior Of(BlendTree resting, QualifiedAnimation squeezing, List<QualifiedAnimation> qualificationsOfTree, HandSide handSide)
+        public static CgePuppetToAnalogAnimatedBehavior Of(BlendTree resting, CgeQualifiedAnimation squeezing, List<CgeQualifiedAnimation> qualificationsOfTree, CgeHandSide handSide)
         {
-            return new PuppetToAnalogAnimatedBehavior(resting, squeezing, qualificationsOfTree, handSide);
+            return new CgePuppetToAnalogAnimatedBehavior(resting, squeezing, qualificationsOfTree, handSide);
         }
     }
 
-    class PuppetToDualAnalogAnimatedBehavior : IAnimatedBehavior
+    class CgePuppetToDualAnalogAnimatedBehavior : ICgeAnimatedBehavior
     {
         public BlendTree Resting { get; }
-        public QualifiedAnimation LeftSqueezing { get; }
-        public QualifiedAnimation RightSqueezing { get; }
-        public QualifiedAnimation BothSqueezing { get; }
-        public List<QualifiedAnimation> QualificationsOfTree { get; }
+        public CgeQualifiedAnimation LeftSqueezing { get; }
+        public CgeQualifiedAnimation RightSqueezing { get; }
+        public CgeQualifiedAnimation BothSqueezing { get; }
+        public List<CgeQualifiedAnimation> QualificationsOfTree { get; }
 
-        private PuppetToDualAnalogAnimatedBehavior(BlendTree resting, QualifiedAnimation leftSqueezing, QualifiedAnimation rightSqueezing, QualifiedAnimation bothSqueezing, List<QualifiedAnimation> qualificationsOfTree)
+        private CgePuppetToDualAnalogAnimatedBehavior(BlendTree resting, CgeQualifiedAnimation leftSqueezing, CgeQualifiedAnimation rightSqueezing, CgeQualifiedAnimation bothSqueezing, List<CgeQualifiedAnimation> qualificationsOfTree)
         {
             QualificationsOfTree = qualificationsOfTree;
 
@@ -488,12 +488,12 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
             BothSqueezing = bothSqueezing;
         }
 
-        AnimatedBehaviorNature IAnimatedBehavior.Nature()
+        CgeAnimatedBehaviorNature ICgeAnimatedBehavior.Nature()
         {
-            return AnimatedBehaviorNature.PuppetToDualAnalog;
+            return CgeAnimatedBehaviorNature.PuppetToDualAnalog;
         }
 
-        public IEnumerable<QualifiedAnimation> QualifiedAnimations()
+        public IEnumerable<CgeQualifiedAnimation> QualifiedAnimations()
         {
             return new[] {LeftSqueezing, RightSqueezing, BothSqueezing}.Concat(QualificationsOfTree).ToList();
         }
@@ -503,7 +503,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
             return new List<BlendTree>();
         }
 
-        public IAnimatedBehavior Remapping(Dictionary<QualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)
+        public ICgeAnimatedBehavior Remapping(Dictionary<CgeQualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)
         {
             var newQualificationsOfTree = QualificationsOfTree
                 .Select(qualification => remapping.ContainsKey(qualification)
@@ -513,36 +513,36 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
 
             return Of(
                 blendRemapping[Resting],
-                SingleAnimatedBehavior.Remap(remapping, LeftSqueezing),
-                SingleAnimatedBehavior.Remap(remapping, RightSqueezing),
-                SingleAnimatedBehavior.Remap(remapping, BothSqueezing),
+                CgeSingleAnimatedBehavior.Remap(remapping, LeftSqueezing),
+                CgeSingleAnimatedBehavior.Remap(remapping, RightSqueezing),
+                CgeSingleAnimatedBehavior.Remap(remapping, BothSqueezing),
                 newQualificationsOfTree
             );
         }
 
-        public static PuppetToDualAnalogAnimatedBehavior Of(BlendTree resting, QualifiedAnimation leftSqueezing, QualifiedAnimation rightSqueezing, QualifiedAnimation bothSqueezing, List<QualifiedAnimation> qualificationsOfTree)
+        public static CgePuppetToDualAnalogAnimatedBehavior Of(BlendTree resting, CgeQualifiedAnimation leftSqueezing, CgeQualifiedAnimation rightSqueezing, CgeQualifiedAnimation bothSqueezing, List<CgeQualifiedAnimation> qualificationsOfTree)
         {
-            return new PuppetToDualAnalogAnimatedBehavior(resting, leftSqueezing, rightSqueezing, bothSqueezing, qualificationsOfTree);
+            return new CgePuppetToDualAnalogAnimatedBehavior(resting, leftSqueezing, rightSqueezing, bothSqueezing, qualificationsOfTree);
         }
     }
 
-    class UniversalAnalogAnimatedBehavior : IAnimatedBehavior
+    class CgeUniversalAnalogAnimatedBehavior : ICgeAnimatedBehavior
     {
-        public UniversalQualifier Resting { get; }
-        public UniversalQualifier LeftSqueezing { get; }
-        public UniversalQualifier RightSqueezing { get; }
-        public QualifiedAnimation BothSqueezing { get; }
+        public CgeUniversalQualifier Resting { get; }
+        public CgeUniversalQualifier LeftSqueezing { get; }
+        public CgeUniversalQualifier RightSqueezing { get; }
+        public CgeQualifiedAnimation BothSqueezing { get; }
 
-        public struct UniversalQualifier
+        public struct CgeUniversalQualifier
         {
             public bool isBlendTree;
             public BlendTree blendTree;
-            public QualifiedAnimation? qualification;
-            public List<QualifiedAnimation> qualificationsOfTree;
+            public CgeQualifiedAnimation? qualification;
+            public List<CgeQualifiedAnimation> qualificationsOfTree;
 
-            public List<QualifiedAnimation> AllQualifications()
+            public List<CgeQualifiedAnimation> AllQualifications()
             {
-                return isBlendTree ? qualificationsOfTree : new List<QualifiedAnimation> {qualification.Value};
+                return isBlendTree ? qualificationsOfTree : new List<CgeQualifiedAnimation> {qualification.Value};
             }
 
             public Motion ToMotion()
@@ -550,9 +550,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
                 return isBlendTree ? blendTree : (Motion)(qualification.Value.Clip);
             }
 
-            public UniversalQualifier Remapping(Dictionary<QualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)
+            public CgeUniversalQualifier Remapping(Dictionary<CgeQualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)
             {
-                return new UniversalQualifier
+                return new CgeUniversalQualifier
                 {
                     isBlendTree = isBlendTree,
                     blendTree = isBlendTree ? blendRemapping[blendTree] : null,
@@ -565,9 +565,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
                 };
             }
 
-            public static UniversalQualifier OfBlend(BlendTree tree, List<QualifiedAnimation> qualificationsOfTree)
+            public static CgeUniversalQualifier OfBlend(BlendTree tree, List<CgeQualifiedAnimation> qualificationsOfTree)
             {
-                return new UniversalQualifier
+                return new CgeUniversalQualifier
                 {
                     qualification = null,
                     blendTree = tree,
@@ -576,9 +576,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
                 };
             }
 
-            public static UniversalQualifier OfQualification(QualifiedAnimation qualification)
+            public static CgeUniversalQualifier OfQualification(CgeQualifiedAnimation qualification)
             {
-                return new UniversalQualifier
+                return new CgeUniversalQualifier
                 {
                     qualification = qualification,
                     blendTree = null,
@@ -588,7 +588,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
             }
         }
 
-        private UniversalAnalogAnimatedBehavior(UniversalQualifier resting, UniversalQualifier leftSqueezing, UniversalQualifier rightSqueezing, QualifiedAnimation bothSqueezing)
+        private CgeUniversalAnalogAnimatedBehavior(CgeUniversalQualifier resting, CgeUniversalQualifier leftSqueezing, CgeUniversalQualifier rightSqueezing, CgeQualifiedAnimation bothSqueezing)
         {
             Resting = resting;
             LeftSqueezing = leftSqueezing;
@@ -596,17 +596,17 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
             BothSqueezing = bothSqueezing;
         }
 
-        AnimatedBehaviorNature IAnimatedBehavior.Nature()
+        CgeAnimatedBehaviorNature ICgeAnimatedBehavior.Nature()
         {
-            return AnimatedBehaviorNature.UniversalAnalog;
+            return CgeAnimatedBehaviorNature.UniversalAnalog;
         }
 
-        public IEnumerable<QualifiedAnimation> QualifiedAnimations()
+        public IEnumerable<CgeQualifiedAnimation> QualifiedAnimations()
         {
             return Resting.AllQualifications()
                 .Concat(LeftSqueezing.AllQualifications())
                 .Concat(RightSqueezing.AllQualifications())
-                .Concat(new List<QualifiedAnimation>() {BothSqueezing})
+                .Concat(new List<CgeQualifiedAnimation>() {BothSqueezing})
                 .ToList();
         }
 
@@ -615,7 +615,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
             return new List<BlendTree>();
         }
 
-        public IAnimatedBehavior Remapping(Dictionary<QualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)
+        public ICgeAnimatedBehavior Remapping(Dictionary<CgeQualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)
         {
             return Of(
                 Resting.Remapping(remapping, blendRemapping),
@@ -625,39 +625,39 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
             );
         }
 
-        public static UniversalAnalogAnimatedBehavior Of(UniversalQualifier resting, UniversalQualifier leftSqueezing, UniversalQualifier rightSqueezing, QualifiedAnimation bothSqueezing)
+        public static CgeUniversalAnalogAnimatedBehavior Of(CgeUniversalQualifier resting, CgeUniversalQualifier leftSqueezing, CgeUniversalQualifier rightSqueezing, CgeQualifiedAnimation bothSqueezing)
         {
-            return new UniversalAnalogAnimatedBehavior(resting, leftSqueezing, rightSqueezing, bothSqueezing);
+            return new CgeUniversalAnalogAnimatedBehavior(resting, leftSqueezing, rightSqueezing, bothSqueezing);
         }
     }
 
-    public class Permutation
+    public class CgePermutation
     {
-        public HandPose Left { get; }
-        public HandPose Right { get; }
+        public CgeHandPose Left { get; }
+        public CgeHandPose Right { get; }
 
-        private Permutation(HandPose left, HandPose right)
+        private CgePermutation(CgeHandPose left, CgeHandPose right)
         {
             Left = left;
             Right = right;
         }
 
-        public static Permutation LeftRight(HandPose left, HandPose right)
+        public static CgePermutation LeftRight(CgeHandPose left, CgeHandPose right)
         {
-            return new Permutation(left, right);
+            return new CgePermutation(left, right);
         }
 
-        public static Permutation Symmetrical(HandPose pose)
+        public static CgePermutation Symmetrical(CgeHandPose pose)
         {
-            return new Permutation(pose, pose);
+            return new CgePermutation(pose, pose);
         }
 
-        public static List<Permutation> All()
+        public static List<CgePermutation> All()
         {
-            var poses = new List<Permutation>();
-            for (var left = HandPose.H0; left <= HandPose.H7; left++)
+            var poses = new List<CgePermutation>();
+            for (var left = CgeHandPose.H0; left <= CgeHandPose.H7; left++)
             {
-                for (var right = HandPose.H0; right <= HandPose.H7; right++)
+                for (var right = CgeHandPose.H0; right <= CgeHandPose.H7; right++)
                 {
                     poses.Add(LeftRight(left, right));
                 }
@@ -673,15 +673,15 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
 
         public bool HasAnyFist()
         {
-            return Left == HandPose.H1 || Right == HandPose.H1;
+            return Left == CgeHandPose.H1 || Right == CgeHandPose.H1;
         }
 
-        public bool HasAnyPose(HandPose pose)
+        public bool HasAnyPose(CgeHandPose pose)
         {
             return Left == pose || Right == pose;
         }
 
-        public bool AreBoth(HandPose pose)
+        public bool AreBoth(CgeHandPose pose)
         {
             return Left == pose && Right == pose;
         }
@@ -700,12 +700,12 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
             return Left > Right;
         }
 
-        public Permutation ToOppositeSide()
+        public CgePermutation ToOppositeSide()
         {
-            return Permutation.LeftRight(Right, Left);
+            return CgePermutation.LeftRight(Right, Left);
         }
 
-        protected bool Equals(Permutation other)
+        protected bool Equals(CgePermutation other)
         {
             return Left == other.Left && Right == other.Right;
         }
@@ -715,7 +715,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((Permutation) obj);
+            return Equals((CgePermutation) obj);
         }
 
         public override int GetHashCode()
@@ -726,41 +726,41 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
             }
         }
 
-        public static bool operator ==(Permutation left, Permutation right)
+        public static bool operator ==(CgePermutation left, CgePermutation right)
         {
             return Equals(left, right);
         }
 
-        public static bool operator !=(Permutation left, Permutation right)
+        public static bool operator !=(CgePermutation left, CgePermutation right)
         {
             return !Equals(left, right);
         }
     }
 
-    class SimpleMassiveBlendAnimatedBehavior : IAnimatedBehavior
+    class CgeSimpleMassiveBlendAnimatedBehavior : ICgeAnimatedBehavior
     {
-        public IAnimatedBehavior Zero { get; }
-        public IAnimatedBehavior One { get; }
+        public ICgeAnimatedBehavior Zero { get; }
+        public ICgeAnimatedBehavior One { get; }
         public string ParameterName { get; }
 
-        private SimpleMassiveBlendAnimatedBehavior(IAnimatedBehavior zero, IAnimatedBehavior one, string parameterName)
+        private CgeSimpleMassiveBlendAnimatedBehavior(ICgeAnimatedBehavior zero, ICgeAnimatedBehavior one, string parameterName)
         {
             Zero = zero;
             One = one;
             ParameterName = parameterName;
         }
 
-        private List<IAnimatedBehavior> InternalBehaviors()
+        private List<ICgeAnimatedBehavior> InternalBehaviors()
         {
-            return new List<IAnimatedBehavior> { Zero, One };
+            return new List<ICgeAnimatedBehavior> { Zero, One };
         }
 
-        public AnimatedBehaviorNature Nature()
+        public CgeAnimatedBehaviorNature Nature()
         {
-            return AnimatedBehaviorNature.SimpleMassiveBlend;
+            return CgeAnimatedBehaviorNature.SimpleMassiveBlend;
         }
 
-        public IEnumerable<QualifiedAnimation> QualifiedAnimations()
+        public IEnumerable<CgeQualifiedAnimation> QualifiedAnimations()
         {
             return InternalBehaviors().SelectMany(behavior => behavior.QualifiedAnimations()).Distinct();
         }
@@ -770,30 +770,30 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
             return InternalBehaviors().SelectMany(behavior => behavior.AllBlendTreesFoundRecursively()).Distinct();
         }
 
-        public IAnimatedBehavior Remapping(Dictionary<QualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)
+        public ICgeAnimatedBehavior Remapping(Dictionary<CgeQualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)
         {
-            return new SimpleMassiveBlendAnimatedBehavior(Zero.Remapping(remapping, blendRemapping), One.Remapping(remapping, blendRemapping), ParameterName);
+            return new CgeSimpleMassiveBlendAnimatedBehavior(Zero.Remapping(remapping, blendRemapping), One.Remapping(remapping, blendRemapping), ParameterName);
         }
 
-        private static SimpleMassiveBlendAnimatedBehavior Of(IAnimatedBehavior zero, IAnimatedBehavior one, string parameterName)
+        private static CgeSimpleMassiveBlendAnimatedBehavior Of(ICgeAnimatedBehavior zero, ICgeAnimatedBehavior one, string parameterName)
         {
-            return new SimpleMassiveBlendAnimatedBehavior(zero, one, parameterName);
+            return new CgeSimpleMassiveBlendAnimatedBehavior(zero, one, parameterName);
         }
 
-        public static IAnimatedBehavior Maybe(IAnimatedBehavior zero, IAnimatedBehavior one, string parameterName)
+        public static ICgeAnimatedBehavior Maybe(ICgeAnimatedBehavior zero, ICgeAnimatedBehavior one, string parameterName)
         {
-            return zero.Equals(one) ? zero : SimpleMassiveBlendAnimatedBehavior.Of(zero, one, parameterName);
+            return zero.Equals(one) ? zero : CgeSimpleMassiveBlendAnimatedBehavior.Of(zero, one, parameterName);
         }
     }
 
-    class TwoDirectionsMassiveBlendAnimatedBehavior : IAnimatedBehavior
+    class CgeTwoDirectionsMassiveBlendAnimatedBehavior : ICgeAnimatedBehavior
     {
-        public IAnimatedBehavior Zero { get; }
-        public IAnimatedBehavior One { get; }
-        public IAnimatedBehavior MinusOne { get; }
+        public ICgeAnimatedBehavior Zero { get; }
+        public ICgeAnimatedBehavior One { get; }
+        public ICgeAnimatedBehavior MinusOne { get; }
         public string ParameterName { get; }
 
-        private TwoDirectionsMassiveBlendAnimatedBehavior(IAnimatedBehavior zero, IAnimatedBehavior one, IAnimatedBehavior minusOne, string parameterName)
+        private CgeTwoDirectionsMassiveBlendAnimatedBehavior(ICgeAnimatedBehavior zero, ICgeAnimatedBehavior one, ICgeAnimatedBehavior minusOne, string parameterName)
         {
             Zero = zero;
             One = one;
@@ -801,17 +801,17 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
             ParameterName = parameterName;
         }
 
-        private List<IAnimatedBehavior> InternalBehaviors()
+        private List<ICgeAnimatedBehavior> InternalBehaviors()
         {
-            return new List<IAnimatedBehavior> { Zero, One };
+            return new List<ICgeAnimatedBehavior> { Zero, One };
         }
 
-        public AnimatedBehaviorNature Nature()
+        public CgeAnimatedBehaviorNature Nature()
         {
-            return AnimatedBehaviorNature.TwoDirectionsMassiveBlend;
+            return CgeAnimatedBehaviorNature.TwoDirectionsMassiveBlend;
         }
 
-        public IEnumerable<QualifiedAnimation> QualifiedAnimations()
+        public IEnumerable<CgeQualifiedAnimation> QualifiedAnimations()
         {
             return InternalBehaviors().SelectMany(behavior => behavior.QualifiedAnimations()).Distinct();
         }
@@ -821,44 +821,44 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
             return InternalBehaviors().SelectMany(behavior => behavior.AllBlendTreesFoundRecursively()).Distinct();
         }
 
-        public IAnimatedBehavior Remapping(Dictionary<QualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)
+        public ICgeAnimatedBehavior Remapping(Dictionary<CgeQualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)
         {
-            return new TwoDirectionsMassiveBlendAnimatedBehavior(Zero.Remapping(remapping, blendRemapping), One.Remapping(remapping, blendRemapping), MinusOne.Remapping(remapping, blendRemapping), ParameterName);
+            return new CgeTwoDirectionsMassiveBlendAnimatedBehavior(Zero.Remapping(remapping, blendRemapping), One.Remapping(remapping, blendRemapping), MinusOne.Remapping(remapping, blendRemapping), ParameterName);
         }
 
-        private static TwoDirectionsMassiveBlendAnimatedBehavior Of(IAnimatedBehavior zero, IAnimatedBehavior one, IAnimatedBehavior minusOne, string parameterName)
+        private static CgeTwoDirectionsMassiveBlendAnimatedBehavior Of(ICgeAnimatedBehavior zero, ICgeAnimatedBehavior one, ICgeAnimatedBehavior minusOne, string parameterName)
         {
-            return new TwoDirectionsMassiveBlendAnimatedBehavior(zero, one, minusOne, parameterName);
+            return new CgeTwoDirectionsMassiveBlendAnimatedBehavior(zero, one, minusOne, parameterName);
         }
 
-        public static IAnimatedBehavior Maybe(IAnimatedBehavior zero, IAnimatedBehavior one, IAnimatedBehavior minusOne, string parameterName)
+        public static ICgeAnimatedBehavior Maybe(ICgeAnimatedBehavior zero, ICgeAnimatedBehavior one, ICgeAnimatedBehavior minusOne, string parameterName)
         {
-            return zero.Equals(one) && one.Equals(minusOne) ? zero : TwoDirectionsMassiveBlendAnimatedBehavior.Of(zero, one, minusOne, parameterName);
+            return zero.Equals(one) && one.Equals(minusOne) ? zero : CgeTwoDirectionsMassiveBlendAnimatedBehavior.Of(zero, one, minusOne, parameterName);
         }
     }
 
-    class ComplexMassiveBlendAnimatedBehavior : IAnimatedBehavior
+    class CgeComplexMassiveBlendAnimatedBehavior : ICgeAnimatedBehavior
     {
-        public List<IAnimatedBehavior> Behaviors { get; }
+        public List<ICgeAnimatedBehavior> Behaviors { get; }
         public BlendTree OriginalBlendTreeTemplate { get; }
 
-        private ComplexMassiveBlendAnimatedBehavior(List<IAnimatedBehavior> behaviors, BlendTree originalBlendTreeTemplate)
+        private CgeComplexMassiveBlendAnimatedBehavior(List<ICgeAnimatedBehavior> behaviors, BlendTree originalBlendTreeTemplate)
         {
             Behaviors = behaviors;
             OriginalBlendTreeTemplate = originalBlendTreeTemplate;
         }
 
-        private List<IAnimatedBehavior> InternalBehaviors()
+        private List<ICgeAnimatedBehavior> InternalBehaviors()
         {
             return Behaviors.ToList();
         }
 
-        public AnimatedBehaviorNature Nature()
+        public CgeAnimatedBehaviorNature Nature()
         {
-            return AnimatedBehaviorNature.ComplexMassiveBlend;
+            return CgeAnimatedBehaviorNature.ComplexMassiveBlend;
         }
 
-        public IEnumerable<QualifiedAnimation> QualifiedAnimations()
+        public IEnumerable<CgeQualifiedAnimation> QualifiedAnimations()
         {
             return InternalBehaviors().SelectMany(behavior => behavior.QualifiedAnimations()).Distinct();
         }
@@ -868,18 +868,18 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
             return InternalBehaviors().SelectMany(behavior => behavior.AllBlendTreesFoundRecursively()).Distinct();
         }
 
-        public IAnimatedBehavior Remapping(Dictionary<QualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)
+        public ICgeAnimatedBehavior Remapping(Dictionary<CgeQualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)
         {
-            return new ComplexMassiveBlendAnimatedBehavior(Behaviors.Select(behavior => behavior.Remapping(remapping, blendRemapping)).ToList(), OriginalBlendTreeTemplate);
+            return new CgeComplexMassiveBlendAnimatedBehavior(Behaviors.Select(behavior => behavior.Remapping(remapping, blendRemapping)).ToList(), OriginalBlendTreeTemplate);
         }
 
-        public static ComplexMassiveBlendAnimatedBehavior Of(List<IAnimatedBehavior> behaviors, BlendTree originalBlendTreeTemplate)
+        public static CgeComplexMassiveBlendAnimatedBehavior Of(List<ICgeAnimatedBehavior> behaviors, BlendTree originalBlendTreeTemplate)
         {
-            return new ComplexMassiveBlendAnimatedBehavior(behaviors, originalBlendTreeTemplate);
+            return new CgeComplexMassiveBlendAnimatedBehavior(behaviors, originalBlendTreeTemplate);
         }
     }
 
-    public enum HandPose
+    public enum CgeHandPose
     {
         H0,
         H1,
@@ -891,7 +891,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
         H7,
     }
 
-    public enum HandSide
+    public enum CgeHandSide
     {
         LeftHand,
         RightHand

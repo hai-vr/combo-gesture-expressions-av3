@@ -98,7 +98,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         private List<string> FindPotentiallyAnimatedPaths()
         {
-            return SharedLayerUtils.FindAllReachableClipsAndBlendTrees(_fxController)
+            return CgeSharedLayerUtils.FindAllReachableClipsAndBlendTrees(_fxController)
                 .OfType<AnimationClip>()
                 .SelectMany(clip =>
                 {

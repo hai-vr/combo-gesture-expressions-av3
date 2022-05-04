@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Reflection;
 using Hai.ComboGesture.Scripts.Components;
-using Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors;
 using Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts;
 using UnityEditor;
 using UnityEngine;
@@ -34,7 +33,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
     {
         private const int RightSpace = 30 + 120 + 220 + 170;
         private CgeLayoutCommon _common;
-        private CgeEditorEffector _editorEffector;
+        private CgeEditorHandler _editorHandler;
         private CgeLayoutPreventEyesBlinking _layoutPreventEyesBlinking;
         private CgeLayoutFaceExpressionCombiner _layoutFaceExpressionCombiner;
         private CgeLayoutSetFaceExpressions _layoutSetFaceExpressions;
@@ -58,16 +57,16 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         private void OnEnable()
         {
             _renderingCommands = new EeRenderingCommands();
-            _editorEffector = new CgeEditorEffector(new CgeEditorState());
-            var blendTreeEffector = new CgeBlendTreeEffector();
+            _editorHandler = new CgeEditorHandler(new CgeEditorState());
+            var blendTreeHandler = new CgeBlendTreeHandler();
             _common = new CgeLayoutCommon(Repaint, _renderingCommands);
-            var driver = new CgeActivityEditorDriver(_editorEffector);
-            _layoutPreventEyesBlinking = new CgeLayoutPreventEyesBlinking(_common, _editorEffector);
-            _layoutFaceExpressionCombiner = new CgeLayoutFaceExpressionCombiner(_common, driver, _editorEffector, _renderingCommands);
-            _layoutSetFaceExpressions = new CgeLayoutSetFaceExpressions(_common, driver, _layoutFaceExpressionCombiner /* FIXME it is not normal to inject the layout here */, _editorEffector, Repaint, blendTreeEffector);
-            _layoutManipulateTrees = new CgeLayoutManipulateTrees(_common, _editorEffector, blendTreeEffector);
+            var driver = new CgeActivityEditorDriver(_editorHandler);
+            _layoutPreventEyesBlinking = new CgeLayoutPreventEyesBlinking(_common, _editorHandler);
+            _layoutFaceExpressionCombiner = new CgeLayoutFaceExpressionCombiner(_common, driver, _editorHandler, _renderingCommands);
+            _layoutSetFaceExpressions = new CgeLayoutSetFaceExpressions(_common, driver, _layoutFaceExpressionCombiner /* FIXME it is not normal to inject the layout here */, _editorHandler, Repaint, blendTreeHandler);
+            _layoutManipulateTrees = new CgeLayoutManipulateTrees(_common, _editorHandler, blendTreeHandler);
 
-            WindowHandler = new CgeWindowHandler(this, _editorEffector);
+            WindowHandler = new CgeWindowHandler(this, _editorHandler);
 
             _common.GuiInit();
             _helpIcon16 = ComboGestureIcons.Instance.Help16;
@@ -85,7 +84,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         private void TryNowEditingAnActivity(GameObject active)
         {
             var selectedActivity = active.GetComponent<ComboGestureActivity>();
-            if (selectedActivity != null && selectedActivity != _editorEffector.GetActivity())
+            if (selectedActivity != null && selectedActivity != _editorHandler.GetActivity())
             {
                 WindowHandler.RetargetActivity(selectedActivity);
                 Repaint();
@@ -95,7 +94,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         private void TryNowEditingAPuppet(GameObject active)
         {
             var selectedPuppet = active.GetComponent<ComboGesturePuppet>();
-            if (selectedPuppet != null && selectedPuppet != _editorEffector.GetPuppet())
+            if (selectedPuppet != null && selectedPuppet != _editorHandler.GetPuppet())
             {
                 WindowHandler.RetargetPuppet(selectedPuppet);
                 Repaint();
@@ -104,14 +103,14 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         private void OnGUI()
         {
-            if (_editorEffector.GetCurrentlyEditing() == CurrentlyEditing.Nothing)
+            if (_editorHandler.GetCurrentlyEditing() == CurrentlyEditing.Nothing)
             {
                 return;
             }
 
-            if (_editorEffector.IsFirstTimeSetup() && _editorEffector.IsPreviewSetupValid())
+            if (_editorHandler.IsFirstTimeSetup() && _editorHandler.IsPreviewSetupValid())
             {
-                _editorEffector.ClearFirstTimeSetup();
+                _editorHandler.ClearFirstTimeSetup();
             }
 
 
@@ -125,7 +124,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             GUILayout.BeginArea(new Rect(position.width - 320, CgeLayoutCommon.SingleLineHeight * 2 + 5, 200, CgeLayoutCommon.SingleLineHeight + 2));
             if (GUILayout.Button(new GUIContent("❈ Visual Expressions Editor"), GUILayout.Width(170), GUILayout.Height(CgeLayoutCommon.SingleLineHeight + 2)))
             {
-                ShowExpressionsEditor(_editorEffector, null);
+                ShowExpressionsEditor(_editorHandler, null);
             }
             GUILayout.EndArea();
 
@@ -136,7 +135,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             }
             GUILayout.EndArea();
 
-            switch (_editorEffector.GetCurrentlyEditing())
+            switch (_editorHandler.GetCurrentlyEditing())
             {
                 case CurrentlyEditing.Nothing:
                     break;
@@ -151,9 +150,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             }
         }
 
-        public static void ShowExpressionsEditor(CgeEditorEffector cgeEditorEffector, AnimationClip clipNullable)
+        public static void ShowExpressionsEditor(CgeEditorHandler cgeEditorHandler, AnimationClip clipNullable)
         {
-            var newAnimator = cgeEditorEffector.PreviewSetup();
+            var newAnimator = cgeEditorHandler.PreviewSetup();
             var visualExpressionsEditorType = AppDomain.CurrentDomain
                 .GetAssemblies()
                 .SelectMany(assembly => assembly.GetTypes())
@@ -183,19 +182,19 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         private void EditingAnActivity()
         {
-            _editorEffector.SpUpdate();
+            _editorHandler.SpUpdate();
 
             CreateActivityToolbarArea();
 
             GUILayout.Space(singleLineHeight * 4);
             _scrollPos = GUILayout.BeginScrollView(_scrollPos, GUILayout.Height(position.height - singleLineHeight * 4));
-            switch (_editorEffector.CurrentActivityMode())
+            switch (_editorHandler.CurrentActivityMode())
             {
                 case ActivityEditorMode.PreventEyesBlinking:
                     _layoutPreventEyesBlinking.Layout(position);
                     break;
                 case ActivityEditorMode.AdditionalEditors:
-                    switch (_editorEffector.GetAdditionalEditor())
+                    switch (_editorHandler.GetAdditionalEditor())
                     {
                         case AdditionalEditorsMode.CreateBlendTrees:
                             _layoutManipulateTrees.LayoutAssetCreator(position);
@@ -218,7 +217,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             }
             GUILayout.EndScrollView();
 
-            _editorEffector.ApplyModifiedProperties();
+            _editorHandler.ApplyModifiedProperties();
         }
 
         private void CreateActivityToolbarArea()
@@ -227,25 +226,25 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             TopBar();
 
-            _editorEffector.SwitchTo((ActivityEditorMode) GUILayout.Toolbar((int) _editorEffector.CurrentActivityMode(), new[]
+            _editorHandler.SwitchTo((ActivityEditorMode) GUILayout.Toolbar((int) _editorHandler.CurrentActivityMode(), new[]
             {
                 CgeLocale.CGEE_Set_face_expressions, CgeLocale.CGEE_Prevent_eyes_blinking, CgeLocale.CGEE_Additional_editors
             }));
-            if (_editorEffector.CurrentActivityMode() == ActivityEditorMode.SetFaceExpressions)
+            if (_editorHandler.CurrentActivityMode() == ActivityEditorMode.SetFaceExpressions)
             {
                 GUILayout.BeginHorizontal();
                 GUILayout.Space(30);
-                EditorGUILayout.PropertyField(_editorEffector.SpActivityMode(), GUIContent.none, GUILayout.Width(200));
-                if (_editorEffector.GetActivity().activityMode == ComboGestureActivity.CgeActivityMode.Permutations)
+                EditorGUILayout.PropertyField(_editorHandler.SpActivityMode(), GUIContent.none, GUILayout.Width(200));
+                if (_editorHandler.GetActivity().activityMode == ComboGestureActivity.CgeActivityMode.Permutations)
                 {
-                    _editorEffector.SpEditorTool().intValue = GUILayout.Toolbar(_editorEffector.SpEditorTool().intValue, new[] {CgeLocale.CGEE_Simplified_view, CgeLocale.CGEE_Complete_view});
+                    _editorHandler.SpEditorTool().intValue = GUILayout.Toolbar(_editorHandler.SpEditorTool().intValue, new[] {CgeLocale.CGEE_Simplified_view, CgeLocale.CGEE_Complete_view});
                 }
                 GUILayout.Space(RightSpace);
                 GUILayout.EndHorizontal();
-                _editorEffector.SwitchCurrentEditorToolTo(_editorEffector.SpEditorTool().intValue);
+                _editorHandler.SwitchCurrentEditorToolTo(_editorHandler.SpEditorTool().intValue);
             }
 
-            else if (_editorEffector.CurrentActivityMode() == ActivityEditorMode.AdditionalEditors)
+            else if (_editorHandler.CurrentActivityMode() == ActivityEditorMode.AdditionalEditors)
             {
                 CreateAdditionalEditorsToolbar();
             }
@@ -256,8 +255,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         private void TopBar()
         {
             EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.PropertyField(_editorEffector.SpPreviewSetup(), new GUIContent(CgeLocale.CGEE_Preview_setup));
-            _renderingCommands.SelectAnimator((Animator)_editorEffector.SpPreviewSetup().objectReferenceValue); // FIXME: WTF
+            EditorGUILayout.PropertyField(_editorHandler.SpPreviewSetup(), new GUIContent(CgeLocale.CGEE_Preview_setup));
+            _renderingCommands.SelectAnimator((Animator)_editorHandler.SpPreviewSetup().objectReferenceValue); // FIXME: WTF
             if (GUILayout.Button(new GUIContent(CgeLocale.CGEE_Regenerate_all_previews), GUILayout.Width(170), GUILayout.Height(CgeLayoutCommon.SingleLineHeight + 2)))
             {
                 _renderingCommands.Invalidate(Repaint);
@@ -267,13 +266,13 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         private void EditingAPuppet()
         {
-            _editorEffector.SpUpdate();
+            _editorHandler.SpUpdate();
 
             CreatePuppetToolbarArea();
 
             GUILayout.Space(singleLineHeight * 4);
             _scrollPos = GUILayout.BeginScrollView(_scrollPos, GUILayout.Height(position.height - singleLineHeight * 4));
-            switch (_editorEffector.CurrentPuppetMode())
+            switch (_editorHandler.CurrentPuppetMode())
             {
                 case PuppetEditorMode.PreventEyesBlinking:
                     _layoutPreventEyesBlinking.Layout(position);
@@ -285,7 +284,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             }
             GUILayout.EndScrollView();
 
-            _editorEffector.ApplyModifiedProperties();
+            _editorHandler.ApplyModifiedProperties();
         }
 
         private void CreatePuppetToolbarArea()
@@ -293,7 +292,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             GUILayout.BeginArea(new Rect(0, 0, position.width, singleLineHeight * 4));
             TopBar();
 
-            _editorEffector.SwitchTo((PuppetEditorMode) GUILayout.Toolbar((int) _editorEffector.CurrentPuppetMode(), new[]
+            _editorHandler.SwitchTo((PuppetEditorMode) GUILayout.Toolbar((int) _editorHandler.CurrentPuppetMode(), new[]
             {
                 CgeLocale.CGEE_Manipulate_trees, CgeLocale.CGEE_Prevent_eyes_blinking
             }));
@@ -304,7 +303,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         {
             GUILayout.BeginHorizontal();
             GUILayout.Space(30);
-            _editorEffector.SwitchAdditionalEditorTo((AdditionalEditorsMode)GUILayout.Toolbar((int)_editorEffector.GetAdditionalEditor(), new[]
+            _editorHandler.SwitchAdditionalEditorTo((AdditionalEditorsMode)GUILayout.Toolbar((int)_editorHandler.GetAdditionalEditor(), new[]
             {
                 CgeLocale.CGEE_Create_blend_trees, CgeLocale.CGEE_View_blend_trees, CgeLocale.CGEE_Combine_expressions
             }, GUILayout.ExpandWidth(true)));

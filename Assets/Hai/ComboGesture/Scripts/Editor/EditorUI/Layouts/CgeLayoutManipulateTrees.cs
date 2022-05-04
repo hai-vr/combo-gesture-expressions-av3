@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using Hai.ComboGesture.Scripts.Editor.EditorUI.Effectors;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
@@ -10,14 +9,14 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
     public class CgeLayoutManipulateTrees
     {
         private readonly CgeLayoutCommon _common;
-        private readonly CgeEditorEffector _editorEffector;
-        private readonly CgeBlendTreeEffector _blendTreeEffector;
+        private readonly CgeEditorHandler _editorHandler;
+        private readonly CgeBlendTreeHandler _blendTreeHandler;
 
-        public CgeLayoutManipulateTrees(CgeLayoutCommon common, CgeEditorEffector editorEffector, CgeBlendTreeEffector blendTreeEffector)
+        public CgeLayoutManipulateTrees(CgeLayoutCommon common, CgeEditorHandler editorHandler, CgeBlendTreeHandler blendTreeHandler)
         {
             _common = common;
-            _editorEffector = editorEffector;
-            _blendTreeEffector = blendTreeEffector;
+            _editorHandler = editorHandler;
+            _blendTreeHandler = blendTreeHandler;
         }
 
         public void Layout(Rect position)
@@ -40,12 +39,12 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
         private void LayoutBlendTreeViewer(Rect position, bool showAsset)
         {
             BlendTree treeBeingEdited;
-            if (_editorEffector.GetCurrentlyEditing() == CurrentlyEditing.Puppet)
+            if (_editorHandler.GetCurrentlyEditing() == CurrentlyEditing.Puppet)
             {
-                var value = _editorEffector.SpProperty("mainTree").objectReferenceValue;
+                var value = _editorHandler.SpProperty("mainTree").objectReferenceValue;
                 if (value != null && value is AnimationClip)
                 {
-                    _editorEffector.SpProperty("mainTree").objectReferenceValue = null;
+                    _editorHandler.SpProperty("mainTree").objectReferenceValue = null;
                     treeBeingEdited = null;
                 }
                 else
@@ -55,13 +54,13 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             }
             else
             {
-                treeBeingEdited = _blendTreeEffector.BlendTreeBeingEdited;
+                treeBeingEdited = _blendTreeHandler.BlendTreeBeingEdited;
             }
 
             if (showAsset)
             {
                 // EditorGUI.BeginDisabledGroup(true);
-                _blendTreeEffector.BlendTreeBeingEdited = (BlendTree) EditorGUILayout.ObjectField(treeBeingEdited, typeof(BlendTree), false);
+                _blendTreeHandler.BlendTreeBeingEdited = (BlendTree) EditorGUILayout.ObjectField(treeBeingEdited, typeof(BlendTree), false);
                 // EditorGUI.EndDisabledGroup();
             }
 
@@ -78,17 +77,17 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             var headerPadding = 5 * CgeLayoutCommon.SingleLineHeight;
             var fixture = 5 * CgeLayoutCommon.SingleLineHeight;
             var sliderThickness = CgeLayoutCommon.SingleLineHeight * 2;
-            _blendTreeEffector.DescaleLevel = GUI.HorizontalSlider(
+            _blendTreeHandler.DescaleLevel = GUI.HorizontalSlider(
                 new Rect(100, fixture - sliderThickness, position.width - 200, sliderThickness),
-                _blendTreeEffector.DescaleLevel, 0.01f, 1f
+                _blendTreeHandler.DescaleLevel, 0.01f, 1f
             );
-            _blendTreeEffector.HorizontalFocalPoint = GUI.HorizontalSlider(
+            _blendTreeHandler.HorizontalFocalPoint = GUI.HorizontalSlider(
                 new Rect(sliderThickness, fixture, position.width - sliderThickness, sliderThickness),
-                _blendTreeEffector.HorizontalFocalPoint, 0, 1f
+                _blendTreeHandler.HorizontalFocalPoint, 0, 1f
             );
-            _blendTreeEffector.VerticalFocalPoint = GUI.VerticalSlider(
+            _blendTreeHandler.VerticalFocalPoint = GUI.VerticalSlider(
                 new Rect(0, fixture + sliderThickness, sliderThickness, position.height - fixture - headerPadding - sliderThickness),
-                _blendTreeEffector.VerticalFocalPoint, 0, 1f
+                _blendTreeHandler.VerticalFocalPoint, 0, 1f
             );
 
             GUILayout.BeginArea(new Rect(
@@ -113,9 +112,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
 
         private Rect CalculateCentered(Vector2 childPosition, Vector2 min, Vector2 max, Rect position, float headerPadding, float fixture, float sliderThickness)
         {
-            var inv = 1 / _blendTreeEffector.DescaleLevel;
-            var scaleHoz = (-_blendTreeEffector.HorizontalFocalPoint + 0.5f) * (1 - _blendTreeEffector.DescaleLevel) * inv * 2;
-            var scaleVert = (-_blendTreeEffector.VerticalFocalPoint + 0.5f) * (1 - _blendTreeEffector.DescaleLevel) * inv * 2;
+            var inv = 1 / _blendTreeHandler.DescaleLevel;
+            var scaleHoz = (-_blendTreeHandler.HorizontalFocalPoint + 0.5f) * (1 - _blendTreeHandler.DescaleLevel) * inv * 2;
+            var scaleVert = (-_blendTreeHandler.VerticalFocalPoint + 0.5f) * (1 - _blendTreeHandler.DescaleLevel) * inv * 2;
             var xScalar = Mathf.Lerp(
                 -inv + 1f + scaleHoz,
                 inv + scaleHoz,
@@ -134,20 +133,20 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
 
         private void LayoutPuppetSpecifics()
         {
-            if (_editorEffector.GetCurrentlyEditing() != CurrentlyEditing.Puppet) return;
+            if (_editorHandler.GetCurrentlyEditing() != CurrentlyEditing.Puppet) return;
 
-            EditorGUILayout.PropertyField(_editorEffector.SpProperty("mainTree"), new GUIContent(CgeLocale.CGEE_Blend_tree_asset));
-            EditorGUILayout.PropertyField(_editorEffector.SpTransitionDuration(), new GUIContent(CgeLocale.CGEE_Transition_duration));
+            EditorGUILayout.PropertyField(_editorHandler.SpProperty("mainTree"), new GUIContent(CgeLocale.CGEE_Blend_tree_asset));
+            EditorGUILayout.PropertyField(_editorHandler.SpTransitionDuration(), new GUIContent(CgeLocale.CGEE_Transition_duration));
         }
 
         private void LayoutBlendTreeAssetCreator()
         {
-            if (_editorEffector.GetCurrentlyEditing() == CurrentlyEditing.Puppet && _editorEffector.GetPuppet().mainTree != null) return;
+            if (_editorHandler.GetCurrentlyEditing() == CurrentlyEditing.Puppet && _editorHandler.GetPuppet().mainTree != null) return;
 
             EditorGUILayout.Separator();
             EditorGUILayout.LabelField(CgeLocale.CGEE_Create_a_new_blend_tree, EditorStyles.boldLabel);
-            _blendTreeEffector.CurrentTemplate = (PuppetTemplate) EditorGUILayout.EnumPopup("Template", _blendTreeEffector.CurrentTemplate);
-            switch (_blendTreeEffector.CurrentTemplate)
+            _blendTreeHandler.CurrentTemplate = (PuppetTemplate) EditorGUILayout.EnumPopup("Template", _blendTreeHandler.CurrentTemplate);
+            switch (_blendTreeHandler.CurrentTemplate)
             {
                 case PuppetTemplate.FourDirections:
                     EditorGUILayout.HelpBox(CgeLocale.CGEE_ExplainFourDirections, MessageType.Info);
@@ -174,14 +173,14 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                     throw new ArgumentOutOfRangeException();
             }
 
-            var isFistRelated = _blendTreeEffector.CurrentTemplate == PuppetTemplate.SingleAnalogFistWithHairTrigger
-                                || _blendTreeEffector.CurrentTemplate == PuppetTemplate.SingleAnalogFistAndTwoDirections
-                                || _blendTreeEffector.CurrentTemplate == PuppetTemplate.DualAnalogFist;
-            _blendTreeEffector.MiddleClip = (AnimationClip) EditorGUILayout.ObjectField(
-                isFistRelated ? CgeLocale.CGEE_TreeAnimationAtRest : CgeLocale.CGEE_TreeJoystickCenterAnimation, _blendTreeEffector.MiddleClip, typeof(AnimationClip), false);
+            var isFistRelated = _blendTreeHandler.CurrentTemplate == PuppetTemplate.SingleAnalogFistWithHairTrigger
+                                || _blendTreeHandler.CurrentTemplate == PuppetTemplate.SingleAnalogFistAndTwoDirections
+                                || _blendTreeHandler.CurrentTemplate == PuppetTemplate.DualAnalogFist;
+            _blendTreeHandler.MiddleClip = (AnimationClip) EditorGUILayout.ObjectField(
+                isFistRelated ? CgeLocale.CGEE_TreeAnimationAtRest : CgeLocale.CGEE_TreeJoystickCenterAnimation, _blendTreeHandler.MiddleClip, typeof(AnimationClip), false);
             if (!isFistRelated) {
-                _blendTreeEffector.CenterSafety = EditorGUILayout.Toggle(CgeLocale.CGEE_TreeFixJoystickSnapping, _blendTreeEffector.CenterSafety);
-                _blendTreeEffector.Maximum = EditorGUILayout.Slider(CgeLocale.CGEE_TreeJoystickMaximumTilt, _blendTreeEffector.Maximum, 0.1f, 1.0f);
+                _blendTreeHandler.CenterSafety = EditorGUILayout.Toggle(CgeLocale.CGEE_TreeFixJoystickSnapping, _blendTreeHandler.CenterSafety);
+                _blendTreeHandler.Maximum = EditorGUILayout.Slider(CgeLocale.CGEE_TreeJoystickMaximumTilt, _blendTreeHandler.Maximum, 0.1f, 1.0f);
             }
 
             if (GUILayout.Button(CgeLocale.CGEE_TreeCreateAsset))
@@ -189,14 +188,14 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
                 var createdTree = MaybeCreateNewBlendTreeAsset();
                 if (createdTree != null)
                 {
-                    if (_editorEffector.GetCurrentlyEditing() == CurrentlyEditing.Puppet)
+                    if (_editorHandler.GetCurrentlyEditing() == CurrentlyEditing.Puppet)
                     {
-                        _editorEffector.GetPuppet().mainTree = createdTree;
+                        _editorHandler.GetPuppet().mainTree = createdTree;
                     }
                     else
                     {
-                        _blendTreeEffector.BlendTreeBeingEdited = createdTree;
-                        _editorEffector.SwitchAdditionalEditorTo(AdditionalEditorsMode.ViewBlendTrees);
+                        _blendTreeHandler.BlendTreeBeingEdited = createdTree;
+                        _editorHandler.SwitchAdditionalEditorTo(AdditionalEditorsMode.ViewBlendTrees);
                     }
                 }
             }
@@ -213,7 +212,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI.Layouts
             }
 
             var assetPath = "Assets" + savePath.Substring(Application.dataPath.Length);
-            var blendTreeToSave = _blendTreeEffector.CreateBlendTreeAsset();
+            var blendTreeToSave = _blendTreeHandler.CreateBlendTreeAsset();
             AssetDatabase.CreateAsset(blendTreeToSave, assetPath);
             EditorGUIUtility.PingObject(blendTreeToSave);
 

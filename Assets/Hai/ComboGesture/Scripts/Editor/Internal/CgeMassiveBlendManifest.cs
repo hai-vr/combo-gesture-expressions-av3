@@ -5,17 +5,17 @@ using Hai.ComboGesture.Scripts.Components;
 using UnityEditor.Animations;
 using UnityEngine;
 
-namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
+namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
-    public class MassiveBlendManifest : IManifest
+    public class CgeMassiveBlendManifest : ICgeManifest
     {
         private readonly float _transitionDuration;
         public CgeMassiveBlendMode Mode;
         public string SimpleParameterName { get; } // null when mode is a Complex blend tree
         public BlendTree BlendTree { get; }
-        public List<PermutationManifest> EquatedManifests { get; }
+        public List<CgePermutationManifest> EquatedManifests { get; }
 
-        private MassiveBlendManifest(CgeMassiveBlendMode mode, List<IManifest> moodSets, string simpleParameterName, BlendTree blendTree, float transitionDuration)
+        private CgeMassiveBlendManifest(CgeMassiveBlendMode mode, List<ICgeManifest> moodSets, string simpleParameterName, BlendTree blendTree, float transitionDuration)
         {
             Mode = mode;
             _transitionDuration = transitionDuration;
@@ -24,14 +24,14 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
             EquatedManifests = moodSets.Select(it => it.ToEquatedPermutation()).ToList();
         }
 
-        public static MassiveBlendManifest OfParameterBased(CgeMassiveBlendMode mode, List<IManifest> moodSets, string simpleParameterName, float transitionDuration)
+        public static CgeMassiveBlendManifest OfParameterBased(CgeMassiveBlendMode mode, List<ICgeManifest> moodSets, string simpleParameterName, float transitionDuration)
         {
-            return new MassiveBlendManifest(mode, moodSets, simpleParameterName, null, transitionDuration);
+            return new CgeMassiveBlendManifest(mode, moodSets, simpleParameterName, null, transitionDuration);
         }
 
-        public static MassiveBlendManifest OfComplex(CgeMassiveBlendMode mode, List<IManifest> moodSets, BlendTree blendTree, float transitionDuration)
+        public static CgeMassiveBlendManifest OfComplex(CgeMassiveBlendMode mode, List<ICgeManifest> moodSets, BlendTree blendTree, float transitionDuration)
         {
-            return new MassiveBlendManifest(mode, moodSets, null, blendTree, transitionDuration);
+            return new CgeMassiveBlendManifest(mode, moodSets, null, blendTree, transitionDuration);
         }
 
         public float TransitionDuration()
@@ -39,9 +39,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
             return _transitionDuration;
         }
 
-        public ManifestKind Kind()
+        public CgeManifestKind Kind()
         {
-            return ManifestKind.Massive;
+            return CgeManifestKind.Massive;
         }
 
         public bool RequiresBlinking()
@@ -49,7 +49,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
             return InternalManifests().Any(manifest => manifest.RequiresBlinking());
         }
 
-        public IEnumerable<QualifiedAnimation> AllQualifiedAnimations()
+        public IEnumerable<CgeQualifiedAnimation> AllQualifiedAnimations()
         {
             return InternalManifests().SelectMany(manifest => manifest.AllQualifiedAnimations()).ToList();
         }
@@ -59,9 +59,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
             return InternalManifests().SelectMany(manifest => manifest.AllBlendTreesFoundRecursively()).ToList();
         }
 
-        public IManifest NewFromRemappedAnimations(Dictionary<QualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendToRemappedBlend)
+        public ICgeManifest NewFromRemappedAnimations(Dictionary<CgeQualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendToRemappedBlend)
         {
-            return new MassiveBlendManifest(
+            return new CgeMassiveBlendManifest(
                 Mode,
                 EquatedManifests.Select(manifest => manifest.NewFromRemappedAnimations(remapping, blendToRemappedBlend)).ToList(),
                 SimpleParameterName,
@@ -69,9 +69,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
                 _transitionDuration);
         }
 
-        public IManifest UsingRemappedWeights(Dictionary<BlendTree, AutoWeightTreeMapping> autoWeightRemapping)
+        public ICgeManifest UsingRemappedWeights(Dictionary<BlendTree, CgeAutoWeightTreeMapping> autoWeightRemapping)
         {
-            return new MassiveBlendManifest(
+            return new CgeMassiveBlendManifest(
                 Mode,
                 EquatedManifests.Select(manifest => manifest.UsingRemappedWeights(autoWeightRemapping)).ToList(),
                 SimpleParameterName,
@@ -79,14 +79,14 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
                 _transitionDuration);
         }
 
-        public PermutationManifest ToEquatedPermutation()
+        public CgePermutationManifest ToEquatedPermutation()
         {
             throw new ArgumentException("Massive Blend Manifests are not yet equatable to Permutation Manifests.");
         }
 
-        private List<IManifest> InternalManifests()
+        private List<ICgeManifest> InternalManifests()
         {
-            return EquatedManifests.Cast<IManifest>().ToList();
+            return EquatedManifests.Cast<ICgeManifest>().ToList();
         }
     }
 }

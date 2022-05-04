@@ -6,12 +6,12 @@ using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
-    internal class AssetContainer
+    internal class CgeAssetContainer
     {
         private readonly AnimatorController _holder;
         private readonly CgeAacFlBase _aac;
 
-        private AssetContainer(AnimatorController holder)
+        private CgeAssetContainer(AnimatorController holder)
         {
             _holder = holder;
 
@@ -27,15 +27,15 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             });
         }
 
-        public static AssetContainer CreateNew(string folderToCreateAssetIn)
+        public static CgeAssetContainer CreateNew(string folderToCreateAssetIn)
         {
             var holder = new AnimatorController();
-            var container = new AssetContainer(holder);
+            var container = new CgeAssetContainer(holder);
             AssetDatabase.CreateAsset(holder, folderToCreateAssetIn + "/GeneratedCGE__" + DateTime.Now.ToString("yyyy'-'MM'-'dd'_'HHmmss") + ".asset");
             return container;
         }
 
-        public static AssetContainer FromExisting(RuntimeAnimatorController existingContainer)
+        public static CgeAssetContainer FromExisting(RuntimeAnimatorController existingContainer)
         {
             var assetContainer = (AnimatorController) existingContainer;
             if (assetContainer == null)
@@ -51,7 +51,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 throw new ArgumentException("The asset container must already be an asset");
             }
 
-            return new AssetContainer(assetContainer);
+            return new CgeAssetContainer(assetContainer);
         }
 
         public void AddAnimation(AnimationClip animation)
@@ -86,7 +86,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         }
     }
 
-    public class CgeDefaultsProvider : ICgeAacDefaultsProvider
+    public sealed class CgeDefaultsProvider : ICgeAacDefaultsProvider
     {
         private readonly bool _writeDefaults;
 
@@ -95,13 +95,13 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _writeDefaults = writeDefaults;
         }
 
-        public virtual void ConfigureState(AnimatorState state, AnimationClip emptyClip)
+        public void ConfigureState(AnimatorState state, AnimationClip emptyClip)
         {
             state.motion = emptyClip;
             state.writeDefaultValues = _writeDefaults;
         }
 
-        public virtual void ConfigureTransition(AnimatorStateTransition transition)
+        public void ConfigureTransition(AnimatorStateTransition transition)
         {
             transition.duration = 0;
             transition.hasExitTime = false;
@@ -113,12 +113,12 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             transition.canTransitionToSelf = false;
         }
 
-        public virtual string ConvertLayerName(string systemName)
+        public string ConvertLayerName(string systemName)
         {
             return systemName;
         }
 
-        public virtual string ConvertLayerNameWithSuffix(string systemName, string suffix)
+        public string ConvertLayerNameWithSuffix(string systemName, string suffix)
         {
             return suffix;
         }

@@ -5,18 +5,18 @@ using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
-    internal class LayerForAnalogFistSmoothing
+    internal class CgeLayerForAnalogFistSmoothing
     {
         private const string SmoothingLeftLayerName = "Hai_GestureSmoothingLeft";
         private const string SmoothingRightLayerName = "Hai_GestureSmoothingRight";
         private const float DefaultSmoothingFactor = 0.7f;
 
-        private readonly AssetContainer _assetContainer;
+        private readonly CgeAssetContainer _assetContainer;
         private readonly AvatarMask _weightCorrectionAvatarMask;
         private readonly AnimatorController _animatorController;
         private readonly bool _writeDefaultsForAnimatedAnimatorParameterStates;
 
-        public LayerForAnalogFistSmoothing(AssetContainer assetContainer, AvatarMask weightCorrectionAvatarMask, bool writeDefaults, AnimatorController animatorController)
+        public CgeLayerForAnalogFistSmoothing(CgeAssetContainer assetContainer, AvatarMask weightCorrectionAvatarMask, bool writeDefaults, AnimatorController animatorController)
         {
             _assetContainer = assetContainer;
             _weightCorrectionAvatarMask = weightCorrectionAvatarMask;
@@ -29,13 +29,13 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             EditorUtility.DisplayProgressBar("ComboGestureExpressions", "Creating weight correction layer", 0f);
             InitializeMachineFor(
                 _assetContainer.ExposeCgeAac().CreateSupportingArbitraryControllerLayer(_animatorController, SmoothingLeftLayerName).WithAvatarMask(_weightCorrectionAvatarMask),
-                SharedLayerUtils.HaiGestureComboLeftWeightProxy,
-                SharedLayerUtils.HaiGestureComboLeftWeightSmoothing
+                CgeSharedLayerUtils.HaiGestureComboLeftWeightProxy,
+                CgeSharedLayerUtils.HaiGestureComboLeftWeightSmoothing
             );
             InitializeMachineFor(
                 _assetContainer.ExposeCgeAac().CreateSupportingArbitraryControllerLayer(_animatorController, SmoothingRightLayerName).WithAvatarMask(_weightCorrectionAvatarMask),
-                SharedLayerUtils.HaiGestureComboRightWeightProxy,
-                SharedLayerUtils.HaiGestureComboRightWeightSmoothing
+                CgeSharedLayerUtils.HaiGestureComboRightWeightProxy,
+                CgeSharedLayerUtils.HaiGestureComboRightWeightSmoothing
             );
         }
 
@@ -49,7 +49,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             var smoothingTree = InterpolationTree(layer.FloatParameter(smoothingParam).Name, zeroClip, oneClip);
             _assetContainer.ExposeCgeAac().CGE_StoringMotion(smoothingTree);
 
-            var smoothingFactor = layer.FloatParameter(SharedLayerUtils.HaiGestureComboSmoothingFactor);
+            var smoothingFactor = layer.FloatParameter(CgeSharedLayerUtils.HaiGestureComboSmoothingFactor);
             var factorTree = new BlendTree
             {
                 name = "autoBT_Factor_" + proxyParam + "",
@@ -99,7 +99,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             };
         }
 
-        public static void Delete(AssetContainer assetContainer, AnimatorController controller)
+        public static void Delete(CgeAssetContainer assetContainer, AnimatorController controller)
         {
             assetContainer.ExposeCgeAac().CGE_RemoveSupportingArbitraryControllerLayer(controller, SmoothingLeftLayerName);
             assetContainer.ExposeCgeAac().CGE_RemoveSupportingArbitraryControllerLayer(controller, SmoothingRightLayerName);

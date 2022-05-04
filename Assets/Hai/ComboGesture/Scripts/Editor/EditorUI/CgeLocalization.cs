@@ -1,13 +1,12 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
-using Hai.ExpressionsEditor.Scripts.Editor.Internal;
+using System.Text;
 using UnityEditor;
 using UnityEngine;
-using System.Collections;
-using System.Globalization;
-using System.Text;
 
 namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 {
@@ -121,7 +120,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             return contents;
         }
     }
-}
 
 ////////
 
@@ -167,8 +165,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 // using System.Linq;
 // using System.Text;
 
-namespace Hai.ExpressionsEditor.Scripts.Editor.Internal
-{
     public enum JSONNodeType
     {
         Array = 1,
@@ -355,8 +351,8 @@ namespace Hai.ExpressionsEditor.Scripts.Editor.Internal
             get
             {
                 foreach (var C in Children)
-                    foreach (var D in C.DeepChildren)
-                        yield return D;
+                foreach (var D in C.DeepChildren)
+                    yield return D;
             }
         }
 
@@ -801,14 +797,14 @@ namespace Hai.ExpressionsEditor.Scripts.Editor.Internal
                                     Token.Append('\f');
                                     break;
                                 case 'u':
-                                    {
-                                        string s = aJSON.Substring(i + 1, 4);
-                                        Token.Append((char)int.Parse(
-                                            s,
-                                            System.Globalization.NumberStyles.AllowHexSpecifier));
-                                        i += 4;
-                                        break;
-                                    }
+                                {
+                                    string s = aJSON.Substring(i + 1, 4);
+                                    Token.Append((char)int.Parse(
+                                        s,
+                                        System.Globalization.NumberStyles.AllowHexSpecifier));
+                                    i += 4;
+                                    break;
+                                }
                                 default:
                                     Token.Append(C);
                                     break;
@@ -842,7 +838,7 @@ namespace Hai.ExpressionsEditor.Scripts.Editor.Internal
         }
 
     }
-    // End of JSONNode
+// End of JSONNode
 
     public partial class JSONArray : JSONNode
     {
@@ -966,7 +962,7 @@ namespace Hai.ExpressionsEditor.Scripts.Editor.Internal
             aSB.Append(']');
         }
     }
-    // End of JSONArray
+// End of JSONArray
 
     public partial class JSONObject : JSONNode
     {
@@ -1142,7 +1138,7 @@ namespace Hai.ExpressionsEditor.Scripts.Editor.Internal
         }
 
     }
-    // End of JSONObject
+// End of JSONObject
 
     public partial class JSONString : JSONNode
     {
@@ -1197,7 +1193,7 @@ namespace Hai.ExpressionsEditor.Scripts.Editor.Internal
             m_Data = "";
         }
     }
-    // End of JSONString
+// End of JSONString
 
     public partial class JSONNumber : JSONNode
     {
@@ -1256,11 +1252,11 @@ namespace Hai.ExpressionsEditor.Scripts.Editor.Internal
         private static bool IsNumeric(object value)
         {
             return value is int || value is uint
-                || value is float || value is double
-                || value is decimal
-                || value is long || value is ulong
-                || value is short || value is ushort
-                || value is sbyte || value is byte;
+                                || value is float || value is double
+                                || value is decimal
+                                || value is long || value is ulong
+                                || value is short || value is ushort
+                                || value is sbyte || value is byte;
         }
         public override bool Equals(object obj)
         {
@@ -1284,7 +1280,7 @@ namespace Hai.ExpressionsEditor.Scripts.Editor.Internal
             m_Data = 0;
         }
     }
-    // End of JSONNumber
+// End of JSONNumber
 
     public partial class JSONBool : JSONNode
     {
@@ -1346,7 +1342,7 @@ namespace Hai.ExpressionsEditor.Scripts.Editor.Internal
             m_Data = false;
         }
     }
-    // End of JSONBool
+// End of JSONBool
 
     public partial class JSONNull : JSONNode
     {
@@ -1396,7 +1392,7 @@ namespace Hai.ExpressionsEditor.Scripts.Editor.Internal
             aSB.Append("null");
         }
     }
-    // End of JSONNull
+// End of JSONNull
 
     internal partial class JSONLazyCreator : JSONNode
     {
@@ -1549,7 +1545,7 @@ namespace Hai.ExpressionsEditor.Scripts.Editor.Internal
             aSB.Append("null");
         }
     }
-    // End of JSONLazyCreator
+// End of JSONLazyCreator
 
     public static class EeJSON
     {

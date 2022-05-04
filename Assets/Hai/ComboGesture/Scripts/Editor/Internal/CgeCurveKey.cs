@@ -4,25 +4,25 @@ using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
-    public readonly struct SampledCurveKey
+    public readonly struct CgeSampledCurveKey
     {
-        public CurveKey CurveKey { get; }
+        public CgeCurveKey CurveKey { get; }
         public float SampleValue { get; }
 
-        public SampledCurveKey(CurveKey curveKey, float sampleValue)
+        public CgeSampledCurveKey(CgeCurveKey curveKey, float sampleValue)
         {
             CurveKey = curveKey;
             SampleValue = sampleValue;
         }
 
-        public bool Equals(SampledCurveKey other)
+        public bool Equals(CgeSampledCurveKey other)
         {
             return CurveKey.Equals(other.CurveKey) && SampleValue.Equals(other.SampleValue);
         }
 
         public override bool Equals(object obj)
         {
-            return obj is SampledCurveKey other && Equals(other);
+            return obj is CgeSampledCurveKey other && Equals(other);
         }
 
         public override int GetHashCode()
@@ -33,23 +33,23 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
         }
 
-        public static bool operator ==(SampledCurveKey left, SampledCurveKey right)
+        public static bool operator ==(CgeSampledCurveKey left, CgeSampledCurveKey right)
         {
             return left.Equals(right);
         }
 
-        public static bool operator !=(SampledCurveKey left, SampledCurveKey right)
+        public static bool operator !=(CgeSampledCurveKey left, CgeSampledCurveKey right)
         {
             return !left.Equals(right);
         }
     }
 
     [Serializable]
-    public readonly struct CurveKey
+    public readonly struct CgeCurveKey
     {
-        public static CurveKey FromBinding(EditorCurveBinding binding)
+        public static CgeCurveKey FromBinding(EditorCurveBinding binding)
         {
-            return new CurveKey(binding.path, binding.type, binding.propertyName);
+            return new CgeCurveKey(binding.path, binding.type, binding.propertyName);
         }
 
         public bool IsTransformOrMuscleCurve()
@@ -67,7 +67,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             return Type == typeof(Animator);
         }
 
-        public CurveKey(string path, Type type, string propertyName)
+        public CgeCurveKey(string path, Type type, string propertyName)
         {
             Path = path;
             Type = type;
@@ -78,24 +78,24 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         public Type Type { get; }
         public string PropertyName { get; }
 
-        public static bool operator ==(CurveKey left, CurveKey right)
+        public static bool operator ==(CgeCurveKey left, CgeCurveKey right)
         {
             return left.Equals(right);
         }
 
-        public static bool operator !=(CurveKey left, CurveKey right)
+        public static bool operator !=(CgeCurveKey left, CgeCurveKey right)
         {
             return !left.Equals(right);
         }
 
-        public bool Equals(CurveKey other)
+        public bool Equals(CgeCurveKey other)
         {
             return Path == other.Path && Equals(Type, other.Type) && PropertyName == other.PropertyName;
         }
 
         public override bool Equals(object obj)
         {
-            return obj is CurveKey other && Equals(other);
+            return obj is CgeCurveKey other && Equals(other);
         }
 
         public override int GetHashCode()

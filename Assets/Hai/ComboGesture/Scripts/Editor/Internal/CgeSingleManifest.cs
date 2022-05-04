@@ -3,22 +3,22 @@ using System.Linq;
 using UnityEditor.Animations;
 using UnityEngine;
 
-namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
+namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
-    public class SingleManifest : IManifest
+    public class CgeSingleManifest : ICgeManifest
     {
-        public IAnimatedBehavior Behavior { get; }
+        public ICgeAnimatedBehavior Behavior { get; }
         private readonly float _transitionDuration;
 
-        public SingleManifest(float transitionDuration, IAnimatedBehavior behavior)
+        public CgeSingleManifest(float transitionDuration, ICgeAnimatedBehavior behavior)
         {
             Behavior = behavior;
             _transitionDuration = transitionDuration;
         }
 
-        public ManifestKind Kind()
+        public CgeManifestKind Kind()
         {
-            return ManifestKind.Puppet;
+            return CgeManifestKind.Puppet;
         }
 
         public float TransitionDuration()
@@ -31,7 +31,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
             return Behavior.QualifiedAnimations().Any(qualifiedAnimation => qualifiedAnimation.Qualification.IsBlinking);
         }
 
-        public IEnumerable<QualifiedAnimation> AllQualifiedAnimations()
+        public IEnumerable<CgeQualifiedAnimation> AllQualifiedAnimations()
         {
             return Behavior.QualifiedAnimations();
         }
@@ -72,24 +72,24 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.Model
                 .ToList();
         }
 
-        public IManifest NewFromRemappedAnimations(Dictionary<QualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)
+        public ICgeManifest NewFromRemappedAnimations(Dictionary<CgeQualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)
         {
-            return new SingleManifest(_transitionDuration, Behavior.Remapping(remapping, blendRemapping));
+            return new CgeSingleManifest(_transitionDuration, Behavior.Remapping(remapping, blendRemapping));
         }
 
-        public IManifest UsingRemappedWeights(Dictionary<BlendTree, AutoWeightTreeMapping> autoWeightRemapping)
+        public ICgeManifest UsingRemappedWeights(Dictionary<BlendTree, CgeAutoWeightTreeMapping> autoWeightRemapping)
         {
             return this;
         }
 
-        public PermutationManifest ToEquatedPermutation()
+        public CgePermutationManifest ToEquatedPermutation()
         {
-            var poses = Permutation.All().ToDictionary(
+            var poses = CgePermutation.All().ToDictionary(
                 permutation => permutation,
-                permutation => (IAnimatedBehavior)Behavior
+                permutation => Behavior
             );
 
-            return new PermutationManifest(poses, _transitionDuration);
+            return new CgePermutationManifest(poses, _transitionDuration);
         }
     }
 }
