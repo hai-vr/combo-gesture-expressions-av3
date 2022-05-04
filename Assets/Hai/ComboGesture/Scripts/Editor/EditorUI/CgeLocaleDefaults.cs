@@ -48,7 +48,6 @@ Compiling an Activity with permutations disabled will not take any saved permuta
         internal static string CGEE_AutoSetupCreated = "A new preview setup was created.";
         internal static string CGEE_Transition_duration = "Transition duration (s)";
         internal static string CGEE_Preview_setup = "Preview setup";
-        internal static string CGEE_List_of_arbitrary_animations = "List of arbitrary animations (Drag and drop assets directly on this title)";
         internal static string CGEE_Generate_missing_previews = "Generate missing previews";
         internal static string CGEE_Regenerate_all_previews = "Regenerate all previews";
         internal static string CGEE_Stop_generating_previews = "Stop generating previews";
