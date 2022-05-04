@@ -141,6 +141,21 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         internal static string CGEC_Avatar_Dynamics => LocalizeOrElse("CGEC_Avatar_Dynamics", CgeLocaleDefaults.CGEC_Avatar_Dynamics);
         internal static string CGEC_Dynamics => LocalizeOrElse("CGEC_Dynamics", CgeLocaleDefaults.CGEC_Dynamics);
         internal static string CGEC_DoNotForceBlinkBlendshapes => LocalizeOrElse("CGEC_DoNotForceBlinkBlendshapes", CgeLocaleDefaults.CGEC_DoNotForceBlinkBlendshapes);
+        internal static string CGED_DynamicExpression => LocalizeOrElse("CGED_DynamicExpression", CgeLocaleDefaults.CGED_DynamicExpression);
+        internal static string CGED_DynamicCondition => LocalizeOrElse("CGED_DynamicCondition", CgeLocaleDefaults.CGED_DynamicCondition);
+        internal static string CGED_Clip => LocalizeOrElse("CGED_Clip", CgeLocaleDefaults.CGED_Clip);
+        internal static string CGED_Condition => LocalizeOrElse("CGED_Condition", CgeLocaleDefaults.CGED_Condition);
+        internal static string CGED_ContactReceiver => LocalizeOrElse("CGED_ContactReceiver", CgeLocaleDefaults.CGED_ContactReceiver);
+        internal static string CGED_Effect => LocalizeOrElse("CGED_Effect", CgeLocaleDefaults.CGED_Effect);
+        internal static string CGED_IsHardThreshold => LocalizeOrElse("CGED_IsHardThreshold", CgeLocaleDefaults.CGED_IsHardThreshold);
+        internal static string CGED_MoodSet => LocalizeOrElse("CGED_MoodSet", CgeLocaleDefaults.CGED_MoodSet);
+        internal static string CGED_ParameterName => LocalizeOrElse("CGED_ParameterName", CgeLocaleDefaults.CGED_ParameterName);
+        internal static string CGED_ParameterType => LocalizeOrElse("CGED_ParameterType", CgeLocaleDefaults.CGED_ParameterType);
+        internal static string CGED_PhysBone => LocalizeOrElse("CGED_PhysBone", CgeLocaleDefaults.CGED_PhysBone);
+        internal static string CGED_PhysBoneSource => LocalizeOrElse("CGED_PhysBoneSource", CgeLocaleDefaults.CGED_PhysBoneSource);
+        internal static string CGED_Source => LocalizeOrElse("CGED_Source", CgeLocaleDefaults.CGED_Source);
+        internal static string CGED_Threshold => LocalizeOrElse("CGED_Threshold", CgeLocaleDefaults.CGED_Threshold);
+        internal static string CGED_Higher_priority => LocalizeOrElse("CGED_Higher_priority", CgeLocaleDefaults.CGED_Higher_priority);
 
 
         private static string LocalizeOrElse(string key, string defaultCultureLocalization)

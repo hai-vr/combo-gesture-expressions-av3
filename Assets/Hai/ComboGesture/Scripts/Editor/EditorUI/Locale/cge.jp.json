@@ -102,5 +102,21 @@
   "CGEE_OneHandMode" : "ワンハンドモード",
   "CGEE_OneHandModeIntro" : "ワンハンドモードでは、コンボは一切使用しません。片方の手だけを使い、もう片方の手は何も操作しません。",
   "CGEC_Avatar_Dynamics" : "Avatar Dynamics",
-  "CGEC_Dynamics": "Dynamicsの定義"
+  "CGEC_Dynamics": "Dynamics",
+  "CGEC_DoNotForceBlinkBlendshapes": "Do not force blink blendshapes",
+  "CGED_DynamicExpression": "Dynamic Expression",
+  "CGED_DynamicCondition": "Dynamic Condition",
+  "CGED_Clip": "Clip",
+  "CGED_Condition": "状態",
+  "CGED_ContactReceiver": "Contact Receiver",
+  "CGED_Effect": "Effect",
+  "CGED_IsHardThreshold": "Is hard threshold",
+  "CGED_MoodSet": "Mood",
+  "CGED_ParameterName": "Parameter name",
+  "CGED_ParameterType": "Parameter type",
+  "CGED_PhysBone": "PhysBone",
+  "CGED_PhysBoneSource": "PhysBone Source",
+  "CGED_Source": "Source",
+  "CGED_Threshold": "閾値",
+  "CGED_Higher_priority": "上部の動的式は下部の動的式より優先度が高い。"
 }

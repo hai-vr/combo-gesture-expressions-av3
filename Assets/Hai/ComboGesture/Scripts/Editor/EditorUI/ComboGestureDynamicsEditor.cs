@@ -70,22 +70,22 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         private void Choices(Rect rect, ComboGestureDynamicsItem item, float line, int lineId, SerializedProperty element)
         {
-            EditorGUI.LabelField(Position(rect, line, ref lineId), "Dynamic Expression", EditorStyles.boldLabel);
-            EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.effect)));
+            EditorGUI.LabelField(Position(rect, line, ref lineId), new GUIContent(CgeLocale.CGED_DynamicExpression), EditorStyles.boldLabel);
+            EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.effect)), new GUIContent(CgeLocale.CGED_Effect));
 
             switch (item.effect)
             {
                 case ComboGestureDynamicsEffect.Clip:
-                    EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.clip)));
+                    EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.clip)), new GUIContent(CgeLocale.CGED_Clip));
                     if (item.clip != null)
                     {
-                        EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.bothEyesClosed)));
+                        EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.bothEyesClosed)), new GUIContent(CgeLocale.CGEE_EyesAreClosed));
                         GUI.Box(new Rect(rect.x + 10, rect.y + line * lineId, 150, line * 4), _renderingCommands.RequireRender(item.clip, Repaint).Normal);
                         lineId += 4;
                     }
                     break;
                 case ComboGestureDynamicsEffect.MoodSet:
-                    EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.moodSet)));
+                    EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.moodSet)), new GUIContent(CgeLocale.CGED_MoodSet));
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -93,13 +93,13 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             lineId += 1;
 
-            EditorGUI.LabelField(Position(rect, line, ref lineId), "Dynamic Source", EditorStyles.boldLabel);
-            EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.source)));
+            EditorGUI.LabelField(Position(rect, line, ref lineId), new GUIContent(CgeLocale.CGED_DynamicCondition), EditorStyles.boldLabel);
+            EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.source)), new GUIContent(CgeLocale.CGED_Source));
 
             switch (item.source)
             {
                 case ComboGestureDynamicsSource.Contact:
-                    EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.contactReceiver)));
+                    EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.contactReceiver)), new GUIContent(CgeLocale.CGED_ContactReceiver));
                     if (item.contactReceiver != null)
                     {
                         EditorGUI.BeginDisabledGroup(true);
@@ -108,67 +108,67 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                         EditorGUI.EndDisabledGroup();
                         if (item.contactReceiver.receiverType != ContactReceiver.ReceiverType.Proximity)
                         {
-                            EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.parameterType)));
+                            EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.parameterType)), new GUIContent(CgeLocale.CGED_ParameterType));
                         }
-                        EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.condition)));
+                        EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.condition)), new GUIContent(CgeLocale.CGED_Condition));
                         if (
                             item.contactReceiver.receiverType == ContactReceiver.ReceiverType.Proximity ||
                             item.parameterType == ComboGestureDynamicsParameterType.Float ||
                             item.parameterType == ComboGestureDynamicsParameterType.Int)
                         {
-                            EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.threshold)));
+                            EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.threshold)), new GUIContent(CgeLocale.CGED_Threshold));
                         }
                         if (
                             item.contactReceiver.receiverType == ContactReceiver.ReceiverType.Proximity ||
                             item.parameterType == ComboGestureDynamicsParameterType.Float )
                         {
-                            EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.isHardThreshold)));
+                            EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.isHardThreshold)), new GUIContent(CgeLocale.CGED_IsHardThreshold));
                         }
                     }
                     break;
                 case ComboGestureDynamicsSource.PhysBone:
-                    EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.physBone)));
+                    EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.physBone)), new GUIContent(CgeLocale.CGED_PhysBone));
                     if (item.physBone != null)
                     {
-                        EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.physBoneSource)));
+                        EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.physBoneSource)), new GUIContent(CgeLocale.CGED_PhysBoneSource));
 
                         EditorGUI.BeginDisabledGroup(true);
                         EditorGUI.TextField(Position(rect, line, ref lineId), "Parameter", item.physBone.parameter);
                         EditorGUI.EndDisabledGroup();
                         if (item.physBoneSource == ComboGestureDynamicsPhysBoneSource.IsGrabbed)
                         {
-                            EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.parameterType)));
+                            EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.parameterType)), new GUIContent(CgeLocale.CGED_ParameterType));
                         }
-                        EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.condition)));
+                        EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.condition)), new GUIContent(CgeLocale.CGED_Condition));
                         if (
                             item.physBoneSource == ComboGestureDynamicsPhysBoneSource.Angle ||
                             item.physBoneSource == ComboGestureDynamicsPhysBoneSource.Stretch ||
                             item.parameterType == ComboGestureDynamicsParameterType.Float ||
                             item.parameterType == ComboGestureDynamicsParameterType.Int)
                         {
-                            EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.threshold)));
+                            EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.threshold)), new GUIContent(CgeLocale.CGED_Threshold));
                         }
                         if (item.physBoneSource == ComboGestureDynamicsPhysBoneSource.Angle ||
                             item.physBoneSource == ComboGestureDynamicsPhysBoneSource.Stretch ||
                             item.parameterType == ComboGestureDynamicsParameterType.Float)
                         {
-                            EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.isHardThreshold)));
+                            EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.isHardThreshold)), new GUIContent(CgeLocale.CGED_IsHardThreshold));
                         }
                     }
                     break;
                 case ComboGestureDynamicsSource.Parameter:
-                    EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.parameterName)));
+                    EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.parameterName)), new GUIContent(CgeLocale.CGED_ParameterName));
                     if (!string.IsNullOrEmpty(item.parameterName))
                     {
-                        EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.parameterType)));
-                        EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.condition)));
+                        EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.parameterType)), new GUIContent(CgeLocale.CGED_ParameterType));
+                        EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.condition)), new GUIContent(CgeLocale.CGED_Condition));
                         if (item.parameterType == ComboGestureDynamicsParameterType.Float || item.parameterType == ComboGestureDynamicsParameterType.Int)
                         {
-                            EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.threshold)));
+                            EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.threshold)), new GUIContent(CgeLocale.CGED_Threshold));
                         }
                         if (item.parameterType == ComboGestureDynamicsParameterType.Float)
                         {
-                            EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.isHardThreshold)));
+                            EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.isHardThreshold)), new GUIContent(CgeLocale.CGED_IsHardThreshold));
                         }
                     }
                     break;
@@ -200,13 +200,14 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 EditorGUILayout.LabelField("一部の翻訳は正確ではありません。cge.jp.jsonを編集することができます。");
             }
 
-            EditorGUILayout.PropertyField(previewAnimator);
+            EditorGUILayout.PropertyField(previewAnimator, new GUIContent(CgeLocale.CGEE_Preview_setup));
             _renderingCommands.SelectAnimator(((ComboGestureDynamics)target).previewAnimator);
             if (GUILayout.Button(new GUIContent(CgeLocale.CGEE_Regenerate_all_previews)))
             {
                 _renderingCommands.Invalidate(Repaint);
             }
 
+            EditorGUILayout.HelpBox(CgeLocale.CGED_Higher_priority, MessageType.Info);
             itemReorderableList.DoLayoutList();
 
             serializedObject.ApplyModifiedProperties();

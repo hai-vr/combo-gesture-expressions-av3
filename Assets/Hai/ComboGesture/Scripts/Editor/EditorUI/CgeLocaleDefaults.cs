@@ -166,5 +166,20 @@ You should disable Vive Advanced Controls Analog if you are not sure of what you
         internal static string CGEC_Avatar_Dynamics = "Avatar Dynamics";
         internal static string CGEC_Dynamics = "Dynamics";
         internal static string CGEC_DoNotForceBlinkBlendshapes = "Do not force blink blendshapes";
+        internal static string CGED_DynamicExpression = "Dynamic Expression";
+        internal static string CGED_DynamicCondition = "Dynamic Condition";
+        internal static string CGED_Clip = "Clip";
+        internal static string CGED_Condition = "Condition";
+        internal static string CGED_ContactReceiver = "Contact Receiver";
+        internal static string CGED_Effect = "Effect";
+        internal static string CGED_IsHardThreshold = "Is hard threshold";
+        internal static string CGED_MoodSet = "Mood";
+        internal static string CGED_ParameterName = "Parameter name";
+        internal static string CGED_ParameterType = "Parameter type";
+        internal static string CGED_PhysBone = "PhysBone";
+        internal static string CGED_PhysBoneSource = "PhysBone Source";
+        internal static string CGED_Source = "Source";
+        internal static string CGED_Threshold = "Threshold";
+        internal static string CGED_Higher_priority = "Dynamic Expressions at the top have a higher priority than the Dynamic Expressions at the bottom.";
     }
 }
