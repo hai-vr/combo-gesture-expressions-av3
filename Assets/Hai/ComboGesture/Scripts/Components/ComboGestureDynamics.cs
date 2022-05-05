@@ -45,7 +45,7 @@ namespace Hai.ComboGesture.Scripts.Components
             {
                 return new CgeDynamicsDescriptor
                 {
-                    parameter = $"CGE_OnEnterCurve_{contactReceiver.parameter}",
+                    parameter = $"_Hai_GestureOnEnterCurve_{contactReceiver.parameter}",
                     condition = ComboGestureDynamicsCondition.IsAboveThreshold,
                     threshold = 0f,
                     isHardThreshold = false,
@@ -70,7 +70,7 @@ namespace Hai.ComboGesture.Scripts.Components
             {
                 return new CgeDynamicsDescriptor
                 {
-                    parameter = $"CGE_OnEnterCurve_{parameterName}",
+                    parameter = $"_Hai_GestureOnEnterCurve_{parameterName}",
                     condition = ComboGestureDynamicsCondition.IsAboveThreshold,
                     threshold = 0f,
                     isHardThreshold = false,
