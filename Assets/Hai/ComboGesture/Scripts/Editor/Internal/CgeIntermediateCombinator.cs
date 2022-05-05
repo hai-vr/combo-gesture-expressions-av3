@@ -84,7 +84,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                             TransitionDuration = massiveManifest.TransitionDuration(),
                             IsAvatarDynamics = binding.IsAvatarDynamics,
                             DynamicsDescriptor = binding.DynamicsDescriptor,
-                            Behaviors = DecomposeMassiveIntoBehaviors(massiveManifest)
+                            Behaviors = DecomposeMassiveIntoBehaviors(massiveManifest, binding.IsAvatarDynamics ? binding.DynamicsDescriptor.descriptor.upperBound : 1f)
                         };
                     case CgeOneHandManifest oneHandManifest:
                         return new OneHandComposedBehaviour
@@ -103,20 +103,20 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }).ToList();
         }
 
-        private static Dictionary<CgePermutation, ICgeAnimatedBehavior> DecomposeMassiveIntoBehaviors(CgeMassiveBlendManifest massiveManifest)
+        private static Dictionary<CgePermutation, ICgeAnimatedBehavior> DecomposeMassiveIntoBehaviors(CgeMassiveBlendManifest massiveManifest, float maxThreshold)
         {
             return CgePermutation.All().ToDictionary(
                 permutation => permutation,
-                permutation => MassiveBlendToAnimatedBehavior(massiveManifest, permutation)
+                permutation => MassiveBlendToAnimatedBehavior(massiveManifest, permutation, maxThreshold)
             );
         }
 
-        private static ICgeAnimatedBehavior MassiveBlendToAnimatedBehavior(CgeMassiveBlendManifest manifest, CgePermutation currentPermutation)
+        private static ICgeAnimatedBehavior MassiveBlendToAnimatedBehavior(CgeMassiveBlendManifest manifest, CgePermutation currentPermutation, float maxThreshold)
         {
             switch (manifest.Mode)
             {
                 case CgeMassiveBlendMode.Simple:
-                    return OfSimple(manifest, currentPermutation);
+                    return OfSimple(manifest, currentPermutation, maxThreshold);
                 case CgeMassiveBlendMode.TwoDirections:
                     return OfTwoDirections(manifest, currentPermutation);
                 case CgeMassiveBlendMode.ComplexBlendTree:
@@ -126,11 +126,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
         }
 
-        private static ICgeAnimatedBehavior OfSimple(CgeMassiveBlendManifest manifest, CgePermutation currentPermutation)
+        private static ICgeAnimatedBehavior OfSimple(CgeMassiveBlendManifest manifest, CgePermutation currentPermutation, float maxThreshold)
         {
             var zero = manifest.EquatedManifests[0].Poses[currentPermutation];
             var one = manifest.EquatedManifests[1].Poses[currentPermutation];
-            return CgeSimpleMassiveBlendAnimatedBehavior.Maybe(zero, one, manifest.SimpleParameterName);
+            return CgeSimpleMassiveBlendAnimatedBehavior.Maybe(zero, one, manifest.SimpleParameterName, maxThreshold);
         }
 
         private static ICgeAnimatedBehavior OfTwoDirections(CgeMassiveBlendManifest manifest, CgePermutation currentPermutation)

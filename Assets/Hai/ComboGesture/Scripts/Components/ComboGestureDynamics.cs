@@ -29,6 +29,7 @@ namespace Hai.ComboGesture.Scripts.Components
         public ComboGestureDynamicsCondition condition;
         public float threshold;
         public bool isHardThreshold;
+        public float upperBound;
 
         public float enterTransitionDuration;
 
@@ -59,7 +60,8 @@ namespace Hai.ComboGesture.Scripts.Components
                         condition = condition,
                         threshold = threshold,
                         parameterType = parameterType
-                    }
+                    },
+                    upperBound = 1f
                 };
             }
 
@@ -83,7 +85,8 @@ namespace Hai.ComboGesture.Scripts.Components
                         condition = condition,
                         threshold = threshold,
                         parameterType = parameterType
-                    }
+                    },
+                    upperBound = 1f
                 };
             }
 
@@ -95,7 +98,8 @@ namespace Hai.ComboGesture.Scripts.Components
                 isHardThreshold = isHardThreshold,
                 parameterType = DynamicsResolveParameterType(),
                 enterTransitionDuration = enterTransitionDuration,
-                isOnEnter = false
+                isOnEnter = false,
+                upperBound = upperBound
             };
         }
 
@@ -185,6 +189,7 @@ namespace Hai.ComboGesture.Scripts.Components
         public float enterTransitionDuration;
         public bool isOnEnter;
         public CgeDynamicsOnEnter onEnter;
+        public float upperBound;
     }
 
     public struct CgeDynamicsOnEnter

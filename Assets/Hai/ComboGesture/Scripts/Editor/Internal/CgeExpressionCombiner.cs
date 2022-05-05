@@ -411,7 +411,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                     return ForPuppet(ssm, pab);
                 case CgeAnimatedBehaviorNature.SimpleMassiveBlend:
                     CgeSimpleMassiveBlendAnimatedBehavior smbab = (CgeSimpleMassiveBlendAnimatedBehavior)behaviour;
-                    return ForSimpleMassiveBlend(ssm, smbab.Zero, smbab.One, smbab.ParameterName);
+                    return ForSimpleMassiveBlend(ssm, smbab.Zero, smbab.One, smbab.ParameterName, smbab.MaxThreshold);
                 case CgeAnimatedBehaviorNature.TwoDirectionsMassiveBlend:
                     CgeTwoDirectionsMassiveBlendAnimatedBehavior tdmb = (CgeTwoDirectionsMassiveBlendAnimatedBehavior)behaviour;
                     return ForTwoDirectionsMassiveBlend(ssm, tdmb.Zero, tdmb.One, tdmb.MinusOne, tdmb.ParameterName);
@@ -468,11 +468,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
         }
 
-        private CgeAacFlState ForSimpleMassiveBlend(CgeAacFlStateMachine ssm, ICgeAnimatedBehavior zero, ICgeAnimatedBehavior one, string parameterName)
+        private CgeAacFlState ForSimpleMassiveBlend(CgeAacFlStateMachine ssm, ICgeAnimatedBehavior zero, ICgeAnimatedBehavior one, string parameterName, float maxThreshold)
         {
             var zeroMotion = Derive(zero);
             var oneMotion = Derive(one);
-            return CreateSimpleMassiveBlendState(zeroMotion, oneMotion, parameterName, ssm);
+            return CreateSimpleMassiveBlendState(zeroMotion, oneMotion, parameterName, ssm, maxThreshold);
         }
 
         private CgeAacFlState ForTwoDirectionsMassiveBlend(CgeAacFlStateMachine ssm, ICgeAnimatedBehavior zero, ICgeAnimatedBehavior one, ICgeAnimatedBehavior minusOne, string parameterName)
@@ -489,13 +489,14 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             return CreateComplexMassiveBlendState(motions, originalBlendTreeTemplate, ssm);
         }
 
-        private CgeAacFlState CreateSimpleMassiveBlendState(Motion zero, Motion one, string parameterName, CgeAacFlStateMachine ssm)
+        private CgeAacFlState CreateSimpleMassiveBlendState(Motion zero, Motion one, string parameterName, CgeAacFlStateMachine ssm, float maxThreshold)
         {
             return ssm.NewState(ThisStringWillBeDiscardedLater())
                 .WithAnimation(CreateBlendTree(
                     zero,
                     one,
-                    parameterName))
+                    parameterName,
+                    maxThreshold))
                 .WithWriteDefaultsSetTo(_writeDefaultsForFaceExpressions);
         }
 
@@ -652,7 +653,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 .WithWriteDefaultsSetTo(_writeDefaultsForFaceExpressions);
         }
 
-        private Motion CreateBlendTree(Motion atZero, Motion atOne, string weight)
+        private Motion CreateBlendTree(Motion atZero, Motion atOne, string weight, float maxThreshold = 1f)
         {
             var blendTree = new BlendTree
             {
@@ -660,7 +661,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 blendParameter = weight,
                 blendType = BlendTreeType.Simple1D,
                 minThreshold = 0,
-                maxThreshold = 1,
+                maxThreshold = maxThreshold,
                 useAutomaticThresholds = true,
                 children = new[]
                     {new ChildMotion {motion = atZero, timeScale = 1}, new ChildMotion {motion = atOne, timeScale = 1}},

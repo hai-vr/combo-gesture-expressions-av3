@@ -50,6 +50,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.onEnterDuration)).floatValue = 1f;
                 element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.enterTransitionDuration)).floatValue = 0.1f;
                 element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.behavesLikeOnEnter)).boolValue = false;
+                element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.upperBound)).floatValue = 1f;
 
                 var mutatedKeyframes = new List<Keyframe>();
                 new CgeAacFlSettingKeyframes(CgeAacFlUnit.Seconds, mutatedKeyframes)
@@ -68,7 +69,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         private float HeightListElement(int index)
         {
             var item = ((ComboGestureDynamics)target).items[index];
-            return EditorGUIUtility.singleLineHeight * 15
+            return EditorGUIUtility.singleLineHeight * 16
                    + (item.effect == ComboGestureDynamicsEffect.Clip ? EditorGUIUtility.singleLineHeight * (4 + 1) : 0);
         }
 
@@ -152,6 +153,14 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                                 // TODO: Shouldn't constant receivers always be hard threshold if they're floats???
                                 EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.isHardThreshold)), new GUIContent(CgeLocale.CGED_IsHardThreshold));
                             }
+
+                            if (item.contactReceiver.receiverType == ContactReceiver.ReceiverType.Proximity ||
+                                // TODO: Shouldn't constant receivers not have a upper bound even if they're floats???
+                                item.contactReceiver.receiverType == ContactReceiver.ReceiverType.Constant && item.parameterType == ComboGestureDynamicsParameterType.Float
+                            )
+                            {
+                                EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.upperBound)), new GUIContent(CgeLocale.CGED_UpperBound));
+                            }
                         }
                     }
                     break;
@@ -186,9 +195,20 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                             }
                             if (item.physBoneSource == ComboGestureDynamicsPhysBoneSource.Angle ||
                                 item.physBoneSource == ComboGestureDynamicsPhysBoneSource.Stretch ||
+                                // TODO: Should isgrabbed physbone receivers not blend?
                                 item.parameterType == ComboGestureDynamicsParameterType.Float)
                             {
                                 EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.isHardThreshold)), new GUIContent(CgeLocale.CGED_IsHardThreshold));
+                            }
+
+                            if (
+                                item.physBoneSource == ComboGestureDynamicsPhysBoneSource.Angle ||
+                                item.physBoneSource == ComboGestureDynamicsPhysBoneSource.Stretch ||
+                                // TODO: Should isgrabbed physbone receivers not blend?
+                                item.parameterType == ComboGestureDynamicsParameterType.Float
+                            )
+                            {
+                                EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.upperBound)), new GUIContent(CgeLocale.CGED_UpperBound));
                             }
                         }
                     }
@@ -212,6 +232,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                         if (!item.behavesLikeOnEnter && item.parameterType == ComboGestureDynamicsParameterType.Float)
                         {
                             EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.isHardThreshold)), new GUIContent(CgeLocale.CGED_IsHardThreshold));
+                            EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.upperBound)), new GUIContent(CgeLocale.CGED_UpperBound));
                         }
                     }
                     break;

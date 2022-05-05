@@ -742,12 +742,14 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         public ICgeAnimatedBehavior Zero { get; }
         public ICgeAnimatedBehavior One { get; }
         public string ParameterName { get; }
+        public float MaxThreshold { get;  }
 
-        private CgeSimpleMassiveBlendAnimatedBehavior(ICgeAnimatedBehavior zero, ICgeAnimatedBehavior one, string parameterName)
+        private CgeSimpleMassiveBlendAnimatedBehavior(ICgeAnimatedBehavior zero, ICgeAnimatedBehavior one, string parameterName, float maxThreshold)
         {
             Zero = zero;
             One = one;
             ParameterName = parameterName;
+            MaxThreshold = maxThreshold;
         }
 
         private List<ICgeAnimatedBehavior> InternalBehaviors()
@@ -772,17 +774,17 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         public ICgeAnimatedBehavior Remapping(Dictionary<CgeQualifiedAnimation, AnimationClip> remapping, Dictionary<BlendTree, BlendTree> blendRemapping)
         {
-            return new CgeSimpleMassiveBlendAnimatedBehavior(Zero.Remapping(remapping, blendRemapping), One.Remapping(remapping, blendRemapping), ParameterName);
+            return new CgeSimpleMassiveBlendAnimatedBehavior(Zero.Remapping(remapping, blendRemapping), One.Remapping(remapping, blendRemapping), ParameterName, MaxThreshold);
         }
 
-        private static CgeSimpleMassiveBlendAnimatedBehavior Of(ICgeAnimatedBehavior zero, ICgeAnimatedBehavior one, string parameterName)
+        private static CgeSimpleMassiveBlendAnimatedBehavior Of(ICgeAnimatedBehavior zero, ICgeAnimatedBehavior one, string parameterName, float maxThreshold)
         {
-            return new CgeSimpleMassiveBlendAnimatedBehavior(zero, one, parameterName);
+            return new CgeSimpleMassiveBlendAnimatedBehavior(zero, one, parameterName, maxThreshold);
         }
 
-        public static ICgeAnimatedBehavior Maybe(ICgeAnimatedBehavior zero, ICgeAnimatedBehavior one, string parameterName)
+        public static ICgeAnimatedBehavior Maybe(ICgeAnimatedBehavior zero, ICgeAnimatedBehavior one, string parameterName, float maxThreshold)
         {
-            return zero.Equals(one) ? zero : CgeSimpleMassiveBlendAnimatedBehavior.Of(zero, one, parameterName);
+            return zero.Equals(one) ? zero : CgeSimpleMassiveBlendAnimatedBehavior.Of(zero, one, parameterName, maxThreshold);
         }
     }
 
