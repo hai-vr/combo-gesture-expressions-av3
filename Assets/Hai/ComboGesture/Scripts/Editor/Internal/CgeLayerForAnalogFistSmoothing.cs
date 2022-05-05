@@ -30,19 +30,50 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             InitializeMachineFor(
                 _assetContainer.ExposeCgeAac().CreateSupportingArbitraryControllerLayer(_animatorController, SmoothingLeftLayerName).WithAvatarMask(_weightCorrectionAvatarMask),
                 CgeSharedLayerUtils.HaiGestureComboLeftWeightProxy,
-                CgeSharedLayerUtils.HaiGestureComboLeftWeightSmoothing
+                CgeSharedLayerUtils.HaiGestureComboLeftWeightSmoothing,
+                "GestureLeftWeight",
+                "GestureLeft"
             );
             InitializeMachineFor(
                 _assetContainer.ExposeCgeAac().CreateSupportingArbitraryControllerLayer(_animatorController, SmoothingRightLayerName).WithAvatarMask(_weightCorrectionAvatarMask),
                 CgeSharedLayerUtils.HaiGestureComboRightWeightProxy,
-                CgeSharedLayerUtils.HaiGestureComboRightWeightSmoothing
+                CgeSharedLayerUtils.HaiGestureComboRightWeightSmoothing,
+                "GestureRightWeight",
+                "GestureRight"
             );
         }
 
-        private void InitializeMachineFor(CgeAacFlLayer layer, string proxyParam, string smoothingParam)
+        private void InitializeMachineFor(CgeAacFlLayer layer, string proxyParam, string smoothingParam, string liveParam, string handParam)
         {
-            var zeroClip = SmoothingClip(layer, smoothingParam, 0f);
-            var oneClip = SmoothingClip(layer, smoothingParam, 1f);
+            var smoothingFactor = layer.FloatParameter(CgeSharedLayerUtils.HaiGestureComboSmoothingFactor);
+            var factorTree = CreateFactorTreeFull(layer, proxyParam, smoothingParam);
+
+            layer.OverrideValue(smoothingFactor, DefaultSmoothingFactor);
+            var waiting = layer.NewState("Waiting", 1, 1)
+                .WithAnimation(factorTree)
+                .WithWriteDefaultsSetTo(_writeDefaultsForAnimatedAnimatorParameterStates)
+                .MotionTime(layer.FloatParameter(proxyParam))
+                .Drives(smoothingFactor, DefaultSmoothingFactor);
+
+            var listening = layer.NewState("Listening")
+                .WithAnimation(factorTree)
+                .WithWriteDefaultsSetTo(_writeDefaultsForAnimatedAnimatorParameterStates)
+                .MotionTime(layer.FloatParameter(liveParam))
+                .Drives(smoothingFactor, DefaultSmoothingFactor);
+
+            waiting.TransitionsTo(listening).When(layer.IntParameter(handParam).IsEqualTo(1));
+            listening.TransitionsTo(waiting).When(layer.IntParameter(handParam).IsNotEqualTo(1));
+        }
+
+        private BlendTree CreateFactorTreeFull(CgeAacFlLayer layer, string proxyParam, string smoothingParam)
+        {
+            var zeroClip = SmoothingClip(layer, proxyParam, smoothingParam, 0f);
+            var oneClip = SmoothingClip(layer, proxyParam, smoothingParam, 1f);
+            return CreateFactorTree(layer, proxyParam, smoothingParam, zeroClip, oneClip);
+        }
+
+        private BlendTree CreateFactorTree(CgeAacFlLayer layer, string proxyParam, string smoothingParam, AnimationClip zeroClip, AnimationClip oneClip)
+        {
             var proxyTree = InterpolationTree(layer.FloatParameter(proxyParam).Name, zeroClip, oneClip);
             _assetContainer.ExposeCgeAac().CGE_StoringMotion(proxyTree);
 
@@ -61,23 +92,21 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 children = new[]
                 {
                     new ChildMotion {motion = proxyTree, timeScale = 1, threshold = 0},
-                    new ChildMotion {motion = smoothingTree, timeScale = 1, threshold = 1}},
+                    new ChildMotion {motion = smoothingTree, timeScale = 1, threshold = 1}
+                },
                 hideFlags = HideFlags.HideInHierarchy
             };
             _assetContainer.ExposeCgeAac().CGE_StoringMotion(factorTree);
 
-            layer.OverrideValue(smoothingFactor, DefaultSmoothingFactor);
-            layer.NewState("Interpolating", 1, 1)
-                .WithAnimation(factorTree)
-                .WithWriteDefaultsSetTo(_writeDefaultsForAnimatedAnimatorParameterStates)
-                .Drives(smoothingFactor, DefaultSmoothingFactor);
+            return factorTree;
         }
 
-        private AnimationClip SmoothingClip(CgeAacFlLayer layer, string smoothingParam, float desiredValue)
+        private AnimationClip SmoothingClip(CgeAacFlLayer layer, string proxyParam, string smoothingParam, float desiredValue)
         {
             return _assetContainer.ExposeCgeAac().NewClip().Animating(clip =>
             {
                 clip.AnimatesAnimator(layer.FloatParameter(smoothingParam)).WithOneFrame(desiredValue);
+                clip.Animates("", typeof(Animator), proxyParam).WithSecondsUnit(keyframes => keyframes.Linear(0, 0).Linear(1f, 1f));
             }).Clip;
         }
 

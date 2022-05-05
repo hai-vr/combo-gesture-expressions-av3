@@ -54,7 +54,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             // This must be the first layer for MMD compatiblity to take over everything else
             if (!string.IsNullOrEmpty(_mmdCompatibilityToggleParameter))
             {
-                var mmdOn = intern.NewState("MMD Compatibility ON").At(0, -3);
+                var mmdOn = intern.NewState("MMD Compatibility ON")
+                    .WithWriteDefaultsSetTo(_writeDefaultsForFaceExpressions)
+                    .At(0, -3);
 
                 var onLayerControl = mmdOn.State.AddStateMachineBehaviour<VRCAnimatorLayerControl>();
                 onLayerControl.blendDuration = 0;
@@ -65,7 +67,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                     .When(_layer.BoolParameter(_mmdCompatibilityToggleParameter).IsTrue())
                     .And(_layer.Av3().InStation.IsTrue());
 
-                var mmdOff = intern.NewState("MMD Compatibility OFF");
+                var mmdOff = intern.NewState("MMD Compatibility OFF")
+                    .WithWriteDefaultsSetTo(_writeDefaultsForFaceExpressions);
 
                 var offLayerControl = mmdOff.State.AddStateMachineBehaviour<VRCAnimatorLayerControl>();
                 offLayerControl.blendDuration = 0;
@@ -139,7 +142,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             if (_activityStageName != null)
             {
                 // Order of execution matters here
-                var neutral = intern.NewState("Neutral");
+                var neutral = intern.NewState("Neutral")
+                    .WithWriteDefaultsSetTo(_writeDefaultsForFaceExpressions);
                 intern.WithDefaultState(neutral);
                 intern.EntryTransitionsTo(neutral);
 

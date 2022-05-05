@@ -187,13 +187,14 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             {
                 if (_useGestureWeightCorrection)
                 {
-                    CreateOrReplaceWeightCorrection(_weightCorrectionAvatarMask, _assetContainer, _animatorController, _conflictPrevention, _universalAnalogSupport);
                     if (_useSmoothing)
                     {
+                        DeleteWeightCorrection();
                         CreateOrReplaceSmoothing(_weightCorrectionAvatarMask, _assetContainer, _animatorController, _conflictPrevention);
                     }
                     else
                     {
+                        CreateOrReplaceWeightCorrection(_weightCorrectionAvatarMask, _assetContainer, _animatorController, _conflictPrevention, _universalAnalogSupport);
                         DeleteSmoothing();
                     }
                 }
@@ -434,7 +435,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 .Where(binding => binding.IsAvatarDynamics && binding.DynamicsDescriptor.descriptor.isOnEnter)
                 .ToArray();
 
-            var def = layer.NewState("Default");
+            var def = layer.NewState("Default")
+                .WithWriteDefaultsSetTo(_conflictPrevention.ShouldWriteDefaults);
 
             var intern = layer.NewSubStateMachine("Internal");
             intern.Restarts();
@@ -444,7 +446,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             def.TransitionsTo(intern).AfterAnimationIsAtLeastAtPercent(0);
 
             var all = new List<CgeAacFlState>();
-            var waiting = intern.NewState("Waiting for first").WithAnimation(aac.NewClip().Animating(clip =>
+            var waiting = intern.NewState("Waiting for first")
+                .WithWriteDefaultsSetTo(_conflictPrevention.ShouldWriteDefaults)
+                .WithAnimation(aac.NewClip().Animating(clip =>
             {
                 foreach (var binding in onEnterBindings)
                 {
@@ -457,6 +461,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 var onEnter = binding.DynamicsDescriptor.descriptor.onEnter;
 
                 var onEnterState = intern.NewState(onEnter.parameter)
+                    .WithWriteDefaultsSetTo(_conflictPrevention.ShouldWriteDefaults)
                     .WithAnimation(aac.NewClip().Animating(clip =>
                         {
                             foreach (var otherBinding in onEnterBindings)
