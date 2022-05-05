@@ -145,7 +145,7 @@
   "CGED_MissingParameterOnPhysBone": "This PhysBone has no parameter name. You must define it within the PhysBone component.",
   "CGEC_MainDynamics": "Main Dynamics",
   "CGED_EnterTransitionDuration" : "Enter transition duration (s)",
-  "CGED_OnEnterCurve" : "Curve",
+  "CGED_OnEnterCurve" : "OnEnter Curve",
   "CGED_OnEnterDuration" : "Duration (s)",
   "CGED_BehavesLikeOnEnter" : "Behaves like OnEnter"
 }
