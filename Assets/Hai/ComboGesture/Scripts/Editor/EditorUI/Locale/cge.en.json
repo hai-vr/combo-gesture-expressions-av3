@@ -143,5 +143,8 @@
   "CGEC_SynchronizationConditionsV2": "Synchronization will regenerate CGE's animator layers and generate animations.\n- Only layers starting with 'Hai_Gesture' will be affected.\n- The avatar descriptor will not be modified.\n\nYou should press synchronize when any of the following happens:\n- this Compiler is modified,\n- an Activity, Puppet, Massive, or Dynamics is modified,\n- an animation or a blend tree or avatar mask is modified,\n- the avatar descriptor Eyelids is modified,\n- the avatar transforms are modified,\n- if MMD compatibility is enabled and the animator layer order is modified.",
   "CGED_MissingParameterOnContact": "This Contact has no parameter name. You must define it within the Contact component.",
   "CGED_MissingParameterOnPhysBone": "This PhysBone has no parameter name. You must define it within the PhysBone component.",
-  "CGEC_MainDynamics": "Main Dynamics"
+  "CGEC_MainDynamics": "Main Dynamics",
+  "CGED_EnterTransitionDuration" : "Enter transition duration (s)",
+  "CGED_OnEnterCurve" : "Curve",
+  "CGED_OnEnterDuration" : "Duration (s)"
 }

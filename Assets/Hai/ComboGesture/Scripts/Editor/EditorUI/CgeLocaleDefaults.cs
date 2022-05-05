@@ -185,8 +185,11 @@ You should press synchronize when any of the following happens:
 - the avatar transforms are modified,
 - if MMD compatibility is enabled and the animator layer order is modified.";
 
-        public static string CGED_MissingParameterOnContact = "This Contact has no parameter name. You must define it within the Contact component.";
-        public static string CGED_MissingParameterOnPhysBone = "This PhysBone has no parameter name. You must define it within the PhysBone component.";
-        public static string CGEC_MainDynamics = "Main Dynamics";
+        internal static string CGED_MissingParameterOnContact = "This Contact has no parameter name. You must define it within the Contact component.";
+        internal static string CGED_MissingParameterOnPhysBone = "This PhysBone has no parameter name. You must define it within the PhysBone component.";
+        internal static string CGEC_MainDynamics = "Main Dynamics";
+        internal static string CGED_EnterTransitionDuration = "Enter transition duration (s)";
+        internal static string CGED_OnEnterCurve = "Curve";
+        internal static string CGED_OnEnterDuration = "Duration (s)";
     }
 }

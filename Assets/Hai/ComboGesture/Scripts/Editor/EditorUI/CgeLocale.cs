@@ -162,6 +162,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public static string CGED_MissingParameterOnContact => LocalizeOrElse("CGED_MissingParameterOnContact", CgeLocaleDefaults.CGED_MissingParameterOnContact);
         public static string CGED_MissingParameterOnPhysBone => LocalizeOrElse("CGED_MissingParameterOnPhysBone", CgeLocaleDefaults.CGED_MissingParameterOnPhysBone);
         public static string CGEC_MainDynamics => LocalizeOrElse("CGEC_MainDynamics", CgeLocaleDefaults.CGEC_MainDynamics);
+        public static string CGED_EnterTransitionDuration => LocalizeOrElse("CGED_EnterTransitionDuration", CgeLocaleDefaults.CGED_EnterTransitionDuration);
+        public static string CGED_OnEnterCurve => LocalizeOrElse("CGED_OnEnterCurve", CgeLocaleDefaults.CGED_OnEnterCurve);
+        public static string CGED_OnEnterDuration => LocalizeOrElse("CGED_OnEnterDuration", CgeLocaleDefaults.CGED_OnEnterDuration);
 
 
 

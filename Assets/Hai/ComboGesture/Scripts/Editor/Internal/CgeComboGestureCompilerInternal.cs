@@ -210,6 +210,15 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
             CreateOrReplaceExpressionsView(emptyClip, manifestBindings);
 
+            if (manifestBindings.Any(binding => binding.IsAvatarDynamics && binding.DynamicsDescriptor.descriptor.isOnEnter))
+            {
+                CreateOrReplaceImpulseView(manifestBindings);
+            }
+            else
+            {
+                DeleteImpulseView();
+            }
+
             if (!Feature(CgeFeatureToggles.DoNotGenerateBlinkingOverrideLayer))
             {
                 CreateOrReplaceBlinkingOverrideView(manifestBindings);
@@ -413,6 +422,122 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 _doNotForceBlinkBlendshapes,
                 _mmdCompatibilityToggleParameter
             ).Create();
+        }
+
+        private void CreateOrReplaceImpulseView(List<CgeManifestBinding> manifestBindings)
+        {
+            var aac = _assetContainer.ExposeCgeAac();
+            var layer = aac.CreateSupportingArbitraryControllerLayer(_animatorController, "Hai_GestureImpulse")
+                .WithAvatarMask(_logicalAvatarMask);
+
+            var onEnterBindings = manifestBindings
+                .Where(binding => binding.IsAvatarDynamics && binding.DynamicsDescriptor.descriptor.isOnEnter)
+                .ToArray();
+
+            var def = layer.NewState("Default");
+
+            var intern = layer.NewSubStateMachine("Internal");
+            intern.Restarts();
+            intern.WithEntryPosition(-1, -1);
+            intern.WithExitPosition(1, onEnterBindings.Length + 1);
+
+            def.TransitionsTo(intern).AfterAnimationIsAtLeastAtPercent(0);
+
+            var all = new List<CgeAacFlState>();
+            var waiting = intern.NewState("Waiting for first").WithAnimation(aac.NewClip().Animating(clip =>
+            {
+                foreach (var binding in onEnterBindings)
+                {
+                    clip.AnimatesAnimator(layer.FloatParameter(binding.DynamicsDescriptor.descriptor.parameter)).WithOneFrame(0);
+                }
+            }));
+
+            foreach (var binding in onEnterBindings)
+            {
+                var onEnter = binding.DynamicsDescriptor.descriptor.onEnter;
+
+                var onEnterState = intern.NewState(onEnter.parameter)
+                    .WithAnimation(aac.NewClip().Animating(clip =>
+                        {
+                            foreach (var otherBinding in onEnterBindings)
+                            {
+                                clip.AnimatesAnimator(layer.FloatParameter(otherBinding.DynamicsDescriptor.descriptor.parameter)).WithOneFrame(0);
+                            }
+
+                            clip.AnimatesAnimator(layer.FloatParameter(binding.DynamicsDescriptor.descriptor.parameter)).WithAnimationCurve(onEnter.curve);
+                        })
+                    ).WithSpeedSetTo(1 / Mathf.Max(onEnter.duration, 1 / 60f));
+
+                all.Add(onEnterState);
+
+                var entryCondition = intern.EntryTransitionsTo(onEnterState).WhenConditions();
+                ResolveEntranceCondition(binding, entryCondition, layer);
+
+                onEnterState.TransitionsTo(waiting).AfterAnimationFinishes();
+
+                foreach (var otherBinding in onEnterBindings)
+                {
+                    var exitTransition = onEnterState.Exits();
+                    var exitCondition = exitTransition.WhenConditions();
+                    ResolveEntranceCondition(otherBinding, exitCondition, layer);
+
+                    if (binding.DynamicsDescriptor.descriptor.parameter == otherBinding.DynamicsDescriptor.descriptor.parameter)
+                    {
+                        exitTransition.WithTransitionDurationSeconds(binding.DynamicsDescriptor.descriptor.enterTransitionDuration);
+                    }
+                }
+
+                var waitingExitCondition = waiting.Exits().WhenConditions();
+                ResolveEntranceCondition(binding, waitingExitCondition, layer);
+            }
+        }
+
+        private void ResolveEntranceCondition(CgeManifestBinding binding, CgeAacFlTransitionContinuation continuation, CgeAacFlLayer layer)
+        {
+            if (binding.IsActivityBound)
+            {
+                continuation.And(layer.IntParameter(_activityStageName).IsEqualTo(binding.StageValue));
+            }
+            continuation.And(ResolveEntranceCondition(layer, binding.DynamicsDescriptor.descriptor.onEnter));
+        }
+
+        private ICgeAacFlCondition ResolveEntranceCondition(CgeAacFlLayer layer, CgeDynamicsOnEnter onEnter)
+        {
+            switch (onEnter.parameterType)
+            {
+                case ComboGestureDynamicsParameterType.Bool:
+                    return layer.BoolParameter(onEnter.parameter)
+                        .IsEqualTo(onEnter.condition == ComboGestureDynamicsCondition.IsAboveThreshold);
+                case ComboGestureDynamicsParameterType.Int:
+                    if (onEnter.condition == ComboGestureDynamicsCondition.IsAboveThreshold)
+                    {
+                        return layer.IntParameter(onEnter.parameter)
+                            .IsGreaterThan((int) onEnter.threshold);
+                    }
+                    else
+                    {
+                        return layer.IntParameter(onEnter.parameter)
+                            .IsLessThan((int) onEnter.threshold + 1);
+                    }
+                case ComboGestureDynamicsParameterType.Float:
+                    if (onEnter.condition == ComboGestureDynamicsCondition.IsAboveThreshold)
+                    {
+                        return layer.FloatParameter(onEnter.parameter)
+                            .IsGreaterThan(onEnter.threshold);
+                    }
+                    else
+                    {
+                        return layer.FloatParameter(onEnter.parameter)
+                            .IsLessThan(onEnter.threshold + 0.0001f);
+                    }
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        private void DeleteImpulseView()
+        {
+            _assetContainer.ExposeCgeAac().CGE_RemoveSupportingArbitraryControllerLayer(_animatorController, "Hai_GestureImpulse");
         }
 
         private void CreateOrReplaceGesturePlayableLayerExpressionsView(AnimationClip emptyClip, List<CgeManifestBinding> manifestBindings)

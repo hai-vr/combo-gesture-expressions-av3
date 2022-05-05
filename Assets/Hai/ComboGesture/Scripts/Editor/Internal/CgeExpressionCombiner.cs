@@ -295,7 +295,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                     foreach (var dynamics in dynamicsExiters)
                     {
                         state.Exits()
-                            .WithTransitionDurationSeconds(composed.TransitionDuration)
+                            .WithTransitionDurationSeconds(dynamics.enterTransitionDuration)
                             .When(ResolveEntranceDescriptor(dynamics));
                     }
                 }
@@ -342,7 +342,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 foreach (var dynamics in dynamicsExiters)
                 {
                     state.Exits()
-                        .WithTransitionDurationSeconds(composed.TransitionDuration)
+                        .WithTransitionDurationSeconds(dynamics.enterTransitionDuration)
                         .When(ResolveEntranceDescriptor(dynamics));
                 }
             }
@@ -378,7 +378,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             foreach (var dynamics in dynamicsExiters)
             {
                 state.Exits()
-                    .WithTransitionDurationSeconds(composed.TransitionDuration)
+                    .WithTransitionDurationSeconds(dynamics.enterTransitionDuration)
                     .When(ResolveEntranceDescriptor(dynamics));
             }
         }

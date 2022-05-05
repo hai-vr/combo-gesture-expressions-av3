@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using Hai.ComboGesture.Scripts.Components;
+using Hai.ComboGesture.Scripts.Editor.Internal.CgeAac;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
@@ -45,6 +47,18 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.condition)).intValue = 0;
                 element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.threshold)).floatValue = 0f;
                 element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.isHardThreshold)).boolValue = false;
+                element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.onEnterDuration)).floatValue = 1f;
+                element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.enterTransitionDuration)).floatValue = 0.1f;
+
+                var mutatedKeyframes = new List<Keyframe>();
+                new CgeAacFlSettingKeyframes(CgeAacFlUnit.Seconds, mutatedKeyframes)
+                    .Easing(0f, 0f)
+                    .Easing(0.05f, 1f)
+                    .Easing(0.2f, 1f)
+                    .Easing(1f, 0f);
+                var curve = element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.onEnterCurve)).animationCurveValue;
+                curve.keys = mutatedKeyframes.ToArray();
+                element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.onEnterCurve)).animationCurveValue = curve;
             };
 
             _renderingCommands = new EeRenderingCommands();
@@ -53,7 +67,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         private float HeightListElement(int index)
         {
             var item = ((ComboGestureDynamics)target).items[index];
-            return EditorGUIUtility.singleLineHeight * 13
+            return EditorGUIUtility.singleLineHeight * 14
                    + (item.effect == ComboGestureDynamicsEffect.Clip ? EditorGUIUtility.singleLineHeight * (4 + 1) : 0);
         }
 
@@ -90,6 +104,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+            EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.enterTransitionDuration)), new GUIContent(CgeLocale.CGED_EnterTransitionDuration));
 
             lineId += 1;
 
@@ -118,18 +133,27 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                                 EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.parameterType)), new GUIContent(CgeLocale.CGED_ParameterType));
                             }
                             EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.condition)), new GUIContent(CgeLocale.CGED_Condition));
-                            if (
-                                item.contactReceiver.receiverType == ContactReceiver.ReceiverType.Proximity ||
-                                item.parameterType == ComboGestureDynamicsParameterType.Float ||
-                                item.parameterType == ComboGestureDynamicsParameterType.Int)
+
+                            if (item.contactReceiver.receiverType == ContactReceiver.ReceiverType.OnEnter)
                             {
-                                EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.threshold)), new GUIContent(CgeLocale.CGED_Threshold));
+                                EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.onEnterCurve)), new GUIContent(CgeLocale.CGED_OnEnterCurve));
+                                EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.onEnterDuration)), new GUIContent(CgeLocale.CGED_OnEnterDuration));
                             }
-                            if (
-                                item.contactReceiver.receiverType == ContactReceiver.ReceiverType.Proximity ||
-                                item.parameterType == ComboGestureDynamicsParameterType.Float )
+                            else
                             {
-                                EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.isHardThreshold)), new GUIContent(CgeLocale.CGED_IsHardThreshold));
+                                if (
+                                    item.contactReceiver.receiverType == ContactReceiver.ReceiverType.Proximity ||
+                                    item.parameterType == ComboGestureDynamicsParameterType.Float ||
+                                    item.parameterType == ComboGestureDynamicsParameterType.Int)
+                                {
+                                    EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.threshold)), new GUIContent(CgeLocale.CGED_Threshold));
+                                }
+                                if (
+                                    item.contactReceiver.receiverType == ContactReceiver.ReceiverType.Proximity ||
+                                    item.parameterType == ComboGestureDynamicsParameterType.Float )
+                                {
+                                    EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.isHardThreshold)), new GUIContent(CgeLocale.CGED_IsHardThreshold));
+                                }
                             }
                         }
                     }

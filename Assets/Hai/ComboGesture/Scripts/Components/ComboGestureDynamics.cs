@@ -30,15 +30,46 @@ namespace Hai.ComboGesture.Scripts.Components
         public float threshold;
         public bool isHardThreshold;
 
+        public float enterTransitionDuration;
+
+        public float onEnterDuration;
+        public AnimationCurve onEnterCurve;
+
         public CgeDynamicsDescriptor ToDescriptor()
         {
+            var isOnEnter = source == ComboGestureDynamicsSource.Contact && contactReceiver.receiverType == ContactReceiver.ReceiverType.OnEnter;
+            if (isOnEnter)
+            {
+                return new CgeDynamicsDescriptor
+                {
+                    parameter = $"CGE_OnEnterCurve_{contactReceiver.parameter}",
+                    condition = ComboGestureDynamicsCondition.IsAboveThreshold,
+                    threshold = 0f,
+                    isHardThreshold = false,
+                    parameterType = ComboGestureDynamicsParameterType.Float,
+                    enterTransitionDuration = enterTransitionDuration,
+                    isOnEnter = true,
+                    onEnter = new CgeDynamicsOnEnter
+                    {
+                        duration = onEnterDuration,
+                        curve = onEnterCurve,
+                        parameter = contactReceiver.parameter,
+                        condition = condition,
+                        threshold = threshold,
+                        parameterType = parameterType
+                    }
+                };
+            }
+
             return new CgeDynamicsDescriptor
             {
                 parameter = DynamicsResolveParameter(),
                 condition = condition,
                 threshold = threshold,
                 isHardThreshold = isHardThreshold,
-                parameterType = DynamicsResolveParameterType()
+                parameterType = DynamicsResolveParameterType(),
+                enterTransitionDuration = enterTransitionDuration,
+                isOnEnter = false
             };
         }
 
@@ -125,5 +156,18 @@ namespace Hai.ComboGesture.Scripts.Components
         public ComboGestureDynamicsParameterType parameterType;
         public ComboGestureDynamicsCondition condition;
         public bool isHardThreshold;
+        public float enterTransitionDuration;
+        public bool isOnEnter;
+        public CgeDynamicsOnEnter onEnter;
+    }
+
+    public struct CgeDynamicsOnEnter
+    {
+        public float duration;
+        public AnimationCurve curve;
+        public string parameter;
+        public ComboGestureDynamicsCondition condition;
+        public float threshold;
+        public ComboGestureDynamicsParameterType parameterType;
     }
 }

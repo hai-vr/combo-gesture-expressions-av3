@@ -143,5 +143,8 @@
   "CGEC_SynchronizationConditionsV2": "同期を行うと、 CGEのAnimator レイヤーが再生成され、アニメーションが生成されます。 \r\n- 名前が「Hai_gesture」で始まるレイヤーのみが影響を受けます。 \r\n- Avatar Descriptor は変更されません。\r\n\r\n以下のいずれかが発生した場合、同期を実行する必要があります。 \r\n- Activity/Puppet/Dynamics/Massive が変更された場合\r\n- アニメーション、ブレンドツリー、アバターマスクが変更された場合 \r\n- Avatar Descriptor の Eyelids が変更された場合 \r\n- アバターの Transform が変更された場合\r\n- MMD互換性を有効にしている間はレイヤーの順番が変わる",
   "CGED_MissingParameterOnContact": "このContactには、パラメータ名がありません。Contactコンポーネント内で定義する必要があります。",
   "CGED_MissingParameterOnPhysBone": "このPhysBoneには、パラメータ名がありません。PhysBoneコンポーネント内で定義する必要があります。",
-  "CGEC_MainDynamics": "Main Dynamics"
+  "CGEC_MainDynamics": "Main Dynamics",
+  "CGED_EnterTransitionDuration" : "遷移時間（秒）を入力する",
+  "CGED_OnEnterCurve" : "Curve",
+  "CGED_OnEnterDuration" : "持続時間（秒）"
 }
