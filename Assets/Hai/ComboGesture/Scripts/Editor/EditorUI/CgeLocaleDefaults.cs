@@ -91,16 +91,6 @@ You may choose to leave one of the mood set Parameter Name blank and it will bec
         internal static string CGEC_Synchronization = @"Synchronization";
         internal static string CGEC_Synchronize_Animator_FX_and_Gesture_layers = @"Synchronize Animator FX and Gesture layers";
         internal static string CGEC_Synchronize_Animator_FX_layers = @"Synchronize Animator FX layers";
-        internal static string CGEC_SynchronizationConditionsV1 = @"Synchronization will regenerate CGE's animator layers and generate animations.
-- Only layers starting with 'Hai_Gesture' will be affected.
-- The avatar descriptor will not be modified.
-
-You should press synchronize when any of the following happens:
-- this Compiler is modified,
-- an Activity or a Puppet is modified,
-- an animation or a blend tree or avatar mask is modified,
-- the avatar descriptor Eyelids is modified,
-- the avatar transforms are modified.";
         internal static string CGEC_Asset_generation = @"Asset generation";
         internal static string CGEC_Asset_container = @"Asset container";
         internal static string CGEC_FX_Playable_Mode = @"FX Playable Mode";
@@ -182,5 +172,21 @@ You should disable Vive Advanced Controls Analog if you are not sure of what you
         internal static string CGED_Higher_priority = "Dynamic Expressions at the top have a higher priority than the Dynamic Expressions at the bottom.";
         internal static string CGEC_MMD_compatibility_toggle_parameter = "MMD compatibility toggle parameter";
         internal static string CGEE_Mode = "Mode";
+        internal static string CGEC_Slowness_warning = "Synchronization can become slower after generating multiple times in a single Unity session.\nIf synchronization becomes too slow, please restart Unity.";
+        internal static string CGEC_SynchronizationConditionsV2 = @"Synchronization will regenerate CGE's animator layers and generate animations.
+- Only layers starting with 'Hai_Gesture' will be affected.
+- The avatar descriptor will not be modified.
+
+You should press synchronize when any of the following happens:
+- this Compiler is modified,
+- an Activity, Puppet, Massive, or Dynamics is modified,
+- an animation or a blend tree or avatar mask is modified,
+- the avatar descriptor Eyelids is modified,
+- the avatar transforms are modified,
+- if MMD compatibility is enabled and the animator layer order is modified.";
+
+        public static string CGED_MissingParameterOnContact = "This Contact has no parameter name. You must define it within the Contact component.";
+        public static string CGED_MissingParameterOnPhysBone = "This PhysBone has no parameter name. You must define it within the PhysBone component.";
+        public static string CGEC_MainDynamics = "Main Dynamics";
     }
 }

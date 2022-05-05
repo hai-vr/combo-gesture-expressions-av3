@@ -75,7 +75,6 @@
   "CGEC_Synchronization": "Synchronization",
   "CGEC_Synchronize_Animator_FX_and_Gesture_layers": "Synchronize Animator FX and Gesture layers",
   "CGEC_Synchronize_Animator_FX_layers": "Synchronize Animator FX layers",
-  "CGEC_SynchronizationConditionsV1": "Synchronization will regenerate CGE's animator layers and generate animations.\r\n- Only layers starting with 'Hai_Gesture' will be affected.\r\n- The avatar descriptor will not be modified.\r\n\r\nYou should press synchronize when any of the following happens:\r\n- this Compiler is modified,\r\n- an Activity or a Puppet is modified,\r\n- an animation or a blend tree or avatar mask is modified,\r\n- the avatar descriptor Eyelids is modified,\r\n- the avatar transforms are modified.",
   "CGEC_Asset_generation": "Asset generation",
   "CGEC_Asset_container": "Asset container",
   "CGEC_FX_Playable_Mode": "FX Playable Mode",
@@ -139,5 +138,10 @@
   "CGED_Threshold": "Threshold",
   "CGED_Higher_priority": "Dynamic Expressions at the top have a higher priority than the Dynamic Expressions at the bottom.",
   "CGEC_MMD_compatibility_toggle_parameter": "MMD compatibility toggle parameter",
-  "CGEE_Mode": "Mode"
+  "CGEE_Mode": "Mode",
+  "CGEC_Slowness_warning": "Synchronization can become slower after generating multiple times in a single Unity session.\nIf synchronization becomes too slow, please restart Unity.",
+  "CGEC_SynchronizationConditionsV2": "Synchronization will regenerate CGE's animator layers and generate animations.\n- Only layers starting with 'Hai_Gesture' will be affected.\n- The avatar descriptor will not be modified.\n\nYou should press synchronize when any of the following happens:\n- this Compiler is modified,\n- an Activity, Puppet, Massive, or Dynamics is modified,\n- an animation or a blend tree or avatar mask is modified,\n- the avatar descriptor Eyelids is modified,\n- the avatar transforms are modified,\n- if MMD compatibility is enabled and the animator layer order is modified.",
+  "CGED_MissingParameterOnContact": "This Contact has no parameter name. You must define it within the Contact component.",
+  "CGED_MissingParameterOnPhysBone": "This PhysBone has no parameter name. You must define it within the PhysBone component.",
+  "CGEC_MainDynamics": "Main Dynamics"
 }

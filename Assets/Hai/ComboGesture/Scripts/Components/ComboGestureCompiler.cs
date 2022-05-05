@@ -51,6 +51,7 @@ namespace Hai.ComboGesture.Scripts.Components
         public bool doNotForceBlinkBlendshapes;
 
         public string mmdCompatibilityToggleParameter;
+        public int totalNumberOfGenerations;
 
         public bool WillUseGestureWeightCorrection()
         {

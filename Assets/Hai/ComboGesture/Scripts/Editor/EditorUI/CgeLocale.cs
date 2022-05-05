@@ -86,7 +86,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         internal static string CGEC_Synchronization => LocalizeOrElse("CGEC_Synchronization", CgeLocaleDefaults.CGEC_Synchronization);
         internal static string CGEC_Synchronize_Animator_FX_and_Gesture_layers => LocalizeOrElse("CGEC_Synchronize_Animator_FX_and_Gesture_layers", CgeLocaleDefaults.CGEC_Synchronize_Animator_FX_and_Gesture_layers);
         internal static string CGEC_Synchronize_Animator_FX_layers => LocalizeOrElse("CGEC_Synchronize_Animator_FX_layers", CgeLocaleDefaults.CGEC_Synchronize_Animator_FX_layers);
-        internal static string CGEC_SynchronizationConditionsV1 => LocalizeOrElse("CGEC_SynchronizationConditionsV1", CgeLocaleDefaults.CGEC_SynchronizationConditionsV1);
+        internal static string CGEC_SynchronizationConditionsV2 => LocalizeOrElse("CGEC_SynchronizationConditionsV2", CgeLocaleDefaults.CGEC_SynchronizationConditionsV2);
         internal static string CGEC_Asset_generation => LocalizeOrElse("CGEC_Asset_generation", CgeLocaleDefaults.CGEC_Asset_generation);
         internal static string CGEC_Asset_container => LocalizeOrElse("CGEC_Asset_container", CgeLocaleDefaults.CGEC_Asset_container);
         internal static string CGEC_FX_Playable_Mode => LocalizeOrElse("CGEC_FX_Playable_Mode", CgeLocaleDefaults.CGEC_FX_Playable_Mode);
@@ -158,6 +158,10 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         internal static string CGED_Higher_priority => LocalizeOrElse("CGED_Higher_priority", CgeLocaleDefaults.CGED_Higher_priority);
         public static string CGEC_MMD_compatibility_toggle_parameter => LocalizeOrElse("CGEC_MMD_compatibility_toggle_parameter", CgeLocaleDefaults.CGEC_MMD_compatibility_toggle_parameter);
         public static string CGEE_Mode => LocalizeOrElse("CGEE_Mode", CgeLocaleDefaults.CGEE_Mode);
+        public static string CGEC_Slowness_warning => LocalizeOrElse("CGEC_Slowness_warning", CgeLocaleDefaults.CGEC_Slowness_warning);
+        public static string CGED_MissingParameterOnContact => LocalizeOrElse("CGED_MissingParameterOnContact", CgeLocaleDefaults.CGED_MissingParameterOnContact);
+        public static string CGED_MissingParameterOnPhysBone => LocalizeOrElse("CGED_MissingParameterOnPhysBone", CgeLocaleDefaults.CGED_MissingParameterOnPhysBone);
+        public static string CGEC_MainDynamics => LocalizeOrElse("CGEC_MainDynamics", CgeLocaleDefaults.CGEC_MainDynamics);
 
 
 
