@@ -1,28 +1,34 @@
-# ComboGestureExpressions (CGE) for Avatar Dynamics
+# ComboGestureExpressions V2 for Avatar Dynamics
 
 ### [> Download latest version...](https://github.com/hai-vr/combo-gesture-expressions-av3/releases)
+- [> Download on GitHub...](https://github.com/hai-vr/combo-gesture-expressions-av3/releases)
+- [> Download on Booth.pm...](https://hai-vr.booth.pm/items/2219616)
 
-*ComboGestureExpressions* is an Unity Editor tool that lets you attach face expressions to hand gestures and take as much advantage of *Avatars 3.0* features, including *Avatar Dynamics* and *OSC*.
+*ComboGestureExpressions* is an Unity Editor tool that lets you attach face expressions to hand gestures, and make it react to other *Avatars 3.0*'s features, including *Contacts*, *PhysBones* and *OSC*.
 
 It is bundled with *Visual Expressions Editor*, an animation editor that lets you create face expressions with the help of previews.
 
 ![](https://github.com/hai-vr/combo-gesture-expressions-av3/raw/z-res-pictures/Documentation/illustration-2.gif)
 
-A common issue with classic avatars are face expressions that conflict when both hands are combined.
-For instance, if a face expression closes the eyes on the left hand, but lowers the eyelids on the other hand, the face will look wrong. 
 
-*ComboGestureExpressions* takes advantage of Avatars 3.0 animators to fix this using predictable combo animations, but also introduces new features that will expand the expressions of your avatar:
+With *ComboGestureExpressions*:
 
-- Using the expressions menu, attach multiple expressions on a single gesture by switching between entire sets of face expressions representing different moods.
-- Eyes will no longer blink whenever the avatar has a face expression with eyes closed.
-- Puppets and blend trees are integrated into the tool, with automatic correction of incorrect blending.
 - PhysBones, Contacts and OSC can be used to blend in face expressions.
-- ...and more tweaks.
+- The pressure on your controller triggers can be used to animate your face.
+- Attach multiple expressions on a single gesture by switching between different moods using the Expressions Menu.
+- Eyes will no longer blink whenever the avatar has a face expression with eyes closed.
+- Puppets and blend trees are integrated into the tool.
+- Animations triggered by squeezing the controller trigger will look smooth to outside observers (see [corrections](https://hai-vr.github.io/combo-gesture-expressions-av3/corrections)).
 
-This tool should NOT be used for:
+## What's new in V2?
 
-- ❌ Animating hand and finger positions.
-  To animate hand and finger positions, use the Avatars 3.0's Gesture layer which is made for this purpose.
+Find out [what's new in V2](https://hai-vr.github.io/combo-gesture-expressions-av3/v2.0-whats-new).
+
+## Having issues? Join my Discord Server
+
+I will try to provide help on the #cge channel when I can.
+
+[Join the Invitation Discord (https://discord.gg/58fWAUTYF8)](https://discord.gg/58fWAUTYF8).
 
 ## Documentation / Tutorial
 
