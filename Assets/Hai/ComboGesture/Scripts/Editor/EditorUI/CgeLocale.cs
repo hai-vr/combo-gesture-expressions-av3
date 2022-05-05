@@ -165,6 +165,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public static string CGED_EnterTransitionDuration => LocalizeOrElse("CGED_EnterTransitionDuration", CgeLocaleDefaults.CGED_EnterTransitionDuration);
         public static string CGED_OnEnterCurve => LocalizeOrElse("CGED_OnEnterCurve", CgeLocaleDefaults.CGED_OnEnterCurve);
         public static string CGED_OnEnterDuration => LocalizeOrElse("CGED_OnEnterDuration", CgeLocaleDefaults.CGED_OnEnterDuration);
+        public static string CGED_BehavesLikeOnEnter => LocalizeOrElse("CGED_BehavesLikeOnEnter", CgeLocaleDefaults.CGED_BehavesLikeOnEnter);
 
 
 

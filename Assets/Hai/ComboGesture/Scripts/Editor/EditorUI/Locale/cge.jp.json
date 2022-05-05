@@ -146,5 +146,6 @@
   "CGEC_MainDynamics": "Main Dynamics",
   "CGED_EnterTransitionDuration" : "遷移時間（秒）を入力する",
   "CGED_OnEnterCurve" : "Curve",
-  "CGED_OnEnterDuration" : "持続時間（秒）"
+  "CGED_OnEnterDuration" : "持続時間（秒）",
+  "CGED_BehavesLikeOnEnter" : "OnEnterと同様の動作をする"
 }

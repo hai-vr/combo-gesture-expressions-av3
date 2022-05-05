@@ -191,5 +191,6 @@ You should press synchronize when any of the following happens:
         internal static string CGED_EnterTransitionDuration = "Enter transition duration (s)";
         internal static string CGED_OnEnterCurve = "Curve";
         internal static string CGED_OnEnterDuration = "Duration (s)";
+        internal static string CGED_BehavesLikeOnEnter = "Behaves like OnEnter";
     }
 }

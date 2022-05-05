@@ -35,6 +35,8 @@ namespace Hai.ComboGesture.Scripts.Components
         public float onEnterDuration;
         public AnimationCurve onEnterCurve;
 
+        public bool behavesLikeOnEnter;
+
         public CgeDynamicsDescriptor ToDescriptor()
         {
             var isOnEnter = source == ComboGestureDynamicsSource.Contact && contactReceiver.receiverType == ContactReceiver.ReceiverType.OnEnter;
@@ -54,6 +56,30 @@ namespace Hai.ComboGesture.Scripts.Components
                         duration = onEnterDuration,
                         curve = onEnterCurve,
                         parameter = contactReceiver.parameter,
+                        condition = condition,
+                        threshold = threshold,
+                        parameterType = parameterType
+                    }
+                };
+            }
+
+            var isImpulse = source == ComboGestureDynamicsSource.Parameter && behavesLikeOnEnter;
+            if (isImpulse)
+            {
+                return new CgeDynamicsDescriptor
+                {
+                    parameter = $"CGE_OnEnterCurve_{parameterName}",
+                    condition = ComboGestureDynamicsCondition.IsAboveThreshold,
+                    threshold = 0f,
+                    isHardThreshold = false,
+                    parameterType = ComboGestureDynamicsParameterType.Float,
+                    enterTransitionDuration = enterTransitionDuration,
+                    isOnEnter = true,
+                    onEnter = new CgeDynamicsOnEnter
+                    {
+                        duration = onEnterDuration,
+                        curve = onEnterCurve,
+                        parameter = parameterName,
                         condition = condition,
                         threshold = threshold,
                         parameterType = parameterType
