@@ -213,7 +213,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
             if (manifestBindings.Any(binding => binding.IsAvatarDynamics && binding.DynamicsDescriptor.descriptor.isOnEnter))
             {
-                CreateOrReplaceImpulseView(manifestBindings);
+                CreateOrReplaceImpulseView(manifestBindings, _animatorController);
             }
             else
             {
@@ -246,13 +246,14 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             {
                 if (_useGestureWeightCorrection)
                 {
-                    CreateOrReplaceWeightCorrection(_gesturePlayableLayerTechnicalAvatarMask, _assetContainer, _gesturePlayableLayerController, _conflictPreventionTempGestureLayer, _universalAnalogSupport);
                     if (_useSmoothing)
                     {
+                        DeleteWeightCorrection();
                         CreateOrReplaceSmoothing(_weightCorrectionAvatarMask, _assetContainer, _gesturePlayableLayerController, _conflictPreventionTempGestureLayer);
                     }
                     else
                     {
+                        CreateOrReplaceWeightCorrection(_weightCorrectionAvatarMask, _assetContainer, _animatorController, _conflictPrevention, _universalAnalogSupport);
                         DeleteSmoothing();
                     }
                 }
@@ -266,6 +267,15 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             var manifestBindings = CreateManifestBindings(emptyClip);
 
             CreateOrReplaceGesturePlayableLayerExpressionsView(emptyClip, manifestBindings);
+
+            if (manifestBindings.Any(binding => binding.IsAvatarDynamics && binding.DynamicsDescriptor.descriptor.isOnEnter))
+            {
+                CreateOrReplaceImpulseView(manifestBindings, _gesturePlayableLayerController);
+            }
+            else
+            {
+                DeleteImpulseView();
+            }
 
             ReapAnimator(_gesturePlayableLayerController);
 
@@ -425,10 +435,10 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             ).Create();
         }
 
-        private void CreateOrReplaceImpulseView(List<CgeManifestBinding> manifestBindings)
+        private void CreateOrReplaceImpulseView(List<CgeManifestBinding> manifestBindings, AnimatorController animatorController)
         {
             var aac = _assetContainer.ExposeCgeAac();
-            var layer = aac.CreateSupportingArbitraryControllerLayer(_animatorController, "Hai_GestureImpulse")
+            var layer = aac.CreateSupportingArbitraryControllerLayer(animatorController, "Hai_GestureImpulse")
                 .WithAvatarMask(_logicalAvatarMask);
 
             var onEnterBindings = manifestBindings
@@ -562,7 +572,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 ConflictFxLayerMode.KeepOnlyTransforms,
                 _compilerIgnoreParamList,
                 avatarFallbacks,
-                _animatorController,
+                _gesturePlayableLayerController,
                 _useGestureWeightCorrection,
                 _useSmoothing,
                 manifestBindings,
