@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.Internal.CgeAac;
 using UnityEditor;
@@ -189,19 +190,19 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 {
                     if (_useSmoothing)
                     {
-                        DeleteWeightCorrection();
+                        DeleteWeightCorrection(_animatorController);
                         CreateOrReplaceSmoothing(_weightCorrectionAvatarMask, _assetContainer, _animatorController, _conflictPrevention);
                     }
                     else
                     {
                         CreateOrReplaceWeightCorrection(_weightCorrectionAvatarMask, _assetContainer, _animatorController, _conflictPrevention, _universalAnalogSupport);
-                        DeleteSmoothing();
+                        DeleteSmoothing(_animatorController);
                     }
                 }
                 else
                 {
-                    DeleteWeightCorrection();
-                    DeleteSmoothing();
+                    DeleteWeightCorrection(_animatorController);
+                    DeleteSmoothing(_animatorController);
                 }
             }
 
@@ -217,7 +218,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
             else
             {
-                DeleteImpulseView();
+                DeleteImpulseView(_animatorController);
             }
 
             if (!Feature(CgeFeatureToggles.DoNotGenerateBlinkingOverrideLayer))
@@ -248,19 +249,19 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 {
                     if (_useSmoothing)
                     {
-                        DeleteWeightCorrection();
+                        DeleteWeightCorrection(_gesturePlayableLayerController);
                         CreateOrReplaceSmoothing(_weightCorrectionAvatarMask, _assetContainer, _gesturePlayableLayerController, _conflictPreventionTempGestureLayer);
                     }
                     else
                     {
-                        CreateOrReplaceWeightCorrection(_weightCorrectionAvatarMask, _assetContainer, _animatorController, _conflictPrevention, _universalAnalogSupport);
-                        DeleteSmoothing();
+                        CreateOrReplaceWeightCorrection(_weightCorrectionAvatarMask, _assetContainer, _gesturePlayableLayerController, _conflictPrevention, _universalAnalogSupport);
+                        DeleteSmoothing(_gesturePlayableLayerController);
                     }
                 }
                 else
                 {
-                    DeleteWeightCorrection();
-                    DeleteSmoothing();
+                    DeleteWeightCorrection(_gesturePlayableLayerController);
+                    DeleteSmoothing(_gesturePlayableLayerController);
                 }
             }
 
@@ -274,7 +275,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
             else
             {
-                DeleteImpulseView();
+                DeleteImpulseView(_gesturePlayableLayerController);
             }
 
             ReapAnimator(_gesturePlayableLayerController);
@@ -550,9 +551,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
         }
 
-        private void DeleteImpulseView()
+        private void DeleteImpulseView(AnimatorController animatorController)
         {
-            _assetContainer.ExposeCgeAac().CGE_RemoveSupportingArbitraryControllerLayer(_animatorController, "Hai_GestureImpulse");
+            _assetContainer.ExposeCgeAac().CGE_RemoveSupportingArbitraryControllerLayer(animatorController, "Hai_GestureImpulse");
         }
 
         private void CreateOrReplaceGesturePlayableLayerExpressionsView(AnimationClip emptyClip, List<CgeManifestBinding> manifestBindings)
@@ -602,14 +603,14 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _assetContainer.ExposeCgeAac().CGE_RemoveSupportingArbitraryControllerLayer(_animatorController, "Hai_GestureCtrl");
         }
 
-        private void DeleteWeightCorrection()
+        private void DeleteWeightCorrection(AnimatorController animatorController)
         {
-            CgeLayerForWeightCorrection.Delete(_assetContainer, _animatorController);
+            CgeLayerForWeightCorrection.Delete(_assetContainer, animatorController);
         }
 
-        private void DeleteSmoothing()
+        private void DeleteSmoothing(AnimatorController animatorController)
         {
-            CgeLayerForAnalogFistSmoothing.Delete(_assetContainer, _animatorController);
+            CgeLayerForAnalogFistSmoothing.Delete(_assetContainer, animatorController);
         }
 
         private bool Feature(CgeFeatureToggles feature)
