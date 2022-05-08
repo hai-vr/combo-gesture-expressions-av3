@@ -7,6 +7,7 @@ using Hai.ComboGesture.Scripts.Editor.Internal;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
+using UnityEngine.Profiling;
 using VRC.SDKBase;
 using AnimatorController = UnityEditor.Animations.AnimatorController;
 using BlendTree = UnityEditor.Animations.BlendTree;
@@ -402,7 +403,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 CgeLocale.CGEC_Synchronize_Animator_FX_and_Gesture_layers :
                 CgeLocale.CGEC_Synchronize_Animator_FX_layers, GUILayout.Height(40)))
             {
-                DoGenerate();
+                DoGenerateLayers();
                 compiler.totalNumberOfGenerations++;
                 if (compiler.totalNumberOfGenerations % 5 == 0)
                 {
@@ -666,6 +667,21 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
             if (compiler.useGesturePlayableLayer)
             {
                 new ComboGestureCompilerInternal(compiler, actualContainer).DoOverwriteAnimatorGesturePlayableLayer();
+            }
+        }
+
+        private void DoGenerateLayers()
+        {
+            try
+            {
+                // var pfi = ProfilerDriver.GetPreviousFrameIndex(Time.frameCount);
+                // Debug.Log($"PFI: {pfi}");
+                Profiler.BeginSample("CGE");
+                DoGenerate();
+            }
+            finally
+            {
+                Profiler.EndSample();
             }
         }
 

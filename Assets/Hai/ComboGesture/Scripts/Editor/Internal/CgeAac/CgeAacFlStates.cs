@@ -149,6 +149,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
         public CgeAacFlStateMachine NewSubStateMachine(string name, int x, int y)
         {
             var stateMachine = Machine.AddStateMachine(name, GridPosition(x, y));
+            CgeAacV0.UndoDisable(stateMachine);
             var aacMachine = new CgeAacFlStateMachine(stateMachine, _emptyClip, _backingAnimator, DefaultsProvider, this);
             _defaultsProvider.ConfigureStateMachine(stateMachine);
             _childNodes.Add(aacMachine);
@@ -188,6 +189,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
         public CgeAacFlState NewState(string name, int x, int y)
         {
             var state = Machine.AddState(name, GridPosition(x, y));
+            CgeAacV0.UndoDisable(state);
             DefaultsProvider.ConfigureState(state, _emptyClip);
             var aacState = new CgeAacFlState(state, this, DefaultsProvider);
             _childNodes.Add(aacState);
@@ -216,27 +218,37 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
 
         public CgeAacFlNewTransitionContinuation TransitionsTo(CgeAacFlState destination)
         {
-            return new CgeAacFlNewTransitionContinuation(ParentMachine.Machine.AddStateMachineTransition(Machine, destination.State), ParentMachine.Machine, Machine, destination.State);
+            var transition = ParentMachine.Machine.AddStateMachineTransition(Machine, destination.State);
+            CgeAacV0.UndoDisable(transition);
+            return new CgeAacFlNewTransitionContinuation(transition, ParentMachine.Machine, Machine, destination.State);
         }
 
         public CgeAacFlNewTransitionContinuation TransitionsTo(CgeAacFlStateMachine destination)
         {
-            return new CgeAacFlNewTransitionContinuation(ParentMachine.Machine.AddStateMachineTransition(Machine, destination.Machine), ParentMachine.Machine, Machine, destination.Machine);
+            var transition = ParentMachine.Machine.AddStateMachineTransition(Machine, destination.Machine);
+            CgeAacV0.UndoDisable(transition);
+            return new CgeAacFlNewTransitionContinuation(transition, ParentMachine.Machine, Machine, destination.Machine);
         }
 
         public CgeAacFlNewTransitionContinuation Restarts()
         {
-            return new CgeAacFlNewTransitionContinuation(ParentMachine.Machine.AddStateMachineTransition(Machine, Machine), ParentMachine.Machine, Machine, Machine);
+            var transition = ParentMachine.Machine.AddStateMachineTransition(Machine, Machine);
+            CgeAacV0.UndoDisable(transition);
+            return new CgeAacFlNewTransitionContinuation(transition, ParentMachine.Machine, Machine, Machine);
         }
 
         public CgeAacFlNewTransitionContinuation Exits()
         {
-            return new CgeAacFlNewTransitionContinuation(ParentMachine.Machine.AddStateMachineExitTransition(Machine), ParentMachine.Machine, Machine, null);
+            var transition = ParentMachine.Machine.AddStateMachineExitTransition(Machine);
+            CgeAacV0.UndoDisable(transition);
+            return new CgeAacFlNewTransitionContinuation(transition, ParentMachine.Machine, Machine, null);
         }
 
         private CgeAacFlTransition AnyTransition(CgeAacFlState destination, AnimatorStateMachine animatorStateMachine)
         {
-            return new CgeAacFlTransition(ConfigureTransition(animatorStateMachine.AddAnyStateTransition(destination.State)), animatorStateMachine, null, destination.State);
+            var transition = animatorStateMachine.AddAnyStateTransition(destination.State);
+            CgeAacV0.UndoDisable(transition);
+            return new CgeAacFlTransition(ConfigureTransition(transition), animatorStateMachine, null, destination.State);
         }
 
         private AnimatorStateTransition ConfigureTransition(AnimatorStateTransition transition)
@@ -247,12 +259,16 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
 
         private CgeAacFlEntryTransition EntryTransition(CgeAacFlState destination, AnimatorStateMachine animatorStateMachine)
         {
-            return new CgeAacFlEntryTransition(animatorStateMachine.AddEntryTransition(destination.State), animatorStateMachine, null, destination.State);
+            var transition = animatorStateMachine.AddEntryTransition(destination.State);
+            CgeAacV0.UndoDisable(transition);
+            return new CgeAacFlEntryTransition(transition, animatorStateMachine, null, destination.State);
         }
 
         private CgeAacFlEntryTransition EntryTransition(CgeAacFlStateMachine destination, AnimatorStateMachine animatorStateMachine)
         {
-            return new CgeAacFlEntryTransition(animatorStateMachine.AddEntryTransition(destination.Machine), animatorStateMachine, null, destination.Machine);
+            var transition = animatorStateMachine.AddEntryTransition(destination.Machine);
+            CgeAacV0.UndoDisable(transition);
+            return new CgeAacFlEntryTransition(transition, animatorStateMachine, null, destination.Machine);
         }
 
         internal Vector3 LastNodePosition()
@@ -327,41 +343,55 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
 
         public CgeAacFlTransition TransitionsTo(CgeAacFlState destination)
         {
-            return new CgeAacFlTransition(ConfigureTransition(State.AddTransition(destination.State)), _machine, State, destination.State);
+            var internalTransition = State.AddTransition(destination.State);
+            CgeAacV0.UndoDisable(internalTransition);
+            return new CgeAacFlTransition(ConfigureTransition(internalTransition), _machine, State, destination.State);
         }
 
         public CgeAacFlTransition TransitionsTo(CgeAacFlStateMachine destination)
         {
-            return new CgeAacFlTransition(State.AddTransition(destination.Machine), _machine, State, destination.Machine);
+            var internalTransition = State.AddTransition(destination.Machine);
+            CgeAacV0.UndoDisable(internalTransition);
+            return new CgeAacFlTransition(internalTransition, _machine, State, destination.Machine);
         }
 
         public CgeAacFlTransition TransitionsFromAny()
         {
-            return new CgeAacFlTransition(ConfigureTransition(_machine.AddAnyStateTransition(State)), _machine, null, State);
+            var internalTransition = _machine.AddAnyStateTransition(State);
+            CgeAacV0.UndoDisable(internalTransition);
+            return new CgeAacFlTransition(ConfigureTransition(internalTransition), _machine, null, State);
         }
 
         public CgeAacFlEntryTransition TransitionsFromEntry()
         {
-            return new CgeAacFlEntryTransition(_machine.AddEntryTransition(State), _machine, null, State);
+            var internalTransition = _machine.AddEntryTransition(State);
+            CgeAacV0.UndoDisable(internalTransition);
+            return new CgeAacFlEntryTransition(internalTransition, _machine, null, State);
         }
 
         public CgeAacFlState AutomaticallyMovesTo(CgeAacFlState destination)
         {
-            var transition = ConfigureTransition(State.AddTransition(destination.State));
+            var internalTransition = State.AddTransition(destination.State);
+            CgeAacV0.UndoDisable(internalTransition);
+            var transition = ConfigureTransition(internalTransition);
             transition.hasExitTime = true;
             return this;
         }
 
         public CgeAacFlState CGE_AutomaticallyMovesTo(CgeAacFlStateMachine destination)
         {
-            var transition = ConfigureTransition(State.AddTransition(destination.Machine));
+            var internalTransition = State.AddTransition(destination.Machine);
+            CgeAacV0.UndoDisable(internalTransition);
+            var transition = ConfigureTransition(internalTransition);
             transition.hasExitTime = true;
             return this;
         }
 
         public CgeAacFlTransition Exits()
         {
-            return new CgeAacFlTransition(ConfigureTransition(State.AddExitTransition()), _machine, State, null);
+            var transition = State.AddExitTransition();
+            CgeAacV0.UndoDisable(transition);
+            return new CgeAacFlTransition(ConfigureTransition(transition), _machine, State, null);
         }
 
         private AnimatorStateTransition ConfigureTransition(AnimatorStateTransition transition)
@@ -1119,6 +1149,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
                         newTransition = _machine.AddStateMachineTransition(stateMachine, destinationStateMachine);
                     else
                         throw new InvalidOperationException("_destinationNullableIfExits is not null but does not contain an AnimatorState or AnimatorStateMachine");
+
+                    CgeAacV0.UndoDisable(newTransition);
                 }
                 else
                     throw new InvalidOperationException("_sourceNullableIfAny is not null but does not contain an AnimatorStateMachine");
@@ -1134,9 +1166,19 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
             if (_sourceNullableIfAny == null)
             {
                 if (_destinationNullableIfExits.TryGetState(out state))
-                    return _machine.AddAnyStateTransition(state);
+                {
+                    var transition = _machine.AddAnyStateTransition(state);
+                    CgeAacV0.UndoDisable(transition);
+                    return transition;
+                }
+
                 if (_destinationNullableIfExits.TryGetStateMachine(out stateMachine))
-                    return _machine.AddAnyStateTransition(stateMachine);
+                {
+                    var transition = _machine.AddAnyStateTransition(stateMachine);
+                    CgeAacV0.UndoDisable(transition);
+                    return transition;
+                }
+
                 throw new InvalidOperationException("Transition has no source nor destination.");
             }
 
@@ -1145,16 +1187,25 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
             {
                 if (_destinationNullableIfExits == null)
                 {
-                    return sourceState.AddExitTransition();
+                    var transition = sourceState.AddExitTransition();
+                    CgeAacV0.UndoDisable(transition);
+                    return transition;
                 }
 
                 if (_destinationNullableIfExits.TryGetState(out state))
                 {
-                    return sourceState.AddTransition(state);
+                    var transition = sourceState.AddTransition(state);
+                    CgeAacV0.UndoDisable(transition);
+                    return transition;
                 }
 
                 if (_destinationNullableIfExits.TryGetStateMachine(out stateMachine))
-                    return sourceState.AddTransition(stateMachine);
+                {
+                    var transition = sourceState.AddTransition(stateMachine);
+                    CgeAacV0.UndoDisable(transition);
+                    return transition;
+                }
+
                 throw new InvalidOperationException("_destinationNullableIfExits is not null but does not contain an AnimatorState or AnimatorStateMachine");
             }
             throw new InvalidOperationException("_sourceNullableIfAny is not null but does not contain an AnimatorState");

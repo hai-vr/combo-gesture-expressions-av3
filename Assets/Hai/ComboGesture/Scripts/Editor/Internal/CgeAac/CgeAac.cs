@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
@@ -94,6 +95,20 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
         {
             return new EditorCurveBinding {path = binding.path, type = binding.type, propertyName = binding.propertyName + "." + suffix};
         }
+
+        internal static void UndoDisable<T>(T state)
+        {
+            typeof(T)
+                .GetProperty("pushUndo", BindingFlags.Instance | BindingFlags.NonPublic)
+                .SetValue(state, false);
+        }
+
+        internal static void UndoEnable<T>(T state)
+        {
+            typeof(T)
+                .GetProperty("pushUndo", BindingFlags.Instance | BindingFlags.NonPublic)
+                .SetValue(state, true);
+        }
     }
 
     public struct CgeAacConfiguration
@@ -126,37 +141,50 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
         {
             var lastState = _stateMachine.LastNodePosition();
             var state = _stateMachine.NewState(name, 0, 0).Shift(lastState, 0, 1);
+            CgeAacV0.UndoDisable(state.State);
             return state;
         }
 
         public CgeAacFlState NewState(string name, int x, int y)
         {
-            return _stateMachine.NewState(name, x, y);
+            var state = _stateMachine.NewState(name, x, y);
+            CgeAacV0.UndoDisable(state.State);
+            return state;
         }
 
         public CgeAacFlStateMachine NewSubStateMachine(string name)
         {
-            return _stateMachine.NewSubStateMachine(name);
+            var ssm = _stateMachine.NewSubStateMachine(name);
+            CgeAacV0.UndoDisable(ssm.Machine);
+            return ssm;
         }
 
         public CgeAacFlStateMachine NewSubStateMachine(string name, int x, int y)
         {
-            return _stateMachine.NewSubStateMachine(name, x, y);
+            var ssm = _stateMachine.NewSubStateMachine(name, x, y);
+            CgeAacV0.UndoDisable(ssm.Machine);
+            return ssm;
         }
 
         public CgeAacFlTransition AnyTransitionsTo(CgeAacFlState destination)
         {
-            return _stateMachine.AnyTransitionsTo(destination);
+            var transition = _stateMachine.AnyTransitionsTo(destination);
+            CgeAacV0.UndoDisable(transition.Transition);
+            return transition;
         }
 
         public CgeAacFlEntryTransition EntryTransitionsTo(CgeAacFlState destination)
         {
-            return _stateMachine.EntryTransitionsTo(destination);
+            var transition = _stateMachine.EntryTransitionsTo(destination);
+            CgeAacV0.UndoDisable(transition.Transition);
+            return transition;
         }
         
         public CgeAacFlEntryTransition EntryTransitionsTo(CgeAacFlStateMachine destination)
         {
-            return _stateMachine.EntryTransitionsTo(destination);
+            var transition = _stateMachine.EntryTransitionsTo(destination);
+            CgeAacV0.UndoDisable(transition.Transition);
+            return transition;
         }
 
         public CgeAacFlBoolParameter BoolParameter(string parameterName) => _stateMachine.BackingAnimator().BoolParameter(parameterName);
@@ -648,7 +676,16 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
             var originalIndexToPreserveOrdering = FindIndexOf(layerName);
             if (originalIndexToPreserveOrdering != -1)
             {
-                _animatorController.RemoveLayer(originalIndexToPreserveOrdering);
+                try
+                {
+                    CgeAacV0.UndoDisable(_animatorController);
+                    _animatorController.RemoveLayer(originalIndexToPreserveOrdering);
+                }
+                finally
+                {
+                    CgeAacV0.UndoEnable(_animatorController);
+                }
+
             }
 
             AddLayerWithWeight(layerName, weightWhenCreating, maskWhenCreating);
@@ -664,6 +701,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
             var layer = TryGetLayer(layerName);
             var machinist = new CgeAacFlStateMachine(layer.stateMachine, _emptyClip, new CgeAacBackingAnimator(this), _defaultsProvider);
             _defaultsProvider.ConfigureStateMachine(layer.stateMachine);
+            CgeAacV0.UndoDisable(layer.stateMachine);
             return machinist;
         }
 
@@ -672,6 +710,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
             var originalIndexToPreserveOrdering = FindIndexOf(layerName);
             if (originalIndexToPreserveOrdering != -1)
             {
+                CgeAacV0.UndoDisable(_animatorController.layers[originalIndexToPreserveOrdering].stateMachine);
                 RecursivelyClearChildrenMachines(_animatorController.layers[originalIndexToPreserveOrdering].stateMachine);
 
                 _animatorController.layers[originalIndexToPreserveOrdering].stateMachine.stateMachines = new ChildAnimatorStateMachine[0];
