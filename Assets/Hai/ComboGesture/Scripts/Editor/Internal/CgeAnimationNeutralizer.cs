@@ -441,19 +441,29 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 return 0;
             }
 
-            var found = AnimationUtility.GetFloatValue(_avatarDescriptorNullable.gameObject, new EditorCurveBinding
+            try
             {
-                path = curveKey.Path,
-                type = curveKey.Type,
-                propertyName = curveKey.PropertyName
-            }, out var data);
+                var found = AnimationUtility.GetFloatValue(_avatarDescriptorNullable.gameObject, new EditorCurveBinding
+                {
+                    path = curveKey.Path,
+                    type = curveKey.Type,
+                    propertyName = curveKey.PropertyName
+                }, out var data);
 
-            if (!found)
+                if (!found)
+                {
+                    return 0;
+                }
+
+                return data;
+            }
+            catch (Exception e)
             {
+                // #342 "Invalid Type" may be thrown on DynamicBone m_Enabled if is it uninstalled, which may become common as PhysBones replaces it.
+                // We return 0 for these cases.
+                Debug.LogWarning($"Error while getting value at {curveKey.Path} {curveKey.Type} {curveKey.PropertyName} for {_avatarDescriptorNullable}. This will be ignored. {e.Message}");
                 return 0;
             }
-
-            return data;
         }
 
         private void AddMissingObjectReferences(HashSet<CgeCurveKey> allApplicableObjectReferences, List<CgeCurveKey> thisObjectReferences, AnimationClip copyOfAnimationClip)
