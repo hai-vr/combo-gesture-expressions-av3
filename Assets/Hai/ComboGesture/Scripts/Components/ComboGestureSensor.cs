@@ -7,6 +7,8 @@ namespace Hai.ComboGesture.Scripts.Components
         public CgeSensorCone mouth;
         public CgeSensorCone jaw;
         public CgeSensorCone puff;
+        public CgeSensorLipElement lipElement;
+        public CgeSensorEyeElement eyeElement;
     }
 
     public struct CgeSensorCone
@@ -18,9 +20,11 @@ namespace Hai.ComboGesture.Scripts.Components
         public Motion left;
         public Motion right;
     }
-
+    
     public struct CgeSensorLipElement
     {
+        public SkinnedMeshRenderer[] renderersByConvention;
+        
         public Motion None; // GearBell 0:0 RESTING_FACE_EXAMPLE
         //public Motion None; // GearBell 8:0 TONGUE_REST_COMPARISON_EXAMPLE
         
@@ -61,6 +65,29 @@ namespace Hai.ComboGesture.Scripts.Components
         public Motion Tongue_UpRight_Morph; // GearBell 10:1 TONGUE_UP_RIGHT_MORPH
         public Motion Tongue_DownLeft_Morph; // GearBell 10:2 TONGUE_DOWN_LEFT_MORPH
         public Motion Tongue_DownRight_Morph; // GearBell 10:3 TONGUE_DOWN_RIGHT_MORPH
+        // public Motion Max; // enum marker
+    }
+
+    public struct CgeSensorEyeElement
+    {
+        public SkinnedMeshRenderer[] renderersByConvention;
+        
+        public Motion None;
+        public Motion Eye_Left_Blink;
+        public Motion Eye_Left_Wide;
+        public Motion Eye_Left_Right;
+        public Motion Eye_Left_Left;
+        public Motion Eye_Left_Up;
+        public Motion Eye_Left_Down;
+        public Motion Eye_Right_Blink;
+        public Motion Eye_Right_Wide;
+        public Motion Eye_Right_Right;
+        public Motion Eye_Right_Left;
+        public Motion Eye_Right_Up;
+        public Motion Eye_Right_Down;
+        public Motion Eye_Frown;
+        public Motion Eye_Left_Squeeze;
+        public Motion Eye_Right_Squeeze;
         // public Motion Max; // enum marker
     }
 }
