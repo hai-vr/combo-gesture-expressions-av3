@@ -193,5 +193,7 @@ You should press synchronize when any of the following happens:
         internal static string CGED_OnEnterDuration = "Duration (s)";
         internal static string CGED_BehavesLikeOnEnter = "Behaves like OnEnter";
         internal static string CGED_UpperBound = "Upper bound";
+        internal static string CGEC_Synchronize_Face_Tracking_Layers = "Synchronize Face Tracking Layers";
+        internal static string CGEC_FaceTracking = "Face Tracking";
     }
 }

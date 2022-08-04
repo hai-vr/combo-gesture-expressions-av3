@@ -1,16 +1,26 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Components
 {
-    public class ComboGestureSensor : MonoBehaviour
+    public class ComboGestureFaceTracking : MonoBehaviour
     {
         public CgeSensorCone mouth;
         public CgeSensorCone jaw;
         public CgeSensorCone puff;
         public CgeSensorLipElement lipElement;
         public CgeSensorEyeElement eyeElement;
+        public ComboGestureVRCFaceTrackingFTVendor vendor;
     }
 
+    public enum CgeVendorGroup
+    {
+        None,
+        All,
+        Some
+    }
+
+    [Serializable]
     public struct CgeSensorCone
     {
         public Motion idle;
@@ -21,6 +31,7 @@ namespace Hai.ComboGesture.Scripts.Components
         public Motion right;
     }
     
+    [Serializable]
     public struct CgeSensorLipElement
     {
         public SkinnedMeshRenderer[] renderersByConvention;
@@ -68,6 +79,7 @@ namespace Hai.ComboGesture.Scripts.Components
         // public Motion Max; // enum marker
     }
 
+    [Serializable]
     public struct CgeSensorEyeElement
     {
         public SkinnedMeshRenderer[] renderersByConvention;

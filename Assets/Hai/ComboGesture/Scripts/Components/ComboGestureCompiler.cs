@@ -53,6 +53,8 @@ namespace Hai.ComboGesture.Scripts.Components
         public string mmdCompatibilityToggleParameter;
         public int totalNumberOfGenerations;
 
+        public ComboGestureFaceTracking faceTracking;
+
         public bool WillUseGestureWeightCorrection()
         {
             return weightCorrectionMode != WeightCorrectionMode.UseNativeWeight;

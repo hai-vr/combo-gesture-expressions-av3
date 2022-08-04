@@ -4,6 +4,7 @@
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 {
@@ -135,7 +136,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         internal static string CGEE_TreeFileCreate => LocalizeOrElse("CGEE_TreeFileCreate", CgeLocaleDefaults.CGEE_TreeFileCreate);
         internal static string CGEE_TreeFileInvalidSavePath => LocalizeOrElse("CGEE_TreeFileInvalidSavePath", CgeLocaleDefaults.CGEE_TreeFileInvalidSavePath);
         internal static string CGEE_TreeFileInvalidSavePathMessage => LocalizeOrElse("CGEE_TreeFileInvalidSavePathMessage", CgeLocaleDefaults.CGEE_TreeFileInvalidSavePathMessage);
-        //
+        // 2.0.0
         internal static string CGEC_ViveAdvancedControlsWarning => LocalizeOrElse("CGEC_ViveAdvancedControlsWarning", CgeLocaleDefaults.CGEC_ViveAdvancedControlsWarning);
         //
         internal static string CGEC_Avatar_Dynamics => LocalizeOrElse("CGEC_Avatar_Dynamics", CgeLocaleDefaults.CGEC_Avatar_Dynamics);
@@ -167,6 +168,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public static string CGED_OnEnterDuration => LocalizeOrElse("CGED_OnEnterDuration", CgeLocaleDefaults.CGED_OnEnterDuration);
         public static string CGED_BehavesLikeOnEnter => LocalizeOrElse("CGED_BehavesLikeOnEnter", CgeLocaleDefaults.CGED_BehavesLikeOnEnter);
         public static string CGED_UpperBound => LocalizeOrElse("CGED_UpperBound", CgeLocaleDefaults.CGED_UpperBound);
+        // 2.1.0
+        public static string CGEC_FaceTracking => LocalizeOrElse("CGEC_FaceTracking", CgeLocaleDefaults.CGEC_FaceTracking);
+        public static string CGEC_Synchronize_Face_Tracking_Layers => LocalizeOrElse("CGEC_Synchronize_Face_Tracking_Layers", CgeLocaleDefaults.CGEC_Synchronize_Face_Tracking_Layers);
 
 
 

@@ -56,6 +56,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         public SerializedProperty useViveAdvancedControlsForNonFistAnalog;
         public SerializedProperty dynamics;
+        public SerializedProperty faceTracking;
         private SerializedProperty doNotForceBlinkBlendshapes;
         private SerializedProperty mmdCompatibilityToggleParameter;
 
@@ -100,6 +101,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             dynamics = serializedObject.FindProperty(nameof(ComboGestureCompiler.dynamics));
             doNotForceBlinkBlendshapes = serializedObject.FindProperty(nameof(ComboGestureCompiler.doNotForceBlinkBlendshapes));
             mmdCompatibilityToggleParameter = serializedObject.FindProperty(nameof(ComboGestureCompiler.mmdCompatibilityToggleParameter));
+            faceTracking = serializedObject.FindProperty(nameof(ComboGestureCompiler.faceTracking));
 
             // reference: https://blog.terresquall.com/2020/03/creating-reorderable-lists-in-the-unity-inspector/
             comboLayersReorderableList = new ReorderableList(
@@ -366,18 +368,17 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 EditorGUILayout.PropertyField(useViveAdvancedControlsForNonFistAnalog, new GUIContent("Use Vive Advanced Controls Analog"));
             }
 
-            EditorGUI.BeginDisabledGroup(
-                ThereIsNoAnimatorController() ||
-                ThereIsNoGestureAnimatorController() ||
-                ThereIsNoActivity() ||
-                ThereIsAnOverlap() ||
-                ThereIsAPuppetWithNoBlendTree() ||
-                ThereIsAMassiveBlendWithIncorrectConfiguration() ||
-                ThereIsANullMapper() ||
-                ThereIsNoActivityNameForMultipleActivities() ||
-                ThereIsNoAvatarDescriptor()
-            );
-
+            var canSync = ThereIsNoAnimatorController() ||
+                          ThereIsNoGestureAnimatorController() ||
+                          ThereIsNoActivity() ||
+                          ThereIsAnOverlap() ||
+                          ThereIsAPuppetWithNoBlendTree() ||
+                          ThereIsAMassiveBlendWithIncorrectConfiguration() ||
+                          ThereIsANullMapper() ||
+                          ThereIsNoActivityNameForMultipleActivities() ||
+                          ThereIsNoAvatarDescriptor();
+            EditorGUI.BeginDisabledGroup(canSync);
+            
             bool ThereIsNoAnimatorController()
             {
                 return animatorController.objectReferenceValue == null;
@@ -414,6 +415,15 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             {
                 EditorGUILayout.HelpBox(CgeLocale.CGEC_Slowness_warning, MessageType.Warning);
             }
+            EditorGUI.EndDisabledGroup();
+
+            EditorGUILayout.PropertyField(faceTracking, new GUIContent(CgeLocale.CGEC_FaceTracking));
+            EditorGUI.BeginDisabledGroup(canSync);
+            if (compiler.faceTracking != null && GUILayout.Button(CgeLocale.CGEC_Synchronize_Face_Tracking_Layers))
+            {
+                DoGenerateFaceTrackingLayers();
+            }
+            
             EditorGUI.EndDisabledGroup();
 
             EditorGUILayout.HelpBox(
@@ -668,6 +678,20 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
             {
                 new ComboGestureCompilerInternal(compiler, actualContainer).DoOverwriteAnimatorGesturePlayableLayer();
             }
+        }
+
+        private void DoGenerateFaceTrackingLayers()
+        {
+            var compiler = AsCompiler();
+            
+            var folderToCreateAssetIn = ResolveFolderToCreateNeutralizedAssetsIn(compiler.folderToGenerateNeutralizedAssetsIn, compiler.animatorController);
+            var actualContainer = CreateContainerIfNotExists(compiler, folderToCreateAssetIn);
+            if (actualContainer != null && compiler.assetContainer == null && !compiler.generateNewContainerEveryTime)
+            {
+                compiler.assetContainer = actualContainer.ExposeContainerAsset();
+            }
+            
+            new CgeNativeFaceTracking(compiler.faceTracking, (AnimatorController)compiler.animatorController, actualContainer).DoOverwriteNativeFaceTrackingLayer();
         }
 
         private void DoGenerateLayers()
