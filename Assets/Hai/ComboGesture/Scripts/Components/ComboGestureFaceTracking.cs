@@ -3,13 +3,13 @@ using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Components
 {
-    public class ComboGestureFaceTracking : MonoBehaviour
+    public class ComboGestureFaceTracking : ComboGestureFTVendor
     {
         public SkinnedMeshRenderer[] automaticAnimations;
         public CgeSensorLipElement lipElement;
         public CgeSensorEyeElement eyeElement;
         
-        public ComboGestureVRCFaceTrackingFTVendor vendor;
+        public ComboGestureFTVendor vendor;
     }
 
     public enum CgeVendorGroup
