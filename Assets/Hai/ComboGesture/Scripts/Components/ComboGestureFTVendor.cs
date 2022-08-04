@@ -1,13 +1,27 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Components
 {
     public abstract class ComboGestureFTVendor : MonoBehaviour
     {
-        public abstract CgeElementActuator[] ToElementActuators();
+        protected abstract Dictionary<string, CgeElementActuator[]> ExposeMap();
+
+        public virtual CgeElementActuator[] ToElementActuators()
+        {
+            var map = ExposeMap();
+            return GetType()
+                .GetFields(BindingFlags.Public | BindingFlags.Instance)
+                .Where(info => info.FieldType == typeof(bool))
+                .Where(info => (bool)info.GetValue(this))
+                .SelectMany(info => map[info.Name])
+                .ToArray();
+        }
     }
-    
+
     [Serializable]
     public struct CgeElementActuator
     {
@@ -18,7 +32,7 @@ namespace Hai.ComboGesture.Scripts.Components
     [Serializable]
     public struct CgeActuator
     {
-        public string parameter;
+        public string sensorParameterName;
         public float neutral;
         public float actuated;
     }
@@ -74,6 +88,7 @@ namespace Hai.ComboGesture.Scripts.Components
         Eye_Right_Left,
         Eye_Right_Up,
         Eye_Right_Down,
+
         // Eye_Frown,
         Eye_Left_Frown,
         Eye_Right_Frown,
@@ -82,7 +97,10 @@ namespace Hai.ComboGesture.Scripts.Components
         Eye_Left_Dilation,
         Eye_Left_Constrict,
         Eye_Right_Dilation,
-        Eye_Right_Constrict
+        Eye_Right_Constrict,
+        NOT_APPLICABLE,
+        NOT_IMPLEMENTED,
+        CgeElementTODO
     }
 
     [Serializable]
@@ -145,5 +163,87 @@ namespace Hai.ComboGesture.Scripts.Components
         public CgeActuator Eye_Frown;
         public CgeActuator Eye_Left_Squeeze;
         public CgeActuator Eye_Right_Squeeze;
+    }
+    
+    internal class CgeInternalVRCFTContinuation
+    {
+        private readonly List<CgeElementActuator> _result;
+        private readonly string _parameter;
+
+        public CgeInternalVRCFTContinuation(string parameter)
+        {
+            _result = new List<CgeElementActuator>();
+            _parameter = parameter;
+        }
+
+        internal CgeElementActuator[] ToArray()
+        {
+            return _result.ToArray();
+        }
+        
+        internal CgeInternalVRCFTContinuation Positive(CgeElement element)
+        {
+            _result.Add(new CgeElementActuator
+            {
+                element = element,
+                actuator = new CgeActuator
+                {
+                    sensorParameterName = _parameter,
+                    neutral = 0f,
+                    actuated = 1f
+                }
+            });
+            return this;
+        }
+
+        internal CgeInternalVRCFTContinuation Joystick(CgeElement negativeLeftDown, CgeElement positiveUpRight)
+        {
+            _result.Add(new CgeElementActuator
+            {
+                element = negativeLeftDown,
+                actuator = new CgeActuator
+                {
+                    sensorParameterName = _parameter,
+                    neutral = 0f,
+                    actuated = -1f
+                }
+            });
+            _result.Add(new CgeElementActuator
+            {
+                element = positiveUpRight,
+                actuator = new CgeActuator
+                {
+                    sensorParameterName = _parameter,
+                    neutral = 0f,
+                    actuated = 1f
+                }
+            });
+            return this;
+        }
+
+        public CgeInternalVRCFTContinuation Aperture(CgeElement zero, CgeElement one)
+        {
+            _result.Add(new CgeElementActuator
+            {
+                element = zero,
+                actuator = new CgeActuator
+                {
+                    sensorParameterName = _parameter,
+                    neutral = 0.5f,
+                    actuated = 0f
+                }
+            });
+            _result.Add(new CgeElementActuator
+            {
+                element = one,
+                actuator = new CgeActuator
+                {
+                    sensorParameterName = _parameter,
+                    neutral = 0.5f,
+                    actuated = 1f
+                }
+            });
+            return this;
+        }
     }
 }
