@@ -81,9 +81,15 @@ namespace Hai.ComboGesture.Scripts.Components
         public Motion Eye_Right_Left;
         public Motion Eye_Right_Up;
         public Motion Eye_Right_Down;
-        public Motion Eye_Frown;
+        // public Motion Eye_Frown; // NOTE: SRAnipal currently never actuates this
+        public Motion Eye_Left_Frown;
+        public Motion Eye_Right_Frown;
         public Motion Eye_Left_Squeeze;
         public Motion Eye_Right_Squeeze;
+        public Motion Eye_Left_Dilation;
+        public Motion Eye_Left_Constrict;
+        public Motion Eye_Right_Dilation;
+        public Motion Eye_Right_Constrict;
         // public Motion Max; // enum marker
     }
 }
