@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Components
 {
-    public class ComboGestureFaceTracking : ComboGestureFTVendor
+    public class ComboGestureFaceTracking : MonoBehaviour
     {
         public SkinnedMeshRenderer[] automaticAnimations;
         public CgeSensorLipElement lipElement;
