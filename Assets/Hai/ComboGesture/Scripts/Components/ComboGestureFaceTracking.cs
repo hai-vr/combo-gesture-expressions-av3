@@ -5,11 +5,10 @@ namespace Hai.ComboGesture.Scripts.Components
 {
     public class ComboGestureFaceTracking : MonoBehaviour
     {
-        public CgeSensorCone mouth;
-        public CgeSensorCone jaw;
-        public CgeSensorCone puff;
+        public SkinnedMeshRenderer[] automaticAnimations;
         public CgeSensorLipElement lipElement;
         public CgeSensorEyeElement eyeElement;
+        
         public ComboGestureVRCFaceTrackingFTVendor vendor;
     }
 
@@ -21,21 +20,8 @@ namespace Hai.ComboGesture.Scripts.Components
     }
 
     [Serializable]
-    public struct CgeSensorCone
-    {
-        public Motion idle;
-        public Motion center;
-        public Motion up;
-        public Motion down;
-        public Motion left;
-        public Motion right;
-    }
-    
-    [Serializable]
     public struct CgeSensorLipElement
     {
-        public SkinnedMeshRenderer[] renderersByConvention;
-        
         public Motion None; // GearBell 0:0 RESTING_FACE_EXAMPLE
         //public Motion None; // GearBell 8:0 TONGUE_REST_COMPARISON_EXAMPLE
         
@@ -82,8 +68,6 @@ namespace Hai.ComboGesture.Scripts.Components
     [Serializable]
     public struct CgeSensorEyeElement
     {
-        public SkinnedMeshRenderer[] renderersByConvention;
-        
         public Motion None;
         public Motion Eye_Left_Blink;
         public Motion Eye_Left_Wide;
