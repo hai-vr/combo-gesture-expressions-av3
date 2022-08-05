@@ -9,9 +9,9 @@ using UnityEngine;
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
-    public class CgeNativeFaceTracking
+    public class CgeFaceTracking
     {
-        private const string NativeFaceTrackingLayerName = "Hai_GestureNativeFaceTracking";
+        private const string FaceTrackingLayerName = "Hai_GestureFaceTracking";
         public const string FTInfluenceParam = "_Hai_GestureFTInfluence";
 
         private readonly ComboGestureFaceTracking _faceTracking;
@@ -19,14 +19,14 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly CgeAssetContainer _assetContainer;
         private readonly List<CgeAacFlClip> _generatedClips = new List<CgeAacFlClip>();
 
-        internal CgeNativeFaceTracking(ComboGestureFaceTracking faceTracking, AnimatorController fx, CgeAssetContainer assetContainer)
+        internal CgeFaceTracking(ComboGestureFaceTracking faceTracking, AnimatorController fx, CgeAssetContainer assetContainer)
         {
             _faceTracking = faceTracking;
             _fx = fx;
             _assetContainer = assetContainer;
         }
 
-        public void DoOverwriteNativeFaceTrackingLayer()
+        public void DoOverwriteFaceTrackingLayer()
         {
             // FIXME WRITE DEFAULTS
             // FIXME AVATAR MASK
@@ -253,7 +253,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         private CgeAacFlLayer ReinitializeLayerAsMachinist()
         {
-            return _assetContainer.ExposeCgeAac().CreateSupportingArbitraryControllerLayer(_fx, NativeFaceTrackingLayerName);
+            return _assetContainer.ExposeCgeAac().CreateSupportingArbitraryControllerLayer(_fx, FaceTrackingLayerName);
 
             // TODO: AvatarMask
         }

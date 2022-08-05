@@ -692,7 +692,7 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
                 compiler.assetContainer = actualContainer.ExposeContainerAsset();
             }
             
-            new CgeNativeFaceTracking(compiler.faceTracking, (AnimatorController)compiler.animatorController, actualContainer).DoOverwriteNativeFaceTrackingLayer();
+            new CgeFaceTracking(compiler.faceTracking, (AnimatorController)compiler.animatorController, actualContainer).DoOverwriteFaceTrackingLayer();
         }
 
         private void DoGenerateLayers()

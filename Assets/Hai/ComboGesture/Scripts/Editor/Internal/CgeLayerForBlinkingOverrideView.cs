@@ -44,10 +44,10 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
             enableBlinking.TransitionsTo(disableBlinking)
                 .When(layer.FloatParameter(AnimBlinkParam).IsGreaterThan(_analogBlinkingUpperThreshold))
-                .Or().When(layer.FloatParameter(CgeNativeFaceTracking.FTInfluenceParam).IsGreaterThan(_analogBlinkingUpperThreshold));
+                .Or().When(layer.FloatParameter(CgeFaceTracking.FTInfluenceParam).IsGreaterThan(_analogBlinkingUpperThreshold));
             disableBlinking.TransitionsTo(enableBlinking)
                 .When(layer.FloatParameter(AnimBlinkParam).IsLessThan(_analogBlinkingUpperThreshold))
-                .And(layer.FloatParameter(CgeNativeFaceTracking.FTInfluenceParam).IsLessThan(_analogBlinkingUpperThreshold));
+                .And(layer.FloatParameter(CgeFaceTracking.FTInfluenceParam).IsLessThan(_analogBlinkingUpperThreshold));
         }
 
         private CgeAacFlState CreateBlinkingState(CgeAacFlLayer layer, VRC_AnimatorTrackingControl.TrackingType type)
