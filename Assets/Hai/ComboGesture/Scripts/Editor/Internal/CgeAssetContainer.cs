@@ -3,6 +3,7 @@ using Hai.ComboGesture.Scripts.Editor.Internal.CgeAac;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
+using VRC.SDK3.Avatars.Components;
 
 namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
@@ -11,31 +12,32 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly AnimatorController _holder;
         private readonly CgeAacFlBase _aac;
 
-        private CgeAssetContainer(AnimatorController holder)
+        private CgeAssetContainer(AnimatorController holder, VRCAvatarDescriptor avatarDescriptor)
         {
             _holder = holder;
 
+            var root = avatarDescriptor != null ? avatarDescriptor.transform : null;
             _aac = CgeAacV0.Create(new CgeAacConfiguration
             {
-                AnimatorRoot = null,
+                AnimatorRoot = root,
                 AssetContainer = _holder,
                 AssetKey = "GeneratedCGE",
-                AvatarDescriptor = null,
+                AvatarDescriptor = avatarDescriptor,
                 DefaultsProvider = new CgeDefaultsProvider(true),
                 SystemName = "CGE",
-                DefaultValueRoot = null
+                DefaultValueRoot = root
             });
         }
 
-        public static CgeAssetContainer CreateNew(string folderToCreateAssetIn)
+        public static CgeAssetContainer CreateNew(string folderToCreateAssetIn, VRCAvatarDescriptor avatarDescriptor)
         {
             var holder = new AnimatorController();
-            var container = new CgeAssetContainer(holder);
+            var container = new CgeAssetContainer(holder, avatarDescriptor);
             AssetDatabase.CreateAsset(holder, folderToCreateAssetIn + "/GeneratedCGE__" + DateTime.Now.ToString("yyyy'-'MM'-'dd'_'HHmmss") + ".asset");
             return container;
         }
 
-        public static CgeAssetContainer FromExisting(RuntimeAnimatorController existingContainer)
+        public static CgeAssetContainer FromExisting(RuntimeAnimatorController existingContainer, VRCAvatarDescriptor avatarDescriptor)
         {
             var assetContainer = (AnimatorController) existingContainer;
             if (assetContainer == null)
@@ -51,7 +53,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 throw new ArgumentException("The asset container must already be an asset");
             }
 
-            return new CgeAssetContainer(assetContainer);
+            return new CgeAssetContainer(assetContainer, avatarDescriptor);
         }
 
         public void AddAnimation(AnimationClip animation)

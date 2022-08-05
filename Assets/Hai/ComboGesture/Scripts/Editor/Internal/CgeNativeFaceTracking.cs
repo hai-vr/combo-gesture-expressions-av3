@@ -51,6 +51,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             var smoothingFactorParam = layer.FloatParameter("_Hai_GestureFTSmoothingFactor");
             layer.OverrideValue(smoothingFactorParam, 0.2f);
             
+            var influenceParam = layer.FloatParameter("_Hai_GestureFTInfluence");
             
             var elementToBlendShapeBinding = elementToActuatorDict.Keys
                 .Select(element => MakeBlendShapeAnimation(element, aac, directBlendTreeBypassMultiplier))
@@ -77,11 +78,20 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             // soOctopus.FindProperty("m_NormalizedBlendValues").boolValue = true;
             // soOctopus.ApplyModifiedProperties();
 
-            layer.NewState("FT").WithAnimation(octopusTree);
-
             var bindings = _generatedClips
                 .SelectMany(clip => AnimationUtility.GetCurveBindings(clip.Clip))
                 .ToArray();
+            var mutedClip = aac.NewClip()
+                .Animating(clip =>
+                {
+                    foreach (var binding in bindings)
+                    {
+                        clip.Animates(binding.path, binding.type, binding.propertyName).WithOneFrame(0f);
+                    }
+
+                    clip.AnimatesAnimator(influenceParam).WithOneFrame(0f);
+                });
+            
             foreach (var generatedClip in _generatedClips)
             {
                 foreach (var binding in bindings)
@@ -92,6 +102,18 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                         generatedClip.Animating(clip => clip.Animates(binding.path, binding.type, binding.propertyName).WithOneFrame(0f));
                     }
                 }
+
+                generatedClip.Animating(clip => clip.AnimatesAnimator(influenceParam).WithOneFrame(1f));
+            }
+
+            {
+                var enableFaceTrackingParam = layer.BoolParameter("TEMP_EnableFaceTracking");
+                layer.OverrideValue(enableFaceTrackingParam, true);
+                
+                var inactive = layer.NewState("Inactive").WithAnimation(mutedClip);
+                var active = layer.NewState("Active").WithAnimation(octopusTree);
+                inactive.TransitionsTo(active).WithTransitionDurationSeconds(0.1f).When(enableFaceTrackingParam.IsTrue());
+                active.TransitionsTo(inactive).WithTransitionDurationSeconds(0.1f).When(enableFaceTrackingParam.IsFalse());
             }
         }
 

@@ -8,6 +8,7 @@ using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.Profiling;
+using VRC.SDK3.Avatars.Components;
 using VRC.SDKBase;
 using AnimatorController = UnityEditor.Animations.AnimatorController;
 using BlendTree = UnityEditor.Animations.BlendTree;
@@ -631,7 +632,7 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
             var compiler = AsCompiler();
 
             var folderToCreateAssetIn = ResolveFolderToCreateNeutralizedAssetsIn(compiler.folderToGenerateNeutralizedAssetsIn, compiler.animatorController);
-            var actualContainer = CreateContainerIfNotExists(compiler, folderToCreateAssetIn);
+            var actualContainer = CreateContainerIfNotExists(compiler, folderToCreateAssetIn, compiler.avatarDescriptor);
             if (actualContainer != null && compiler.assetContainer == null && !compiler.generateNewContainerEveryTime)
             {
                 compiler.assetContainer = actualContainer.ExposeContainerAsset();
@@ -685,7 +686,7 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
             var compiler = AsCompiler();
             
             var folderToCreateAssetIn = ResolveFolderToCreateNeutralizedAssetsIn(compiler.folderToGenerateNeutralizedAssetsIn, compiler.animatorController);
-            var actualContainer = CreateContainerIfNotExists(compiler, folderToCreateAssetIn);
+            var actualContainer = CreateContainerIfNotExists(compiler, folderToCreateAssetIn, compiler.avatarDescriptor);
             if (actualContainer != null && compiler.assetContainer == null && !compiler.generateNewContainerEveryTime)
             {
                 compiler.assetContainer = actualContainer.ExposeContainerAsset();
@@ -709,9 +710,9 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
             }
         }
 
-        private static CgeAssetContainer CreateContainerIfNotExists(ComboGestureCompiler compiler, string folderToCreateAssetIn)
+        private static CgeAssetContainer CreateContainerIfNotExists(ComboGestureCompiler compiler, string folderToCreateAssetIn, VRCAvatarDescriptor avatarDescriptor)
         {
-            return compiler.assetContainer == null ? CgeAssetContainer.CreateNew(folderToCreateAssetIn) : CgeAssetContainer.FromExisting(compiler.assetContainer);
+            return compiler.assetContainer == null ? CgeAssetContainer.CreateNew(folderToCreateAssetIn, avatarDescriptor) : CgeAssetContainer.FromExisting(compiler.assetContainer, avatarDescriptor);
         }
 
         private static string ResolveFolderToCreateNeutralizedAssetsIn(RuntimeAnimatorController preferredChoice, RuntimeAnimatorController defaultChoice)

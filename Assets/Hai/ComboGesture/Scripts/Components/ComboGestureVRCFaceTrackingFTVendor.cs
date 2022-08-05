@@ -186,7 +186,7 @@ namespace Hai.ComboGesture.Scripts.Components
         private partial class CgeVRCFaceTrackingFTVendorMap
         {
             public CgeElementActuator[] EyesX() => Joystick(nameof(EyesX), Eye_Left_Left, Eye_Left_Right).Joystick(Eye_Right_Left, Eye_Right_Right).ToArray(); // XXX
-            public CgeElementActuator[] EyesY() => Joystick(nameof(EyesX), Eye_Left_Down, Eye_Left_Up).Joystick(Eye_Right_Down, Eye_Right_Up).ToArray(); // XXX
+            public CgeElementActuator[] EyesY() => Joystick(nameof(EyesY), Eye_Left_Down, Eye_Left_Up).Joystick(Eye_Right_Down, Eye_Right_Up).ToArray(); // XXX
             public CgeElementActuator[] LeftEyeLid() => P01(nameof(LeftEyeLid), Eye_Left_Down).ToArray(); // XXX
             public CgeElementActuator[] RightEyeLid() => P01(nameof(RightEyeLid), Eye_Right_Down).ToArray(); // XXX
             public CgeElementActuator[] CombinedEyeLid() => P01(nameof(CombinedEyeLid), Eye_Left_Down).Positive(Eye_Right_Down).ToArray(); // XXX
