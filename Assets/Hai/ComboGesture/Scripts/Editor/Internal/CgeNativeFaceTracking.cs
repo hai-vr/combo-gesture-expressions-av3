@@ -49,7 +49,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             layer.OverrideValue(normalizerParam, 1f / directBlendTreeBypassMultiplier);
             
             var smoothingFactorParam = layer.FloatParameter("_Hai_GestureFTSmoothingFactor");
-            layer.OverrideValue(smoothingFactorParam, 0.7f);
+            layer.OverrideValue(smoothingFactorParam, 0.2f);
             
             
             var elementToBlendShapeBinding = elementToActuatorDict.Keys
