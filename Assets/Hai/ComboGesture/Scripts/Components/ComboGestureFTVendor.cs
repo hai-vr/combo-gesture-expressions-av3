@@ -28,7 +28,7 @@ namespace Hai.ComboGesture.Scripts.Components
     [Serializable]
     public struct CgeElementActuator
     {
-        public CgeElement element;
+        public string element;
         public CgeActuator actuator;
     }
 
@@ -188,7 +188,7 @@ namespace Hai.ComboGesture.Scripts.Components
         {
             _result.Add(new CgeElementActuator
             {
-                element = element,
+                element = Enum.GetName(typeof(CgeElement), element),
                 actuator = new CgeActuator
                 {
                     sensorParameterName = _parameter,
@@ -203,7 +203,7 @@ namespace Hai.ComboGesture.Scripts.Components
         {
             _result.Add(new CgeElementActuator
             {
-                element = negativeLeftDown,
+                element = Enum.GetName(typeof(CgeElement), negativeLeftDown),
                 actuator = new CgeActuator
                 {
                     sensorParameterName = _parameter,
@@ -213,7 +213,7 @@ namespace Hai.ComboGesture.Scripts.Components
             });
             _result.Add(new CgeElementActuator
             {
-                element = positiveUpRight,
+                element = Enum.GetName(typeof(CgeElement), positiveUpRight),
                 actuator = new CgeActuator
                 {
                     sensorParameterName = _parameter,
@@ -228,7 +228,7 @@ namespace Hai.ComboGesture.Scripts.Components
         {
             _result.Add(new CgeElementActuator
             {
-                element = zero,
+                element = Enum.GetName(typeof(CgeElement), zero),
                 actuator = new CgeActuator
                 {
                     sensorParameterName = _parameter,
@@ -238,7 +238,7 @@ namespace Hai.ComboGesture.Scripts.Components
             });
             _result.Add(new CgeElementActuator
             {
-                element = one,
+                element = Enum.GetName(typeof(CgeElement), one),
                 actuator = new CgeActuator
                 {
                     sensorParameterName = _parameter,

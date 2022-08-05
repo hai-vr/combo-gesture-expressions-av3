@@ -117,12 +117,20 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 var active = layer.NewState("Active").WithAnimation(octopusTree);
                 inactive.TransitionsTo(active).WithTransitionDurationSeconds(0.1f).When(enableFaceTrackingParam.IsTrue());
                 active.TransitionsTo(inactive).WithTransitionDurationSeconds(0.1f).When(enableFaceTrackingParam.IsFalse());
+                
+                var experimentorTree = aac.NewBlendTreeAsRaw();
+                experimentorTree.blendType = BlendTreeType.Direct;
+                experimentorTree.children = sensorNames.Select(sensorName => new ChildMotion
+                {
+                    directBlendParameter = sensorName
+                }).ToArray();
+                layer.NewState("Experimentor").WithAnimation(experimentorTree);
             }
         }
 
-        private BlendShapeAnimation MakeBlendShapeAnimation(CgeElement element, CgeAacFlBase aac, int directBlendTreeBypassMultiplier)
+        private BlendShapeAnimation MakeBlendShapeAnimation(string element, CgeAacFlBase aac, int directBlendTreeBypassMultiplier)
         {
-            var elementNameLower = Enum.GetName(typeof(CgeElement), element).ToLowerInvariant();
+            var elementNameLower = element.ToLowerInvariant();
             var neutral = CreateNewClip(aac);
             var actuated = CreateNewClip(aac);
             foreach (var renderer in _faceTracking.automaticAnimations)
@@ -143,7 +151,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             };
         }
 
-        private static BlendTree MakeBlendShapeTree(KeyValuePair<CgeElement, CgeActuator> elementToActuator, CgeAacFlBase aac, Dictionary<CgeElement, BlendShapeAnimation> elementToBlendShapeBinding, CgeAacFlLayer layer)
+        private static BlendTree MakeBlendShapeTree(KeyValuePair<string, CgeActuator> elementToActuator, CgeAacFlBase aac, Dictionary<string, BlendShapeAnimation> elementToBlendShapeBinding, CgeAacFlLayer layer)
         {
             var element = elementToActuator.Key;
             var actuator = elementToActuator.Value;
@@ -222,7 +230,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         private struct BlendShapeAnimation
         {
-            public CgeElement element;
+            public string element;
             public Motion neutral;
             public Motion actuated;
         }
