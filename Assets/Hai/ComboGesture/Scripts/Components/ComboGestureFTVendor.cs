@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
+using VRC.SDK3.Avatars.ScriptableObjects;
 
 namespace Hai.ComboGesture.Scripts.Components
 {
     public abstract class ComboGestureFTVendor : MonoBehaviour
     {
+        public VRCExpressionParameters expressionParameters;
+        
         protected abstract Dictionary<string, CgeElementActuator[]> ExposeMap();
 
         public virtual CgeElementActuator[] ToElementActuators()

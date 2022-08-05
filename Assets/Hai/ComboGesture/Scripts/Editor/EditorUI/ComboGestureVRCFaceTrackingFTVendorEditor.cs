@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Linq;
 using Hai.ComboGesture.Scripts.Components;
 using UnityEditor;
 using UnityEngine;
+using VRC.SDK3.Avatars.ScriptableObjects;
 
 namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 {
@@ -9,7 +11,14 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
     public class ComboGestureVRCFaceTrackingFTVendorEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
-        {        
+        {
+            EditorGUILayout.PropertyField(serializedObject.FindProperty(nameof(ComboGestureFTVendor.expressionParameters)));
+            EditorGUILayout.LabelField("VRCFaceTracking vendor", EditorStyles.boldLabel);
+            EditorGUILayout.TextField("https://github.com/benaclejames/VRCFaceTracking/wiki/Parameters");
+            EditorGUILayout.HelpBox(@"This is NOT an endorsement.
+
+It is INHERENTLY DANGEROUS to run code that someone else has written. It is your responsibility to exercise caution when running projects.", MessageType.Warning);
+            
             DisplayGroupFor(nameof(ComboGestureVRCFaceTrackingFTVendor.GROUP_Eye_Tracking_Parameters),
                 nameof(ComboGestureVRCFaceTrackingFTVendor.EyesX),
                 nameof(ComboGestureVRCFaceTrackingFTVendor.EyesY),
@@ -187,19 +196,58 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         private void DisplayGroupFor(string groupPropertyName, params string[] constituents)
         {
-            var group = serializedObject.FindProperty(groupPropertyName);
+            var expressionParametersNullable = ((ComboGestureFTVendor)target).expressionParameters;
+            // var group = serializedObject.FindProperty(groupPropertyName);
             EditorGUILayout.LabelField(groupPropertyName.Replace("GROUP_", "").Replace("_", " "), EditorStyles.boldLabel);
-            EditorGUILayout.PropertyField(group, new GUIContent("Group"));
-            var groupValue = (CgeVendorGroup)group.intValue;
-            var isSome = groupValue == CgeVendorGroup.Some;
-            EditorGUI.BeginDisabledGroup(!isSome);
+            // EditorGUILayout.PropertyField(group, new GUIContent("Group"));
+            // var groupValue = (CgeVendorGroup)group.intValue;
+            // var isSome = groupValue == CgeVendorGroup.Some;
+            // EditorGUI.BeginDisabledGroup(!isSome);
             EditorGUILayout.BeginVertical("GroupBox");
             foreach (var constituent in constituents)
             {
-                FieldFor(constituent, groupValue);
+                // FieldFor(constituent, groupValue);
+                EditorGUILayout.BeginHorizontal();
+                var sp = serializedObject.FindProperty(constituent);
+                EditorGUILayout.PropertyField(sp, new GUIContent(constituent));
+                if (!serializedObject.isEditingMultipleObjects && expressionParametersNullable != null)
+                {
+                    var isOn = sp.boolValue;
+                    var contains = expressionParametersNullable.parameters.Any(parameter => parameter.name == constituent);
+                    if (isOn && !contains)
+                    {
+                        if (GUILayout.Button("Update params"))
+                        {
+                            var newArray = expressionParametersNullable.parameters.Concat(new[]
+                            {
+                                new VRCExpressionParameters.Parameter
+                                {
+                                    name = constituent,
+                                    defaultValue = 0f,
+                                    saved = false,
+                                    valueType = VRCExpressionParameters.ValueType.Float
+                                }
+                            }).ToArray();
+                            expressionParametersNullable.parameters = newArray;
+                            EditorUtility.SetDirty(expressionParametersNullable);
+                        }
+                    }
+                    if (!isOn && contains)
+                    {
+                        if (GUILayout.Button("Update params"))
+                        {
+                            var newArray = expressionParametersNullable.parameters
+                                .Where(parameter => parameter.name != constituent)
+                                .ToArray();
+                            expressionParametersNullable.parameters = newArray;
+                            EditorUtility.SetDirty(expressionParametersNullable);
+                        }
+                    }
+                }
+                EditorGUILayout.EndHorizontal();
             }
             EditorGUILayout.EndVertical();
-            EditorGUI.EndDisabledGroup();
+            // EditorGUI.EndDisabledGroup();
         }
 
         private void FieldFor(string propertyName, CgeVendorGroup groupValue)
