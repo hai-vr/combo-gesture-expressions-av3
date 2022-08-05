@@ -12,7 +12,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
     public class CgeNativeFaceTracking
     {
         private const string NativeFaceTrackingLayerName = "Hai_GestureNativeFaceTracking";
-        
+        public const string FTInfluenceParam = "_Hai_GestureFTInfluence";
+
         private readonly ComboGestureFaceTracking _faceTracking;
         private readonly AnimatorController _fx;
         private readonly CgeAssetContainer _assetContainer;
@@ -27,6 +28,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         public void DoOverwriteNativeFaceTrackingLayer()
         {
+            // FIXME WRITE DEFAULTS
+            // FIXME AVATAR MASK
             var aac = _assetContainer.ExposeCgeAac();
             var layer = ReinitializeLayerAsMachinist();
 
@@ -51,7 +54,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             var smoothingFactorParam = layer.FloatParameter("_Hai_GestureFTSmoothingFactor");
             layer.OverrideValue(smoothingFactorParam, 0.2f);
             
-            var influenceParam = layer.FloatParameter("_Hai_GestureFTInfluence");
+            var influenceParam = layer.FloatParameter(FTInfluenceParam);
             
             var elementToBlendShapeBinding = elementToActuatorDict.Keys
                 .Select(element => MakeBlendShapeAnimation(element, aac, directBlendTreeBypassMultiplier))

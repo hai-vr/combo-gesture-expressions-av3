@@ -10,6 +10,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
     internal class CgeLayerForBlinkingOverrideView
     {
+        private const string AnimBlinkParam = "_Hai_GestureAnimBlink";
+        
         private readonly float _analogBlinkingUpperThreshold;
         private readonly AvatarMask _logicalAvatarMask;
         private readonly AnimatorController _animatorController;
@@ -41,9 +43,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             var disableBlinking = CreateBlinkingState(layer, VRC_AnimatorTrackingControl.TrackingType.Animation);
 
             enableBlinking.TransitionsTo(disableBlinking)
-                .When(layer.FloatParameter("_Hai_GestureAnimBlink").IsGreaterThan(_analogBlinkingUpperThreshold));
+                .When(layer.FloatParameter(AnimBlinkParam).IsGreaterThan(_analogBlinkingUpperThreshold))
+                .Or().When(layer.FloatParameter(CgeNativeFaceTracking.FTInfluenceParam).IsGreaterThan(_analogBlinkingUpperThreshold));
             disableBlinking.TransitionsTo(enableBlinking)
-                .When(layer.FloatParameter("_Hai_GestureAnimBlink").IsLessThan(_analogBlinkingUpperThreshold));
+                .When(layer.FloatParameter(AnimBlinkParam).IsLessThan(_analogBlinkingUpperThreshold))
+                .And(layer.FloatParameter(CgeNativeFaceTracking.FTInfluenceParam).IsLessThan(_analogBlinkingUpperThreshold));
         }
 
         private CgeAacFlState CreateBlinkingState(CgeAacFlLayer layer, VRC_AnimatorTrackingControl.TrackingType type)
