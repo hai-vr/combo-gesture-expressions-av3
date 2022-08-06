@@ -110,8 +110,8 @@ namespace Hai.ComboGesture.Scripts.Components
         public bool Mouth_Lower_Down; //	0	自然な状態	下唇を下げて歯が見える	Mouth_Lower_DownLeft と Mouth_Lower_DownRight の平均
         public bool Tongue_Left_Right; //	0.5 (0)	舌を左に動かす	舌を右に動かす	Tongue_Left　と Tongue_Right から計算
         public bool Tongue_Down_Up; //	0.5 (0)	舌の先端を下に動かす	舌の先端を上に動かす	Tongue_Down　と Tongue_Up から計算
-        
-        protected override Dictionary<string, CgeElementActuator[]> ExposeMap()
+
+        public override Dictionary<string, CgeElementActuator[]> ExposeMap()
         {
             throw new System.NotImplementedException();
         }

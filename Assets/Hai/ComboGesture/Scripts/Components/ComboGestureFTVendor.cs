@@ -10,8 +10,9 @@ namespace Hai.ComboGesture.Scripts.Components
     public abstract class ComboGestureFTVendor : MonoBehaviour
     {
         public VRCExpressionParameters expressionParameters;
-        
-        protected abstract Dictionary<string, CgeElementActuator[]> ExposeMap();
+        public CgeDebugInfluence debugShowInfluences;
+
+        public abstract Dictionary<string, CgeElementActuator[]> ExposeMap();
 
         public virtual CgeElementActuator[] ToElementActuators()
         {
@@ -22,6 +23,11 @@ namespace Hai.ComboGesture.Scripts.Components
                 .Where(info => (bool)info.GetValue(this))
                 .SelectMany(info => map[info.Name])
                 .ToArray();
+        }
+
+        public enum CgeDebugInfluence
+        {
+            None, All, OnlyActive
         }
     }
 
@@ -40,7 +46,8 @@ namespace Hai.ComboGesture.Scripts.Components
         public float actuated;
     }
 
-    public enum CgeElement
+    // SRAnipal Naming Convention
+    public enum CgeSRAnipalConvention
     {
         Jaw_Right,
         Jaw_Left,
@@ -91,12 +98,12 @@ namespace Hai.ComboGesture.Scripts.Components
         Eye_Right_Left,
         Eye_Right_Up,
         Eye_Right_Down,
-
-        // Eye_Frown,
-        Eye_Left_Frown,
-        Eye_Right_Frown,
+        Eye_Frown, // SRAnipal doesn't seem to actuate this
+        // Eye_Left_Frown,
+        // Eye_Right_Frown,
         Eye_Left_Squeeze,
         Eye_Right_Squeeze,
+        // VRCFaceTracking additional conventions
         Eye_Left_Dilation,
         Eye_Left_Constrict,
         Eye_Right_Dilation,
@@ -104,68 +111,6 @@ namespace Hai.ComboGesture.Scripts.Components
         NOT_APPLICABLE,
         NOT_IMPLEMENTED,
         CgeElementTODO
-    }
-
-    [Serializable]
-    public struct CgeSensorLipMap
-    {
-        public CgeActuator Jaw_Right;
-        public CgeActuator Jaw_Left;
-        public CgeActuator Jaw_Forward;
-        public CgeActuator Jaw_Open;
-        public CgeActuator Mouth_Ape_Shape;
-        public CgeActuator Mouth_Upper_Right;
-        public CgeActuator Mouth_Upper_Left;
-        public CgeActuator Mouth_Lower_Right;
-        public CgeActuator Mouth_Lower_Left;
-        public CgeActuator Mouth_Upper_Overturn;
-        public CgeActuator Mouth_Lower_Overturn;
-        public CgeActuator Mouth_Pout;
-        public CgeActuator Mouth_Smile_Right;
-        public CgeActuator Mouth_Smile_Left;
-        public CgeActuator Mouth_Sad_Right;
-        public CgeActuator Mouth_Sad_Left;
-        public CgeActuator Cheek_Puff_Right;
-        public CgeActuator Cheek_Puff_Left;
-        public CgeActuator Cheek_Suck;
-        public CgeActuator Mouth_Upper_UpRight;
-        public CgeActuator Mouth_Upper_UpLeft;
-        public CgeActuator Mouth_Lower_DownRight;
-        public CgeActuator Mouth_Lower_DownLeft;
-        public CgeActuator Mouth_Upper_Inside;
-        public CgeActuator Mouth_Lower_Inside;
-        public CgeActuator Mouth_Lower_Overlay;
-        public CgeActuator Tongue_LongStep1;
-        public CgeActuator Tongue_LongStep2;
-        public CgeActuator Tongue_Down;
-        public CgeActuator Tongue_Up;
-        public CgeActuator Tongue_Right;
-        public CgeActuator Tongue_Left;
-        public CgeActuator Tongue_Roll;
-        public CgeActuator Tongue_UpLeft_Morph;
-        public CgeActuator Tongue_UpRight_Morph;
-        public CgeActuator Tongue_DownLeft_Morph;
-        public CgeActuator Tongue_DownRight_Morph;
-    }
-
-    [Serializable]
-    public struct CgeSensorEyeMap
-    {
-        public CgeActuator Eye_Left_Blink;
-        public CgeActuator Eye_Left_Wide;
-        public CgeActuator Eye_Left_Right;
-        public CgeActuator Eye_Left_Left;
-        public CgeActuator Eye_Left_Up;
-        public CgeActuator Eye_Left_Down;
-        public CgeActuator Eye_Right_Blink;
-        public CgeActuator Eye_Right_Wide;
-        public CgeActuator Eye_Right_Right;
-        public CgeActuator Eye_Right_Left;
-        public CgeActuator Eye_Right_Up;
-        public CgeActuator Eye_Right_Down;
-        public CgeActuator Eye_Frown;
-        public CgeActuator Eye_Left_Squeeze;
-        public CgeActuator Eye_Right_Squeeze;
     }
     
     internal class CgeInternalVRCFTContinuation
@@ -184,11 +129,11 @@ namespace Hai.ComboGesture.Scripts.Components
             return _result.ToArray();
         }
         
-        internal CgeInternalVRCFTContinuation Positive(CgeElement element)
+        internal CgeInternalVRCFTContinuation P01(CgeSRAnipalConvention element)
         {
             _result.Add(new CgeElementActuator
             {
-                element = Enum.GetName(typeof(CgeElement), element),
+                element = Enum.GetName(typeof(CgeSRAnipalConvention), element),
                 actuator = new CgeActuator
                 {
                     sensorParameterName = _parameter,
@@ -199,11 +144,41 @@ namespace Hai.ComboGesture.Scripts.Components
             return this;
         }
 
-        internal CgeInternalVRCFTContinuation Joystick(CgeElement negativeLeftDown, CgeElement positiveUpRight)
+        public CgeInternalVRCFTContinuation Decay(CgeSRAnipalConvention element)
         {
             _result.Add(new CgeElementActuator
             {
-                element = Enum.GetName(typeof(CgeElement), negativeLeftDown),
+                element = Enum.GetName(typeof(CgeSRAnipalConvention), element),
+                actuator = new CgeActuator
+                {
+                    sensorParameterName = _parameter,
+                    neutral = 1f,
+                    actuated = 0f
+                }
+            });
+            return this;
+        }
+        
+        internal CgeInternalVRCFTContinuation Negative(CgeSRAnipalConvention element)
+        {
+            _result.Add(new CgeElementActuator
+            {
+                element = Enum.GetName(typeof(CgeSRAnipalConvention), element),
+                actuator = new CgeActuator
+                {
+                    sensorParameterName = _parameter,
+                    neutral = 0f,
+                    actuated = -1f
+                }
+            });
+            return this;
+        }
+
+        internal CgeInternalVRCFTContinuation Joystick(CgeSRAnipalConvention negativeLeftDown, CgeSRAnipalConvention positiveUpRight)
+        {
+            _result.Add(new CgeElementActuator
+            {
+                element = Enum.GetName(typeof(CgeSRAnipalConvention), negativeLeftDown),
                 actuator = new CgeActuator
                 {
                     sensorParameterName = _parameter,
@@ -213,7 +188,7 @@ namespace Hai.ComboGesture.Scripts.Components
             });
             _result.Add(new CgeElementActuator
             {
-                element = Enum.GetName(typeof(CgeElement), positiveUpRight),
+                element = Enum.GetName(typeof(CgeSRAnipalConvention), positiveUpRight),
                 actuator = new CgeActuator
                 {
                     sensorParameterName = _parameter,
@@ -224,11 +199,36 @@ namespace Hai.ComboGesture.Scripts.Components
             return this;
         }
 
-        public CgeInternalVRCFTContinuation Aperture(CgeElement zero, CgeElement one)
+        internal CgeInternalVRCFTContinuation Stepped(CgeSRAnipalConvention neutral, CgeSRAnipalConvention positive)
         {
             _result.Add(new CgeElementActuator
             {
-                element = Enum.GetName(typeof(CgeElement), zero),
+                element = Enum.GetName(typeof(CgeSRAnipalConvention), neutral),
+                actuator = new CgeActuator
+                {
+                    sensorParameterName = _parameter,
+                    neutral = -1f,
+                    actuated = 0f
+                }
+            });
+            _result.Add(new CgeElementActuator
+            {
+                element = Enum.GetName(typeof(CgeSRAnipalConvention), positive),
+                actuator = new CgeActuator
+                {
+                    sensorParameterName = _parameter,
+                    neutral = 0f,
+                    actuated = 1f
+                }
+            });
+            return this;
+        }
+
+        public CgeInternalVRCFTContinuation Aperture(CgeSRAnipalConvention zero, CgeSRAnipalConvention one)
+        {
+            _result.Add(new CgeElementActuator
+            {
+                element = Enum.GetName(typeof(CgeSRAnipalConvention), zero),
                 actuator = new CgeActuator
                 {
                     sensorParameterName = _parameter,
@@ -238,7 +238,7 @@ namespace Hai.ComboGesture.Scripts.Components
             });
             _result.Add(new CgeElementActuator
             {
-                element = Enum.GetName(typeof(CgeElement), one),
+                element = Enum.GetName(typeof(CgeSRAnipalConvention), one),
                 actuator = new CgeActuator
                 {
                     sensorParameterName = _parameter,

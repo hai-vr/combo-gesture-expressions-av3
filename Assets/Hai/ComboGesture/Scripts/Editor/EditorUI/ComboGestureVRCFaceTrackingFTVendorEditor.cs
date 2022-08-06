@@ -18,6 +18,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             EditorGUILayout.HelpBox(@"This is NOT an endorsement.
 
 It is INHERENTLY DANGEROUS to run code that someone else has written. It is your responsibility to exercise caution when running projects.", MessageType.Warning);
+            EditorGUILayout.PropertyField(serializedObject.FindProperty(nameof(ComboGestureFTVendor.debugShowInfluences)));
             
             DisplayGroupFor(nameof(ComboGestureVRCFaceTrackingFTVendor.GROUP_Eye_Tracking_Parameters),
                 nameof(ComboGestureVRCFaceTrackingFTVendor.EyesX),
@@ -196,8 +197,10 @@ It is INHERENTLY DANGEROUS to run code that someone else has written. It is your
 
         private void DisplayGroupFor(string groupPropertyName, params string[] constituents)
         {
-            var expressionParametersNullable = ((ComboGestureFTVendor)target).expressionParameters;
+            var vendor = ((ComboGestureFTVendor)target);
+            var expressionParametersNullable = vendor.expressionParameters;
             // var group = serializedObject.FindProperty(groupPropertyName);
+            var map = ((ComboGestureVRCFaceTrackingFTVendor)target).ExposeMap();
             EditorGUILayout.LabelField(groupPropertyName.Replace("GROUP_", "").Replace("_", " "), EditorStyles.boldLabel);
             // EditorGUILayout.PropertyField(group, new GUIContent("Group"));
             // var groupValue = (CgeVendorGroup)group.intValue;
@@ -245,6 +248,12 @@ It is INHERENTLY DANGEROUS to run code that someone else has written. It is your
                     }
                 }
                 EditorGUILayout.EndHorizontal();
+                if (vendor.debugShowInfluences == ComboGestureFTVendor.CgeDebugInfluence.All || vendor.debugShowInfluences == ComboGestureFTVendor.CgeDebugInfluence.OnlyActive && sp.boolValue)
+                {
+                    EditorGUILayout.BeginHorizontal();
+                    EditorGUILayout.TextField(string.Join(", ", map[constituent].Select(actuator => actuator.element + $"[{actuator.actuator.neutral}:{actuator.actuator.actuated}]").ToArray()));
+                    EditorGUILayout.EndHorizontal();
+                }
             }
             EditorGUILayout.EndVertical();
             // EditorGUI.EndDisabledGroup();

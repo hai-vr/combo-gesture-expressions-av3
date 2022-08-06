@@ -6,8 +6,18 @@ namespace Hai.ComboGesture.Scripts.Components
     public class ComboGestureFaceTracking : MonoBehaviour
     {
         public SkinnedMeshRenderer[] automaticAnimations;
-        public CgeSensorLipElement lipElement;
-        public CgeSensorEyeElement eyeElement;
+        // public CgeSensorLipElement lipElement;
+        // public CgeSensorEyeElement eyeElement;
+        public AnimationClip eyeLeftUp;
+        public AnimationClip eyeLeftDown;
+        public AnimationClip eyeLeftLeft;
+        public AnimationClip eyeLeftRight;
+        public AnimationClip eyeLeftCenter;
+        public AnimationClip eyeRightUp;
+        public AnimationClip eyeRightDown;
+        public AnimationClip eyeRightLeft;
+        public AnimationClip eyeRightRight;
+        public AnimationClip eyeRightCenter;
         
         public ComboGestureFTVendor vendor;
     }

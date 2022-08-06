@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using static Hai.ComboGesture.Scripts.Components.CgeElement;
+using static Hai.ComboGesture.Scripts.Components.CgeSRAnipalConvention;
 
 namespace Hai.ComboGesture.Scripts.Components
 {
@@ -187,12 +187,12 @@ namespace Hai.ComboGesture.Scripts.Components
         {
             public CgeElementActuator[] EyesX() => Joystick(nameof(EyesX), Eye_Left_Left, Eye_Left_Right).Joystick(Eye_Right_Left, Eye_Right_Right).ToArray();
             public CgeElementActuator[] EyesY() => Joystick(nameof(EyesY), Eye_Left_Down, Eye_Left_Up).Joystick(Eye_Right_Down, Eye_Right_Up).ToArray();
-            public CgeElementActuator[] LeftEyeLid() => P01(nameof(LeftEyeLid), Eye_Left_Down).ToArray();
-            public CgeElementActuator[] RightEyeLid() => P01(nameof(RightEyeLid), Eye_Right_Down).ToArray();
-            public CgeElementActuator[] CombinedEyeLid() => P01(nameof(CombinedEyeLid), Eye_Left_Down).Positive(Eye_Right_Down).ToArray();
-            public CgeElementActuator[] EyesWiden() => P01(nameof(EyesWiden), Eye_Left_Wide).Positive(Eye_Right_Wide).ToArray();
+            public CgeElementActuator[] LeftEyeLid() => Decay(nameof(LeftEyeLid), Eye_Left_Blink).ToArray();
+            public CgeElementActuator[] RightEyeLid() => Decay(nameof(RightEyeLid), Eye_Right_Blink).ToArray();
+            public CgeElementActuator[] CombinedEyeLid() => Decay(nameof(CombinedEyeLid), Eye_Left_Blink).P01(Eye_Left_Blink).ToArray();
+            public CgeElementActuator[] EyesWiden() => P01(nameof(EyesWiden), Eye_Left_Wide).P01(Eye_Right_Wide).ToArray();
             public CgeElementActuator[] EyesDilation() => Aperture(nameof(EyesDilation), Eye_Left_Dilation, Eye_Right_Dilation).ToArray();
-            public CgeElementActuator[] EyesSqueeze() => P01(nameof(EyesSqueeze), Eye_Left_Squeeze).Positive(Eye_Right_Squeeze).ToArray();
+            public CgeElementActuator[] EyesSqueeze() => P01(nameof(EyesSqueeze), Eye_Left_Squeeze).P01(Eye_Right_Squeeze).ToArray();
             public CgeElementActuator[] LeftEyeX() => Joystick(nameof(LeftEyeX), Eye_Left_Left, Eye_Left_Right).ToArray();
             public CgeElementActuator[] LeftEyeY() => Joystick(nameof(LeftEyeY), Eye_Left_Down, Eye_Left_Up).ToArray();
             public CgeElementActuator[] RightEyeX() => Joystick(nameof(RightEyeX), Eye_Right_Left, Eye_Right_Right).ToArray();
@@ -244,87 +244,87 @@ namespace Hai.ComboGesture.Scripts.Components
             public CgeElementActuator[] TongueUpRightMorph() => P01(nameof(TongueUpRightMorph), Tongue_UpRight_Morph).ToArray();
             public CgeElementActuator[] TongueDownLeftMorph() => P01(nameof(TongueDownLeftMorph), Tongue_DownLeft_Morph).ToArray();
             public CgeElementActuator[] TongueDownRightMorph() => P01(nameof(TongueDownRightMorph), Tongue_DownRight_Morph).ToArray();
-            public CgeElementActuator[] JawX() => P01(nameof(JawX), CgeElementTODO).ToArray();
-            public CgeElementActuator[] MouthUpper() => P01(nameof(MouthUpper), CgeElementTODO).ToArray();
-            public CgeElementActuator[] MouthLower() => P01(nameof(MouthLower), CgeElementTODO).ToArray();
-            public CgeElementActuator[] MouthX() => P01(nameof(MouthX), CgeElementTODO).ToArray();
-            public CgeElementActuator[] SmileSadRight() => P01(nameof(SmileSadRight), CgeElementTODO).ToArray();
-            public CgeElementActuator[] SmileSadLeft() => P01(nameof(SmileSadLeft), CgeElementTODO).ToArray();
-            public CgeElementActuator[] SmileSad() => P01(nameof(SmileSad), CgeElementTODO).ToArray();
-            public CgeElementActuator[] TongueY() => P01(nameof(TongueY), CgeElementTODO).ToArray();
-            public CgeElementActuator[] TongueX() => P01(nameof(TongueX), CgeElementTODO).ToArray();
-            public CgeElementActuator[] TongueSteps() => P01(nameof(TongueSteps), CgeElementTODO).ToArray();
-            public CgeElementActuator[] PuffSuckRight() => P01(nameof(PuffSuckRight), CgeElementTODO).ToArray();
-            public CgeElementActuator[] PuffSuckLeft() => P01(nameof(PuffSuckLeft), CgeElementTODO).ToArray();
-            public CgeElementActuator[] PuffSuck() => P01(nameof(PuffSuck), CgeElementTODO).ToArray();
-            public CgeElementActuator[] JawOpenApe() => P01(nameof(JawOpenApe), CgeElementTODO).ToArray();
-            public CgeElementActuator[] JawOpenPuff() => P01(nameof(JawOpenPuff), CgeElementTODO).ToArray();
-            public CgeElementActuator[] JawOpenPuffRight() => P01(nameof(JawOpenPuffRight), CgeElementTODO).ToArray();
-            public CgeElementActuator[] JawOpenPuffLeft() => P01(nameof(JawOpenPuffLeft), CgeElementTODO).ToArray();
-            public CgeElementActuator[] JawOpenSuck() => P01(nameof(JawOpenSuck), CgeElementTODO).ToArray();
-            public CgeElementActuator[] JawOpenForward() => P01(nameof(JawOpenForward), CgeElementTODO).ToArray();
-            public CgeElementActuator[] MouthUpperUpRightUpperInside() => P01(nameof(MouthUpperUpRightUpperInside), CgeElementTODO).ToArray();
-            public CgeElementActuator[] MouthUpperUpRightPuffRight() => P01(nameof(MouthUpperUpRightPuffRight), CgeElementTODO).ToArray();
-            public CgeElementActuator[] MouthUpperUpRightApe() => P01(nameof(MouthUpperUpRightApe), CgeElementTODO).ToArray();
-            public CgeElementActuator[] MouthUpperUpRightPout() => P01(nameof(MouthUpperUpRightPout), CgeElementTODO).ToArray();
-            public CgeElementActuator[] MouthUpperUpRightOverlay() => P01(nameof(MouthUpperUpRightOverlay), CgeElementTODO).ToArray();
-            public CgeElementActuator[] MouthUpperUpLeftUpperInside() => P01(nameof(MouthUpperUpLeftUpperInside), CgeElementTODO).ToArray();
-            public CgeElementActuator[] MouthUpperUpLeftPuffLeft() => P01(nameof(MouthUpperUpLeftPuffLeft), CgeElementTODO).ToArray();
-            public CgeElementActuator[] MouthUpperUpLeftApe() => P01(nameof(MouthUpperUpLeftApe), CgeElementTODO).ToArray();
-            public CgeElementActuator[] MouthUpperUpLeftPout() => P01(nameof(MouthUpperUpLeftPout), CgeElementTODO).ToArray();
-            public CgeElementActuator[] MouthUpperUpLeftOverlay() => P01(nameof(MouthUpperUpLeftOverlay), CgeElementTODO).ToArray();
-            public CgeElementActuator[] MouthUpperUpUpperInside() => P01(nameof(MouthUpperUpUpperInside), CgeElementTODO).ToArray();
-            public CgeElementActuator[] MouthUpperUpInside() => P01(nameof(MouthUpperUpInside), CgeElementTODO).ToArray();
-            public CgeElementActuator[] MouthUpperUpPuff() => P01(nameof(MouthUpperUpPuff), CgeElementTODO).ToArray();
-            public CgeElementActuator[] MouthUpperUpPuffLeft() => P01(nameof(MouthUpperUpPuffLeft), CgeElementTODO).ToArray();
-            public CgeElementActuator[] MouthUpperUpPuffRight() => P01(nameof(MouthUpperUpPuffRight), CgeElementTODO).ToArray();
-            public CgeElementActuator[] MouthUpperUpApe() => P01(nameof(MouthUpperUpApe), CgeElementTODO).ToArray();
-            public CgeElementActuator[] MouthUpperUpPout() => P01(nameof(MouthUpperUpPout), CgeElementTODO).ToArray();
-            public CgeElementActuator[] MouthUpperUpOverlay() => P01(nameof(MouthUpperUpOverlay), CgeElementTODO).ToArray();
-            public CgeElementActuator[] MouthLowerDownRightLowerInside() => P01(nameof(MouthLowerDownRightLowerInside), CgeElementTODO).ToArray();
-            public CgeElementActuator[] MouthLowerDownRightPuffRight() => P01(nameof(MouthLowerDownRightPuffRight), CgeElementTODO).ToArray();
-            public CgeElementActuator[] MouthLowerDownRightApe() => P01(nameof(MouthLowerDownRightApe), CgeElementTODO).ToArray();
-            public CgeElementActuator[] MouthLowerDownRightPout() => P01(nameof(MouthLowerDownRightPout), CgeElementTODO).ToArray();
-            public CgeElementActuator[] MouthLowerDownRightOverlay() => P01(nameof(MouthLowerDownRightOverlay), CgeElementTODO).ToArray();
-            public CgeElementActuator[] MouthLowerDownLeftLowerInside() => P01(nameof(MouthLowerDownLeftLowerInside), CgeElementTODO).ToArray();
-            public CgeElementActuator[] MouthLowerDownLeftPuffLeft() => P01(nameof(MouthLowerDownLeftPuffLeft), CgeElementTODO).ToArray();
-            public CgeElementActuator[] MouthLowerDownLeftApe() => P01(nameof(MouthLowerDownLeftApe), CgeElementTODO).ToArray();
-            public CgeElementActuator[] MouthLowerDownLeftPout() => P01(nameof(MouthLowerDownLeftPout), CgeElementTODO).ToArray();
-            public CgeElementActuator[] MouthLowerDownLeftOverlay() => P01(nameof(MouthLowerDownLeftOverlay), CgeElementTODO).ToArray();
-            public CgeElementActuator[] MouthLowerDownLowerInside() => P01(nameof(MouthLowerDownLowerInside), CgeElementTODO).ToArray();
-            public CgeElementActuator[] MouthLowerDownInside() => P01(nameof(MouthLowerDownInside), CgeElementTODO).ToArray();
-            public CgeElementActuator[] MouthLowerDownPuff() => P01(nameof(MouthLowerDownPuff), CgeElementTODO).ToArray();
-            public CgeElementActuator[] MouthLowerDownPuffLeft() => P01(nameof(MouthLowerDownPuffLeft), CgeElementTODO).ToArray();
-            public CgeElementActuator[] MouthLowerDownPuffRight() => P01(nameof(MouthLowerDownPuffRight), CgeElementTODO).ToArray();
-            public CgeElementActuator[] MouthLowerDownApe() => P01(nameof(MouthLowerDownApe), CgeElementTODO).ToArray();
-            public CgeElementActuator[] MouthLowerDownPout() => P01(nameof(MouthLowerDownPout), CgeElementTODO).ToArray();
-            public CgeElementActuator[] MouthLowerDownOverlay() => P01(nameof(MouthLowerDownOverlay), CgeElementTODO).ToArray();
-            public CgeElementActuator[] SmileRightUpperOverturn() => P01(nameof(SmileRightUpperOverturn), CgeElementTODO).ToArray();
-            public CgeElementActuator[] SmileRightLowerOverturn() => P01(nameof(SmileRightLowerOverturn), CgeElementTODO).ToArray();
-            public CgeElementActuator[] SmileRightOverturn() => P01(nameof(SmileRightOverturn), CgeElementTODO).ToArray();
-            public CgeElementActuator[] SmileRightApe() => P01(nameof(SmileRightApe), CgeElementTODO).ToArray();
-            public CgeElementActuator[] SmileRightOverlay() => P01(nameof(SmileRightOverlay), CgeElementTODO).ToArray();
-            public CgeElementActuator[] SmileRightPout() => P01(nameof(SmileRightPout), CgeElementTODO).ToArray();
-            public CgeElementActuator[] SmileLeftUpperOverturn() => P01(nameof(SmileLeftUpperOverturn), CgeElementTODO).ToArray();
-            public CgeElementActuator[] SmileLeftLowerOverturn() => P01(nameof(SmileLeftLowerOverturn), CgeElementTODO).ToArray();
-            public CgeElementActuator[] SmileLeftOverturn() => P01(nameof(SmileLeftOverturn), CgeElementTODO).ToArray();
-            public CgeElementActuator[] SmileLeftApe() => P01(nameof(SmileLeftApe), CgeElementTODO).ToArray();
-            public CgeElementActuator[] SmileLeftOverlay() => P01(nameof(SmileLeftOverlay), CgeElementTODO).ToArray();
-            public CgeElementActuator[] SmileLeftPout() => P01(nameof(SmileLeftPout), CgeElementTODO).ToArray();
-            public CgeElementActuator[] SmileUpperOverturn() => P01(nameof(SmileUpperOverturn), CgeElementTODO).ToArray();
-            public CgeElementActuator[] SmileLowerOverturn() => P01(nameof(SmileLowerOverturn), CgeElementTODO).ToArray();
-            public CgeElementActuator[] SmileApe() => P01(nameof(SmileApe), CgeElementTODO).ToArray();
-            public CgeElementActuator[] SmileOverlay() => P01(nameof(SmileOverlay), CgeElementTODO).ToArray();
-            public CgeElementActuator[] SmilePout() => P01(nameof(SmilePout), CgeElementTODO).ToArray();
-            public CgeElementActuator[] PuffRightUpperOverturn() => P01(nameof(PuffRightUpperOverturn), CgeElementTODO).ToArray();
-            public CgeElementActuator[] PuffRightLowerOverturn() => P01(nameof(PuffRightLowerOverturn), CgeElementTODO).ToArray();
-            public CgeElementActuator[] PuffRightOverturn() => P01(nameof(PuffRightOverturn), CgeElementTODO).ToArray();
-            public CgeElementActuator[] PuffLeftUpperOverturn() => P01(nameof(PuffLeftUpperOverturn), CgeElementTODO).ToArray();
-            public CgeElementActuator[] PuffLeftLowerOverturn() => P01(nameof(PuffLeftLowerOverturn), CgeElementTODO).ToArray();
-            public CgeElementActuator[] PuffLeftOverturn() => P01(nameof(PuffLeftOverturn), CgeElementTODO).ToArray();
-            public CgeElementActuator[] PuffUpperOverturn() => P01(nameof(PuffUpperOverturn), CgeElementTODO).ToArray();
-            public CgeElementActuator[] PuffLowerOverturn() => P01(nameof(PuffLowerOverturn), CgeElementTODO).ToArray();
-            public CgeElementActuator[] PuffOverturn() => P01(nameof(PuffOverturn), CgeElementTODO).ToArray();
+            public CgeElementActuator[] JawX() => Joystick(nameof(JawX), Jaw_Left, Jaw_Right).ToArray();
+            public CgeElementActuator[] MouthUpper() => Joystick(nameof(MouthUpper), Mouth_Upper_Left, Mouth_Upper_Right).ToArray();
+            public CgeElementActuator[] MouthLower() => Joystick(nameof(MouthLower), Mouth_Lower_Left, Mouth_Lower_Right).ToArray();
+            public CgeElementActuator[] MouthX() => Joystick(nameof(MouthX), Mouth_Upper_Left, Mouth_Upper_Right).Joystick(Mouth_Lower_Left, Mouth_Lower_Right).ToArray();
+            public CgeElementActuator[] SmileSadRight() => Joystick(nameof(SmileSadRight), Mouth_Sad_Right, Mouth_Smile_Right).ToArray();
+            public CgeElementActuator[] SmileSadLeft() => Joystick(nameof(SmileSadLeft), Mouth_Sad_Left, Mouth_Smile_Left).ToArray();
+            public CgeElementActuator[] SmileSad() => Joystick(nameof(SmileSad), Mouth_Sad_Right, Mouth_Smile_Right).Joystick(Mouth_Sad_Left, Mouth_Smile_Left).ToArray();
+            public CgeElementActuator[] TongueY() => Joystick(nameof(TongueY), Tongue_Down, Tongue_Up).ToArray();
+            public CgeElementActuator[] TongueX() => Joystick(nameof(TongueX), Tongue_Left, Tongue_Right).ToArray();
+            public CgeElementActuator[] TongueSteps() => Stepped(nameof(TongueSteps), Tongue_LongStep1, Tongue_LongStep2).ToArray(); // TODO: This is cumulative (1 being both blendshapes), is this accurate? // FIXME: Somehow this needs to be set to 1.0 in the animator at rest to prevent issues
+            public CgeElementActuator[] PuffSuckRight() => Joystick(nameof(PuffSuckRight), Cheek_Suck, Cheek_Puff_Right).ToArray();
+            public CgeElementActuator[] PuffSuckLeft() => Joystick(nameof(PuffSuckLeft), Cheek_Suck, Cheek_Puff_Left).ToArray();
+            public CgeElementActuator[] PuffSuck() => Negative(nameof(PuffSuck), Cheek_Suck).P01(Cheek_Puff_Right).P01(Cheek_Puff_Left).ToArray();
+            public CgeElementActuator[] JawOpenApe() => Joystick(nameof(JawOpenApe), Mouth_Ape_Shape, Jaw_Open).ToArray();
+            public CgeElementActuator[] JawOpenPuff() => Negative(nameof(JawOpenPuff), Cheek_Puff_Left).Negative(Cheek_Puff_Right).P01(Jaw_Open).ToArray();
+            public CgeElementActuator[] JawOpenPuffRight() => Joystick(nameof(JawOpenPuffRight), Cheek_Puff_Right, Jaw_Open).ToArray();
+            public CgeElementActuator[] JawOpenPuffLeft() => Joystick(nameof(JawOpenPuffLeft), Cheek_Puff_Left, Jaw_Open).ToArray();
+            public CgeElementActuator[] JawOpenSuck() => Joystick(nameof(JawOpenSuck), Cheek_Suck, Jaw_Open).ToArray();
+            public CgeElementActuator[] JawOpenForward() => Joystick(nameof(JawOpenForward), Jaw_Forward, Jaw_Open).ToArray();
+            public CgeElementActuator[] MouthUpperUpRightUpperInside() => Joystick(nameof(MouthUpperUpRightUpperInside), Mouth_Upper_Inside, Mouth_Upper_UpRight).ToArray();
+            public CgeElementActuator[] MouthUpperUpRightPuffRight() => Joystick(nameof(MouthUpperUpRightPuffRight), Cheek_Puff_Right, Mouth_Upper_UpRight).ToArray();
+            public CgeElementActuator[] MouthUpperUpRightApe() => Joystick(nameof(MouthUpperUpRightApe), Mouth_Ape_Shape, Mouth_Upper_UpRight).ToArray();
+            public CgeElementActuator[] MouthUpperUpRightPout() => Joystick(nameof(MouthUpperUpRightPout), Mouth_Pout, Mouth_Upper_UpRight).ToArray();
+            public CgeElementActuator[] MouthUpperUpRightOverlay() => Joystick(nameof(MouthUpperUpRightOverlay), Mouth_Lower_Overlay, Mouth_Upper_UpRight).ToArray();
+            public CgeElementActuator[] MouthUpperUpLeftUpperInside() => Joystick(nameof(MouthUpperUpLeftUpperInside), Mouth_Upper_Inside, Mouth_Upper_UpLeft).ToArray();
+            public CgeElementActuator[] MouthUpperUpLeftPuffLeft() => Joystick(nameof(MouthUpperUpLeftPuffLeft), Cheek_Puff_Left, Mouth_Upper_UpLeft).ToArray();
+            public CgeElementActuator[] MouthUpperUpLeftApe() => Joystick(nameof(MouthUpperUpLeftApe), Mouth_Ape_Shape, Mouth_Upper_UpLeft).ToArray();
+            public CgeElementActuator[] MouthUpperUpLeftPout() => Joystick(nameof(MouthUpperUpLeftPout), Mouth_Pout, Mouth_Upper_UpLeft).ToArray();
+            public CgeElementActuator[] MouthUpperUpLeftOverlay() => Joystick(nameof(MouthUpperUpLeftOverlay), Mouth_Lower_Overlay, Mouth_Upper_UpLeft).ToArray(); // There seems to be a typo in the wiki for this one
+            public CgeElementActuator[] MouthUpperUpUpperInside() => Negative(nameof(MouthUpperUpUpperInside), Mouth_Upper_Inside).P01(Mouth_Upper_UpLeft).P01(Mouth_Upper_UpRight).ToArray();
+            public CgeElementActuator[] MouthUpperUpInside() => Negative(nameof(MouthUpperUpInside), Mouth_Upper_Inside).Negative(Mouth_Lower_Inside).P01(Mouth_Upper_UpLeft).P01(Mouth_Upper_UpRight).ToArray();
+            public CgeElementActuator[] MouthUpperUpPuff() => Negative(nameof(MouthUpperUpPuff), Cheek_Puff_Left).Negative(Cheek_Puff_Right).P01(Mouth_Upper_UpLeft).P01(Mouth_Upper_UpRight).ToArray();
+            public CgeElementActuator[] MouthUpperUpPuffLeft() => Negative(nameof(MouthUpperUpPuffLeft), Cheek_Puff_Left).P01(Mouth_Upper_UpLeft).P01(Mouth_Upper_UpRight).ToArray();
+            public CgeElementActuator[] MouthUpperUpPuffRight() => Negative(nameof(MouthUpperUpPuffRight), Cheek_Puff_Right).P01(Mouth_Upper_UpLeft).P01(Mouth_Upper_UpRight).ToArray();
+            public CgeElementActuator[] MouthUpperUpApe() => Negative(nameof(MouthUpperUpApe), Mouth_Ape_Shape).P01(Mouth_Upper_UpLeft).P01(Mouth_Upper_UpRight).ToArray();
+            public CgeElementActuator[] MouthUpperUpPout() => Negative(nameof(MouthUpperUpPout), Mouth_Pout).P01(Mouth_Upper_UpLeft).P01(Mouth_Upper_UpRight).ToArray();
+            public CgeElementActuator[] MouthUpperUpOverlay() => Negative(nameof(MouthUpperUpOverlay), Mouth_Lower_Overlay).P01(Mouth_Upper_UpLeft).P01(Mouth_Upper_UpRight).ToArray();
+            public CgeElementActuator[] MouthLowerDownRightLowerInside() => Joystick(nameof(MouthLowerDownRightLowerInside), Mouth_Lower_Inside, Mouth_Lower_DownRight).ToArray();
+            public CgeElementActuator[] MouthLowerDownRightPuffRight() => Joystick(nameof(MouthLowerDownRightPuffRight), Cheek_Puff_Right, Mouth_Lower_DownRight).ToArray();
+            public CgeElementActuator[] MouthLowerDownRightApe() => Joystick(nameof(MouthLowerDownRightApe), Mouth_Ape_Shape, Mouth_Lower_DownRight).ToArray();
+            public CgeElementActuator[] MouthLowerDownRightPout() => Joystick(nameof(MouthLowerDownRightPout), Mouth_Pout, Mouth_Lower_DownRight).ToArray();
+            public CgeElementActuator[] MouthLowerDownRightOverlay() => Joystick(nameof(MouthLowerDownRightOverlay), Mouth_Lower_Overlay, Mouth_Lower_DownRight).ToArray();
+            public CgeElementActuator[] MouthLowerDownLeftLowerInside() => Joystick(nameof(MouthLowerDownLeftLowerInside), Mouth_Lower_Inside, Mouth_Lower_DownLeft).ToArray();
+            public CgeElementActuator[] MouthLowerDownLeftPuffLeft() => Joystick(nameof(MouthLowerDownLeftPuffLeft), Cheek_Puff_Left, Mouth_Lower_DownLeft).ToArray();
+            public CgeElementActuator[] MouthLowerDownLeftApe() => Joystick(nameof(MouthLowerDownLeftApe), Mouth_Ape_Shape, Mouth_Lower_DownLeft).ToArray();
+            public CgeElementActuator[] MouthLowerDownLeftPout() => Joystick(nameof(MouthLowerDownLeftPout), Mouth_Pout, Mouth_Lower_DownLeft).ToArray();
+            public CgeElementActuator[] MouthLowerDownLeftOverlay() => Joystick(nameof(MouthLowerDownLeftOverlay), Mouth_Lower_Overlay, Mouth_Lower_DownLeft).ToArray();
+            public CgeElementActuator[] MouthLowerDownLowerInside() => Negative(nameof(MouthLowerDownLowerInside), Mouth_Lower_Inside).P01(Mouth_Lower_DownLeft).P01(Mouth_Lower_DownRight).ToArray();
+            public CgeElementActuator[] MouthLowerDownInside() => Negative(nameof(MouthLowerDownInside), Mouth_Upper_Inside).Negative(Mouth_Lower_Inside).P01(Mouth_Lower_DownLeft).P01(Mouth_Lower_DownRight).ToArray();
+            public CgeElementActuator[] MouthLowerDownPuff() => Negative(nameof(MouthLowerDownPuff), Cheek_Puff_Left).Negative(Cheek_Puff_Right).P01(Mouth_Lower_DownLeft).P01(Mouth_Lower_DownRight).ToArray();
+            public CgeElementActuator[] MouthLowerDownPuffLeft() => Negative(nameof(MouthLowerDownPuffLeft), Cheek_Puff_Left).P01(Mouth_Lower_DownLeft).P01(Mouth_Lower_DownRight).ToArray();
+            public CgeElementActuator[] MouthLowerDownPuffRight() => Negative(nameof(MouthLowerDownPuffRight), Cheek_Puff_Right).P01(Mouth_Lower_DownLeft).P01(Mouth_Lower_DownRight).ToArray();
+            public CgeElementActuator[] MouthLowerDownApe() => Negative(nameof(MouthLowerDownApe), Mouth_Ape_Shape).P01(Mouth_Lower_DownLeft).P01(Mouth_Lower_DownRight).ToArray();
+            public CgeElementActuator[] MouthLowerDownPout() => Negative(nameof(MouthLowerDownPout), Mouth_Pout).P01(Mouth_Lower_DownLeft).P01(Mouth_Lower_DownRight).ToArray();
+            public CgeElementActuator[] MouthLowerDownOverlay() => Negative(nameof(MouthLowerDownOverlay), Mouth_Lower_Overlay).P01(Mouth_Lower_DownLeft).P01(Mouth_Lower_DownRight).ToArray();
+            public CgeElementActuator[] SmileRightUpperOverturn() => Joystick(nameof(SmileRightUpperOverturn), Mouth_Upper_Overturn, Mouth_Smile_Right).ToArray();
+            public CgeElementActuator[] SmileRightLowerOverturn() => Joystick(nameof(SmileRightLowerOverturn), Mouth_Lower_Overturn, Mouth_Smile_Right).ToArray();
+            public CgeElementActuator[] SmileRightOverturn() => Negative(nameof(SmileRightOverturn), Mouth_Upper_Overturn).Negative(Mouth_Lower_Overturn).P01(Mouth_Smile_Right).ToArray();
+            public CgeElementActuator[] SmileRightApe() => Joystick(nameof(SmileRightApe), Mouth_Ape_Shape, Mouth_Smile_Right).ToArray();
+            public CgeElementActuator[] SmileRightOverlay() => Joystick(nameof(SmileRightOverlay), Mouth_Lower_Overlay, Mouth_Smile_Right).ToArray();
+            public CgeElementActuator[] SmileRightPout() => Joystick(nameof(SmileRightPout), Mouth_Pout, Mouth_Smile_Right).ToArray();
+            public CgeElementActuator[] SmileLeftUpperOverturn() => Joystick(nameof(SmileLeftUpperOverturn), Mouth_Upper_Overturn, Mouth_Smile_Left).ToArray();
+            public CgeElementActuator[] SmileLeftLowerOverturn() => Joystick(nameof(SmileLeftLowerOverturn), Mouth_Lower_Overturn, Mouth_Smile_Left).ToArray();
+            public CgeElementActuator[] SmileLeftOverturn() => Negative(nameof(SmileLeftOverturn), Mouth_Upper_Overturn).Negative(Mouth_Lower_Overturn).P01(Mouth_Smile_Left).ToArray();
+            public CgeElementActuator[] SmileLeftApe() => Joystick(nameof(SmileLeftApe), Mouth_Ape_Shape, Mouth_Smile_Left).ToArray();
+            public CgeElementActuator[] SmileLeftOverlay() => Joystick(nameof(SmileLeftOverlay), Mouth_Lower_Overlay, Mouth_Smile_Left).ToArray();
+            public CgeElementActuator[] SmileLeftPout() => Joystick(nameof(SmileLeftPout), Mouth_Pout, Mouth_Smile_Left).ToArray();
+            public CgeElementActuator[] SmileUpperOverturn() => Negative(nameof(SmileUpperOverturn), Mouth_Upper_Overturn).P01(Mouth_Smile_Left).P01(Mouth_Smile_Right).ToArray();
+            public CgeElementActuator[] SmileLowerOverturn() => Negative(nameof(SmileLowerOverturn), Mouth_Lower_Overturn).P01(Mouth_Smile_Left).P01(Mouth_Smile_Right).ToArray();
+            public CgeElementActuator[] SmileApe() => Negative(nameof(SmileApe), Mouth_Ape_Shape).P01(Mouth_Smile_Left).P01(Mouth_Smile_Right).ToArray();
+            public CgeElementActuator[] SmileOverlay() => Negative(nameof(SmileOverlay), Mouth_Lower_Overlay).P01(Mouth_Smile_Left).P01(Mouth_Smile_Right).ToArray();
+            public CgeElementActuator[] SmilePout() => Negative(nameof(SmilePout), Mouth_Pout).P01(Mouth_Smile_Left).P01(Mouth_Smile_Right).ToArray();
+            public CgeElementActuator[] PuffRightUpperOverturn() => Joystick(nameof(PuffRightUpperOverturn), Mouth_Upper_Overturn, Cheek_Puff_Right).ToArray();
+            public CgeElementActuator[] PuffRightLowerOverturn() => Joystick(nameof(PuffRightLowerOverturn), Mouth_Lower_Overturn, Cheek_Puff_Right).ToArray();
+            public CgeElementActuator[] PuffRightOverturn() => Negative(nameof(PuffRightOverturn), Mouth_Upper_Overturn).Negative(Mouth_Lower_Overturn).P01(Cheek_Puff_Right).ToArray();
+            public CgeElementActuator[] PuffLeftUpperOverturn() => Joystick(nameof(PuffLeftUpperOverturn), Mouth_Upper_Overturn, Cheek_Puff_Left).ToArray();
+            public CgeElementActuator[] PuffLeftLowerOverturn() => Joystick(nameof(PuffLeftLowerOverturn), Mouth_Lower_Overturn, Cheek_Puff_Left).ToArray();
+            public CgeElementActuator[] PuffLeftOverturn() => Negative(nameof(PuffLeftOverturn), Mouth_Upper_Overturn).Negative(Mouth_Lower_Overturn).P01(Cheek_Puff_Left).ToArray();
+            public CgeElementActuator[] PuffUpperOverturn() => Negative(nameof(PuffUpperOverturn), Mouth_Upper_Overturn).P01(Cheek_Puff_Left).P01(Cheek_Puff_Right).ToArray(); // Documentation seems incorrect (CheekPuffLeft)
+            public CgeElementActuator[] PuffLowerOverturn() => Negative(nameof(PuffLowerOverturn), Mouth_Lower_Overturn).P01(Cheek_Puff_Left).P01(Cheek_Puff_Right).ToArray(); // Documentation seems incorrect (CheekPuffLeft)
+            public CgeElementActuator[] PuffOverturn() => Negative(nameof(PuffOverturn), Mouth_Upper_Overturn).Negative(Mouth_Lower_Overturn).P01(Cheek_Puff_Left).P01(Cheek_Puff_Right).ToArray(); // Documentation seems incorrect (CheekPuffLeft)
 
             public Dictionary<string, CgeElementActuator[]> ToMap()
             {
@@ -334,15 +334,21 @@ namespace Hai.ComboGesture.Scripts.Components
                     .ToDictionary(info => info.Name, info => (CgeElementActuator[])info.Invoke(this, Array.Empty<object>()));
             }
 
-            private CgeInternalVRCFTContinuation P01(string parameter, CgeElement element) =>
-                new CgeInternalVRCFTContinuation(parameter).Positive(element);
-            private CgeInternalVRCFTContinuation Joystick(string parameter, CgeElement negativeLeftDown, CgeElement positiveUpRight) =>
+            private CgeInternalVRCFTContinuation P01(string parameter, CgeSRAnipalConvention element) =>
+                new CgeInternalVRCFTContinuation(parameter).P01(element);
+            private CgeInternalVRCFTContinuation Decay(string parameter, CgeSRAnipalConvention element) =>
+                new CgeInternalVRCFTContinuation(parameter).Decay(element);
+            private CgeInternalVRCFTContinuation Negative(string parameter, CgeSRAnipalConvention element) =>
+                new CgeInternalVRCFTContinuation(parameter).Negative(element);
+            private CgeInternalVRCFTContinuation Joystick(string parameter, CgeSRAnipalConvention negativeLeftDown, CgeSRAnipalConvention positiveUpRight) =>
                 new CgeInternalVRCFTContinuation(parameter).Joystick(negativeLeftDown, positiveUpRight);
-            private CgeInternalVRCFTContinuation Aperture(string parameter, CgeElement zero, CgeElement one) =>
+            private CgeInternalVRCFTContinuation Aperture(string parameter, CgeSRAnipalConvention zero, CgeSRAnipalConvention one) =>
                 new CgeInternalVRCFTContinuation(parameter).Aperture(zero, one);
+            private CgeInternalVRCFTContinuation Stepped(string parameter, CgeSRAnipalConvention neutral, CgeSRAnipalConvention positive) =>
+                new CgeInternalVRCFTContinuation(parameter).Stepped(neutral, positive);
         }
 
-        protected override Dictionary<string, CgeElementActuator[]> ExposeMap()
+        public override Dictionary<string, CgeElementActuator[]> ExposeMap()
         {
             return new CgeVRCFaceTrackingFTVendorMap().ToMap();
         }
