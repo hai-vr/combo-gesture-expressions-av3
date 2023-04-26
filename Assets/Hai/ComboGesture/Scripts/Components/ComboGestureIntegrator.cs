@@ -2,9 +2,9 @@
 
 namespace Hai.ComboGesture.Scripts.Components
 {
+    [AddComponentMenu("")]
     public class ComboGestureIntegrator : MonoBehaviour
     {
-        public RuntimeAnimatorController animatorController;
-        public bool writeDefaults;
+        // This is a legacy behaviour.
     }
 }

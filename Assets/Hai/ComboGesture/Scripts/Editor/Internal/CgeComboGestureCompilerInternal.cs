@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.Internal.CgeAac;
 using UnityEditor;
@@ -90,34 +89,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _universalAnalogSupport = compiler.useViveAdvancedControlsForNonFistAnalog;
             _doNotForceBlinkBlendshapes = compiler.doNotForceBlinkBlendshapes;
             _mmdCompatibilityToggleParameter = compiler.mmdCompatibilityToggleParameter;
-        }
-
-        public ComboGestureCompilerInternal(
-            ComboGestureIntegrator integrator)
-        {
-            _animatorController = (AnimatorController)integrator.animatorController;
-            _conflictPrevention = CgeConflictPrevention.OfIntegrator(integrator.writeDefaults);
-
-            // FIXME: Incorrect pattern in use here, none of those are necessary
-            _comboLayers = new List<GestureComboStageMapper>();
-            _parameterGeneration = ParameterGeneration.Unique;
-            _gesturePlayableLayerController = null;
-            _analogBlinkingUpperThreshold = 0f;
-            _featuresToggles = 0;
-            _conflictPreventionTempGestureLayer = CgeConflictPrevention.OfFxLayer(WriteDefaultsRecommendationMode.UseUnsupportedWriteDefaultsOn);
-            _compilerConflictFxLayerMode = ConflictFxLayerMode.KeepBoth;
-            _compilerIgnoreParamList = new AnimationClip();
-            _compilerFallbackParamList = new AnimationClip();
-            _avatarDescriptor = null;
-            _expressionsAvatarMask = null;
-            _logicalAvatarMask = null;
-            _weightCorrectionAvatarMask = null;
-            _gesturePlayableLayerExpressionsAvatarMask = null;
-            _gesturePlayableLayerTechnicalAvatarMask = null;
-            _assetContainer = null;
-            _useGestureWeightCorrection = false;
-            _useSmoothing = _useGestureWeightCorrection;
-            _universalAnalogSupport = false;
         }
 
         enum ParameterGeneration

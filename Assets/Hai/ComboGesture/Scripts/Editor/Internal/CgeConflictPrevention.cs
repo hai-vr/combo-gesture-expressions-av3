@@ -17,11 +17,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             ShouldWriteDefaults = shouldWriteDefaults;
         }
 
-        public static CgeConflictPrevention OfIntegrator(bool writeDefaults)
-        {
-            return new CgeConflictPrevention(false, writeDefaults);
-        }
-
         public static CgeConflictPrevention OfFxLayer(WriteDefaultsRecommendationMode mode)
         {
             switch (mode)
