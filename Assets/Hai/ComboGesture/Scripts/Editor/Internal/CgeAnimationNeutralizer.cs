@@ -395,7 +395,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 value = originalKeyframe.value,
                 inTangent = originalKeyframe.inTangent,
                 outTangent = originalKeyframe.outTangent,
-                tangentMode = originalKeyframe.tangentMode,
+                // tangentMode = originalKeyframe.tangentMode, // Prints a "Keyframe.tangentMode" warning in the console
                 weightedMode = originalKeyframe.weightedMode,
                 inWeight = originalKeyframe.inWeight,
                 outWeight = originalKeyframe.outWeight,
