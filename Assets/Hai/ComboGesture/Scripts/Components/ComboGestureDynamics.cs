@@ -164,7 +164,7 @@ namespace Hai.ComboGesture.Scripts.Components
     [Serializable]
     public enum ComboGestureDynamicsPhysBoneSource
     {
-        Stretch, Angle, IsGrabbed
+        Stretch, Angle, IsGrabbed, Squish
     }
 
     [Serializable]

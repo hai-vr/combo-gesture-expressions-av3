@@ -185,29 +185,17 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                                 EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.parameterType)), new GUIContent(CgeLocale.CGED_ParameterType));
                             }
                             EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.condition)), new GUIContent(CgeLocale.CGED_Condition));
-                            if (
-                                item.physBoneSource == ComboGestureDynamicsPhysBoneSource.Angle ||
-                                item.physBoneSource == ComboGestureDynamicsPhysBoneSource.Stretch ||
-                                item.parameterType == ComboGestureDynamicsParameterType.Float ||
-                                item.parameterType == ComboGestureDynamicsParameterType.Int)
+                            var isFloaty = item.physBoneSource == ComboGestureDynamicsPhysBoneSource.Angle ||
+                                    item.physBoneSource == ComboGestureDynamicsPhysBoneSource.Stretch ||
+                                    item.physBoneSource == ComboGestureDynamicsPhysBoneSource.Squish ||
+                                    item.parameterType == ComboGestureDynamicsParameterType.Float;
+                            if (isFloaty || item.parameterType == ComboGestureDynamicsParameterType.Int)
                             {
                                 EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.threshold)), new GUIContent(CgeLocale.CGED_Threshold));
                             }
-                            if (item.physBoneSource == ComboGestureDynamicsPhysBoneSource.Angle ||
-                                item.physBoneSource == ComboGestureDynamicsPhysBoneSource.Stretch ||
-                                // TODO: Should isgrabbed physbone receivers not blend?
-                                item.parameterType == ComboGestureDynamicsParameterType.Float)
+                            if (isFloaty)
                             {
                                 EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.isHardThreshold)), new GUIContent(CgeLocale.CGED_IsHardThreshold));
-                            }
-
-                            if (
-                                item.physBoneSource == ComboGestureDynamicsPhysBoneSource.Angle ||
-                                item.physBoneSource == ComboGestureDynamicsPhysBoneSource.Stretch ||
-                                // TODO: Should isgrabbed physbone receivers not blend?
-                                item.parameterType == ComboGestureDynamicsParameterType.Float
-                            )
-                            {
                                 EditorGUI.PropertyField(Position(rect, line, ref lineId), element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.upperBound)), new GUIContent(CgeLocale.CGED_UpperBound));
                             }
                         }
