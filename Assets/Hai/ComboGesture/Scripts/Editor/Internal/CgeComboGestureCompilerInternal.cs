@@ -314,12 +314,13 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                                 );
                             }
 
-                            return CgeManifestBinding.FromAvatarDynamics(
+                            return CgeManifestBinding.FromActivityBoundAvatarDynamics(
                                 new CgeDynamicsRankedDescriptor
                                 {
                                     descriptor = descriptor,
                                     rank = rank,
-                                }, CgeSharedLayerUtils.FromSimpleDynamics(simpleDynamics, emptyClip, _universalAnalogSupport)
+                                }, CgeSharedLayerUtils.FromSimpleDynamics(simpleDynamics, emptyClip, _universalAnalogSupport),
+                                binding.StageValue
                             );
                         })
                         .ToArray();
