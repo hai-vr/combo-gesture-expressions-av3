@@ -2,6 +2,12 @@
 
 While working on ComboGestureExpressions 1.4, I had a lot of struggles with Write Defaults OFF. I have consolidated everything I've learned along the way on this page.
 
+> ⚠️ The article below was written in March 2021.
+> 
+> Research on this subject has evolved since then, and as of September 2023, I recommend you [read this other article instead](https://notes.sleightly.dev/write-defaults/).
+>
+> https://notes.sleightly.dev/write-defaults/
+
 ### Animating non-muscle transforms
 
 Write Defaults is a tricky topic. According to the VRChat Documentation, it recommends that in general:
@@ -40,6 +46,12 @@ There is an unknown:
 - According to the VRChat documentation, the mask of the first layer of the FX Playable Layer will be replaced at runtime. This means I do not know what is the expected behavior of the animator if the base layer has a strange configuration of Write Defaults OFF.
 
 ### Quirks
+
+> ⚠️ The article was written in March 2021.
+> 
+> Research on this subject has evolved since then, and as of September 2023, I recommend you [read this other article instead](https://notes.sleightly.dev/write-defaults/).
+>
+> https://notes.sleightly.dev/write-defaults/
 
 There are additional precautions that need to be taken for Write Defaults OFF to function properly, but it is outside of the scope of *ComboGestureExpressions*. This list may not be totally accurate:
 
