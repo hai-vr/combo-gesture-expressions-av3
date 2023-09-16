@@ -39,6 +39,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly ComboGestureDynamicsItem[] _dynamicsLayers;
         private readonly bool _doNotForceBlinkBlendshapes;
         private readonly string _mmdCompatibilityToggleParameter;
+        private readonly string _eyeTrackingEnabledParameter;
+        private readonly EyeTrackingParameterType _eyeTrackingParameterType;
 
         public ComboGestureCompilerInternal(
             ComboGestureCompiler compiler,
@@ -89,6 +91,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _universalAnalogSupport = compiler.useViveAdvancedControlsForNonFistAnalog;
             _doNotForceBlinkBlendshapes = compiler.doNotForceBlinkBlendshapes;
             _mmdCompatibilityToggleParameter = compiler.mmdCompatibilityToggleParameter;
+            _eyeTrackingEnabledParameter = compiler.eyeTrackingEnabledParameter;
+            _eyeTrackingParameterType = compiler.eyeTrackingParameterType;
         }
 
         enum ParameterGeneration
@@ -562,7 +566,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 _animatorController,
                 _assetContainer,
                 manifestBindings,
-                _conflictPrevention.ShouldWriteDefaults).Create();
+                _conflictPrevention.ShouldWriteDefaults,
+                _eyeTrackingEnabledParameter,
+                _eyeTrackingParameterType).Create();
         }
 
         private void DeleteDeprecatedLipsyncOverrideView()

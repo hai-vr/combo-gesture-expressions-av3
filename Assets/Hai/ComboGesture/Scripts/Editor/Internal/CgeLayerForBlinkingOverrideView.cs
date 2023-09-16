@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.Internal.CgeAac;
 using UnityEditor;
 using UnityEditor.Animations;
@@ -16,8 +17,13 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly CgeAssetContainer _assetContainer;
         private readonly List<CgeManifestBinding> _manifestBindings;
         private readonly bool _writeDefaultsForLogicalStates;
+        private readonly string _eyeTrackingEnabledParameter;
+        private readonly EyeTrackingParameterType _eyeTrackingParameterType;
 
-        public CgeLayerForBlinkingOverrideView(float analogBlinkingUpperThreshold, AvatarMask logicalAvatarMask, AnimatorController animatorController, CgeAssetContainer assetContainer, List<CgeManifestBinding> manifestBindings, bool writeDefaults)
+        public CgeLayerForBlinkingOverrideView(float analogBlinkingUpperThreshold, AvatarMask logicalAvatarMask,
+            AnimatorController animatorController, CgeAssetContainer assetContainer,
+            List<CgeManifestBinding> manifestBindings, bool writeDefaults, string eyeTrackingEnabledParameter,
+            EyeTrackingParameterType eyeTrackingParameterType)
         {
             _analogBlinkingUpperThreshold = analogBlinkingUpperThreshold;
             _logicalAvatarMask = logicalAvatarMask;
@@ -25,6 +31,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _assetContainer = assetContainer;
             _manifestBindings = manifestBindings;
             _writeDefaultsForLogicalStates = writeDefaults;
+            _eyeTrackingEnabledParameter = eyeTrackingEnabledParameter;
+            _eyeTrackingParameterType = eyeTrackingParameterType;
         }
 
         public void Create()
@@ -44,6 +52,33 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 .When(layer.FloatParameter("_Hai_GestureAnimBlink").IsGreaterThan(_analogBlinkingUpperThreshold));
             disableBlinking.TransitionsTo(enableBlinking)
                 .When(layer.FloatParameter("_Hai_GestureAnimBlink").IsLessThan(_analogBlinkingUpperThreshold));
+
+            if (!string.IsNullOrEmpty(_eyeTrackingEnabledParameter))
+            {
+                var blinkingIgnored = layer.NewState("BlinkingIgnoredDueToFaceTracking");
+                // Modern face tracking toggles use a synced bool with the animator declaring as a float, because of blend trees.
+                // - We don't know if the user is using a modern face tracking toggle.
+                // - We can't introspect the animator because the user may be using a non destructive workflow.
+                // - The user doesn't know the internals of the animator, so we can't ask them, because they could misunderstand it as being the synced type.
+                if (_eyeTrackingParameterType == EyeTrackingParameterType.Modern)
+                {
+                    var param = layer.FloatParameter(_eyeTrackingEnabledParameter);
+                    
+                    enableBlinking.TransitionsTo(blinkingIgnored).When(param.IsGreaterThan(0.5f));
+                    disableBlinking.TransitionsTo(blinkingIgnored).When(param.IsGreaterThan(0.5f));
+                    
+                    blinkingIgnored.TransitionsTo(enableBlinking).When(param.IsLessThan(0.5f));
+                }
+                else
+                {
+                    var param = layer.BoolParameter(_eyeTrackingEnabledParameter);
+                    
+                    enableBlinking.TransitionsTo(blinkingIgnored).When(param.IsTrue());
+                    disableBlinking.TransitionsTo(blinkingIgnored).When(param.IsTrue());
+                    
+                    blinkingIgnored.TransitionsTo(enableBlinking).When(param.IsFalse());
+                }
+            }
         }
 
         private CgeAacFlState CreateBlinkingState(CgeAacFlLayer layer, VRC_AnimatorTrackingControl.TrackingType type)

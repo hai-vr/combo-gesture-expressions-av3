@@ -58,6 +58,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public SerializedProperty dynamics;
         private SerializedProperty doNotForceBlinkBlendshapes;
         private SerializedProperty mmdCompatibilityToggleParameter;
+        private SerializedProperty eyeTrackingEnabledParameter;
+        private SerializedProperty eyeTrackingParameterType;
 
         private void OnEnable()
         {
@@ -100,6 +102,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             dynamics = serializedObject.FindProperty(nameof(ComboGestureCompiler.dynamics));
             doNotForceBlinkBlendshapes = serializedObject.FindProperty(nameof(ComboGestureCompiler.doNotForceBlinkBlendshapes));
             mmdCompatibilityToggleParameter = serializedObject.FindProperty(nameof(ComboGestureCompiler.mmdCompatibilityToggleParameter));
+            eyeTrackingEnabledParameter = serializedObject.FindProperty(nameof(ComboGestureCompiler.eyeTrackingEnabledParameter));
+            eyeTrackingParameterType = serializedObject.FindProperty(nameof(ComboGestureCompiler.eyeTrackingParameterType));
 
             // reference: https://blog.terresquall.com/2020/03/creating-reorderable-lists-in-the-unity-inspector/
             comboLayersReorderableList = new ReorderableList(
@@ -429,6 +433,13 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             EditorGUILayout.LabelField(CgeLocale.CGEC_Other_tweaks, EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(analogBlinkingUpperThreshold, new GUIContent(CgeLocale.CGEC_Analog_fist_blinking_threshold, CgeLocale.CGEC_AnalogFist_Popup));
             EditorGUILayout.PropertyField(mmdCompatibilityToggleParameter, new GUIContent(CgeLocale.CGEC_MMD_compatibility_toggle_parameter));
+            EditorGUILayout.PropertyField(eyeTrackingEnabledParameter, new GUIContent(CgeLocale.CGEC_Eye_tracking_enabled_parameter));
+            EditorGUILayout.PropertyField(eyeTrackingParameterType, new GUIContent(CgeLocale.CGEC_Eye_tracking_parameter_type));
+            if (eyeTrackingEnabledParameter.stringValue != "" &&
+                (EyeTrackingParameterType)eyeTrackingParameterType.intValue == EyeTrackingParameterType.LegacyBool)
+            {
+                EditorGUILayout.HelpBox(CgeLocale.CGEC_WarnEyeTrackingParameterType, MessageType.Warning);
+            }
 
             editorAdvancedFoldout.boolValue = EditorGUILayout.Foldout(editorAdvancedFoldout.boolValue, CgeLocale.CGEC_Advanced);
             if (editorAdvancedFoldout.boolValue)

@@ -53,6 +53,9 @@ namespace Hai.ComboGesture.Scripts.Components
         public string mmdCompatibilityToggleParameter;
         public int totalNumberOfGenerations;
 
+        public string eyeTrackingEnabledParameter;
+        public EyeTrackingParameterType eyeTrackingParameterType;
+
         public bool WillUseGestureWeightCorrection()
         {
             return weightCorrectionMode != WeightCorrectionMode.UseNativeWeight;
@@ -120,5 +123,11 @@ namespace Hai.ComboGesture.Scripts.Components
     public enum ParameterMode
     {
         MultipleBools, SingleInt
+    }
+
+    [System.Serializable]
+    public enum EyeTrackingParameterType
+    {
+        Modern, LegacyBool
     }
 }

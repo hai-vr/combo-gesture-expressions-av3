@@ -180,5 +180,10 @@ You should press synchronize when any of the following happens:
         internal static string CGED_OnEnterDuration = "Duration (s)";
         internal static string CGED_BehavesLikeOnEnter = "Behaves like OnEnter";
         internal static string CGED_UpperBound = "Upper bound";
+        
+        // 2.1.0
+        internal static string CGEC_Eye_tracking_enabled_parameter = "Eye tracking enabled parameter";
+        internal static string CGEC_Eye_tracking_parameter_type = "Eye tracking parameter type";
+        internal static string CGEC_WarnEyeTrackingParameterType = "Most eye tracking animator templates use a Modern parameter type. Do not set to Legacy Bool unless you know what you're doing!";
     }
 }
