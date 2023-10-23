@@ -17,49 +17,53 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
     [CustomEditor(typeof(ComboGestureCompiler))]
     public class ComboGestureCompilerEditor : UnityEditor.Editor
     {
-        public ReorderableList comboLayersReorderableList;
-        public SerializedProperty comboLayers;
-        public SerializedProperty animatorController;
-        public SerializedProperty useGesturePlayableLayer;
-        public SerializedProperty gesturePlayableLayerController;
-        public SerializedProperty activityStageName;
-        public SerializedProperty customEmptyClip;
-        public SerializedProperty analogBlinkingUpperThreshold;
-        public SerializedProperty parameterMode;
+        private ReorderableList comboLayersReorderableList;
+        private SerializedProperty comboLayers;
+        private SerializedProperty animatorController;
+        private SerializedProperty useGesturePlayableLayer;
+        private SerializedProperty gesturePlayableLayerController;
+        private SerializedProperty activityStageName;
+        private SerializedProperty customEmptyClip;
+        private SerializedProperty analogBlinkingUpperThreshold;
+        private SerializedProperty parameterMode;
 
-        public SerializedProperty expressionsAvatarMask;
-        public SerializedProperty logicalAvatarMask;
-        public SerializedProperty weightCorrectionAvatarMask;
-        public SerializedProperty gesturePlayableLayerExpressionsAvatarMask;
-        public SerializedProperty gesturePlayableLayerTechnicalAvatarMask;
-        public SerializedProperty doNotGenerateBlinkingOverrideLayer;
-        public SerializedProperty doNotGenerateWeightCorrectionLayer;
+        private SerializedProperty expressionsAvatarMask;
+        private SerializedProperty logicalAvatarMask;
+        private SerializedProperty weightCorrectionAvatarMask;
+        private SerializedProperty gesturePlayableLayerExpressionsAvatarMask;
+        private SerializedProperty gesturePlayableLayerTechnicalAvatarMask;
+        private SerializedProperty doNotGenerateBlinkingOverrideLayer;
+        private SerializedProperty doNotGenerateWeightCorrectionLayer;
 
-        public SerializedProperty writeDefaultsRecommendationMode;
-        public SerializedProperty writeDefaultsRecommendationModeGesture;
-        public SerializedProperty gestureLayerTransformCapture;
-        public SerializedProperty generatedAvatarMask;
-        public SerializedProperty conflictFxLayerMode;
-        public SerializedProperty weightCorrectionMode;
-        public SerializedProperty ignoreParamList;
-        public SerializedProperty fallbackParamList;
-        public SerializedProperty folderToGenerateNeutralizedAssetsIn;
+        private SerializedProperty writeDefaultsRecommendationMode;
+        private SerializedProperty writeDefaultsRecommendationModeGesture;
+        private SerializedProperty gestureLayerTransformCapture;
+        private SerializedProperty generatedAvatarMask;
+        private SerializedProperty conflictFxLayerMode;
+        private SerializedProperty weightCorrectionMode;
+        private SerializedProperty ignoreParamList;
+        private SerializedProperty fallbackParamList;
+        private SerializedProperty folderToGenerateNeutralizedAssetsIn;
 
-        public SerializedProperty avatarDescriptor;
-        public SerializedProperty doNotFixSingleKeyframes;
-        public SerializedProperty bypassMandatoryAvatarDescriptor;
+        private SerializedProperty avatarDescriptor;
+        private SerializedProperty doNotFixSingleKeyframes;
+        private SerializedProperty bypassMandatoryAvatarDescriptor;
 
-        public SerializedProperty assetContainer;
-        public SerializedProperty generateNewContainerEveryTime;
+        private SerializedProperty assetContainer;
+        private SerializedProperty generateNewContainerEveryTime;
 
-        public SerializedProperty editorAdvancedFoldout;
+        private SerializedProperty editorAdvancedFoldout;
 
-        public SerializedProperty useViveAdvancedControlsForNonFistAnalog;
-        public SerializedProperty dynamics;
+        private SerializedProperty useViveAdvancedControlsForNonFistAnalog;
+        private SerializedProperty dynamics;
         private SerializedProperty doNotForceBlinkBlendshapes;
         private SerializedProperty mmdCompatibilityToggleParameter;
         private SerializedProperty eyeTrackingEnabledParameter;
         private SerializedProperty eyeTrackingParameterType;
+
+        private Texture _guideIcon16;
+        private Texture _guideIcon32;
+        private SerializedProperty playableLayerStrategy;
 
         private void OnEnable()
         {
@@ -104,6 +108,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             mmdCompatibilityToggleParameter = serializedObject.FindProperty(nameof(ComboGestureCompiler.mmdCompatibilityToggleParameter));
             eyeTrackingEnabledParameter = serializedObject.FindProperty(nameof(ComboGestureCompiler.eyeTrackingEnabledParameter));
             eyeTrackingParameterType = serializedObject.FindProperty(nameof(ComboGestureCompiler.eyeTrackingParameterType));
+            
+            playableLayerStrategy = serializedObject.FindProperty(nameof(ComboGestureCompiler.playableLayerStrategy));
 
             // reference: https://blog.terresquall.com/2020/03/creating-reorderable-lists-in-the-unity-inspector/
             comboLayersReorderableList = new ReorderableList(
@@ -136,9 +142,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             editorAdvancedFoldout = serializedObject.FindProperty(nameof(ComboGestureCompiler.editorAdvancedFoldout));
         }
-
-        private Texture _guideIcon16;
-        private Texture _guideIcon32;
 
         public override void OnInspectorGUI()
         {
@@ -304,59 +307,72 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                     }
                 }
             }
-
+            
             EditorGUILayout.LabelField(CgeLocale.CGEC_FX_Playable_Layer, EditorStyles.boldLabel);
             EditorGUILayout.LabelField(CgeLocale.CGEC_BackupFX, italic);
+            
             EditorGUILayout.PropertyField(animatorController, new GUIContent(CgeLocale.CGEC_FX_Animator_Controller));
             EditorGUILayout.PropertyField(writeDefaultsRecommendationMode, new GUIContent(CgeLocale.CGEC_FX_Playable_Mode));
             WriteDefaultsSection(writeDefaultsRecommendationMode);
 
             EditorGUILayout.PropertyField(doNotForceBlinkBlendshapes, new GUIContent(CgeLocale.CGEC_DoNotForceBlinkBlendshapes));
-
             EditorGUILayout.Separator();
 
             EditorGUILayout.LabelField(CgeLocale.CGEC_Gesture_Playable_Layer, EditorStyles.boldLabel);
-            EditorGUILayout.LabelField(CgeLocale.CGEC_Support_for_other_transforms, italic);
-            EditorGUILayout.LabelField(CgeLocale.CGEC_MusclesUnsupported, italic);
-            EditorGUILayout.PropertyField(useGesturePlayableLayer, new GUIContent(CgeLocale.CGEC_Gesture_playable_layer_support));
-            if (useGesturePlayableLayer.boolValue)
+            EditorGUILayout.PropertyField(playableLayerStrategy);
+
+            if (compiler.playableLayerStrategy == CgeStrategy.ModernStyle)
             {
-                EditorGUILayout.LabelField(CgeLocale.CGEC_BackupGesture, italic);
-                EditorGUILayout.PropertyField(gesturePlayableLayerController, new GUIContent(CgeLocale.CGEC_Gesture_Animator_Controller));
-
-                EditorGUILayout.PropertyField(writeDefaultsRecommendationModeGesture, new GUIContent(CgeLocale.CGEC_Gesture_Playable_Mode));
-                EditorGUILayout.PropertyField(gestureLayerTransformCapture, new GUIContent(CgeLocale.CGEC_Capture_Transforms_Mode));
-                WriteDefaultsSection(writeDefaultsRecommendationModeGesture);
-
-                EditorGUI.BeginDisabledGroup(true);
-                EditorGUILayout.PropertyField(generatedAvatarMask, new GUIContent(CgeLocale.CGEC_Asset_container));
-                EditorGUI.EndDisabledGroup();
-
-                var missingMaskCount = CgeMaskApplicator.FindAllLayersMissingAMask(compiler.animatorController).Count();
-                if (missingMaskCount > 0)
+                EditorGUILayout.PropertyField(useGesturePlayableLayer, new GUIContent("Clean up old CGE layers"));
+                if (useGesturePlayableLayer.boolValue)
                 {
-                    EditorGUILayout.HelpBox(string.Format(CgeLocale.CGEC_MissingFxMask, missingMaskCount), MessageType.Error);
-                }
-
-                EditorGUI.BeginDisabledGroup(compiler.avatarDescriptor == null || compiler.animatorController == null || missingMaskCount == 0);
-                if (GUILayout.Button(CgeLocale.CGEC_Add_missing_masks))
-                {
-                    AddMissingMasks(compiler);
-                }
-                EditorGUI.EndDisabledGroup();
-
-                if (compiler.generatedAvatarMask != null)
-                {
-                    EditorGUI.BeginDisabledGroup(compiler.avatarDescriptor == null || compiler.animatorController == null);
-                    MaskRemovalUi(compiler);
-                    EditorGUI.EndDisabledGroup();
+                    EditorGUILayout.PropertyField(gesturePlayableLayerController, new GUIContent(CgeLocale.CGEC_Gesture_Animator_Controller));
                 }
             }
             else
             {
-                if (compiler.animatorController != null && compiler.generatedAvatarMask != null)
+                EditorGUILayout.LabelField(CgeLocale.CGEC_Support_for_other_transforms, italic);
+                EditorGUILayout.LabelField(CgeLocale.CGEC_MusclesUnsupported, italic);
+                EditorGUILayout.PropertyField(useGesturePlayableLayer, new GUIContent(CgeLocale.CGEC_Gesture_playable_layer_support));
+                if (useGesturePlayableLayer.boolValue)
                 {
-                    MaskRemovalUi(compiler);
+                    EditorGUILayout.LabelField(CgeLocale.CGEC_BackupGesture, italic);
+                    EditorGUILayout.PropertyField(gesturePlayableLayerController, new GUIContent(CgeLocale.CGEC_Gesture_Animator_Controller));
+
+                    EditorGUILayout.PropertyField(writeDefaultsRecommendationModeGesture, new GUIContent(CgeLocale.CGEC_Gesture_Playable_Mode));
+                    EditorGUILayout.PropertyField(gestureLayerTransformCapture, new GUIContent(CgeLocale.CGEC_Capture_Transforms_Mode));
+                    WriteDefaultsSection(writeDefaultsRecommendationModeGesture);
+
+                    EditorGUI.BeginDisabledGroup(true);
+                    EditorGUILayout.PropertyField(generatedAvatarMask, new GUIContent(CgeLocale.CGEC_Asset_container));
+                    EditorGUI.EndDisabledGroup();
+
+                    var missingMaskCount = CgeMaskApplicator.FindAllLayersMissingAMask(compiler.animatorController).Count();
+                    if (missingMaskCount > 0)
+                    {
+                        EditorGUILayout.HelpBox(string.Format(CgeLocale.CGEC_MissingFxMask, missingMaskCount), MessageType.Error);
+                    }
+
+                    EditorGUI.BeginDisabledGroup(compiler.avatarDescriptor == null || compiler.animatorController == null || missingMaskCount == 0);
+                    if (GUILayout.Button(CgeLocale.CGEC_Add_missing_masks))
+                    {
+                        AddMissingMasks(compiler);
+                    }
+                    EditorGUI.EndDisabledGroup();
+
+                    if (compiler.generatedAvatarMask != null)
+                    {
+                        EditorGUI.BeginDisabledGroup(compiler.avatarDescriptor == null || compiler.animatorController == null);
+                        MaskRemovalUi(compiler);
+                        EditorGUI.EndDisabledGroup();
+                    }
+                }
+                else
+                {
+                    if (compiler.animatorController != null && compiler.generatedAvatarMask != null)
+                    {
+                        MaskRemovalUi(compiler);
+                    }
                 }
             }
 
@@ -480,9 +496,11 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 }
                 EditorGUI.EndDisabledGroup();
 
-                EditorGUILayout.PropertyField(conflictFxLayerMode, new GUIContent("FX Transforms removal"));
-
-                CpmRemovalWarning(true);
+                if (compiler.playableLayerStrategy == CgeStrategy.OldStyle)
+                {
+                    EditorGUILayout.PropertyField(conflictFxLayerMode, new GUIContent("FX Transforms removal"));
+                    CpmRemovalWarning(true);
+                }
                 EditorGUILayout.Separator();
 
                 EditorGUILayout.LabelField("Fallback generation", EditorStyles.boldLabel);
@@ -508,7 +526,10 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             {
                 GenBlinkingWarning(false);
                 GenWeightCorrection(false);
-                CpmRemovalWarning(false);
+                if (compiler.playableLayerStrategy == CgeStrategy.OldStyle)
+                {
+                    CpmRemovalWarning(false);
+                }
             }
 
             serializedObject.ApplyModifiedProperties();

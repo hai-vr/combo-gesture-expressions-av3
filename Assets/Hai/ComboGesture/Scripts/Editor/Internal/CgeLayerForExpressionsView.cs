@@ -13,6 +13,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
     internal class CgeLayerForExpressionsView
     {
+        internal const string LayerNameGestureExp = "Hai_GestureExp";
         private readonly CgeFeatureToggles _featuresToggles;
         private readonly AvatarMask _expressionsAvatarMask;
         private readonly AnimationClip _emptyClip;
@@ -125,7 +126,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 _useSmoothing,
                 defaultState,
                 _mmdCompatibilityToggleParameter,
-                _animatorController.layers.ToList().FindIndex(ctrl => ctrl.name == "Hai_GestureExp")
+                _animatorController.layers.ToList().FindIndex(ctrl => ctrl.name == LayerNameGestureExp)
             ).Populate();
         }
 
@@ -188,7 +189,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         private AacFlLayer ReinitializeLayer(AvatarMask avatarMaskNullable)
         {
-            return _assetContainer.ExposeAac().CreateSupportingArbitraryControllerLayer(_animatorController, "Hai_GestureExp")
+            return _assetContainer.ExposeAac().CreateSupportingArbitraryControllerLayer(_animatorController, LayerNameGestureExp)
                 .WithAvatarMask(avatarMaskNullable != null ? avatarMaskNullable : _expressionsAvatarMask);
         }
 

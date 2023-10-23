@@ -42,6 +42,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly string _mmdCompatibilityToggleParameter;
         private readonly string _eyeTrackingEnabledParameter;
         private readonly EyeTrackingParameterType _eyeTrackingParameterType;
+        private readonly bool _gestureNeedsCompleteRemoval;
 
         public ComboGestureCompilerInternal(
             ComboGestureCompiler compiler,
@@ -70,7 +71,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                                | (compiler.doNotFixSingleKeyframes ? CgeFeatureToggles.DoNotFixSingleKeyframes : 0);
             _conflictPrevention = CgeConflictPrevention.OfFxLayer(compiler.writeDefaultsRecommendationMode);
             _conflictPreventionTempGestureLayer = CgeConflictPrevention.OfGestureLayer(compiler.writeDefaultsRecommendationModeGesture, compiler.gestureLayerTransformCapture);
-            _compilerConflictFxLayerMode = compiler.conflictFxLayerMode;
+            _compilerConflictFxLayerMode = compiler.playableLayerStrategy == CgeStrategy.ModernStyle ? ConflictFxLayerMode.KeepBoth : compiler.conflictFxLayerMode;
             _compilerIgnoreParamList = compiler.ignoreParamList;
             _compilerFallbackParamList = compiler.fallbackParamList;
             _avatarDescriptor = compiler.avatarDescriptor;
@@ -94,6 +95,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _mmdCompatibilityToggleParameter = compiler.mmdCompatibilityToggleParameter;
             _eyeTrackingEnabledParameter = compiler.eyeTrackingEnabledParameter;
             _eyeTrackingParameterType = compiler.eyeTrackingParameterType;
+
+            _gestureNeedsCompleteRemoval = compiler.playableLayerStrategy == CgeStrategy.ModernStyle;
         }
 
         enum ParameterGeneration
@@ -217,6 +220,20 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         public void DoOverwriteAnimatorGesturePlayableLayer()
         {
+            if (_gestureNeedsCompleteRemoval)
+            {
+                DeleteWeightCorrection(_gesturePlayableLayerController);
+                DeleteSmoothing(_gesturePlayableLayerController);
+                DeleteImpulseView(_gesturePlayableLayerController);
+                DeleteGesturePlayableLayerExpressionsView(_gesturePlayableLayerController);
+
+                ReapAnimator(_gesturePlayableLayerController);
+
+                AssetDatabase.Refresh();
+                EditorUtility.ClearProgressBar();
+                return;
+            }
+            
             var emptyClip = _assetContainer.ExposeAac().DummyClipLasting(1, AacFlUnit.Frames).Clip;
 
             if (!Feature(CgeFeatureToggles.DoNotGenerateWeightCorrectionLayer))
@@ -258,6 +275,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
             AssetDatabase.Refresh();
             EditorUtility.ClearProgressBar();
+        }
+
+        private void DeleteGesturePlayableLayerExpressionsView(AnimatorController animatorController)
+        {
+            _assetContainer.ExposeAac().CGE_RemoveSupportingArbitraryControllerLayer(animatorController, CgeLayerForExpressionsView.LayerNameGestureExp);
         }
 
         private List<CgeManifestBinding> CreateManifestBindings(AnimationClip emptyClip)

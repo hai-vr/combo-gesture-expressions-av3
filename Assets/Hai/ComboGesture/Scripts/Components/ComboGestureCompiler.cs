@@ -56,10 +56,18 @@ namespace Hai.ComboGesture.Scripts.Components
         public string eyeTrackingEnabledParameter;
         public EyeTrackingParameterType eyeTrackingParameterType;
 
+        public CgeStrategy playableLayerStrategy;
+
         public bool WillUseGestureWeightCorrection()
         {
             return weightCorrectionMode != WeightCorrectionMode.UseNativeWeight;
         }
+    }
+
+    public enum CgeStrategy
+    {
+        ModernStyle,
+        OldStyle
     }
 
     [System.Serializable]
