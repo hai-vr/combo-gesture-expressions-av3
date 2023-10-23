@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using AnimatorAsCode.V1;
 using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.Internal.CgeAac;
 using UnityEditor;
@@ -181,7 +182,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 }
             }
 
-            var emptyClip = _assetContainer.ExposeCgeAac().DummyClipLasting(1, CgeAacFlUnit.Frames).Clip;
+            var emptyClip = _assetContainer.ExposeAac().DummyClipLasting(1, AacFlUnit.Frames).Clip;
 
             var manifestBindings = CreateManifestBindings(emptyClip);
 
@@ -216,7 +217,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         public void DoOverwriteAnimatorGesturePlayableLayer()
         {
-            var emptyClip = _assetContainer.ExposeCgeAac().DummyClipLasting(1, CgeAacFlUnit.Frames).Clip;
+            var emptyClip = _assetContainer.ExposeAac().DummyClipLasting(1, AacFlUnit.Frames).Clip;
 
             if (!Feature(CgeFeatureToggles.DoNotGenerateWeightCorrectionLayer))
             {
@@ -414,7 +415,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         private void CreateOrReplaceImpulseView(List<CgeManifestBinding> manifestBindings, AnimatorController animatorController)
         {
-            var aac = _assetContainer.ExposeCgeAac();
+            var aac = _assetContainer.ExposeAac();
             var layer = aac.CreateSupportingArbitraryControllerLayer(animatorController, "Hai_GestureImpulse")
                 .WithAvatarMask(_logicalAvatarMask);
 
@@ -432,7 +433,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
             def.TransitionsTo(intern).AfterAnimationIsAtLeastAtPercent(0);
 
-            var all = new List<CgeAacFlState>();
+            var all = new List<AacFlState>();
             var waiting = intern.NewState("Waiting for first")
                 .WithWriteDefaultsSetTo(_conflictPrevention.ShouldWriteDefaults)
                 .WithAnimation(aac.NewClip().Animating(clip =>
@@ -484,7 +485,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
         }
 
-        private void ResolveEntranceCondition(CgeManifestBinding binding, CgeAacFlTransitionContinuation continuation, CgeAacFlLayer layer)
+        private void ResolveEntranceCondition(CgeManifestBinding binding, AacFlTransitionContinuation continuation, AacFlLayer layer)
         {
             if (binding.IsActivityBound)
             {
@@ -493,7 +494,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             continuation.And(ResolveEntranceCondition(layer, binding.DynamicsDescriptor.descriptor.onEnter));
         }
 
-        private ICgeAacFlCondition ResolveEntranceCondition(CgeAacFlLayer layer, CgeDynamicsOnEnter onEnter)
+        private IAacFlCondition ResolveEntranceCondition(AacFlLayer layer, CgeDynamicsOnEnter onEnter)
         {
             switch (onEnter.parameterType)
             {
@@ -529,7 +530,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         private void DeleteImpulseView(AnimatorController animatorController)
         {
-            _assetContainer.ExposeCgeAac().CGE_RemoveSupportingArbitraryControllerLayer(animatorController, "Hai_GestureImpulse");
+            _assetContainer.ExposeAac().CGE_RemoveSupportingArbitraryControllerLayer(animatorController, "Hai_GestureImpulse");
         }
 
         private void CreateOrReplaceGesturePlayableLayerExpressionsView(AnimationClip emptyClip, List<CgeManifestBinding> manifestBindings)
@@ -573,12 +574,12 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         private void DeleteDeprecatedLipsyncOverrideView()
         {
-            _assetContainer.ExposeCgeAac().CGE_RemoveSupportingArbitraryControllerLayer(_animatorController, "Hai_GestureLipsync");
+            _assetContainer.ExposeAac().CGE_RemoveSupportingArbitraryControllerLayer(_animatorController, "Hai_GestureLipsync");
         }
 
         private void DeleteDeprecatedControllerLayer()
         {
-            _assetContainer.ExposeCgeAac().CGE_RemoveSupportingArbitraryControllerLayer(_animatorController, "Hai_GestureCtrl");
+            _assetContainer.ExposeAac().CGE_RemoveSupportingArbitraryControllerLayer(_animatorController, "Hai_GestureCtrl");
         }
 
         private void DeleteWeightCorrection(AnimatorController animatorController)

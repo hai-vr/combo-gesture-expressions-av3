@@ -1,4 +1,6 @@
-﻿using Hai.ComboGesture.Scripts.Editor.Internal.CgeAac;
+﻿using AnimatorAsCode.V1;
+using AnimatorAsCode.V1.VRC;
+using Hai.ComboGesture.Scripts.Editor.Internal.CgeAac;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
@@ -28,14 +30,14 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         {
             EditorUtility.DisplayProgressBar("ComboGestureExpressions", "Creating weight correction layer", 0f);
             InitializeMachineFor(
-                _assetContainer.ExposeCgeAac().CreateSupportingArbitraryControllerLayer(_animatorController, SmoothingLeftLayerName).WithAvatarMask(_weightCorrectionAvatarMask),
+                _assetContainer.ExposeAac().CreateSupportingArbitraryControllerLayer(_animatorController, SmoothingLeftLayerName).WithAvatarMask(_weightCorrectionAvatarMask),
                 CgeSharedLayerUtils.HaiGestureComboLeftWeightProxy,
                 CgeSharedLayerUtils.HaiGestureComboLeftWeightSmoothing,
                 "GestureLeftWeight",
                 "GestureLeft"
             );
             InitializeMachineFor(
-                _assetContainer.ExposeCgeAac().CreateSupportingArbitraryControllerLayer(_animatorController, SmoothingRightLayerName).WithAvatarMask(_weightCorrectionAvatarMask),
+                _assetContainer.ExposeAac().CreateSupportingArbitraryControllerLayer(_animatorController, SmoothingRightLayerName).WithAvatarMask(_weightCorrectionAvatarMask),
                 CgeSharedLayerUtils.HaiGestureComboRightWeightProxy,
                 CgeSharedLayerUtils.HaiGestureComboRightWeightSmoothing,
                 "GestureRightWeight",
@@ -43,7 +45,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             );
         }
 
-        private void InitializeMachineFor(CgeAacFlLayer layer, string proxyParam, string smoothingParam, string liveParam, string handParam)
+        private void InitializeMachineFor(AacFlLayer layer, string proxyParam, string smoothingParam, string liveParam, string handParam)
         {
             var smoothingFactor = layer.FloatParameter(CgeSharedLayerUtils.HaiGestureComboSmoothingFactor);
             var factorTree = CreateFactorTreeFull(layer, proxyParam, smoothingParam);
@@ -65,20 +67,20 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             listening.TransitionsTo(waiting).When(layer.IntParameter(handParam).IsNotEqualTo(1));
         }
 
-        private BlendTree CreateFactorTreeFull(CgeAacFlLayer layer, string proxyParam, string smoothingParam)
+        private BlendTree CreateFactorTreeFull(AacFlLayer layer, string proxyParam, string smoothingParam)
         {
             var zeroClip = SmoothingClip(layer, proxyParam, smoothingParam, 0f);
             var oneClip = SmoothingClip(layer, proxyParam, smoothingParam, 1f);
             return CreateFactorTree(layer, proxyParam, smoothingParam, zeroClip, oneClip);
         }
 
-        private BlendTree CreateFactorTree(CgeAacFlLayer layer, string proxyParam, string smoothingParam, AnimationClip zeroClip, AnimationClip oneClip)
+        private BlendTree CreateFactorTree(AacFlLayer layer, string proxyParam, string smoothingParam, AnimationClip zeroClip, AnimationClip oneClip)
         {
             var proxyTree = InterpolationTree(layer.FloatParameter(proxyParam).Name, zeroClip, oneClip);
-            _assetContainer.ExposeCgeAac().CGE_StoringMotion(proxyTree);
+            _assetContainer.ExposeAac().CGE_StoringMotion(proxyTree);
 
             var smoothingTree = InterpolationTree(layer.FloatParameter(smoothingParam).Name, zeroClip, oneClip);
-            _assetContainer.ExposeCgeAac().CGE_StoringMotion(smoothingTree);
+            _assetContainer.ExposeAac().CGE_StoringMotion(smoothingTree);
 
             var smoothingFactor = layer.FloatParameter(CgeSharedLayerUtils.HaiGestureComboSmoothingFactor);
             var factorTree = new BlendTree
@@ -96,14 +98,14 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 },
                 hideFlags = HideFlags.HideInHierarchy
             };
-            _assetContainer.ExposeCgeAac().CGE_StoringMotion(factorTree);
+            _assetContainer.ExposeAac().CGE_StoringMotion(factorTree);
 
             return factorTree;
         }
 
-        private AnimationClip SmoothingClip(CgeAacFlLayer layer, string proxyParam, string smoothingParam, float desiredValue)
+        private AnimationClip SmoothingClip(AacFlLayer layer, string proxyParam, string smoothingParam, float desiredValue)
         {
-            return _assetContainer.ExposeCgeAac().NewClip().Animating(clip =>
+            return _assetContainer.ExposeAac().NewClip().Animating(clip =>
             {
                 clip.AnimatesAnimator(layer.FloatParameter(smoothingParam)).WithOneFrame(desiredValue);
                 clip.Animates("", typeof(Animator), proxyParam).WithSecondsUnit(keyframes => keyframes.Linear(0, 0).Linear(1f, 1f));
@@ -130,8 +132,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         public static void Delete(CgeAssetContainer assetContainer, AnimatorController controller)
         {
-            assetContainer.ExposeCgeAac().CGE_RemoveSupportingArbitraryControllerLayer(controller, SmoothingLeftLayerName);
-            assetContainer.ExposeCgeAac().CGE_RemoveSupportingArbitraryControllerLayer(controller, SmoothingRightLayerName);
+            assetContainer.ExposeAac().CGE_RemoveSupportingArbitraryControllerLayer(controller, SmoothingLeftLayerName);
+            assetContainer.ExposeAac().CGE_RemoveSupportingArbitraryControllerLayer(controller, SmoothingRightLayerName);
         }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using AnimatorAsCode.V1;
+using AnimatorAsCode.V1.VRC;
 using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.Internal.CgeAac;
 using UnityEditor;
@@ -14,18 +16,18 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
     internal class CgeExpressionCombiner
     {
         private readonly CgeAssetContainer _assetContainer;
-        private CgeAacFlLayer _layer;
+        private AacFlLayer _layer;
         private readonly List<IComposedBehaviour> _composedBehaviours;
         private readonly string _activityStageName;
         private readonly bool _writeDefaultsForFaceExpressions;
         private readonly bool _useGestureWeightCorrection;
         private readonly bool _useSmoothing;
-        private readonly CgeAacFlState _defaultState;
+        private readonly AacFlState _defaultState;
         private readonly string _mmdCompatibilityToggleParameter;
         private readonly int _layerIndex;
 
-        public CgeExpressionCombiner(CgeAssetContainer assetContainer, CgeAacFlLayer layer,
-            List<IComposedBehaviour> composedBehaviours, string activityStageName, bool writeDefaultsForFaceExpressions, bool useGestureWeightCorrection, bool useSmoothing, CgeAacFlState defaultState,
+        public CgeExpressionCombiner(CgeAssetContainer assetContainer, AacFlLayer layer,
+            List<IComposedBehaviour> composedBehaviours, string activityStageName, bool writeDefaultsForFaceExpressions, bool useGestureWeightCorrection, bool useSmoothing, AacFlState defaultState,
             string mmdCompatibilityToggleParameter,
             int layerIndex)
         {
@@ -49,14 +51,13 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             intern.WithEntryPosition(-1, -1);
             intern.WithExitPosition(1, _composedBehaviours.Count + 1);
 
-            _defaultState.CGE_AutomaticallyMovesTo(intern);
+            _defaultState.AutomaticallyMovesTo(intern);
 
             // This must be the first layer for MMD compatiblity to take over everything else
             if (!string.IsNullOrEmpty(_mmdCompatibilityToggleParameter))
             {
-                var mmdOn = intern.NewState("MMD Compatibility ON")
-                    .WithWriteDefaultsSetTo(_writeDefaultsForFaceExpressions)
-                    .At(0, -3);
+                var mmdOn = intern.NewState("MMD Compatibility ON", 0, -3)
+                    .WithWriteDefaultsSetTo(_writeDefaultsForFaceExpressions);
 
                 var onLayerControl = mmdOn.State.AddStateMachineBehaviour<VRCAnimatorLayerControl>();
                 onLayerControl.blendDuration = 0;
@@ -90,7 +91,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                         ? $"Dynamics {behaviour.DynamicsDescriptor.rank} Act {behaviour.StageValue} #{i}"
                         : $"Dynamics {behaviour.DynamicsDescriptor.rank} #{i}"
                         : $"Activity {behaviour.StageValue}";
-                    return intern.NewSubStateMachine(name).At(0, i);
+                    return intern.NewSubStateMachine(name, 0, i);
                 })
                 .ToArray();
 
@@ -161,7 +162,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
         }
 
-        private void ContinuateEntrance(CgeAacFlTransitionContinuationWithoutOr continuation, IComposedBehaviour composed)
+        private void ContinuateEntrance(AacFlTransitionContinuationWithoutOr continuation, IComposedBehaviour composed)
         {
             if (composed.IsAvatarDynamics)
             {
@@ -175,7 +176,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
         }
 
-        private ICgeAacFlCondition ResolveEntranceDescriptor(CgeDynamicsDescriptor descriptor)
+        private IAacFlCondition ResolveEntranceDescriptor(CgeDynamicsDescriptor descriptor)
         {
             switch (descriptor.parameterType)
             {
@@ -209,7 +210,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
         }
 
-        private ICgeAacFlCondition ResolveExiter(CgeDynamicsDescriptor descriptor)
+        private IAacFlCondition ResolveExiter(CgeDynamicsDescriptor descriptor)
         {
             switch (descriptor.parameterType)
             {
@@ -243,7 +244,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
         }
 
-        private void BuildPcb(CgeAacFlStateMachine ssm, PermutationComposedBehaviour composed, CgeDynamicsDescriptor[] dynamicsExiters)
+        private void BuildPcb(AacFlStateMachine ssm, PermutationComposedBehaviour composed, CgeDynamicsDescriptor[] dynamicsExiters)
         {
             var gestureLeftParam = _layer.Av3().GestureLeft;
             var gestureRightParam = _layer.Av3().GestureRight;
@@ -251,7 +252,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
             foreach (CgeHandPose right in Enum.GetValues(typeof(CgeHandPose)))
             {
-                var rightSsm = ssm.NewSubStateMachine($"Right {right}").At((int) right, 0);
+                var rightSsm = ssm.NewSubStateMachine($"Right {right}", (int) right, 0);
                 ssm.EntryTransitionsTo(rightSsm).When(gestureRightParam.IsEqualTo((int) right));
 
                 // Short Restarts are no longer possible with Avatar Dynamics
@@ -309,7 +310,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             ssm.WithExitPosition(9, -1);
         }
 
-        private void BuildOcb(CgeAacFlStateMachine ssm, OneHandComposedBehaviour composed, CgeDynamicsDescriptor[] dynamicsExiters)
+        private void BuildOcb(AacFlStateMachine ssm, OneHandComposedBehaviour composed, CgeDynamicsDescriptor[] dynamicsExiters)
         {
             var which = composed.IsLeftHand ? _layer.Av3().GestureLeft : _layer.Av3().GestureRight;
             foreach (var pair in composed.Behaviors)
@@ -355,7 +356,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             ssm.WithExitPosition(1, 8);
         }
 
-        private void BuildScb(CgeAacFlStateMachine ssm, SingularComposedBehaviour composed, CgeDynamicsDescriptor[] dynamicsExiters)
+        private void BuildScb(AacFlStateMachine ssm, SingularComposedBehaviour composed, CgeDynamicsDescriptor[] dynamicsExiters)
         {
             var state = AppendToSsm(ssm, composed.Behavior);
             state.State.name = $"Single";
@@ -387,7 +388,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
         }
 
-        private CgeAacFlState AppendToSsm(CgeAacFlStateMachine ssm, ICgeAnimatedBehavior behaviour)
+        private AacFlState AppendToSsm(AacFlStateMachine ssm, ICgeAnimatedBehavior behaviour)
         {
             switch (behaviour.Nature())
             {
@@ -468,14 +469,14 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
         }
 
-        private CgeAacFlState ForSimpleMassiveBlend(CgeAacFlStateMachine ssm, ICgeAnimatedBehavior zero, ICgeAnimatedBehavior one, string parameterName, float maxThreshold)
+        private AacFlState ForSimpleMassiveBlend(AacFlStateMachine ssm, ICgeAnimatedBehavior zero, ICgeAnimatedBehavior one, string parameterName, float maxThreshold)
         {
             var zeroMotion = Derive(zero);
             var oneMotion = Derive(one);
             return CreateSimpleMassiveBlendState(zeroMotion, oneMotion, parameterName, ssm, maxThreshold);
         }
 
-        private CgeAacFlState ForTwoDirectionsMassiveBlend(CgeAacFlStateMachine ssm, ICgeAnimatedBehavior zero, ICgeAnimatedBehavior one, ICgeAnimatedBehavior minusOne, string parameterName)
+        private AacFlState ForTwoDirectionsMassiveBlend(AacFlStateMachine ssm, ICgeAnimatedBehavior zero, ICgeAnimatedBehavior one, ICgeAnimatedBehavior minusOne, string parameterName)
         {
             var zeroMotion = Derive(zero);
             var oneMotion = Derive(one);
@@ -483,13 +484,13 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             return CreateTwoDirectionsMassiveBlendState(zeroMotion, oneMotion, minusOneMotion, parameterName, ssm);
         }
 
-        private CgeAacFlState ForComplexMassiveBlend(CgeAacFlStateMachine ssm, List<ICgeAnimatedBehavior> behaviors, BlendTree originalBlendTreeTemplate)
+        private AacFlState ForComplexMassiveBlend(AacFlStateMachine ssm, List<ICgeAnimatedBehavior> behaviors, BlendTree originalBlendTreeTemplate)
         {
             var motions = behaviors.Select(Derive).ToList();
             return CreateComplexMassiveBlendState(motions, originalBlendTreeTemplate, ssm);
         }
 
-        private CgeAacFlState CreateSimpleMassiveBlendState(Motion zero, Motion one, string parameterName, CgeAacFlStateMachine ssm, float maxThreshold)
+        private AacFlState CreateSimpleMassiveBlendState(Motion zero, Motion one, string parameterName, AacFlStateMachine ssm, float maxThreshold)
         {
             return ssm.NewState(ThisStringWillBeDiscardedLater())
                 .WithAnimation(CreateBlendTree(
@@ -500,7 +501,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 .WithWriteDefaultsSetTo(_writeDefaultsForFaceExpressions);
         }
 
-        private CgeAacFlState CreateTwoDirectionsMassiveBlendState(Motion zero, Motion one, Motion minusOne, string parameterName, CgeAacFlStateMachine ssm)
+        private AacFlState CreateTwoDirectionsMassiveBlendState(Motion zero, Motion one, Motion minusOne, string parameterName, AacFlStateMachine ssm)
         {
             var blendTree = new BlendTree
             {
@@ -522,12 +523,12 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 .WithWriteDefaultsSetTo(_writeDefaultsForFaceExpressions);
         }
 
-        private CgeAacFlState ForSingle(CgeAacFlStateMachine ssm, CgeSingleAnimatedBehavior intermediateAnimationGroup)
+        private AacFlState ForSingle(AacFlStateMachine ssm, CgeSingleAnimatedBehavior intermediateAnimationGroup)
         {
             return CreateMotionState(intermediateAnimationGroup.Posing.Clip, ssm);
         }
 
-        private CgeAacFlState CreateComplexMassiveBlendState(List<Motion> motions, BlendTree originalBlendTreeTemplate, CgeAacFlStateMachine ssm)
+        private AacFlState CreateComplexMassiveBlendState(List<Motion> motions, BlendTree originalBlendTreeTemplate, AacFlStateMachine ssm)
         {
             var newBlendTree = CopyTreeIdentically(originalBlendTreeTemplate);
             newBlendTree.children = newBlendTree.children
@@ -581,31 +582,31 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             return newTree;
         }
 
-        private CgeAacFlState ForAnalog(CgeAacFlStateMachine ssm, Motion squeezing, Motion resting, CgeHandSide handSide)
+        private AacFlState ForAnalog(AacFlStateMachine ssm, Motion squeezing, Motion resting, CgeHandSide handSide)
         {
             return CreateSidedBlendState(squeezing, resting, handSide == CgeHandSide.LeftHand, ssm);
         }
 
-        private CgeAacFlState ForDualAnalog(CgeAacFlStateMachine ssm, Motion bothSqueezing, Motion resting, Motion leftSqueezingClip, Motion rightSqueezingClip)
+        private AacFlState ForDualAnalog(AacFlStateMachine ssm, Motion bothSqueezing, Motion resting, Motion leftSqueezingClip, Motion rightSqueezingClip)
         {
             return CreateDualBlendState(bothSqueezing,
                 resting,
                 leftSqueezingClip, rightSqueezingClip, ssm);
         }
 
-        private CgeAacFlState ForPuppet(CgeAacFlStateMachine ssm, CgePuppetAnimatedBehavior intermediateAnimationGroup)
+        private AacFlState ForPuppet(AacFlStateMachine ssm, CgePuppetAnimatedBehavior intermediateAnimationGroup)
         {
             return CreatePuppetState(intermediateAnimationGroup.Tree, ssm);
         }
 
-        private CgeAacFlState CreateMotionState(AnimationClip clip, CgeAacFlStateMachine ssm)
+        private AacFlState CreateMotionState(AnimationClip clip, AacFlStateMachine ssm)
         {
             return ssm.NewState(ThisStringWillBeDiscardedLater())
                 .WithAnimation(clip)
                 .WithWriteDefaultsSetTo(_writeDefaultsForFaceExpressions);
         }
 
-        private CgeAacFlState CreateSidedBlendState(Motion squeezing, Motion resting, bool isLeftSide, CgeAacFlStateMachine ssm)
+        private AacFlState CreateSidedBlendState(Motion squeezing, Motion resting, bool isLeftSide, AacFlStateMachine ssm)
         {
             return ssm.NewState(ThisStringWillBeDiscardedLater())
                 .WithAnimation(CreateBlendTree(
@@ -639,14 +640,14 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             return "GestureRightWeight";
         }
 
-        private CgeAacFlState CreateDualBlendState(Motion clip, Motion resting, Motion posingLeft, Motion posingRight, CgeAacFlStateMachine ssm)
+        private AacFlState CreateDualBlendState(Motion clip, Motion resting, Motion posingLeft, Motion posingRight, AacFlStateMachine ssm)
         {
             return ssm.NewState(ThisStringWillBeDiscardedLater())
                 .WithAnimation(CreateDualBlendTree(resting, clip, posingLeft, posingRight, _useGestureWeightCorrection, _useSmoothing))
                 .WithWriteDefaultsSetTo(_writeDefaultsForFaceExpressions);
         }
 
-        private CgeAacFlState CreatePuppetState(BlendTree tree, CgeAacFlStateMachine ssm)
+        private AacFlState CreatePuppetState(BlendTree tree, AacFlStateMachine ssm)
         {
             return ssm.NewState(ThisStringWillBeDiscardedLater())
                 .WithAnimation(tree)
@@ -705,7 +706,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         private void RegisterBlendTreeAsAsset(BlendTree blendTree)
         {
-            _assetContainer.ExposeCgeAac().CGE_StoringMotion(blendTree);
+            _assetContainer.ExposeAac().CGE_StoringMotion(blendTree);
         }
     }
 }

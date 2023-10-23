@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using AnimatorAsCode.V1;
+using AnimatorAsCode.V1.VRC;
 using Hai.ComboGesture.Scripts.Components;
 using Hai.ComboGesture.Scripts.Editor.Internal.CgeAac;
 using UnityEditor;
@@ -38,7 +40,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
             var virtualActivity = layer.IntParameter(CgeSharedLayerUtils.HaiVirtualActivity);
 
-            CgeAacFlState defaultState = null;
+            AacFlState defaultState = null;
             foreach (var comboLayer in _comboLayers)
             {
                 var virtualStageValue = comboLayer.internalVirtualStageValue;
@@ -85,16 +87,16 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
         }
 
-        private CgeAacFlLayer ReinitializeLayerAsMachinist()
+        private AacFlLayer ReinitializeLayerAsMachinist()
         {
-            return _assetContainer.ExposeCgeAac().CreateSupportingArbitraryControllerLayer(_controller, VirtualActivityLayerName)
-                .CGE_WithLayerWeight(0f)
+            return _assetContainer.ExposeAac().CreateSupportingArbitraryControllerLayer(_controller, VirtualActivityLayerName)
+                .WithWeight(0f)
                 .WithAvatarMask(_logicalAvatarMask);
         }
 
         public static void Delete(CgeAssetContainer assetContainer, AnimatorController animatorController)
         {
-            assetContainer.ExposeCgeAac().CGE_RemoveSupportingArbitraryControllerLayer(animatorController, VirtualActivityLayerName);
+            assetContainer.ExposeAac().CGE_RemoveSupportingArbitraryControllerLayer(animatorController, VirtualActivityLayerName);
         }
     }
 }

@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using AnimatorAsCode.V1;
+using AnimatorAsCode.V1.VRC;
 using Hai.ComboGesture.Scripts.Components;
-using Hai.ComboGesture.Scripts.Editor.Internal.CgeAac;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
@@ -81,18 +82,18 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
         }
 
-        private CgeAacFlState CreateBlinkingState(CgeAacFlLayer layer, VRC_AnimatorTrackingControl.TrackingType type)
+        private AacFlState CreateBlinkingState(AacFlLayer layer, VRC_AnimatorTrackingControl.TrackingType type)
         {
             return layer.NewState(type == VRC_AnimatorTrackingControl.TrackingType.Tracking ? "EnableBlinking" : "DisableBlinking", type == VRC_AnimatorTrackingControl.TrackingType.Tracking ? 0 : 2, 3)
                 .WithWriteDefaultsSetTo(_writeDefaultsForLogicalStates)
-                .TrackingSets(CgeAacFlState.TrackingElement.Eyes, type);
+                .TrackingSets(AacAv3.Av3TrackingElement.Eyes, type);
         }
 
-        private CgeAacFlLayer ReinitializeLayer()
+        private AacFlLayer ReinitializeLayer()
         {
-            return _assetContainer.ExposeCgeAac().CreateSupportingArbitraryControllerLayer(_animatorController, "Hai_GestureBlinking")
+            return _assetContainer.ExposeAac().CreateSupportingArbitraryControllerLayer(_animatorController, "Hai_GestureBlinking")
                 .WithAvatarMask(_logicalAvatarMask)
-                .CGE_WithLayerWeight(0f);
+                .WithWeight(0f);
         }
     }
 }

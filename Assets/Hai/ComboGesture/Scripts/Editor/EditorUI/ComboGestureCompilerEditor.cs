@@ -673,7 +673,7 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
                 new CgeMaskApplicator(compiler.animatorController, compiler.generatedAvatarMask).UpdateMask();
             }
 
-            actualContainer.ExposeCgeAac().ClearPreviousAssets();
+            actualContainer.ExposeAac().ClearPreviousAssets();
             new ComboGestureCompilerInternal(compiler, actualContainer).DoOverwriteAnimatorFxLayer();
             if (compiler.useGesturePlayableLayer)
             {

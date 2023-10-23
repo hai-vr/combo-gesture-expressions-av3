@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using AnimatorAsCode.V1;
 using Hai.ComboGesture.Scripts.Components;
-using Hai.ComboGesture.Scripts.Editor.Internal.CgeAac;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
@@ -53,7 +53,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.upperBound)).floatValue = 1f;
 
                 var mutatedKeyframes = new List<Keyframe>();
-                new CgeAacFlSettingKeyframes(CgeAacFlUnit.Seconds, mutatedKeyframes)
+                new AacFlSettingKeyframes(AacFlUnit.Seconds, mutatedKeyframes)
                     .Easing(0f, 0f)
                     .Easing(0.05f, 1f)
                     .Easing(0.2f, 1f)

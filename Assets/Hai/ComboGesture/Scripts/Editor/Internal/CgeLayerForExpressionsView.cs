@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using AnimatorAsCode.V1;
 using Hai.ComboGesture.Scripts.Components;
-using Hai.ComboGesture.Scripts.Editor.Internal.CgeAac;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
@@ -186,9 +186,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             }
         }
 
-        private CgeAacFlLayer ReinitializeLayer(AvatarMask avatarMaskNullable)
+        private AacFlLayer ReinitializeLayer(AvatarMask avatarMaskNullable)
         {
-            return _assetContainer.ExposeCgeAac().CreateSupportingArbitraryControllerLayer(_animatorController, "Hai_GestureExp")
+            return _assetContainer.ExposeAac().CreateSupportingArbitraryControllerLayer(_animatorController, "Hai_GestureExp")
                 .WithAvatarMask(avatarMaskNullable != null ? avatarMaskNullable : _expressionsAvatarMask);
         }
 

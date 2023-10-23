@@ -1,4 +1,5 @@
 ﻿using System;
+using AnimatorAsCode.V1;
 using Hai.ComboGesture.Scripts.Editor.Internal.CgeAac;
 using UnityEditor;
 using UnityEditor.Animations;
@@ -9,18 +10,17 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
     internal class CgeAssetContainer
     {
         private readonly AnimatorController _holder;
-        private readonly CgeAacFlBase _aac;
+        private readonly AacFlBase _aac;
 
         private CgeAssetContainer(AnimatorController holder)
         {
             _holder = holder;
 
-            _aac = CgeAacV0.Create(new CgeAacConfiguration
+            _aac = AacV1.Create(new AacConfiguration
             {
                 AnimatorRoot = null,
                 AssetContainer = _holder,
                 AssetKey = "GeneratedCGE",
-                AvatarDescriptor = null,
                 DefaultsProvider = new CgeDefaultsProvider(true),
                 SystemName = "CGE",
                 DefaultValueRoot = null
@@ -80,13 +80,13 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             AssetDatabase.Refresh();
         }
 
-        public CgeAacFlBase ExposeCgeAac()
+        public AacFlBase ExposeAac()
         {
             return _aac;
         }
     }
 
-    public sealed class CgeDefaultsProvider : ICgeAacDefaultsProvider
+    public sealed class CgeDefaultsProvider : IAacDefaultsProvider
     {
         private readonly bool _writeDefaults;
 

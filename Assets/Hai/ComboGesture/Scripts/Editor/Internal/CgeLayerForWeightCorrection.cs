@@ -1,4 +1,5 @@
-﻿using Hai.ComboGesture.Scripts.Editor.Internal.CgeAac;
+﻿using AnimatorAsCode.V1;
+using Hai.ComboGesture.Scripts.Editor.Internal.CgeAac;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
@@ -29,14 +30,14 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         {
             EditorUtility.DisplayProgressBar("ComboGestureExpressions", "Creating weight correction layer", 0f);
             InitializeMachineFor(
-                _assetContainer.ExposeCgeAac().CreateSupportingArbitraryControllerLayer(_animatorController, WeightCorrectionLeftLayerName)
+                _assetContainer.ExposeAac().CreateSupportingArbitraryControllerLayer(_animatorController, WeightCorrectionLeftLayerName)
                     .WithAvatarMask(_weightCorrectionAvatarMask),
                 CgeSharedLayerUtils.HaiGestureComboLeftWeightProxy,
                 "GestureLeftWeight",
                 "GestureLeft"
             );
             InitializeMachineFor(
-                _assetContainer.ExposeCgeAac().CreateSupportingArbitraryControllerLayer(_animatorController, WeightCorrectionRightLayerName)
+                _assetContainer.ExposeAac().CreateSupportingArbitraryControllerLayer(_animatorController, WeightCorrectionRightLayerName)
                     .WithAvatarMask(_weightCorrectionAvatarMask),
                 CgeSharedLayerUtils.HaiGestureComboRightWeightProxy,
                 "GestureRightWeight",
@@ -44,7 +45,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             );
         }
 
-        private void InitializeMachineFor(CgeAacFlLayer layer, string proxyParam, string liveParam, string handParam)
+        private void InitializeMachineFor(AacFlLayer layer, string proxyParam, string liveParam, string handParam)
         {
             if (_universalAnalogSupport)
             {
@@ -65,7 +66,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             listening.TransitionsTo(waiting).When(layer.IntParameter(handParam).IsNotEqualTo(1));
         }
 
-        private CgeAacFlState CreateListeningState(CgeAacFlLayer layer, string liveParam, string proxyParam)
+        private AacFlState CreateListeningState(AacFlLayer layer, string liveParam, string proxyParam)
         {
             return layer.NewState("Listening")
                 .WithAnimation(CreateProxyClip(proxyParam))
@@ -73,10 +74,10 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 .WithWriteDefaultsSetTo(_writeDefaultsForAnimatedAnimatorParameterStates);
         }
 
-        private CgeAacFlClip CreateProxyClip(string proxyParam)
+        private AacFlClip CreateProxyClip(string proxyParam)
         {
             // It's not a big deal, but this proxy asset is generated multiple times identically.
-            return _assetContainer.ExposeCgeAac().NewClip().Animating(clip =>
+            return _assetContainer.ExposeAac().NewClip().Animating(clip =>
             {
                 clip.Animates("", typeof(Animator), proxyParam).WithSecondsUnit(keyframes => keyframes.Linear(0, 0).Linear(1f, 1f));
             });
@@ -84,8 +85,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         public static void Delete(CgeAssetContainer assetContainer, AnimatorController controller)
         {
-            assetContainer.ExposeCgeAac().CGE_RemoveSupportingArbitraryControllerLayer(controller, WeightCorrectionLeftLayerName);
-            assetContainer.ExposeCgeAac().CGE_RemoveSupportingArbitraryControllerLayer(controller, WeightCorrectionRightLayerName);
+            assetContainer.ExposeAac().CGE_RemoveSupportingArbitraryControllerLayer(controller, WeightCorrectionLeftLayerName);
+            assetContainer.ExposeAac().CGE_RemoveSupportingArbitraryControllerLayer(controller, WeightCorrectionRightLayerName);
         }
     }
 }
