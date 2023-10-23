@@ -68,12 +68,16 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             WindowHandler = new CgeWindowHandler(this, _editorHandler);
 
-            _common.GuiInit();
             _helpIcon16 = ComboGestureIcons.Instance.Help16;
         }
 
         private void OnInspectorUpdate()
         {
+            if (_common.MiddleAligned == null)
+            {
+                _common.GuiInit();
+            }
+            
             var active = Selection.activeGameObject;
             if (active == null) return;
 
