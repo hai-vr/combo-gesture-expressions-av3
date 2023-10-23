@@ -3,7 +3,6 @@ Library
 UnityPackageManager
 Temp
 Logs
-Packages
 ProjectSettings
 *.unitypackage
 Assets/Plugins
