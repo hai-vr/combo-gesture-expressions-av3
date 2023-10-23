@@ -688,11 +688,14 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
                 // var pfi = ProfilerDriver.GetPreviousFrameIndex(Time.frameCount);
                 // Debug.Log($"PFI: {pfi}");
                 Profiler.BeginSample("CGE");
+                AssetDatabase.StartAssetEditing();
                 DoGenerate();
             }
             finally
             {
+                AssetDatabase.StopAssetEditing();
                 Profiler.EndSample();
+                EditorUtility.ClearProgressBar();
             }
         }
 
