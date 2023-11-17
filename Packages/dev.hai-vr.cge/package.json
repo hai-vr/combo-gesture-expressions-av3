@@ -1,18 +1,21 @@
 {
   "name": "dev.hai-vr.cge",
-  "displayName": "ComboGestureExpressions (Alpha)",
-  "version": "2.1.9900",
+  "displayName": "Haï ~ ComboGestureExpressions V3",
+  "version": "3.0.9901",
   "unity": "2019.4",
-  "description": "This version is not for public use.",
+  "description": "ComboGestureExpressions https://docs.hai-vr.dev/docs/products/combo-gesture-expressions",
   "vrchatVersion" : "2022.1.1",
   "author" : {
     "name" : "Haï~"
   },
   "vpmDependencies": {
+    "dev.hai-vr.resilience.toolkit": "1.0.x",
+    "dev.hai-vr.animation-viewer": "2.0.x",
+    "dev.hai-vr.visual-expressions-editor": "2.0.x",
     "dev.hai-vr.animator-as-code.v1": "1.0.x",
     "dev.hai-vr.animator-as-code.v1.vrchat": "1.0.x",
     "dev.hai-vr.animator-as-code.v1.vrchat-destructive-workflow": "1.0.x",
     "com.vrchat.avatars": "^3.3.0"
   },
-  "url" : "https://docs.hai-vr.dev/docs/products/animator-as-code/functions/modular-avatar"
+  "url" : "https://docs.hai-vr.dev/docs/products/combo-gesture-expressions"
 }
