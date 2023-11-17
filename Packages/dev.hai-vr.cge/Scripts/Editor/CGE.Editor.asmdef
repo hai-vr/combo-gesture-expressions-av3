@@ -1,0 +1,21 @@
+{
+    "name": "CGE.Editor",
+    "references": [
+        "GUID:2a6547d73c816fe4b9dc4f26b9f4ab4b",
+        "GUID:d689052aa981bf8459346a530f6e6678",
+        "GUID:71d9dcc7d30ab1c45866d01afa59b6cf",
+        "GUID:991aa13436cab7042b8f99eec24db7eb"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [
+        "VRCSDKBase.dll",
+        "VRCSDK3A.dll"
+    ],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

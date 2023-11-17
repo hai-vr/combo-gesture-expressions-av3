@@ -43,7 +43,8 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         private void ReloadLocalizationsInternal()
         {
-            var localizationGuids = AssetDatabase.FindAssets("", new[] {"Assets/Hai/ComboGesture/Scripts/Editor/EditorUI/Locale"});
+            var localizationGuids = AssetDatabase.FindAssets("", new[] { "Assets/Hai/ComboGesture/Scripts/Editor/EditorUI/Locale" })
+                .Concat(AssetDatabase.FindAssets("", new[] { "Packages/dev.hai-vr.cge/Scripts/Editor/EditorUI/Locale" }));
             _localizations = localizationGuids
                 .Select(AssetDatabase.GUIDToAssetPath)
                 .Where(path =>
