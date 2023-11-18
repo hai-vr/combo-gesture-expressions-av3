@@ -1,3 +1,7 @@
+/*/
+.gitignore
+LICENSE
+README.md
 .idea
 Library
 UnityPackageManager
@@ -18,14 +22,6 @@ Assets/Udon.meta
 Assets/VRChat Examples.meta
 Assets/VRCSDK.meta
 obj
-cfe-project.sln
-UnityEditorTests.csproj
-VRC.Udon.csproj
-VRC.Udon.Editor.csproj
-VRC.Udon.Serialization.OdinSerializer.csproj
-VRCSDK.ShaderStripping.csproj
-Assembly-CSharp.csproj
-Assembly-CSharp-Editor.csproj
 cfe-project.sln.DotSettings.user
-VRC.SDKBase.Editor.BuildPipeline.csproj
-VRC.SDKBase.Editor.ShaderStripping.csproj
+*.sln
+*.csproj
