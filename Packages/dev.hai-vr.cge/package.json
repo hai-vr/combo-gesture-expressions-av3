@@ -1,7 +1,7 @@
 {
   "name": "dev.hai-vr.cge",
-  "displayName": "Haï ~ ComboGestureExpressions",
-  "version": "3.0.9904",
+  "displayName": "Haï ~ ComboGestureExpressions (Beta)",
+  "version": "3.1.5000",
   "unity": "2019.4",
   "description": "ComboGestureExpressions https://docs.hai-vr.dev/docs/products/combo-gesture-expressions",
   "vrchatVersion" : "2022.1.1",
