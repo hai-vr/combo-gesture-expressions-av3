@@ -704,6 +704,7 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
 
         private void DoGenerateLayers()
         {
+            var success = false;
             try
             {
                 // var pfi = ProfilerDriver.GetPreviousFrameIndex(Time.frameCount);
@@ -711,10 +712,15 @@ This is not a normal usage of ComboGestureExpressions, and should not be used ex
                 Profiler.BeginSample("CGE");
                 AssetDatabase.StartAssetEditing();
                 DoGenerate();
+                success = true;
             }
             finally
             {
                 AssetDatabase.StopAssetEditing();
+                if (success)
+                {
+                    CgeAssetContainer.GlobalSave();
+                }
                 Profiler.EndSample();
                 EditorUtility.ClearProgressBar();
             }
