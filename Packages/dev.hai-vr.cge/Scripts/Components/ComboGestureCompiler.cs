@@ -27,8 +27,8 @@ namespace Hai.ComboGesture.Scripts.Components
         public AvatarMask gesturePlayableLayerExpressionsAvatarMask;
         public AvatarMask gesturePlayableLayerTechnicalAvatarMask;
 
-        public WriteDefaultsRecommendationMode writeDefaultsRecommendationMode = WriteDefaultsRecommendationMode.FollowVrChatRecommendationWriteDefaultsOff;
-        public WriteDefaultsRecommendationMode writeDefaultsRecommendationModeGesture = WriteDefaultsRecommendationMode.UseUnsupportedWriteDefaultsOn;
+        public WriteDefaultsRecommendationMode writeDefaultsRecommendationMode = WriteDefaultsRecommendationMode.WriteDefaultsOff;
+        public WriteDefaultsRecommendationMode writeDefaultsRecommendationModeGesture = WriteDefaultsRecommendationMode.WriteDefaultsOn;
         public GestureLayerTransformCapture gestureLayerTransformCapture = GestureLayerTransformCapture.CaptureDefaultTransformsFromAvatar;
         public ConflictFxLayerMode conflictFxLayerMode = ConflictFxLayerMode.RemoveTransformsAndMuscles;
         public WeightCorrectionMode weightCorrectionMode = WeightCorrectionMode.UseRecommendedConfiguration;
@@ -107,7 +107,7 @@ namespace Hai.ComboGesture.Scripts.Components
     [System.Serializable]
     public enum WriteDefaultsRecommendationMode
     {
-        FollowVrChatRecommendationWriteDefaultsOff, UseUnsupportedWriteDefaultsOn
+        WriteDefaultsOff, WriteDefaultsOn
     }
 
     [System.Serializable]

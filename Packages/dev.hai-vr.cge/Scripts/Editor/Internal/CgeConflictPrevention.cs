@@ -21,9 +21,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         {
             switch (mode)
             {
-                case WriteDefaultsRecommendationMode.FollowVrChatRecommendationWriteDefaultsOff:
+                case WriteDefaultsRecommendationMode.WriteDefaultsOff:
                     return GenerateExhaustiveAnimationsWithoutWriteDefaults;
-                case WriteDefaultsRecommendationMode.UseUnsupportedWriteDefaultsOn:
+                case WriteDefaultsRecommendationMode.WriteDefaultsOn:
                     return GenerateExhaustiveAnimationsWithWriteDefaults;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(mode), mode, null);
@@ -34,7 +34,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         {
             return new CgeConflictPrevention(
                 compilerGestureLayerTransformCapture == GestureLayerTransformCapture.CaptureDefaultTransformsFromAvatar,
-                compilerWriteDefaultsRecommendationModeGesture == WriteDefaultsRecommendationMode.UseUnsupportedWriteDefaultsOn);
+                compilerWriteDefaultsRecommendationModeGesture == WriteDefaultsRecommendationMode.WriteDefaultsOn);
         }
     }
 }

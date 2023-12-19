@@ -313,7 +313,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             
             EditorGUILayout.PropertyField(animatorController, new GUIContent(CgeLocale.CGEC_FX_Animator_Controller));
             EditorGUILayout.PropertyField(writeDefaultsRecommendationMode, new GUIContent(CgeLocale.CGEC_FX_Playable_Mode));
-            WriteDefaultsSection(writeDefaultsRecommendationMode);
 
             EditorGUILayout.PropertyField(doNotForceBlinkBlendshapes, new GUIContent(CgeLocale.CGEC_DoNotForceBlinkBlendshapes));
             EditorGUILayout.Separator();
@@ -341,7 +340,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
                     EditorGUILayout.PropertyField(writeDefaultsRecommendationModeGesture, new GUIContent(CgeLocale.CGEC_Gesture_Playable_Mode));
                     EditorGUILayout.PropertyField(gestureLayerTransformCapture, new GUIContent(CgeLocale.CGEC_Capture_Transforms_Mode));
-                    WriteDefaultsSection(writeDefaultsRecommendationModeGesture);
 
                     EditorGUI.BeginDisabledGroup(true);
                     EditorGUILayout.PropertyField(generatedAvatarMask, new GUIContent(CgeLocale.CGEC_Asset_container));
@@ -581,14 +579,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             var mask = new AvatarMask();
             AssetDatabase.CreateAsset(mask, folderToCreateAssetIn + "/GeneratedCGEMask__" + DateTime.Now.ToString("yyyy'-'MM'-'dd'_'HHmmss") + ".asset");
             compiler.generatedAvatarMask = mask;
-        }
-
-        private static void WriteDefaultsSection(SerializedProperty recommendationMode)
-        {
-            if (recommendationMode.intValue == (int) WriteDefaultsRecommendationMode.UseUnsupportedWriteDefaultsOn)
-            {
-                EditorGUILayout.HelpBox(CgeLocale.CGEC_WarnWriteDefaultsChosenOff, MessageType.Warning);
-            }
         }
 
         private static string FakeBooleanIcon(bool value)
