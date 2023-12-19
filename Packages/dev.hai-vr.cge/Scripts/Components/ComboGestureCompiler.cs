@@ -27,7 +27,7 @@ namespace Hai.ComboGesture.Scripts.Components
         public AvatarMask gesturePlayableLayerExpressionsAvatarMask;
         public AvatarMask gesturePlayableLayerTechnicalAvatarMask;
 
-        public WriteDefaultsRecommendationMode writeDefaultsRecommendationMode = WriteDefaultsRecommendationMode.WriteDefaultsOff;
+        public WriteDefaultsRecommendationMode writeDefaultsRecommendationMode = WriteDefaultsRecommendationMode.WriteDefaultsOn;
         public WriteDefaultsRecommendationMode writeDefaultsRecommendationModeGesture = WriteDefaultsRecommendationMode.WriteDefaultsOn;
         public GestureLayerTransformCapture gestureLayerTransformCapture = GestureLayerTransformCapture.CaptureDefaultTransformsFromAvatar;
         public ConflictFxLayerMode conflictFxLayerMode = ConflictFxLayerMode.RemoveTransformsAndMuscles;
