@@ -163,7 +163,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             }
             else
             {
-                EditorGUILayout.LabelField("一部の翻訳は正確ではありません。cge.jp.jsonを編集することができます。");
+                EditorGUILayout.LabelField("一部の翻訳は正確ではありません。cge.ja.jsonを編集することができます。");
             }
 
             if (GUILayout.Button(new GUIContent(CgeLocale.CGEC_Documentation_and_tutorials, _guideIcon32)))

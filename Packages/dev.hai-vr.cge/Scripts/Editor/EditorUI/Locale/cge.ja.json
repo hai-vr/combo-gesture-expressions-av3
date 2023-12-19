@@ -1,7 +1,7 @@
 ﻿{
-  "CGE_Documentation_URL": "https://hai-vr.github.io/combo-gesture-expressions-av3/",
-  "CGE_PermutationsDocumentation_URL": "https://hai-vr.github.io/combo-gesture-expressions-av3/#permutations",
-  "CGE_IntegratorDocumentation_URL": "https://hai-vr.github.io/combo-gesture-expressions-av3/integrator.html",
+  "CGE_Documentation_URL": "https://docs.hai-vr.dev/docs/products/combo-gesture-expressions/reference",
+  "CGE_PermutationsDocumentation_URL": "https://docs.hai-vr.dev/docs/products/combo-gesture-expressions/reference#permutations",
+  "CGE_IntegratorDocumentation_URL": "https://docs.hai-vr.dev/docs/products/combo-gesture-expressions/additional-pages/integrator",
   "CGEE_Open_editor": "エディターを開く",
   "CGEE_Additional_editors": "追加の編集機能",
   "CGEE_All_combos": "すべての組み合わせ",

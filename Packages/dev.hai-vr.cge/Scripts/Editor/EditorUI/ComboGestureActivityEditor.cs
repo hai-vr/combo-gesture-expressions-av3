@@ -33,7 +33,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             }
             else
             {
-                EditorGUILayout.LabelField("一部の翻訳は正確ではありません。cge.jp.jsonを編集することができます。");
+                EditorGUILayout.LabelField("一部の翻訳は正確ではありません。cge.ja.jsonを編集することができます。");
             }
 
             _foldoutHelp = EditorGUILayout.Foldout(_foldoutHelp, new GUIContent("Help", _guideIcon32));
@@ -41,7 +41,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             {
                 if (GUILayout.Button(new GUIContent("Open documentation and tutorials", _guideIcon32)))
                 {
-                    Application.OpenURL("https://hai-vr.github.io/combo-gesture-expressions-av3/");
+                    Application.OpenURL("https://docs.hai-vr.dev/docs/products/combo-gesture-expressions/reference");
                 }
             }
 

@@ -6,7 +6,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
     public class CgeLocaleDefaults
     {
         // 1.4
-        internal static string OfficialDocumentationUrlAsPrefix = "https://hai-vr.github.io/combo-gesture-expressions-av3/";
+        internal static string OfficialDocumentationUrlAsPrefix = "https://docs.hai-vr.dev/docs/products/combo-gesture-expressions/";
         internal static string CGE_Documentation_URL = OfficialDocumentationUrlAsPrefix;
         internal static string CGE_PermutationsDocumentation_URL = OfficialDocumentationUrlAsPrefix + "#permutations";
         internal static string CGEE_Open_editor = "Open editor";
