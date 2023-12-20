@@ -8,7 +8,6 @@ using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.Profiling;
-using VRC.SDKBase;
 using AnimatorController = UnityEditor.Animations.AnimatorController;
 using BlendTree = UnityEditor.Animations.BlendTree;
 
@@ -423,15 +422,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 CgeLocale.CGEC_Synchronize_Animator_FX_layers, GUILayout.Height(40)))
             {
                 DoGenerateLayers();
-                compiler.totalNumberOfGenerations++;
-                if (compiler.totalNumberOfGenerations % 5 == 0)
-                {
-                    EditorUtility.DisplayDialog("ComboGestureExpressions", CgeLocale.CGEC_Slowness_warning, "OK", DialogOptOutDecisionType.ForThisSession, "CGE_SlownessWarning");
-                }
-            }
-            if (compiler.totalNumberOfGenerations >= 5)
-            {
-                EditorGUILayout.HelpBox(CgeLocale.CGEC_Slowness_warning, MessageType.Warning);
             }
             EditorGUI.EndDisabledGroup();
 

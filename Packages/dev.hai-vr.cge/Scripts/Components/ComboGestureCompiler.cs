@@ -51,7 +51,6 @@ namespace Hai.ComboGesture.Scripts.Components
         public bool doNotForceBlinkBlendshapes;
 
         public string mmdCompatibilityToggleParameter;
-        public int totalNumberOfGenerations;
 
         public string eyeTrackingEnabledParameter;
         public EyeTrackingParameterType eyeTrackingParameterType;
