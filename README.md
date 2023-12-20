@@ -1,4 +1,4 @@
-# ComboGestureExpressions V2 for Avatar Dynamics
+# ComboGestureExpressions for Avatar Dynamics
 
 ### [> Download version 2.0.2...](https://github.com/hai-vr/combo-gesture-expressions-av3/releases/tag/V2.0.2)
 - [> Download on GitHub...](https://github.com/hai-vr/combo-gesture-expressions-av3/releases/tag/V2.0.2)
@@ -18,22 +18,26 @@ With *ComboGestureExpressions*:
 - Attach multiple expressions on a single gesture by switching between different moods using the Expressions Menu.
 - Eyes will no longer blink whenever the avatar has a face expression with eyes closed.
 - Puppets and blend trees are integrated into the tool.
-- Animations triggered by squeezing the controller trigger will look smooth to outside observers (see [corrections](https://hai-vr.github.io/combo-gesture-expressions-av3/corrections)).
+- Animations triggered by squeezing the controller trigger will look smooth to outside observers (see [corrections](https://docs.hai-vr.dev/docs/products/combo-gesture-expressions/additional-pages/corrections)).
 
 ## What's new in V2?
 
-Find out [what's new in V2](https://hai-vr.github.io/combo-gesture-expressions-av3/v2.0-whats-new).
+Find out [what's new in V2](https://docs.hai-vr.dev/docs/products/combo-gesture-expressions/v2.0-whats-new).
+
+## What's new in V3?
+
+Find out [what's new in V3](https://docs.hai-vr.dev/docs/products/combo-gesture-expressions/v3.0-vcc).
 
 ## Having issues? Join my Discord Server
 
-I will try to provide help on the #cge channel when I can.
+I will try to provide help on the #combo-gesture-vrc channel when I can.
 
 [Join the Invitation Discord (https://discord.gg/58fWAUTYF8)](https://discord.gg/58fWAUTYF8).
 
 ## Documentation / Tutorial
 
-Full documentation complete with illustrative videos and video tutorials [is available here](https://hai-vr.github.io/combo-gesture-expressions-av3/).
+Full documentation complete with illustrative videos and video tutorials [is available here](https://docs.hai-vr.dev/docs/products/combo-gesture-expressions/).
 
-[![](https://github.com/hai-vr/combo-gesture-expressions-av3/raw/z-res-pictures/Documentation/documentation.png)](https://hai-vr.github.io/combo-gesture-expressions-av3/)
+[![](https://github.com/hai-vr/combo-gesture-expressions-av3/raw/z-res-pictures/Documentation/documentation.png)](https://docs.hai-vr.dev/docs/products/combo-gesture-expressions/)
 
-*[Open Documentation / Tutorial at https://hai-vr.github.io/combo-gesture-expressions-av3/ ...](https://hai-vr.github.io/combo-gesture-expressions-av3/)*
+*[Open Documentation / Tutorial at https://docs.hai-vr.dev/docs/products/combo-gesture-expressions/ ...](https://docs.hai-vr.dev/docs/products/combo-gesture-expressions/)*
