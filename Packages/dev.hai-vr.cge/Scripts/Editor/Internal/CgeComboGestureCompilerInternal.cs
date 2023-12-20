@@ -150,6 +150,13 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             return avatarMask;
         }
 
+        private static AvatarMask CreatePotentialTransformsMask()
+        {
+            var avatarMask = new AvatarMask();
+            new CgeMaskApplicator(null, avatarMask).UpdateMask();
+            return avatarMask;
+        }
+
         public void DoOverwriteAnimatorFxLayer()
         {
             DeleteDeprecatedControllerLayer();

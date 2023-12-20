@@ -124,6 +124,45 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                 _mmdCompatibilityToggleParameter,
                 _animatorController.layers.ToList().FindIndex(ctrl => ctrl.name == LayerNameGestureExp)
             ).Populate();
+
+            if (_compilerConflictFxLayerMode != ConflictFxLayerMode.RemoveTransformsAndMuscles)
+            {
+                var mask = new AvatarMask();
+                var allTransformPaths = activityManifests
+                    .SelectMany(binding => binding.Manifest.AllQualifiedAnimations())
+                    .SelectMany(animation => AnimationUtility.GetCurveBindings(animation.Clip))
+                    .Where(binding => binding.type == typeof(Transform))
+                    .Select(binding => binding.path)
+                    .Distinct()
+                    .ToArray();
+                
+                
+                foreach (AvatarMaskBodyPart part in Enum.GetValues(typeof(AvatarMaskBodyPart)))
+                {
+                    if (part == AvatarMaskBodyPart.LastBodyPart) continue;
+                    mask.SetHumanoidBodyPartActive(part, false);
+                }
+
+                if (allTransformPaths.Length == 0)
+                {
+                    mask.transformCount = 1;
+                    mask.SetTransformActive(0, false);
+                    mask.SetTransformPath(0, "_ignored");
+                }
+                else
+                {
+                    mask.transformCount = allTransformPaths.Length;
+                    for (var index = 0; index < allTransformPaths.Length; index++)
+                    {
+                        var path = allTransformPaths[index];
+                        mask.SetTransformPath(index, path);
+                        mask.SetTransformActive(index, true);
+                    }
+                }
+                
+                _assetContainer.AddAvatarMask(mask);
+                layer.WithAvatarMask(mask);
+            }
         }
 
         private static List<string> AllParametersUsedByManifests(List<CgeManifestBinding> activityManifests)

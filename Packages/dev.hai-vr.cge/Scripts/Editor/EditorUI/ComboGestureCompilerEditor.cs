@@ -355,6 +355,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                     if (GUILayout.Button(CgeLocale.CGEC_Add_missing_masks))
                     {
                         AddMissingMasks(compiler);
+                        AssetDatabase.Refresh();
                     }
                     EditorGUI.EndDisabledGroup();
 
@@ -540,6 +541,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             if (GUILayout.Button(CgeLocale.CGEC_Remove_applied_masks))
             {
                 DoRemoveAppliedMasks(compiler);
+                AssetDatabase.Refresh();
             }
 
             EditorGUI.EndDisabledGroup();
@@ -548,6 +550,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             if (GUILayout.Button(CgeLocale.CGEC_Unbind_Asset_container))
             {
                 DoRemoveAppliedMasksAndAssetContainer(compiler);
+                AssetDatabase.Refresh();
             }
 
             EditorGUI.EndDisabledGroup();

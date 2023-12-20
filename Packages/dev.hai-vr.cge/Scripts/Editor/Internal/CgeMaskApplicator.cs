@@ -54,8 +54,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                     return layer;
                 })
                 .ToArray();
-
-            AssetDatabase.Refresh();
         }
 
         public void RemoveAppliedMask()
@@ -70,8 +68,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                     return layer;
                 })
                 .ToArray();
-
-            AssetDatabase.Refresh();
         }
 
         public void UpdateMask()
@@ -92,8 +88,6 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             {
                 MutateMaskToAllowNonEmptyAnimatedPaths(potentiallyAnimatedPaths);
             }
-
-            AssetDatabase.Refresh();
         }
 
         private List<string> FindPotentiallyAnimatedPaths()
