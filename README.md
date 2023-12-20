@@ -1,12 +1,8 @@
 # ComboGestureExpressions for Avatar Dynamics
 
-### [> Download version 2.0.2...](https://github.com/hai-vr/combo-gesture-expressions-av3/releases/tag/V2.0.2)
-- [> Download on GitHub...](https://github.com/hai-vr/combo-gesture-expressions-av3/releases/tag/V2.0.2)
-- [> Download on Booth.pm...](https://hai-vr.booth.pm/items/2219616)
+### [> Download...](https://docs.hai-vr.dev/docs/products/combo-gesture-expressions/reference#download)
 
 *ComboGestureExpressions* is an Unity Editor tool that lets you attach face expressions to hand gestures, and make it react to other *Avatars 3.0*'s features, including *Contacts*, *PhysBones* and *OSC*.
-
-It is bundled with *Visual Expressions Editor*, an animation editor that lets you create face expressions with the help of previews.
 
 ![](https://github.com/hai-vr/combo-gesture-expressions-av3/raw/z-res-pictures/Documentation/illustration-2.gif)
 
