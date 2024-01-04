@@ -174,6 +174,12 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             if (clipNullable != null)
             {
+                if (Selection.activeObject is AnimationClip)
+                {
+                    // ChangeClip will have no effect if the current selection was already a clip, so we force it here.
+                    Selection.activeObject = clipNullable;
+                }
+                
                 var instance = visualExpressionsEditorType.GetMethod("Obtain", BindingFlags.NonPublic | BindingFlags.Static)
                     .Invoke(null, new object[] {});
                 visualExpressionsEditorType.GetMethod("ChangeClip", BindingFlags.Public | BindingFlags.Instance)
