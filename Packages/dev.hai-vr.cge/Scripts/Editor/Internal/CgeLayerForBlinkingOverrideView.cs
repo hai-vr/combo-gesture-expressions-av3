@@ -56,7 +56,8 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
             if (!string.IsNullOrEmpty(_eyeTrackingEnabledParameter))
             {
-                var blinkingIgnored = layer.NewState("BlinkingIgnoredDueToFaceTracking");
+                var blinkingIgnored = layer.NewState("BlinkingIgnoredDueToFaceTracking")
+                    .WithWriteDefaultsSetTo(_writeDefaultsForLogicalStates);
                 // Modern face tracking toggles use a synced bool with the animator declaring as a float, because of blend trees.
                 // - We don't know if the user is using a modern face tracking toggle.
                 // - We can't introspect the animator because the user may be using a non destructive workflow.
