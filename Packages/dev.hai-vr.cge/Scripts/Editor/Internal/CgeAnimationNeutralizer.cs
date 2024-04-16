@@ -425,11 +425,19 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             {
                 if (!thisAnimationPaths.Contains(curveKey))
                 {
-                    var fallbackValue = _curveKeyToFallbackValue.ContainsKey(curveKey) ? _curveKeyToFallbackValue[curveKey] : FindFallbackInAvatar(curveKey);
+                    try
+                    {
+                        var fallbackValue = _curveKeyToFallbackValue.ContainsKey(curveKey) ? _curveKeyToFallbackValue[curveKey] : FindFallbackInAvatar(curveKey);
 
-                    Keyframe[] keyframes = {new Keyframe(0, fallbackValue), new Keyframe(1 / 60f, fallbackValue)};
-                    var curve = new AnimationCurve(keyframes);
-                    copyOfAnimationClip.SetCurve(curveKey.Path, curveKey.Type, curveKey.PropertyName, curve);
+                        Keyframe[] keyframes = {new Keyframe(0, fallbackValue), new Keyframe(1 / 60f, fallbackValue)};
+                        var curve = new AnimationCurve(keyframes);
+                        copyOfAnimationClip.SetCurve(curveKey.Path, curveKey.Type, curveKey.PropertyName, curve);
+                    }
+                    catch (Exception e)
+                    {
+                        // #342 "The script class couldn't be found" may be thrown 
+                        Debug.LogWarning($"There was an issue while adding missing curve keys at {curveKey.Path} for {curveKey.PropertyName}. This will be ignored. {e.Message}");
+                    }
                 }
             }
         }
@@ -461,7 +469,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             {
                 // #342 "Invalid Type" may be thrown on DynamicBone m_Enabled if is it uninstalled, which may become common as PhysBones replaces it.
                 // We return 0 for these cases.
-                Debug.LogWarning($"Error while getting value at {curveKey.Path} {curveKey.Type} {curveKey.PropertyName} for {_avatarDescriptorNullable}. This will be ignored. {e.Message}");
+                Debug.LogWarning($"There was an issue while getting value at {curveKey.Path} {curveKey.Type} {curveKey.PropertyName} for {_avatarDescriptorNullable}. This will be ignored. {e.Message}");
                 return 0;
             }
         }
