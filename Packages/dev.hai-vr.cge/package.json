@@ -1,7 +1,7 @@
 {
   "name": "dev.hai-vr.cge",
-  "displayName": "Haï ~ ComboGestureExpressions (Beta)",
-  "version": "3.1.5102",
+  "displayName": "Haï ~ ComboGestureExpressions",
+  "version": "3.2.0",
   "unity": "2019.4",
   "description": "ComboGestureExpressions https://docs.hai-vr.dev/docs/products/combo-gesture-expressions",
   "vrchatVersion" : "2022.1.1",
@@ -9,16 +9,18 @@
     "name" : "Haï~"
   },
   "vpmDependencies": {
-    "dev.hai-vr.resilience.toolkit": "1.0.x",
     "dev.hai-vr.animation-viewer": "2.0.x",
     "dev.hai-vr.visual-expressions-editor": "2.0.x",
     "dev.hai-vr.animator-as-code.v1": "~1.0.9930",
     "dev.hai-vr.animator-as-code.v1.vrchat": "1.0.x",
     "dev.hai-vr.animator-as-code.v1.vrchat-destructive-workflow": "1.0.x",
-    "com.vrchat.avatars": "^3.3.0"
+    "com.vrchat.avatars": ">=3.3.0 <3.7.0-a"
   },
   "legacyFolders" : {
     "Assets\\Hai\\ComboGesture" : "7b35b71022ae7424496915fd06256f45"
   },
-  "url" : "https://docs.hai-vr.dev/docs/products/combo-gesture-expressions"
+  "url" : "https://docs.hai-vr.dev/docs/products/combo-gesture-expressions",
+  "documentationUrl": "https://docs.hai-vr.dev/docs/products/combo-gesture-expressions",
+  "changelogUrl": "https://docs.hai-vr.dev/docs/changelogs/combo-gesture-expressions",
+  "license": "MIT"
 }
