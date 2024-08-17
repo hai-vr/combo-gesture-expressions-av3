@@ -1,7 +1,7 @@
 {
   "name": "dev.hai-vr.cge",
   "displayName": "Haï ~ ComboGestureExpressions",
-  "version": "3.2.0",
+  "version": "3.2.1",
   "unity": "2019.4",
   "description": "ComboGestureExpressions https://docs.hai-vr.dev/docs/products/combo-gesture-expressions",
   "vrchatVersion" : "2022.1.1",
@@ -9,12 +9,12 @@
     "name" : "Haï~"
   },
   "vpmDependencies": {
-    "dev.hai-vr.animation-viewer": "2.0.x",
-    "dev.hai-vr.visual-expressions-editor": "2.0.x",
-    "dev.hai-vr.animator-as-code.v1": "~1.0.9930",
-    "dev.hai-vr.animator-as-code.v1.vrchat": "1.0.x",
-    "dev.hai-vr.animator-as-code.v1.vrchat-destructive-workflow": "1.0.x",
-    "com.vrchat.avatars": ">=3.3.0 <3.7.0-a"
+    "dev.hai-vr.animation-viewer": ">=2.0.0 <3.0.0-a",
+    "dev.hai-vr.visual-expressions-editor": ">=2.0.0 <3.0.0-a",
+    "dev.hai-vr.animator-as-code.v1": ">=1.0.9930 <1.2.0-a",
+    "dev.hai-vr.animator-as-code.v1.vrchat": ">=1.0.0 <1.2.0-a",
+    "dev.hai-vr.animator-as-code.v1.vrchat-destructive-workflow": ">=1.0.0 <1.2.0-a",
+    "com.vrchat.avatars": ">=3.3.0 <3.8.0-a"
   },
   "legacyFolders" : {
     "Assets\\Hai\\ComboGesture" : "7b35b71022ae7424496915fd06256f45"
