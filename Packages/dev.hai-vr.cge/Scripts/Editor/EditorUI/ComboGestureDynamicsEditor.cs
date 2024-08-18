@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using AnimatorAsCode.V1;
 using Hai.ComboGesture.Scripts.Components;
 using UnityEditor;
 using UnityEditorInternal;
@@ -52,12 +51,14 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
                 element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.behavesLikeOnEnter)).boolValue = false;
                 element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.upperBound)).floatValue = 1f;
 
-                var mutatedKeyframes = new List<Keyframe>();
-                new AacFlSettingKeyframes(AacFlUnit.Seconds, mutatedKeyframes)
-                    .Easing(0f, 0f)
-                    .Easing(0.05f, 1f)
-                    .Easing(0.2f, 1f)
-                    .Easing(1f, 0f);
+                var mutatedKeyframes = new List<Keyframe>()
+                {
+                    // Easing
+                    new Keyframe(0f, 0f, 0, 0),
+                    new Keyframe(0.05f, 1f, 0, 0),
+                    new Keyframe(0.2f, 1f, 0, 0),
+                    new Keyframe(1f, 0f, 0, 0),
+                };
                 var curve = element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.onEnterCurve)).animationCurveValue;
                 curve.keys = mutatedKeyframes.ToArray();
                 element.FindPropertyRelative(nameof(ComboGestureDynamicsItem.onEnterCurve)).animationCurveValue = curve;
