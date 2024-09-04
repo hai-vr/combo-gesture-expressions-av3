@@ -26,18 +26,20 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
     {
         public static Motion CGE_StoringMotion(this AacFlBase that, Motion motion)
         {
-            return CgeAacExtensions.CGE_RegisterAsset(that.InternalConfiguration(), Guid.NewGuid().ToString(), motion);
+            var configuration = AacAccessorForExtensions.AccessConfiguration(that);
+            return CgeAacExtensions.CGE_RegisterAsset(configuration, Guid.NewGuid().ToString(), motion);
         }
 
         public static T CGE_StoringAsset<T>(this AacFlBase that, T obj) where T : Object
         {
-            CgeAacExtensions.CGE_RegisterAsset(that.InternalConfiguration(), Guid.NewGuid().ToString(), obj);
+            var configuration = AacAccessorForExtensions.AccessConfiguration(that);
+            CgeAacExtensions.CGE_RegisterAsset(configuration, Guid.NewGuid().ToString(), obj);
             return obj;
         }
 
         public static void CGE_RemoveMainArbitraryControllerLayer(this AacFlBase that, AnimatorController controller)
         {
-            var configuration = that.InternalConfiguration();
+            var configuration = AacAccessorForExtensions.AccessConfiguration(that);
             var layerName = configuration.SystemName;
             var convertedName = configuration.DefaultsProvider.ConvertLayerName(layerName);
             new CgeAacAnimatorRemoval(controller).RemoveLayer(convertedName);
@@ -45,7 +47,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal.CgeAac
 
         public static void CGE_RemoveSupportingArbitraryControllerLayer(this AacFlBase that, AnimatorController controller, string suffix)
         {
-            var configuration = that.InternalConfiguration();
+            var configuration = AacAccessorForExtensions.AccessConfiguration(that);
             var layerName = configuration.SystemName;
             var convertedName = configuration.DefaultsProvider.ConvertLayerNameWithSuffix(layerName, suffix);
             new CgeAacAnimatorRemoval(controller).RemoveLayer(convertedName);
