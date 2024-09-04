@@ -18,35 +18,35 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         internal const string HaiGestureComboRightWeightSmoothing = "_Hai_GestureRWSmoothing";
         internal const string HaiGestureComboSmoothingFactor = "_Hai_GestureSmoothingFactor";
 
-        public static ICgeManifest FromMapper(GestureComboStageMapper mapper, AnimationClip fallbackWhenAnyClipIsNull, bool universalAnalogSupport)
+        public static ICgeManifest FromMapper(GestureComboStageMapper mapper, AnimationClip fallbackWhenAnyClipIsNull, bool universalAnalogSupport, bool ignoreAnalogFist)
         {
             switch (mapper.kind)
             {
                 case GestureComboStageKind.Activity:
                     return mapper.activity == null
                         ? CgeManifestFromActivity.FromNothing(fallbackWhenAnyClipIsNull) // TODO: It may be possible to create a specific manifest for that
-                        : CgeManifestFromActivity.FromActivity(mapper.activity, fallbackWhenAnyClipIsNull, universalAnalogSupport);
+                        : CgeManifestFromActivity.FromActivity(mapper.activity, fallbackWhenAnyClipIsNull, universalAnalogSupport, ignoreAnalogFist);
                 case GestureComboStageKind.Puppet:
                     return CgeManifestFromSingle.FromPuppet(mapper.puppet);
                 case GestureComboStageKind.Massive:
-                    return CgeManifestFromMassiveBlend.FromMassiveBlend(mapper.massiveBlend, fallbackWhenAnyClipIsNull, universalAnalogSupport);
+                    return CgeManifestFromMassiveBlend.FromMassiveBlend(mapper.massiveBlend, fallbackWhenAnyClipIsNull, universalAnalogSupport, ignoreAnalogFist);
                 default:
                     throw new ArgumentOutOfRangeException();
             }
         }
 
-        public static ICgeManifest FromSimpleDynamics(ComboGestureDynamicsItem simpleDynamics, AnimationClip emptyClip, bool universalAnalogSupport)
+        public static ICgeManifest FromSimpleDynamics(ComboGestureDynamicsItem simpleDynamics, AnimationClip emptyClip, bool universalAnalogSupport, bool ignoreAnalogFist)
         {
-            return ResolveSelfDynamics(simpleDynamics, emptyClip, universalAnalogSupport);
+            return ResolveSelfDynamics(simpleDynamics, emptyClip, universalAnalogSupport, ignoreAnalogFist);
         }
 
-        public static ICgeManifest FromMassiveSimpleDynamics(ComboGestureDynamicsItem simpleDynamics, AnimationClip emptyClip, bool universalAnalogSupport, ICgeManifest zero)
+        public static ICgeManifest FromMassiveSimpleDynamics(ComboGestureDynamicsItem simpleDynamics, AnimationClip emptyClip, bool universalAnalogSupport, ICgeManifest zero, bool ignoreAnalogFist)
         {
-            var selfDynamics = ResolveSelfDynamics(simpleDynamics, emptyClip, universalAnalogSupport);
+            var selfDynamics = ResolveSelfDynamics(simpleDynamics, emptyClip, universalAnalogSupport, ignoreAnalogFist);
             return CgeManifestFromMassiveBlend.FromDynamics(zero, selfDynamics, simpleDynamics.ToDescriptor().parameter, DynamicsTransitionDuration);
         }
 
-        private static ICgeManifest ResolveSelfDynamics(ComboGestureDynamicsItem simpleDynamics, AnimationClip emptyClip, bool universalAnalogSupport)
+        private static ICgeManifest ResolveSelfDynamics(ComboGestureDynamicsItem simpleDynamics, AnimationClip emptyClip, bool universalAnalogSupport, bool ignoreAnalogFist)
         {
             switch (simpleDynamics.effect)
             {
@@ -56,25 +56,25 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                         : CgeManifestFromActivity.FromNothing(emptyClip);
                 case ComboGestureDynamicsEffect.MoodSet:
                     return simpleDynamics.moodSet != null
-                        ? FromMoodSet(simpleDynamics.moodSet, emptyClip, universalAnalogSupport)
+                        ? FromMoodSet(simpleDynamics.moodSet, emptyClip, universalAnalogSupport, ignoreAnalogFist)
                         : CgeManifestFromActivity.FromNothing(emptyClip);
                 default:
                     throw new ArgumentOutOfRangeException();
             }
         }
 
-        public static ICgeManifest FromMoodSet(ComboGestureMoodSet moodSet, AnimationClip fallbackWhenAnyClipIsNull, bool universalAnalogSupport)
+        public static ICgeManifest FromMoodSet(ComboGestureMoodSet moodSet, AnimationClip fallbackWhenAnyClipIsNull, bool universalAnalogSupport, bool ignoreAnalogFist)
         {
             switch (moodSet)
             {
                 case ComboGestureActivity activity:
                     return activity == null
                         ? CgeManifestFromActivity.FromNothing(fallbackWhenAnyClipIsNull) // TODO: It may be possible to create a specific manifest for that
-                        : CgeManifestFromActivity.FromActivity(activity, fallbackWhenAnyClipIsNull, universalAnalogSupport);
+                        : CgeManifestFromActivity.FromActivity(activity, fallbackWhenAnyClipIsNull, universalAnalogSupport, ignoreAnalogFist);
                 case ComboGesturePuppet puppet:
                     return CgeManifestFromSingle.FromPuppet(puppet);
                 case ComboGestureMassiveBlend massive:
-                    return CgeManifestFromMassiveBlend.FromMassiveBlend(massive, fallbackWhenAnyClipIsNull, universalAnalogSupport);
+                    return CgeManifestFromMassiveBlend.FromMassiveBlend(massive, fallbackWhenAnyClipIsNull, universalAnalogSupport, ignoreAnalogFist);
                 default:
                     throw new ArgumentOutOfRangeException();
             }

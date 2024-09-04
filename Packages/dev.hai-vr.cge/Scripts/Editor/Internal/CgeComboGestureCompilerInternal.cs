@@ -43,6 +43,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly string _eyeTrackingEnabledParameter;
         private readonly EyeTrackingParameterType _eyeTrackingParameterType;
         private readonly bool _gestureNeedsCompleteRemoval;
+        private readonly bool _ignoreAnalogFist;
 
         public ComboGestureCompilerInternal(
             ComboGestureCompiler compiler,
@@ -95,6 +96,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             _mmdCompatibilityToggleParameter = compiler.mmdCompatibilityToggleParameter;
             _eyeTrackingEnabledParameter = compiler.eyeTrackingEnabledParameter;
             _eyeTrackingParameterType = compiler.eyeTrackingParameterType;
+            _ignoreAnalogFist = compiler.ignoreAnalogFist;
 
             _gestureNeedsCompleteRemoval = compiler.playableLayerStrategy == CgeStrategy.ModernStyle;
         }
@@ -293,7 +295,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         {
             var comboLayers = _comboLayers
                 .Select(mapper => CgeManifestBinding.FromActivity(ToParameterGeneration(mapper),
-                    CgeSharedLayerUtils.FromMapper(mapper, emptyClip, _universalAnalogSupport)))
+                    CgeSharedLayerUtils.FromMapper(mapper, emptyClip, _universalAnalogSupport, _ignoreAnalogFist)))
                 .ToList();
             var dynamicsLayers = _dynamicsLayers
                 .SelectMany((simpleDynamics, rank) =>
@@ -306,7 +308,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                             {
                                 descriptor = descriptor,
                                 rank = rank
-                            }, CgeSharedLayerUtils.FromMassiveSimpleDynamics(simpleDynamics, emptyClip, _universalAnalogSupport, binding.Manifest),
+                            }, CgeSharedLayerUtils.FromMassiveSimpleDynamics(simpleDynamics, emptyClip, _universalAnalogSupport, binding.Manifest, _ignoreAnalogFist),
                             binding.StageValue
                         )).ToArray();
                     }
@@ -318,7 +320,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                             {
                                 descriptor = descriptor,
                                 rank = rank,
-                            }, CgeSharedLayerUtils.FromSimpleDynamics(simpleDynamics, emptyClip, _universalAnalogSupport)
+                            }, CgeSharedLayerUtils.FromSimpleDynamics(simpleDynamics, emptyClip, _universalAnalogSupport, _ignoreAnalogFist)
                         )
                     };
                 })
@@ -343,7 +345,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                                     {
                                         descriptor = descriptor,
                                         rank = rank
-                                    }, CgeSharedLayerUtils.FromMassiveSimpleDynamics(simpleDynamics, emptyClip, _universalAnalogSupport, binding.Manifest),
+                                    }, CgeSharedLayerUtils.FromMassiveSimpleDynamics(simpleDynamics, emptyClip, _universalAnalogSupport, binding.Manifest, _ignoreAnalogFist),
                                     binding.StageValue
                                 );
                             }
@@ -353,7 +355,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
                                 {
                                     descriptor = descriptor,
                                     rank = rank,
-                                }, CgeSharedLayerUtils.FromSimpleDynamics(simpleDynamics, emptyClip, _universalAnalogSupport),
+                                }, CgeSharedLayerUtils.FromSimpleDynamics(simpleDynamics, emptyClip, _universalAnalogSupport, _ignoreAnalogFist),
                                 binding.StageValue
                             );
                         })

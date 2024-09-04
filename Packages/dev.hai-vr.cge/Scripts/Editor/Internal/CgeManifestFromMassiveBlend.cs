@@ -9,29 +9,29 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 {
     public static class CgeManifestFromMassiveBlend
     {
-        public static ICgeManifest FromMassiveBlend(ComboGestureMassiveBlend massiveBlend, AnimationClip fallbackWhenAnyClipIsNull, bool universalAnalogSupport)
+        public static ICgeManifest FromMassiveBlend(ComboGestureMassiveBlend massiveBlend, AnimationClip fallbackWhenAnyClipIsNull, bool universalAnalogSupport, bool ignoreAnalogFist)
         {
             switch (massiveBlend.mode)
             {
                 case CgeMassiveBlendMode.Simple:
-                    return OfSimple(massiveBlend, fallbackWhenAnyClipIsNull, universalAnalogSupport);
+                    return OfSimple(massiveBlend, fallbackWhenAnyClipIsNull, universalAnalogSupport, ignoreAnalogFist);
                 case CgeMassiveBlendMode.TwoDirections:
-                    return OfTwoDirections(massiveBlend, fallbackWhenAnyClipIsNull, universalAnalogSupport);
+                    return OfTwoDirections(massiveBlend, fallbackWhenAnyClipIsNull, universalAnalogSupport, ignoreAnalogFist);
                 case CgeMassiveBlendMode.ComplexBlendTree:
-                    return OfComplexBlendTreeBased(massiveBlend, fallbackWhenAnyClipIsNull, universalAnalogSupport);
+                    return OfComplexBlendTreeBased(massiveBlend, fallbackWhenAnyClipIsNull, universalAnalogSupport, ignoreAnalogFist);
                 default:
                     throw new ArgumentOutOfRangeException();
             }
         }
 
-        private static ICgeManifest OfSimple(ComboGestureMassiveBlend massiveBlend, AnimationClip fallbackWhenAnyClipIsNull, bool universalAnalogSupport)
+        private static ICgeManifest OfSimple(ComboGestureMassiveBlend massiveBlend, AnimationClip fallbackWhenAnyClipIsNull, bool universalAnalogSupport, bool ignoreAnalogFist)
         {
             return CgeMassiveBlendManifest.OfParameterBased(
                 massiveBlend.mode,
                 new List<ICgeManifest>
                 {
-                    CgeSharedLayerUtils.FromMoodSet(massiveBlend.simpleZero, fallbackWhenAnyClipIsNull, universalAnalogSupport),
-                    CgeSharedLayerUtils.FromMoodSet(massiveBlend.simpleOne, fallbackWhenAnyClipIsNull, universalAnalogSupport),
+                    CgeSharedLayerUtils.FromMoodSet(massiveBlend.simpleZero, fallbackWhenAnyClipIsNull, universalAnalogSupport, ignoreAnalogFist),
+                    CgeSharedLayerUtils.FromMoodSet(massiveBlend.simpleOne, fallbackWhenAnyClipIsNull, universalAnalogSupport, ignoreAnalogFist),
                 },
                 massiveBlend.simpleParameterName,
                 massiveBlend.transitionDuration
@@ -52,27 +52,27 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             );
         }
 
-        private static ICgeManifest OfTwoDirections(ComboGestureMassiveBlend massiveBlend, AnimationClip fallbackWhenAnyClipIsNull, bool universalAnalogSupport)
+        private static ICgeManifest OfTwoDirections(ComboGestureMassiveBlend massiveBlend, AnimationClip fallbackWhenAnyClipIsNull, bool universalAnalogSupport, bool ignoreAnalogFist)
         {
             return CgeMassiveBlendManifest.OfParameterBased(
                 massiveBlend.mode,
                 new List<ICgeManifest>
                 {
-                    CgeSharedLayerUtils.FromMoodSet(massiveBlend.simpleZero, fallbackWhenAnyClipIsNull, universalAnalogSupport),
-                    CgeSharedLayerUtils.FromMoodSet(massiveBlend.simpleOne, fallbackWhenAnyClipIsNull, universalAnalogSupport),
-                    CgeSharedLayerUtils.FromMoodSet(massiveBlend.simpleMinusOne, fallbackWhenAnyClipIsNull, universalAnalogSupport),
+                    CgeSharedLayerUtils.FromMoodSet(massiveBlend.simpleZero, fallbackWhenAnyClipIsNull, universalAnalogSupport, ignoreAnalogFist),
+                    CgeSharedLayerUtils.FromMoodSet(massiveBlend.simpleOne, fallbackWhenAnyClipIsNull, universalAnalogSupport, ignoreAnalogFist),
+                    CgeSharedLayerUtils.FromMoodSet(massiveBlend.simpleMinusOne, fallbackWhenAnyClipIsNull, universalAnalogSupport, ignoreAnalogFist),
                 },
                 massiveBlend.simpleParameterName,
                 massiveBlend.transitionDuration
             );
         }
 
-        private static ICgeManifest OfComplexBlendTreeBased(ComboGestureMassiveBlend massiveBlend, AnimationClip fallbackWhenAnyClipIsNull, bool universalAnalogSupport)
+        private static ICgeManifest OfComplexBlendTreeBased(ComboGestureMassiveBlend massiveBlend, AnimationClip fallbackWhenAnyClipIsNull, bool universalAnalogSupport, bool ignoreAnalogFist)
         {
             return CgeMassiveBlendManifest.OfComplex(
                 massiveBlend.mode,
                 massiveBlend.blendTreeMoods
-                    .Select(mood => CgeSharedLayerUtils.FromMoodSet(mood, fallbackWhenAnyClipIsNull, universalAnalogSupport))
+                    .Select(mood => CgeSharedLayerUtils.FromMoodSet(mood, fallbackWhenAnyClipIsNull, universalAnalogSupport, ignoreAnalogFist))
                     .ToList(),
                 (BlendTree)massiveBlend.blendTree,
                 massiveBlend.transitionDuration

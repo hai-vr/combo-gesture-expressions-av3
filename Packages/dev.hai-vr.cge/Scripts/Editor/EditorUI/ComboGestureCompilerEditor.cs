@@ -54,6 +54,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         private SerializedProperty editorAdvancedFoldout;
 
         private SerializedProperty useViveAdvancedControlsForNonFistAnalog;
+        private SerializedProperty ignoreAnalogFist;
         private SerializedProperty dynamics;
         private SerializedProperty doNotForceBlinkBlendshapes;
         private SerializedProperty mmdCompatibilityToggleParameter;
@@ -102,6 +103,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             generateNewContainerEveryTime = serializedObject.FindProperty(nameof(ComboGestureCompiler.generateNewContainerEveryTime));
 
             useViveAdvancedControlsForNonFistAnalog = serializedObject.FindProperty(nameof(ComboGestureCompiler.useViveAdvancedControlsForNonFistAnalog));
+            ignoreAnalogFist = serializedObject.FindProperty(nameof(ComboGestureCompiler.ignoreAnalogFist));
             dynamics = serializedObject.FindProperty(nameof(ComboGestureCompiler.dynamics));
             doNotForceBlinkBlendshapes = serializedObject.FindProperty(nameof(ComboGestureCompiler.doNotForceBlinkBlendshapes));
             mmdCompatibilityToggleParameter = serializedObject.FindProperty(nameof(ComboGestureCompiler.mmdCompatibilityToggleParameter));
@@ -437,6 +439,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
             EditorGUILayout.LabelField(CgeLocale.CGEC_Other_tweaks, EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(analogBlinkingUpperThreshold, new GUIContent(CgeLocale.CGEC_Analog_fist_blinking_threshold, CgeLocale.CGEC_AnalogFist_Popup));
+            EditorGUILayout.PropertyField(ignoreAnalogFist, new GUIContent(CgeLocale.CGEC_Ignore_analog_fist));
             EditorGUILayout.PropertyField(mmdCompatibilityToggleParameter, new GUIContent(CgeLocale.CGEC_MMD_compatibility_toggle_parameter));
             EditorGUILayout.PropertyField(eyeTrackingEnabledParameter, new GUIContent(CgeLocale.CGEC_Eye_tracking_enabled_parameter));
             EditorGUILayout.PropertyField(eyeTrackingParameterType, new GUIContent(CgeLocale.CGEC_Eye_tracking_parameter_type));

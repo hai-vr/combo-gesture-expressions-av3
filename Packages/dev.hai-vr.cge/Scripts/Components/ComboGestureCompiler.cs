@@ -56,6 +56,8 @@ namespace Hai.ComboGesture.Scripts.Components
         public EyeTrackingParameterType eyeTrackingParameterType;
 
         public CgeStrategy playableLayerStrategy;
+        
+        public bool ignoreAnalogFist;
 
         public bool WillUseGestureWeightCorrection()
         {

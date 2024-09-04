@@ -12,12 +12,14 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         private readonly ComboGestureActivity _activity;
         private readonly AnimationClip _defaultClip;
         private readonly bool _universalAnalogSupport;
+        private readonly bool _ignoreAnalogFist;
 
-        private CgeManifestFromActivity(ComboGestureActivity activity, AnimationClip defaultClip, bool universalAnalogSupport)
+        private CgeManifestFromActivity(ComboGestureActivity activity, AnimationClip defaultClip, bool universalAnalogSupport, bool ignoreAnalogFist)
         {
             _activity = activity;
             _defaultClip = defaultClip;
             _universalAnalogSupport = universalAnalogSupport;
+            _ignoreAnalogFist = ignoreAnalogFist;
         }
 
         public static CgePermutationManifest FromNothing(AnimationClip defaultClip)
@@ -28,9 +30,9 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
             return new CgePermutationManifest(poses, 0f);
         }
 
-        public static ICgeManifest FromActivity(ComboGestureActivity activity, AnimationClip defaultClip, bool universalAnalogSupport)
+        public static ICgeManifest FromActivity(ComboGestureActivity activity, AnimationClip defaultClip, bool universalAnalogSupport, bool ignoreAnalogFist)
         {
-            return new CgeManifestFromActivity(activity, defaultClip, universalAnalogSupport).Resolve();
+            return new CgeManifestFromActivity(activity, defaultClip, universalAnalogSupport, ignoreAnalogFist).Resolve();
         }
 
         private ICgeManifest Resolve()
@@ -59,6 +61,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         ICgeAnimatedBehavior MaybeDualAnalog()
         {
+            if (_ignoreAnalogFist)
+            {
+                return InterpretSingle(Otherwise(_activity.anim11, _activity.anim00));
+            }
+            
             var dualMotion = Just(_activity.anim11);
             switch (dualMotion)
             {
@@ -134,6 +141,11 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
 
         ICgeAnimatedBehavior InterpretAnalog(Motion baseMotion, Motion fistMotion, CgeHandSide handSide)
         {
+            if (_ignoreAnalogFist)
+            {
+                return InterpretSingle(Otherwise(fistMotion, baseMotion));
+            }
+            
             switch (fistMotion)
             {
                 case AnimationClip fistClip:
@@ -401,6 +413,7 @@ namespace Hai.ComboGesture.Scripts.Editor.Internal
         }
 
         private static readonly Dictionary<CgePermutation, Func<ComboGestureActivity, Motion>> PermutationLookup;
+
         static CgeManifestFromActivity() {
             PermutationLookup = new Dictionary<CgePermutation, Func<ComboGestureActivity, Motion>>
             {

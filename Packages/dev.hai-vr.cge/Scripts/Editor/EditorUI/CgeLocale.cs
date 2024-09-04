@@ -165,8 +165,9 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
         public static string CGEC_Eye_tracking_enabled_parameter => LocalizeOrElse("CGEC_Eye_tracking_enabled_parameter", CgeLocaleDefaults.CGEC_Eye_tracking_enabled_parameter);
         public static string CGEC_Eye_tracking_parameter_type => LocalizeOrElse("CGEC_Eye_tracking_parameter_type", CgeLocaleDefaults.CGEC_Eye_tracking_parameter_type);
         public static string CGEC_WarnEyeTrackingParameterType => LocalizeOrElse("CGEC_WarnEyeTrackingParameterType", CgeLocaleDefaults.CGEC_WarnEyeTrackingParameterType);
-
-
+        
+        // 3.3.0
+        internal static string CGEC_Ignore_analog_fist => LocalizeOrElse("CGEC_Ignore_analog_fist", CgeLocaleDefaults.CGEC_Ignore_analog_fist);
 
         private static string LocalizeOrElse(string key, string defaultCultureLocalization)
         {
