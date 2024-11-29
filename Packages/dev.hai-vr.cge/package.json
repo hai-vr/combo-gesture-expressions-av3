@@ -11,9 +11,9 @@
   "vpmDependencies": {
     "dev.hai-vr.animation-viewer": ">=2.0.0 <3.0.0-a",
     "dev.hai-vr.visual-expressions-editor": ">=2.0.0 <3.0.0-a",
-    "dev.hai-vr.animator-as-code.v1": ">=1.1.0 <1.2.0-a",
-    "dev.hai-vr.animator-as-code.v1.vrchat": ">=1.1.0 <1.2.0-a",
-    "dev.hai-vr.animator-as-code.v1.vrchat-destructive-workflow": ">=1.1.0 <1.2.0-a",
+    "dev.hai-vr.animator-as-code.v1": ">=1.1.0 <2.0.0-a",
+    "dev.hai-vr.animator-as-code.v1.vrchat": ">=1.1.0 <2.0.0-a",
+    "dev.hai-vr.animator-as-code.v1.vrchat-destructive-workflow": ">=1.1.0 <2.0.0-a",
     "com.vrchat.avatars": ">=3.3.0 <3.8.0-a"
   },
   "legacyFolders" : {
