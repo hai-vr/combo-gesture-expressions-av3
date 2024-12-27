@@ -60,6 +60,7 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
             _editorHandler = new CgeEditorHandler(new CgeEditorState());
             var blendTreeHandler = new CgeBlendTreeHandler();
             _common = new CgeLayoutCommon(Repaint, _renderingCommands);
+            _common.GuiInit();
             var driver = new CgeActivityEditorDriver(_editorHandler);
             _layoutPreventEyesBlinking = new CgeLayoutPreventEyesBlinking(_common, _editorHandler);
             _layoutFaceExpressionCombiner = new CgeLayoutFaceExpressionCombiner(_common, driver, _editorHandler, _renderingCommands);
@@ -73,11 +74,6 @@ namespace Hai.ComboGesture.Scripts.Editor.EditorUI
 
         private void OnInspectorUpdate()
         {
-            if (_common.MiddleAligned == null)
-            {
-                _common.GuiInit();
-            }
-            
             var active = Selection.activeGameObject;
             if (active == null) return;
 
