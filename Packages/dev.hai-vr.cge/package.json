@@ -14,7 +14,7 @@
     "dev.hai-vr.animator-as-code.v1": ">=1.1.0 <2.0.0-a",
     "dev.hai-vr.animator-as-code.v1.vrchat": ">=1.1.0 <2.0.0-a",
     "dev.hai-vr.animator-as-code.v1.vrchat-destructive-workflow": ">=1.1.0 <2.0.0-a",
-    "com.vrchat.avatars": ">=3.3.0 <3.8.0-a"
+    "com.vrchat.avatars": ">=3.3.0 <999.0.0-a"
   },
   "legacyFolders" : {
     "Assets\\Hai\\ComboGesture" : "7b35b71022ae7424496915fd06256f45"
